@@ -3,216 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Labeeb Meshel - HR Portfolio & Tools</title>
+    <title>Labeeb Meshel - HR Portfolio</title>
     <style>
         :root { --primary: #0b4fb3; --secondary: #f0f4f8; --white: #ffffff; --text: #1a2a40; --accent: #eaf2ff; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--accent); margin: 0; color: var(--text); }
-        .main-container { max-width: 1100px; margin: 30px auto; background: var(--white); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,64,160,0.15); overflow: hidden; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--accent); margin: 0; color: var(--text); line-height: 1.6; }
+        .main-container { max-width: 1150px; margin: 30px auto; background: var(--white); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,64,160,0.15); overflow: hidden; }
         
-        /* Navigation Tabs */
-        .tabs-header { display: flex; background: #f8fbff; border-bottom: 2px solid #dbe7ff; position: sticky; top: 0; z-index: 100; }
-        .tab-btn { flex: 1; padding: 20px; border: none; background: none; font-size: 1.1rem; font-weight: bold; color: #7f8c8d; cursor: pointer; transition: 0.3s; }
-        .tab-btn.active { color: var(--primary); background: var(--white); border-bottom: 4px solid var(--primary); }
-        .tab-content { display: none; padding: 40px; animation: fadeIn 0.5s ease; }
-        .tab-content.active { display: block; }
+        /* الرئيسي Tabs */
+        .main-tabs { display: flex; background: #f1f5f9; border-bottom: 2px solid #e2e8f0; }
+        .main-tab-btn { flex: 1; padding: 20px; border: none; background: none; font-size: 1.2rem; font-weight: bold; color: #64748b; cursor: pointer; transition: 0.3s; }
+        .main-tab-btn.active { color: var(--primary); background: var(--white); border-bottom: 4px solid var(--primary); }
+
+        /* الداخلي Tabs (Sub-tabs) */
+        .sub-tabs { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; background: var(--secondary); padding: 10px; border-radius: 12px; }
+        .sub-tab-btn { padding: 10px 20px; border: none; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #475569; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .sub-tab-btn.active { background: var(--primary); color: white; }
+
+        .content-area { display: none; padding: 30px; animation: fadeIn 0.4s ease; }
+        .content-area.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* CV Content Styles */
-        .lang-switch { text-align: left; margin-bottom: 25px; }
-        .btn-lang { padding: 10px 20px; cursor: pointer; border: 2px solid var(--primary); background: var(--white); color: var(--primary); border-radius: 8px; font-weight: bold; }
-        .header-box { text-align: center; margin-bottom: 40px; background: var(--secondary); padding: 30px; border-radius: 15px; }
-        .section-title { color: var(--primary); border-right: 5px solid var(--primary); padding-right: 15px; margin: 35px 0 20px; font-size: 1.6rem; }
-        .ltr-mode .section-title { border-right: none; border-left: 5px solid var(--primary); padding-right: 0; padding-left: 15px; }
+        /* CV Styles */
+        .header-info { text-align: center; margin-bottom: 30px; }
+        .header-info h1 { color: var(--primary); margin-bottom: 5px; font-size: 2.2rem; }
+        .header-info p { font-weight: 600; color: #64748b; }
         
-        .card { background: #fff; border: 1px solid #edf2f7; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-        .card h3 { margin: 0; color: var(--primary); font-size: 1.3rem; }
-        .card .sub-info { display: block; margin: 10px 0; font-weight: bold; color: #555; }
-        .card ul { margin: 15px 0 0; padding-right: 20px; color: #444; }
-        .ltr-mode .card ul { padding-right: 0; padding-left: 20px; }
+        .cv-card { background: #fff; border-right: 4px solid var(--primary); padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; border-right-width: 5px; }
+        .cv-card h3 { margin: 0 0 10px; color: #1e293b; }
+        .cv-card .date { color: var(--primary); font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; display: block; }
+        .cv-card ul { padding-right: 20px; }
         
-        .skills-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .skill-tag { background: var(--accent); color: var(--primary); padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; border: 1px solid #dbe7ff; }
-
         /* Calculator Styles */
-        .calc-wrapper { max-width: 850px; margin: auto; }
-        .input-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
-        input { padding: 15px; border: 1px solid #c9d8f0; border-radius: 10px; flex: 1; min-width: 200px; font-size: 1rem; }
-        .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1rem; margin-top: 10px; }
-        .btn-sub { background: #555; margin-top: 10px; }
+        .calc-grid { max-width: 800px; margin: auto; }
+        .input-box { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        input { padding: 14px; border: 1px solid #cbd5e1; border-radius: 10px; flex: 1; min-width: 250px; }
+        .btn-act { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; margin-top: 25px; display: block; overflow-x: auto; }
-        th, td { border: 1px solid #dbe7ff; padding: 15px; text-align: center; }
+        th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: center; }
         th { background: var(--primary); color: white; }
-        
-        .signature { margin-top: 50px; padding-top: 25px; border-top: 2px solid var(--accent); text-align: center; }
-        .btn-linktree { display: inline-block; background: #28a745; color: white; text-decoration: none; padding: 12px 25px; border-radius: 50px; font-weight: bold; margin-top: 15px; }
+
+        .signature { margin-top: 40px; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+        .linktree-btn { display: inline-block; background: #28a745; color: white; text-decoration: none; padding: 10px 25px; border-radius: 50px; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="main-container">
-    <div class="tabs-header">
-        <button id="t1" class="tab-btn active" onclick="openTab(event, 'cv-tab')">السيرة الذاتية (CV)</button>
-        <button id="t2" class="tab-btn" onclick="openTab(event, 'calc-tab')">حاسبة الـ Payroll</button>
+    <div class="main-tabs">
+        <button class="main-tab-btn active" onclick="switchMainTab(event, 'cv-section')">السيرة الذاتية التفصيلية</button>
+        <button class="main-tab-btn" onclick="switchMainTab(event, 'calc-section')">حاسبة الـ Payroll</button>
     </div>
 
-    <div id="cv-tab" class="tab-content active">
-        <div class="lang-switch">
-            <button class="btn-lang" onclick="toggleLang()">English / عربي</button>
+    <div id="cv-section" class="content-area active">
+        <div class="header-info">
+            <h1>لبيب ميشيل لبيب</h1>
+            <p>HR Section Head | Trainer | Payroll & Income Tax Expert</p>
         </div>
-        <div id="cv-body"></div>
+
+        <div class="sub-tabs">
+            <button class="sub-tab-btn active" onclick="switchSubTab(event, 'summary')">الملخص المهني</button>
+            <button class="sub-tab-btn" onclick="switchSubTab(event, 'experience')">الخبرة العملية</button>
+            <button class="sub-tab-btn" onclick="switchSubTab(event, 'training')">التدريب والاستشارات</button>
+            <button class="sub-tab-btn" onclick="switchSubTab(event, 'achievements')">الإنجازات واللقاءات</button>
+        </div>
+
+        <div id="summary" class="sub-tab-content">
+            <div class="cv-card">
+                <h3>ملخص المسار المهني (Career Summary)</h3>
+                <p>قائد موارد بشرية بخبرة تزيد عن 13 عاماً في تحويل العمليات الإدارية والثقافة التنظيمية. خبير في هندسة نظم الرواتب الدقيقة وإدارة الامتثال لقوانين العمل والضرائب بنسبة مخاطرة تكاد تكون معدومة.</p>
+                <ul>
+                    <li>إدارة دورات التحول الكامل لأقسام الموارد البشرية.</li>
+                    <li>الإشراف على رواتب مليونية (EGP & EURO) بدقة 100%.</li>
+                    <li>تصميم نظم الأداء وربط التعويضات بمخرجات العمل الحقيقية.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="experience" class="sub-tab-content" style="display:none;">
+            <div class="cv-card">
+                <span class="date">يونيو 2022 - الحالي</span>
+                <h3>رئيس قسم الموارد البشرية - جامعة هليوبوليس</h3>
+                <ul>
+                    <li>المسؤول الأول عن عمليات التوظيف، الرواتب، التأمينات، والـ HRIS.</li>
+                    <li>تنفيذ وتطوير نظام ERP NEXT لربط شؤون العاملين بالمالية.</li>
+                    <li>صياغة السياسات الداخلية وهياكل الأجور (Salary Scale).</li>
+                </ul>
+            </div>
+            <div class="cv-card">
+                <span class="date">يناير 2019 - مايو 2022</span>
+                <h3>رئيس قسم الأفراد - شركة النور للتوريدات</h3>
+                <ul>
+                    <li>تحقيق استقرار وظيفي بنسبة تتخطى 80%.</li>
+                    <li>إدارة التخطيط للقوى العاملة وتدريب فرق العمل.</li>
+                </ul>
+            </div>
+            <div class="cv-card">
+                <span class="date">سبتمبر 2016 - سبتمبر 2018</span>
+                <h3>مسؤول موارد بشرية - EXPO Group</h3>
+                <ul>
+                    <li>إعداد الرواتب من الألف إلى الياء وعمل التحول الرقمي للمجموعة.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="training" class="sub-tab-content" style="display:none;">
+            <div class="cv-card">
+                <h3>الخبرة التدريبية والتعليمية</h3>
+                <ul>
+                    <li>محاضر بمعهد ليدز الدولي (Leeds International College) لطلاب الماجستير والدكتوراه.</li>
+                    <li>تدريب أكثر من 8000 متدرب في مجالات (Personnel, Payroll, Income Tax, Soft Skills).</li>
+                    <li>تقديم أكثر من 100 فيديو تعليمي مجاني عبر أكاديمية Managopia.</li>
+                    <li>تدريب فرق الموارد البشرية في شركات كبرى (فالكون، النصر للمواسير، مدارس السلام).</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="achievements" class="sub-tab-content" style="display:none;">
+            <div class="cv-card">
+                <h3>اللقاءات التلفزيونية والبودكاست</h3>
+                <ul>
+                    <li>ضيف برنامج "نهار جديد" (قناة مصر الزراعية) مرتين لمناقشة استراتيجيات التعامل مع العمالة.</li>
+                    <li>ضيف خبير في بودكاست "Haya Academy" و "Inspira Podcast".</li>
+                </ul>
+            </div>
+            <div class="cv-card">
+                <h3>إنجازات تقنية</h3>
+                <ul>
+                    <li>رقمنة تقييم الأداء وتقليل وقت المعالجة بنسبة 60%.</li>
+                    <li>تقليل وقت استرجاع الوثائق بنسبة 65% من خلال نظام الأرشفة الرقمية.</li>
+                </ul>
+            </div>
+        </div>
     </div>
 
-    <div id="calc-tab" class="tab-content">
-        <div class="calc-wrapper">
+    <div id="calc-section" class="content-area">
+        <div class="calc-grid">
             <h2 style="text-align:center;">حاسبة كسب العمل الذكية</h2>
-            <div class="input-row">
+            <div class="input-box">
                 <input id="salary" type="number" placeholder="أدخل الراتب الشامل">
                 <input id="netInput" type="number" placeholder="أدخل الصافي المطلوب">
             </div>
-            <div class="input-row">
+            <div class="input-box">
                 <input id="allowances" type="number" placeholder="أدخل البدلات الحقيقية">
             </div>
-            <div style="text-align:center; margin: 15px 0;">
-                <input id="specialNeeds" type="checkbox" style="width:20px; height:20px; vertical-align: middle;">
-                <label style="font-weight:bold; margin-right:8px;">إعفاء ذوي الهمم (50%)</label>
+            <div style="text-align:center;">
+                <input id="specialNeeds" type="checkbox" style="width:20px;height:20px;">
+                <label>إعفاء ذوي الهمم (50%)</label>
             </div>
-            <button class="btn-main" onclick="runCalc('gross')">احسب من الإجمالي (Gross to Net)</button>
-            <button class="btn-main btn-sub" onclick="runCalc('net')">احسب من الصافي (Net to Gross)</button>
+            <button class="btn-act" onclick="runCalc('gross')">احسب من الإجمالي (Gross to Net)</button>
+            <button class="btn-act" onclick="runCalc('net')" style="background:#475569">احسب من الصافي (Net to Gross)</button>
 
             <table>
                 <thead>
                     <tr>
-                        <th>إجمالي المستحق</th><th>البدلات المعفاة</th><th>الأجر التأميني</th><th>تأمينات (11%)</th><th>الضريبة</th><th>الصافي النهائي</th>
+                        <th>الشامل</th><th>البدلات المعفاة</th><th>التأميني</th><th>تأمينات 11%</th><th>الضريبة</th><th>الصافي</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td id="os">-</td><td id="oa">-</td><td id="oi">-</td><td id="ov">-</td><td id="ot">-</td><td id="on">-</td>
-                    </tr>
+                    <tr><td id="rs">-</td><td id="ra">-</td><td id="ri">-</td><td id="rv">-</td><td id="rt">-</td><td id="rn">-</td></tr>
                 </tbody>
             </table>
 
             <div class="signature">
                 <p><strong>إعداد وتنفيذ / لبيب ميشيل</strong></p>
                 <p>إستشاري شئون العاملين والمرتبات</p>
-                <a href="https://linktr.ee/labeebmeshel" class="btn-linktree" target="_blank">تواصل معي (Linktree)</a>
+                <a href="https://linktr.ee/labeebmeshel" class="linktree-btn" target="_blank">تواصل معي (Linktree)</a>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    let currentLang = 'ar';
-    const data = {
-        ar: {
-            name: "لبيب ميشيل لبيب",
-            title: "رئيس قسم الموارد البشرية | خبير أجور وضرائب",
-            summary: "أكثر من 13 عاماً من الخبرة في تحويل عمليات الموارد البشرية. خبير في قوانين العمل والتأمينات والضرائب المصرية.",
-            secExp: "الخبرة العملية الشاملة",
-            secEdu: "التعليم والشهادات",
-            secSkills: "المهارات الجوهرية",
-            exp: [
-                {
-                    pos: "رئيس قسم الموارد البشرية (Section Head)",
-                    org: "جامعة هليوبوليس للتنمية المستدامة",
-                    date: "يونيو 2022 - الحالي",
-                    desc: ["إدارة منظومة الأجور والـ Payroll بدقة 100%.", "تطوير وتنفيذ نظام ERP NEXT لشؤون العاملين.", "صياغة السياسات الداخلية وهياكل الأجور والبدلات."]
-                },
-                {
-                    pos: "أخصائي شؤون عاملين أول",
-                    org: "شركة ألوستيل (Alusteel)",
-                    date: "يونيو 2014 - مايو 2016",
-                    desc: ["إدارة التوظيف والمقابلات والتعاقدات.", "إعداد تقارير الرواتب الشهرية والتعامل مع الجهات الحكومية."]
-                }
-            ],
-            skills: ["قانون التأمينات 148", "ضريبة كسب العمل", "هيكلة الأجور والمزايا", "التحليل المالي للمرتبات", "إدارة HRIS", "التدريب والتطوير"],
-            edu: ["بكالوريوس تجارة - جامعة عين شمس (تقدير جيد جداً)", "ورشة عمل ضرائب الدخل (Mckinsey Academy)", "خبير قوانين التأمينات الاجتماعية (HU Academy)"]
-        },
-        en: {
-            name: "Labeeb Meshel Labeeb",
-            title: "HR Section Head | Payroll & Tax Expert",
-            summary: "13+ Years Transforming HR Operations. Expert in Egyptian Labor, Insurance, and Tax Laws.",
-            secExp: "Professional Experience",
-            secEdu: "Education & Certificates",
-            secSkills: "Core Skills",
-            exp: [
-                {
-                    pos: "HR Section Head",
-                    org: "Heliopolis University",
-                    date: "June 2022 - Present",
-                    desc: ["Managing end-to-end payroll with 100% accuracy.", "Leading ERP NEXT implementation for HR functions.", "Designing salary scales and internal HR policies."]
-                },
-                {
-                    pos: "Personnel Specialist",
-                    org: "Alusteel (Trading & Engineering)",
-                    date: "June 2014 - May 2016",
-                    desc: ["Managing recruitment, hiring, and contracts.", "Preparing monthly payroll and government reports."]
-                }
-            ],
-            skills: ["Insurance Law 148", "Income Tax Expert", "Payroll Structuring", "Compensation & Benefits", "HRIS Management", "Corporate Training"],
-            edu: ["B.A. in Commerce - Ain Shams University", "Income Tax Workshop (Mckinsey Academy)", "Social Insurance Specialist (HU Academy)"]
-        }
-    };
-
-    function renderCV() {
-        const d = data[currentLang];
-        document.body.className = currentLang === 'en' ? 'ltr-mode' : '';
-        document.body.dir = currentLang === 'en' ? 'ltr' : 'rtl';
-        document.getElementById('t1').innerText = currentLang === 'ar' ? 'السيرة الذاتية' : 'Curriculum Vitae';
-        document.getElementById('t2').innerText = currentLang === 'ar' ? 'حاسبة الـ Payroll' : 'Payroll Calculator';
-        
-        let html = `
-            <div class="header-box">
-                <h1>${d.name}</h1>
-                <p><strong>${d.title}</strong></p>
-                <p style="margin-top:15px; line-height:1.8;">${d.summary}</p>
-            </div>
-            <h2 class="section-title">${d.secExp}</h2>
-            ${d.exp.map(e => `
-                <div class="card">
-                    <h3>${e.pos}</h3>
-                    <span class="sub-info">${e.org} | ${e.date}</span>
-                    <ul>${e.desc.map(li => `<li>${li}</li>`).join('')}</ul>
-                </div>
-            `).join('')}
-            <h2 class="section-title">${d.secSkills}</h2>
-            <div class="skills-container">${d.skills.map(s => `<div class="skill-tag">${s}</div>`).join('')}</div>
-            <h2 class="section-title">${d.secEdu}</h2>
-            <div class="skills-container">${d.edu.map(ed => `<div class="skill-tag" style="background:#eee; color:#333;">${ed}</div>`).join('')}</div>
-        `;
-        document.getElementById('cv-body').innerHTML = html;
-        document.querySelector('.btn-lang').innerText = currentLang === 'ar' ? 'Switch to English' : 'التحويل للعربية';
-    }
-
-    function toggleLang() { currentLang = (currentLang === 'ar' ? 'en' : 'ar'); renderCV(); }
-    function openTab(evt, name) {
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(name).classList.add('active');
+    // تبديل التبويبات الرئيسية
+    function switchMainTab(evt, tabId) {
+        document.querySelectorAll('.content-area').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.main-tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
         evt.currentTarget.classList.add('active');
     }
 
-    // --- Calculator Logic ---
-    function getTax(inc) {
+    // تبديل التبويبات الفرعية في السيرة الذاتية
+    function switchSubTab(evt, subId) {
+        document.querySelectorAll('.sub-tab-content').forEach(c => c.style.display = 'none');
+        document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(subId).style.display = 'block';
+        evt.currentTarget.classList.add('active');
+    }
+
+    // منطق الحاسبة
+    function tax(inc) {
         if(inc <= 40000) return 0;
-        if(inc <= 55000) return (inc - 40000) * 0.10;
+        if(inc <= 55000) return (inc - 40000) * 0.1;
         if(inc <= 70000) return (inc - 55000) * 0.15 + 1500;
-        if(inc <= 200000) return (inc - 70000) * 0.20 + 3750;
+        if(inc <= 200000) return (inc - 70000) * 0.2 + 3750;
         if(inc <= 400000) return (inc - 200000) * 0.225 + 29750;
         return (inc - 400000) * 0.25 + 74750;
     }
 
     function calcAll(gross) {
-        const allowInput = Number(document.getElementById('allowances').value || 0);
-        let insBase = gross / 1.30;
-        if(insBase < 2700) insBase = 2700; if(insBase > 16700) insBase = 16700;
-        let finalAllow = allowInput > (gross - insBase) ? (gross - insBase) : allowInput;
-        let finalInsBase = gross - finalAllow;
-        const insVal = finalInsBase * 0.11;
+        const allowIn = Number(document.getElementById('allowances').value || 0);
+        let insB = gross / 1.30;
+        if(insB < 2700) insB = 2700; if(insB > 16700) insB = 16700;
+        let finalA = allowIn > (gross - insB) ? (gross - insB) : allowIn;
+        let finalIns = gross - finalA;
+        const insV = finalIns * 0.11;
         const exemp = document.getElementById('specialNeeds').checked ? 30000 : 20000;
-        const taxable = Math.max(0, (gross - insVal) * 12 - exemp);
-        const mTax = getTax(taxable) / 12;
-        return { gross, finalAllow, finalInsBase, insVal, mTax, net: (gross - insVal - mTax) };
+        const taxable = Math.max(0, (gross - insV) * 12 - exemp);
+        const mTax = tax(taxable) / 12;
+        return { gross, finalA, finalIns, insV, mTax, net: (gross - insV - mTax) };
     }
 
     function runCalc(mode) {
@@ -226,15 +224,13 @@
             }
             res = calcAll(mid); document.getElementById('salary').value = mid.toFixed(2);
         }
-        document.getElementById('os').innerText = res.gross.toFixed(2);
-        document.getElementById('oa').innerText = res.finalAllow.toFixed(2);
-        document.getElementById('oi').innerText = res.finalInsBase.toFixed(2);
-        document.getElementById('ov').innerText = res.insVal.toFixed(2);
-        document.getElementById('ot').innerText = res.mTax.toFixed(2);
-        document.getElementById('on').innerText = res.net.toFixed(2);
+        document.getElementById('rs').innerText = res.gross.toFixed(2);
+        document.getElementById('ra').innerText = res.finalA.toFixed(2);
+        document.getElementById('ri').innerText = res.finalIns.toFixed(2);
+        document.getElementById('rv').innerText = res.insV.toFixed(2);
+        document.getElementById('rt').innerText = res.mTax.toFixed(2);
+        document.getElementById('rn').innerText = res.net.toFixed(2);
     }
-
-    renderCV();
 </script>
 </body>
 </html>
