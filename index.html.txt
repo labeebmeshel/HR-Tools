@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Tool - Professional Portfolio</title>
+    <style>
+        :root {
+            --primary: #0b4fb3;
+            --secondary: #f0f4f8;
+            --white: #ffffff;
+            --text: #1a2a40;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eaf2ff;
+            margin: 0;
+            color: var(--text);
+        }
+        /* تصميم الـ Tabs */
+        .tabs-container {
+            max-width: 1000px;
+            margin: 30px auto;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,64,160,0.1);
+            overflow: hidden;
+        }
+        .tabs-header {
+            display: flex;
+            background: #f8fbff;
+            border-bottom: 1px solid #dbe7ff;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 20px;
+            border: none;
+            background: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #7f8c8d;
+            cursor: pointer;
+            transition: 0.3s;
+            outline: none;
+        }
+        .tab-btn.active {
+            color: var(--primary);
+            background: var(--white);
+            border-bottom: 3px solid var(--primary);
+        }
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* تنسيقات الـ CV */
+        h2 { color: var(--primary); border-right: 4px solid var(--primary); padding-right: 15px; }
+        .experience-item { margin-bottom: 25px; }
+        .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+        .skill { background: var(--secondary); padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; }
+
+        /* تنسيقات الحاسبة */
+        .input-group { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+        input { padding: 12px; border: 1px solid #c9d8f0; border-radius: 10px; flex: 1; min-width: 250px; }
+        button { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; display: block; overflow-x: auto; }
+        th, td { border: 1px solid #dbe7ff; padding: 15px; text-align: center; }
+        th { background: var(--primary); color: white; }
+
+        .footer { text-align: center; padding: 20px; color: #7f8c8d; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<div class="tabs-container">
+    <div class="tabs-header">
+        <button class="tab-btn active" onclick="openTab(event, 'cv')">السيرة الذاتية</button>
+        <button class="tab-btn" onclick="openTab(event, 'calc')">حاسبة الضرائب</button>
+    </div>
+
+    <div id="cv" class="tab-content active">
+        <h2>الخبرات المهنية</h2>
+        <div class="experience-item">
+            <h3>إستشاري شئون عاملين و Payroll</h3>
+            <p>جامعة هليوبوليس للتنمية المستدامة | 2026 - الحالي</p>
+            <ul>
+                <li>إدارة منظومة الأجور والتأمينات الاجتماعية لأكثر من 500 موظف.</li>
+                <li>تطوير نماذج إلكترونية لحساب ضريبة كسب العمل والبدلات المعفاة.</li>
+                <li>التعامل مع التسويات الضريبية السنوية والقوانين المستحدثة.</li>
+            </ul>
+        </div>
+
+        <h2>المهارات الأساسية</h2>
+        <div class="skills-grid">
+            <div class="skill">قانون التأمينات 148</div>
+            <div class="skill">حسابات الـ Payroll</div>
+            <div class="skill">Advanced Excel</div>
+            <div class="skill">قانون العمل المصري</div>
+        </div>
+    </div>
+
+    <div id="calc" class="tab-content">
+        <h2 style="border:none; text-align:center;">حاسبة كسب العمل والـ Payroll</h2>
+        <div class="input-group">
+            <input id="salary" type="number" placeholder="إجمالي الراتب الشامل">
+            <input id="allowances" type="number" placeholder="البدلات الحقيقية (إن وجدت)">
+        </div>
+        <div style="text-align: center;">
+            <button onclick="calculate()">احسب الآن</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>إجمالي المستحق</th>
+                    <th>البدلات المعفاة</th>
+                    <th>الأجر التأميني</th>
+                    <th>تأمينات (11%)</th>
+                    <th>الضريبة الشهرية</th>
+                    <th>الصافي النهائي</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="resGross">-</td>
+                    <td id="resAllow">-</td>
+                    <td id="resInsBase">-</td>
+                    <td id="resInsVal">-</td>
+                    <td id="resTax">-</td>
+                    <td id="resNet">-</td>
+                </tr>
+            </tbody>
+        </table>
+        <p id="msg" style="text-align:center; color:var(--primary); font-weight:bold; margin-top:15px;"></p>
+    </div>
+
+    <div class="footer">
+        © 2026 HR Tool - جميع الحقوق محفوظة
+    </div>
+</div>
+
+<script>
+    // التنقل بين التبويبات
+    function openTab(evt, tabName) {
+        let i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) { tabcontent[i].style.display = "none"; tabcontent[i].classList.remove("active"); }
+        tablinks = document.getElementsByClassName("tab-btn");
+        for (i = 0; i < tablinks.length; i++) { tablinks[i].classList.remove("active"); }
+        document.getElementById(tabName).style.display = "block";
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+
+    // منطق الحسابات
+    function tax(income) {
+        if(income <= 40000) return 0;
+        if(income <= 55000) return (income - 40000) * 0.10;
+        if(income <= 70000) return (income - 55000) * 0.15 + 1500;
+        if(income <= 200000) return (income - 70000) * 0.20 + 3750;
+        if(income <= 400000) return (income - 200000) * 0.225 + 29750;
+        return (income - 400000) * 0.25 + 74750;
+    }
+
+    function calculate() {
+        const total = Number(document.getElementById('salary').value || 0);
+        const realAllow = Number(document.getElementById('allowances').value || 0);
+        
+        let theoreticalInsBase = total / 1.30;
+        let maxLegalAllow = total - theoreticalInsBase;
+        
+        let finalAllow = realAllow > maxLegalAllow ? maxLegalAllow : realAllow;
+        let finalInsBase = total - finalAllow;
+
+        if(finalInsBase < 2700) finalInsBase = 2700;
+        if(finalInsBase > 16700) finalInsBase = 16700;
+
+        const insVal = finalInsBase * 0.11;
+        const taxableIncome = Math.max(0, (total - insVal) * 12 - 20000);
+        const monthlyTax = tax(taxableIncome) / 12;
+        const net = total - insVal - monthlyTax;
+
+        document.getElementById('resGross').textContent = total.toFixed(2);
+        document.getElementById('resAllow').textContent = finalAllow.toFixed(2);
+        document.getElementById('resInsBase').textContent = finalInsBase.toFixed(2);
+        document.getElementById('resInsVal').textContent = insVal.toFixed(2);
+        document.getElementById('resTax').textContent = monthlyTax.toFixed(2);
+        document.getElementById('resNet').textContent = net.toFixed(2);
+        document.getElementById('msg').textContent = realAllow > maxLegalAllow ? "ملاحظة: تم تطبيق حد الإعفاء القانوني للبدلات (30%)" : "تم الحساب بناءً على البدلات الحقيقية";
+    }
+</script>
+
+</body>
+</html>
