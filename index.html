@@ -3,47 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Labeeb Meshel - HR Portfolio</title>
+    <title>Labeeb Meshel - Professional Portfolio</title>
     <style>
         :root { --primary: #0b4fb3; --secondary: #f0f4f8; --white: #ffffff; --text: #1a2a40; --accent: #eaf2ff; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--accent); margin: 0; color: var(--text); line-height: 1.6; }
-        .main-container { max-width: 1150px; margin: 30px auto; background: var(--white); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,64,160,0.15); overflow: hidden; }
+        .main-container { max-width: 1100px; margin: 30px auto; background: var(--white); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,64,160,0.15); overflow: hidden; }
         
         /* الرئيسي Tabs */
-        .main-tabs { display: flex; background: #f1f5f9; border-bottom: 2px solid #e2e8f0; }
-        .main-tab-btn { flex: 1; padding: 20px; border: none; background: none; font-size: 1.2rem; font-weight: bold; color: #64748b; cursor: pointer; transition: 0.3s; }
+        .main-tabs { display: flex; background: #f1f5f9; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
+        .main-tab-btn { flex: 1; padding: 20px; border: none; background: none; font-size: 1.1rem; font-weight: bold; color: #64748b; cursor: pointer; transition: 0.3s; }
         .main-tab-btn.active { color: var(--primary); background: var(--white); border-bottom: 4px solid var(--primary); }
 
         /* الداخلي Tabs (Sub-tabs) */
-        .sub-tabs { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; background: var(--secondary); padding: 10px; border-radius: 12px; }
-        .sub-tab-btn { padding: 10px 20px; border: none; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #475569; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .sub-tabs { display: flex; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; background: var(--secondary); padding: 10px; border-radius: 12px; }
+        .sub-tab-btn { padding: 10px 15px; border: none; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #475569; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex: 1; min-width: 120px; }
         .sub-tab-btn.active { background: var(--primary); color: white; }
 
         .content-area { display: none; padding: 30px; animation: fadeIn 0.4s ease; }
         .content-area.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* CV Styles */
-        .header-info { text-align: center; margin-bottom: 30px; }
-        .header-info h1 { color: var(--primary); margin-bottom: 5px; font-size: 2.2rem; }
-        .header-info p { font-weight: 600; color: #64748b; }
-        
-        .cv-card { background: #fff; border-right: 4px solid var(--primary); padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; border-right-width: 5px; }
-        .cv-card h3 { margin: 0 0 10px; color: #1e293b; }
-        .cv-card .date { color: var(--primary); font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; display: block; }
-        .cv-card ul { padding-right: 20px; }
-        
+        /* Profile Header */
+        .profile-header { text-align: center; padding: 20px; }
+        .profile-header img { width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--primary); object-fit: cover; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .profile-header h1 { margin: 0; color: var(--primary); }
+
+        /* CV Card Style */
+        .cv-card { background: #fff; border-right: 5px solid var(--primary); padding: 25px; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; border-right-width: 6px; }
+        .cv-card h3 { color: var(--primary); margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .cv-image { width: 100%; max-width: 600px; border-radius: 10px; margin-top: 15px; display: block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .image-gallery { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+        .image-gallery img { width: calc(50% - 5px); border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+
         /* Calculator Styles */
-        .calc-grid { max-width: 800px; margin: auto; }
+        .calc-wrapper { max-width: 800px; margin: auto; }
         .input-box { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
         input { padding: 14px; border: 1px solid #cbd5e1; border-radius: 10px; flex: 1; min-width: 250px; }
-        .btn-act { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        .btn-act { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; font-size: 1rem; }
         table { width: 100%; border-collapse: collapse; margin-top: 25px; display: block; overflow-x: auto; }
         th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: center; }
         th { background: var(--primary); color: white; }
 
-        .signature { margin-top: 40px; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px; }
-        .linktree-btn { display: inline-block; background: #28a745; color: white; text-decoration: none; padding: 10px 25px; border-radius: 50px; font-weight: bold; margin-top: 10px; }
+        .signature { margin-top: 50px; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px; line-height: 1.8;}
+        .linktree-btn { display: inline-block; background: #28a745; color: white; text-decoration: none; padding: 12px 30px; border-radius: 50px; font-weight: bold; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -55,90 +57,127 @@
     </div>
 
     <div id="cv-section" class="content-area active">
-        <div class="header-info">
+        <div class="profile-header">
+            <img src="me.png" alt="Labeeb Meshel">
             <h1>لبيب ميشيل لبيب</h1>
             <p>HR Section Head | Trainer | Payroll & Income Tax Expert</p>
         </div>
 
         <div class="sub-tabs">
             <button class="sub-tab-btn active" onclick="switchSubTab(event, 'summary')">الملخص المهني</button>
-            <button class="sub-tab-btn" onclick="switchSubTab(event, 'experience')">الخبرة العملية</button>
-            <button class="sub-tab-btn" onclick="switchSubTab(event, 'training')">التدريب والاستشارات</button>
-            <button class="sub-tab-btn" onclick="switchSubTab(event, 'achievements')">الإنجازات واللقاءات</button>
+            <button class="sub-tab-btn" onclick="switchSubTab(event, 'education')">التعليم</button>
+            <button class="sub-tab-btn" onclick="switchSubTab(event, 'achievements')">الإنجازات</button>
+            <button class="sub-tab-btn" onclick="switchSubTab(event, 'training')">الخبرة التدريبية</button>
+            <button class="sub-tab-btn" onclick="switchSubTab(event, 'media')">اللقاءات الإعلامية</button>
         </div>
 
         <div id="summary" class="sub-tab-content">
             <div class="cv-card">
-                <h3>ملخص المسار المهني (Career Summary)</h3>
-                <p>قائد موارد بشرية بخبرة تزيد عن 13 عاماً في تحويل العمليات الإدارية والثقافة التنظيمية. خبير في هندسة نظم الرواتب الدقيقة وإدارة الامتثال لقوانين العمل والضرائب بنسبة مخاطرة تكاد تكون معدومة.</p>
+                <h3>CAREER SUMARRY</h3>
+                <p><strong>HR Leader | Performance & People Development (13+ Years Transforming HR Operations & Organizational Culture)</strong></p>
+                <p><strong>Core Leadership Value:</strong> I believe as Douglas Conant taught – “To win in the marketplace, you must first win in the workplace.” This drives my human-centric approach to HR leadership.</p>
+                
+                <p><strong>Strategic HR Management:</strong></p>
                 <ul>
-                    <li>إدارة دورات التحول الكامل لأقسام الموارد البشرية.</li>
-                    <li>الإشراف على رواتب مليونية (EGP & EURO) بدقة 100%.</li>
-                    <li>تصميم نظم الأداء وربط التعويضات بمخرجات العمل الحقيقية.</li>
+                    <li>✓ Led HR departments through full transformation cycles (3 years as HR Section Head)</li>
+                    <li>✓ Engineered precision payroll systems (7+ years supervising 100% accurate million EGP and EURO payrolls)</li>
+                    <li>✓ Designed performance systems linking compensation to measurable business outcomes</li>
+                    <li>✓ Architected labor law compliance frameworks reducing legal risks by 90%</li>
                 </ul>
+
+                <p><strong>Talent Development Excellence:</strong></p>
+                <ul>
+                    <li>► Personnel, Payroll and salaries tax Trainer (8+ years developing 700+ professionals)</li>
+                    <li>► HRM and Organizational Behavior Trainer at Leeds International College</li>
+                    <li>► Soft Skills Trainer (8 years developing 500+ professionals)</li>
+                    <li>► Created quarterly talent analytics dashboards influencing C-suite decisions</li>
+                </ul>
+
+                <p><strong>Operational Command:</strong></p>
+                <ul>
+                    <li>► Streamlined HR daily operations achieving 30% efficiency gains</li>
+                    <li>► Built high-morale teams through servant leadership practices</li>
+                    <li>► Championed digital archiving systems reducing document retrieval time by 65%</li>
+                </ul>
+                <p><em>Ready to leverage this multifaceted experience to elevate your HR function from transactional to transformational - because companies don't outperform, people do.</em></p>
             </div>
         </div>
 
-        <div id="experience" class="sub-tab-content" style="display:none;">
+        <div id="education" class="sub-tab-content" style="display:none;">
             <div class="cv-card">
-                <span class="date">يونيو 2022 - الحالي</span>
-                <h3>رئيس قسم الموارد البشرية - جامعة هليوبوليس</h3>
+                <h3>EDUCATION</h3>
                 <ul>
-                    <li>المسؤول الأول عن عمليات التوظيف، الرواتب، التأمينات، والـ HRIS.</li>
-                    <li>تنفيذ وتطوير نظام ERP NEXT لربط شؤون العاملين بالمالية.</li>
-                    <li>صياغة السياسات الداخلية وهياكل الأجور (Salary Scale).</li>
+                    <li>Ø Ain Shams University, Bachelor of commerce, In June 2012 (Grade: Very Good).</li>
+                    <li>Ø Studied English at (AXON).</li>
+                    <li>Ø Income tax workshop (Mckinsey Academy).</li>
+                    <li>Ø Social Insurance Law 148 for 2019 (HU Academy).</li>
+                    <li>Ø Medical Insurance Law (HU Academy).</li>
                 </ul>
+                <p><strong>Self-education:</strong> I rely on self-education because it gives me more efficiency than the courses.</p>
             </div>
+        </div>
+
+        <div id="achievements" class="sub-tab-content" style="display:none;">
             <div class="cv-card">
-                <span class="date">يناير 2019 - مايو 2022</span>
-                <h3>رئيس قسم الأفراد - شركة النور للتوريدات</h3>
+                <h3>WORK EXPERINCE SUMARRY & ACHIEVEMENTS</h3>
+                <p>I have experience in 3 categories of the labor market: Consulting, Training (8000+ trainees), and Full-time work across various industries (Universities, Distribution, Manufacturing, etc.)</p>
                 <ul>
-                    <li>تحقيق استقرار وظيفي بنسبة تتخطى 80%.</li>
-                    <li>إدارة التخطيط للقوى العاملة وتدريب فرق العمل.</li>
-                </ul>
-            </div>
-            <div class="cv-card">
-                <span class="date">سبتمبر 2016 - سبتمبر 2018</span>
-                <h3>مسؤول موارد بشرية - EXPO Group</h3>
-                <ul>
-                    <li>إعداد الرواتب من الألف إلى الياء وعمل التحول الرقمي للمجموعة.</li>
+                    <li><strong>Performance Management & ERP (Heliopolis University):</strong> Redesigned performance system (60% faster) and led ERP NEXT implementation (99.8% accuracy).</li>
+                    <li><strong>El Nour Company:</strong> Achieved employment stability rate exceeding 80%.</li>
+                    <li><strong>EXPO GROUP:</strong> Led digital transformation and salary bank transfers.</li>
+                    <li><strong>MANAGOPIA:</strong> Provided 100+ free educational videos.</li>
                 </ul>
             </div>
         </div>
 
         <div id="training" class="sub-tab-content" style="display:none;">
             <div class="cv-card">
-                <h3>الخبرة التدريبية والتعليمية</h3>
-                <ul>
-                    <li>محاضر بمعهد ليدز الدولي (Leeds International College) لطلاب الماجستير والدكتوراه.</li>
-                    <li>تدريب أكثر من 8000 متدرب في مجالات (Personnel, Payroll, Income Tax, Soft Skills).</li>
-                    <li>تقديم أكثر من 100 فيديو تعليمي مجاني عبر أكاديمية Managopia.</li>
-                    <li>تدريب فرق الموارد البشرية في شركات كبرى (فالكون، النصر للمواسير، مدارس السلام).</li>
-                </ul>
+                <h3>HRM & Organizational Behavior Trainer</h3>
+                <p>Leeds International College (Master's and doctoral students).</p>
+                <img src="Leeds.png" class="cv-image" alt="Leeds Training">
+            </div>
+            <div class="cv-card">
+                <h3>Falcon Security Services Training</h3>
+                <p>In 2024, trained the HR team on labor law and social insurance practices. (3,700+ trainees total in 2024).</p>
+                <img src="Praxi.jpg" class="cv-image" alt="Falcon Training">
+            </div>
+            <div class="cv-card">
+                <h3>Managopia Academy & Institutions</h3>
+                <p>Trained 1,600+ trainees at Managopia. Also trained HR teams at Al-Salam School and El-Nasr Company.</p>
+                <img src="Gopia.jpg" class="cv-image" alt="Managopia Training">
+            </div>
+            <div class="cv-card">
+                <h3>Career Keepers Academy</h3>
+                <p>Training groups on Personnel skills, salaries, and income tax.</p>
+                <img src="Career.jpg" class="cv-image" alt="Career Keepers">
             </div>
         </div>
 
-        <div id="achievements" class="sub-tab-content" style="display:none;">
+        <div id="media" class="sub-tab-content" style="display:none;">
             <div class="cv-card">
-                <h3>اللقاءات التلفزيونية والبودكاست</h3>
-                <ul>
-                    <li>ضيف برنامج "نهار جديد" (قناة مصر الزراعية) مرتين لمناقشة استراتيجيات التعامل مع العمالة.</li>
-                    <li>ضيف خبير في بودكاست "Haya Academy" و "Inspira Podcast".</li>
-                </ul>
+                <h3>TV Interviews - Nahar Gedid</h3>
+                <p>Hosted on Misr Elzraea channel to discuss private sector work strategies and new graduate skills.</p>
+                <div class="image-gallery">
+                    <img src="TV1.jpg" alt="TV Interview 1">
+                    <img src="TV2.png" alt="TV Interview 2">
+                </div>
             </div>
             <div class="cv-card">
-                <h3>إنجازات تقنية</h3>
-                <ul>
-                    <li>رقمنة تقييم الأداء وتقليل وقت المعالجة بنسبة 60%.</li>
-                    <li>تقليل وقت استرجاع الوثائق بنسبة 65% من خلال نظام الأرشفة الرقمية.</li>
-                </ul>
+                <h3>Podcast Interviews</h3>
+                <p><strong>Haya Academy:</strong> Discussing cutting-edge employee affairs strategies.</p>
+                <img src="Cast1.jpg" class="cv-image" alt="Haya Academy Podcast">
+                <p style="margin-top:20px;"><strong>Inspira Podcast:</strong> Modern HR practices and digital transformation.</p>
+                <div class="image-gallery">
+                    <img src="Cast2.png" alt="Inspira 1">
+                    <img src="Cast22.png" alt="Inspira 2">
+                </div>
             </div>
         </div>
     </div>
 
     <div id="calc-section" class="content-area">
-        <div class="calc-grid">
-            <h2 style="text-align:center;">حاسبة كسب العمل الذكية</h2>
+        <div class="calc-wrapper">
+            <h2 style="text-align:center;">حاسبة ضريبة كسب العمل والـ Payroll</h2>
             <div class="input-box">
                 <input id="salary" type="number" placeholder="أدخل الراتب الشامل">
                 <input id="netInput" type="number" placeholder="أدخل الصافي المطلوب">
@@ -147,8 +186,8 @@
                 <input id="allowances" type="number" placeholder="أدخل البدلات الحقيقية">
             </div>
             <div style="text-align:center;">
-                <input id="specialNeeds" type="checkbox" style="width:20px;height:20px;">
-                <label>إعفاء ذوي الهمم (50%)</label>
+                <input id="specialNeeds" type="checkbox" style="width:20px;height:20px;vertical-align:middle;">
+                <label style="font-weight:bold;margin-right:8px;">إعفاء ذوي الهمم (50%)</label>
             </div>
             <button class="btn-act" onclick="runCalc('gross')">احسب من الإجمالي (Gross to Net)</button>
             <button class="btn-act" onclick="runCalc('net')" style="background:#475569">احسب من الصافي (Net to Gross)</button>
@@ -174,7 +213,6 @@
 </div>
 
 <script>
-    // تبديل التبويبات الرئيسية
     function switchMainTab(evt, tabId) {
         document.querySelectorAll('.content-area').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.main-tab-btn').forEach(b => b.classList.remove('active'));
@@ -182,7 +220,6 @@
         evt.currentTarget.classList.add('active');
     }
 
-    // تبديل التبويبات الفرعية في السيرة الذاتية
     function switchSubTab(evt, subId) {
         document.querySelectorAll('.sub-tab-content').forEach(c => c.style.display = 'none');
         document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
@@ -191,7 +228,7 @@
     }
 
     // منطق الحاسبة
-    function tax(inc) {
+    function getTax(inc) {
         if(inc <= 40000) return 0;
         if(inc <= 55000) return (inc - 40000) * 0.1;
         if(inc <= 70000) return (inc - 55000) * 0.15 + 1500;
@@ -209,7 +246,7 @@
         const insV = finalIns * 0.11;
         const exemp = document.getElementById('specialNeeds').checked ? 30000 : 20000;
         const taxable = Math.max(0, (gross - insV) * 12 - exemp);
-        const mTax = tax(taxable) / 12;
+        const mTax = getTax(taxable) / 12;
         return { gross, finalA, finalIns, insV, mTax, net: (gross - insV - mTax) };
     }
 
