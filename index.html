@@ -221,4 +221,82 @@
         // 0: Summary, 1: Edu, 2: Achieve
         subContent += `<div id="sub-0" class="sub-content-div cv-card"><h3>${d.subTabs[0]}</h3><p>${d.summary}</p></div>`;
         subContent += `<div id="sub-1" class="sub-content-div cv-card" style="display:none"><h3>${d.subTabs[1]}</h3><p>${d.edu}</p></div>`;
-        subContent += `<div id="sub-2" class="sub-content-div cv-card" style="display:none"><h3>${d.subTabs
+        subContent += `<div id="sub-2" class="sub-content-div cv-card" style="display:none"><h3>${d.subTabs[2]}</h3><p>${d.achieve}</p></div>`;
+        
+        // 3: Training
+        let tHtml = `<div id="sub-3" class="sub-content-div" style="display:none">`;
+        d.training.forEach(item => {
+            tHtml += `<div class="cv-card"><h3>${d.subTabs[3]}</h3><p>${item.text}</p><div class="img-container">`;
+            item.imgs.forEach(img => tHtml += `<img src="${img}" class="thumb" onclick="showImg('${img}')">`);
+            tHtml += `</div></div>`;
+        });
+        tHtml += `</div>`;
+        subContent += tHtml;
+
+        // 4: Media
+        let mHtml = `<div id="sub-4" class="sub-content-div" style="display:none">`;
+        d.media.forEach(item => {
+            mHtml += `<div class="cv-card"><h3>${d.subTabs[4]}</h3><p>${item.text}</p><div class="img-container">`;
+            item.imgs.forEach(img => mHtml += `<img src="${img}" class="thumb" onclick="showImg('${img}')">`);
+            mHtml += `</div></div>`;
+        });
+        mHtml += `</div>`;
+        subContent += mHtml;
+
+        document.getElementById('sub-content-area').innerHTML = subContent;
+    }
+
+    function toggleLanguage() {
+        currentLang = currentLang === 'ar' ? 'en' : 'ar';
+        renderPage();
+    }
+
+    function switchMainTab(evt, name) {
+        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(name).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    }
+
+    function switchSub(evt, id) {
+        document.querySelectorAll('.sub-content-div').forEach(s => s.style.display = 'none');
+        document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).style.display = 'block';
+        evt.currentTarget.classList.add('active');
+    }
+
+    function showImg(src) {
+        document.getElementById('modalImg').src = src;
+        document.getElementById('imgModal').style.display = 'flex';
+    }
+
+    // Calculator Code (Unchanged)
+    function tax(i) {
+        if(i<=40000) return 0; if(i<=55000) return (i-40000)*0.1; if(i<=70000) return (i-55000)*0.15+1500;
+        if(i<=200000) return (i-70000)*0.2+3750; if(i<=400000) return (i-200000)*0.225+29750;
+        return (i-400000)*0.25+74750;
+    }
+    function calc(g) {
+        let insB = g/1.3; if(insB<2700)insB=2700; if(insB>16700)insB=16700;
+        let allow = Math.min(Number(document.getElementById('allowances').value || 0), g - insB);
+        let fb = g - allow; let iv = fb*0.11;
+        let ex = document.getElementById('specialNeeds').checked ? 30000 : 20000;
+        let mTax = tax(Math.max(0, (g-iv)*12 - ex))/12;
+        return { g, allow, fb, iv, mTax, n: (g-iv-mTax) };
+    }
+    function runCalc(m) {
+        let r; if(m==='gross') r = calc(Number(document.getElementById('salary').value));
+        else {
+            let t = Number(document.getElementById('netInput').value), lo=0, hi=1000000, mi;
+            for(let i=0; i<50; i++){ mi=(lo+hi)/2; if(calc(mi).n < t) lo=mi; else hi=mi; }
+            r = calc(mi); document.getElementById('salary').value = mi.toFixed(2);
+        }
+        document.getElementById('os').innerText = r.g.toFixed(2); document.getElementById('oa').innerText = r.allow.toFixed(2);
+        document.getElementById('oi').innerText = r.fb.toFixed(2); document.getElementById('ov').innerText = r.iv.toFixed(2);
+        document.getElementById('ot').innerText = r.mTax.toFixed(2); document.getElementById('on').innerText = r.n.toFixed(2);
+    }
+
+    renderPage();
+</script>
+</body>
+</html>
