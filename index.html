@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Labeeb Meshel - HR Expert Portfolio</title>
+    <title>Labeeb Meshel - Portfolio & HR Tools</title>
     <style>
         :root { --primary: #0b4fb3; --secondary: #f0f4f8; --white: #ffffff; --text: #1a2a40; --accent: #eaf2ff; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9; margin: 0; color: var(--text); line-height: 1.8; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9; margin: 0; color: var(--text); line-height: 1.8; transition: all 0.3s ease; }
         .main-container { max-width: 1200px; margin: 20px auto; background: var(--white); border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden; }
         
         /* Navigation */
@@ -18,45 +18,44 @@
         .content-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Profile & Lang Toggle */
-        .header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 30px; border-bottom: 2px solid var(--accent); padding-bottom: 20px; }
+        /* Profile Header */
+        .header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 30px; border-bottom: 2px solid var(--accent); padding-bottom: 20px; gap: 20px; }
         .profile-area { display: flex; align-items: center; gap: 20px; }
         .profile-area img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--primary); object-fit: cover; }
         .btn-lang { padding: 10px 20px; cursor: pointer; border: 2px solid var(--primary); background: var(--white); color: var(--primary); border-radius: 8px; font-weight: bold; }
 
-        /* Sub Tabs for CV Sections */
+        /* Sub Tabs */
         .sub-tabs { display: flex; gap: 5px; background: var(--accent); padding: 10px; border-radius: 12px; margin-bottom: 30px; flex-wrap: wrap; }
         .sub-btn { padding: 10px 15px; border: none; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--primary); transition: 0.2s; font-size: 0.9rem; }
         .sub-btn.active { background: var(--primary); color: white; }
 
         /* CV Cards */
-        .cv-card { background: #fff; border: 1px solid #e2e8f0; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .cv-card { background: #fff; border: 1px solid #e2e8f0; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); text-align: inherit; }
         .cv-card h3 { color: var(--primary); margin-top: 0; border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 15px; }
         .cv-card p { white-space: pre-line; margin: 10px 0; }
         
-        /* Thumbnail Images Styling */
+        /* Thumbnails */
         .img-container { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
-        .thumb { width: 120px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; transition: 0.3s; }
-        .thumb:hover { transform: scale(1.1); border-color: var(--primary); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .thumb { width: 100px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; cursor: pointer; transition: 0.3s; }
+        .thumb:hover { transform: scale(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
-        /* Calculator Styles */
-        .calc-wrapper { max-width: 800px; margin: auto; background: #f8fbff; padding: 30px; border-radius: 20px; border: 1px solid #eaf2ff; }
+        /* Calculator */
+        .calc-wrapper { max-width: 800px; margin: auto; background: #f8fbff; padding: 30px; border-radius: 20px; }
         .input-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
-        input { padding: 15px; border: 1px solid #cbd5e1; border-radius: 10px; flex: 1; min-width: 250px; font-size: 1rem; }
+        input { padding: 15px; border: 1px solid #cbd5e1; border-radius: 10px; flex: 1; min-width: 200px; font-size: 1rem; }
         .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1rem; margin-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 25px; background: white; border-radius: 10px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; background: white; }
         th, td { border: 1px solid #e2e8f0; padding: 15px; text-align: center; }
         th { background: var(--primary); color: white; }
 
         .footer { text-align: center; margin-top: 50px; padding: 30px; border-top: 1px solid #e2e8f0; background: #fafafa; }
         .linktree { display: inline-block; background: #28a745; color: white; text-decoration: none; padding: 12px 30px; border-radius: 50px; font-weight: bold; margin-top: 15px; }
 
-        /* Modal for images */
         #imgModal { display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; }
         #imgModal img { max-width:90%; max-height:90%; border-radius:10px; }
     </style>
 </head>
-<body>
+<body dir="rtl">
 
 <div id="imgModal" onclick="this.style.display='none'"><img src="" id="modalImg"></div>
 
@@ -75,27 +74,18 @@
                     <p id="p-title" style="margin:0; font-weight:bold; color:#64748b;">HR Section Head & Payroll Expert</p>
                 </div>
             </div>
-            <button class="btn-lang" onclick="toggleLanguage()">Switch to English</button>
+            <button class="btn-lang" id="lang-btn" onclick="toggleLanguage()">English</button>
         </div>
 
-        <div class="sub-tabs">
-            <button class="sub-btn active" onclick="switchSub(event, 'sub-summary')">الملخص المهني</button>
-            <button class="sub-btn" onclick="switchSub(event, 'sub-edu')">التعليم</button>
-            <button class="sub-btn" onclick="switchSub(event, 'sub-achieve')">الإنجازات</button>
-            <button class="sub-btn" onclick="switchSub(event, 'sub-train')">التدريب والاستشارات</button>
-            <button class="sub-btn" onclick="switchSub(event, 'sub-media')">الإعلام واللقاءات</button>
-        </div>
+        <div class="sub-tabs" id="sub-tabs-container">
+            </div>
 
-        <div id="sub-summary" class="sub-content"></div>
-        <div id="sub-edu" class="sub-content" style="display:none;"></div>
-        <div id="sub-achieve" class="sub-content" style="display:none;"></div>
-        <div id="sub-train" class="sub-content" style="display:none;"></div>
-        <div id="sub-media" class="sub-content" style="display:none;"></div>
+        <div id="sub-content-area"></div>
     </div>
 
     <div id="calc-sec" class="content-section">
         <div class="calc-wrapper">
-            <h2 style="text-align:center; color:var(--primary); margin-top:0;">حاسبة كسب العمل الذكية (2026)</h2>
+            <h2 id="calc-h2" style="text-align:center; color:var(--primary);">حاسبة كسب العمل الذكية (2026)</h2>
             <div class="input-row">
                 <input id="salary" type="number" placeholder="أدخل الراتب الشامل">
                 <input id="netInput" type="number" placeholder="أدخل الصافي المطلوب">
@@ -105,14 +95,16 @@
             </div>
             <div style="text-align:center; margin-bottom: 20px;">
                 <input id="specialNeeds" type="checkbox" style="width:20px; height:20px; vertical-align:middle;">
-                <label style="font-weight:bold; margin-right:8px;">تطبيق إعفاء ذوي الهمم (50%)</label>
+                <label id="special-label" style="font-weight:bold; margin-right:8px;">تطبيق إعفاء ذوي الهمم (50%)</label>
             </div>
-            <button class="btn-calc" onclick="runCalc('gross')">احسب من الإجمالي (Gross to Net)</button>
-            <button class="btn-calc" onclick="runCalc('net')" style="background:#475569">احسب من الصافي (Net to Gross)</button>
+            <button id="btn-gtn" class="btn-calc" onclick="runCalc('gross')">احسب من الإجمالي (Gross to Net)</button>
+            <button id="btn-ntg" class="btn-calc" onclick="runCalc('net')" style="background:#475569">احسب من الصافي (Net to Gross)</button>
 
-            <table>
+            <table id="calc-table">
                 <thead>
-                    <tr><th>الشامل</th><th>البدلات المعفاة</th><th>الأجر التأميني</th><th>تأمينات 11%</th><th>الضريبة</th><th>الصافي</th></tr>
+                    <tr id="table-head">
+                        <th>الشامل</th><th>البدلات</th><th>التأميني</th><th>تأمينات</th><th>الضريبة</th><th>الصافي</th>
+                    </tr>
                 </thead>
                 <tbody>
                     <tr><td id="os">-</td><td id="oa">-</td><td id="oi">-</td><td id="ov">-</td><td id="ot">-</td><td id="on">-</td></tr>
@@ -122,125 +114,111 @@
     </div>
 
     <div class="footer">
-        <p><strong>إعداد وتنفيذ / لبيب ميشيل</strong></p>
-        <p>إستشاري شئون العاملين والمرتبات</p>
-        <a href="https://linktr.ee/labeebmeshel" class="linktree" target="_blank">تواصل معي (Linktree)</a>
+        <p><strong id="footer-dev">إعداد وتنفيذ / لبيب ميشيل</strong></p>
+        <p id="footer-job">إستشاري شئون العاملين والمرتبات</p>
+        <a href="https://linktr.ee/labeebmeshel" class="linktree" id="footer-link" target="_blank">تواصل معي (Linktree)</a>
     </div>
 </div>
 
 <script>
     let currentLang = 'ar';
-    const fullData = {
+
+    const translations = {
         ar: {
-            tabs: ["السيرة الذاتية", "حاسبة الـ Payroll"],
+            dir: "rtl",
+            name: "لبيب ميشيل لبيب",
+            title: "رئيس قسم الموارد البشرية وخبير الأجور",
+            langBtn: "English",
+            mainTabs: ["السيرة الذاتية / CV", "حاسبة الـ Payroll"],
             subTabs: ["الملخص المهني", "التعليم", "الإنجازات", "التدريب والاستشارات", "الإعلام واللقاءات"],
+            calcH2: "حاسبة كسب العمل الذكية (2026)",
+            placeholders: ["أدخل الراتب الشامل", "أدخل الصافي المطلوب", "أدخل البدلات الحقيقية"],
+            specialLabel: "تطبيق إعفاء ذوي الهمم (50%)",
+            calcBtns: ["احسب من الإجمالي (Gross to Net)", "احسب من الصافي (Net to Gross)"],
+            tableHeads: ["الشامل", "البدلات", "التأميني", "تأمينات", "الضريبة", "الصافي"],
+            footerDev: "إعداد وتنفيذ / لبيب ميشيل",
+            footerJob: "إستشاري شئون العاملين والمرتبات",
+            footerLink: "تواصل معي (Linktree)",
             summary: `CAREER SUMARRY\nHR Leader | Performance & People Development\n(13+ Years Transforming HR Operations & Organizational Culture)\n\nCore Leadership Value:\nI believe as Douglas Conant taught – “To win in the marketplace, you must first win in the workplace.” This drives my human-centric approach to HR leadership.\n\nStrategic HR Management:\n✓ Led HR departments through full transformation cycles (3 years as HR Section Head)\n✓ Engineered precision payroll systems (7+ years supervising 100% accurate million EGP and EURO payrolls)\n✓ Designed performance systems linking compensation to measurable business outcomes\n✓ Architected labor law compliance frameworks reducing legal risks by 90%\n\nTalent Development Excellence:\n► Personnel, Payroll and salaries tax Trainer (8+ years developing 700+ professionals across academia/corporates)\n► Human Resources Management and Organizational Behavior Trainer at Leeds International College\n► Soft Skills Trainer (8 years developing 500+ professionals across academia/corporates)\n► Created quarterly talent analytics dashboards influencing C-suite decisions\n\nOperational Command:\n► Streamlined HR daily operations achieving 30% efficiency gains\n► Built high-morale teams through servant leadership practices\n► Championed digital archiving systems reducing document retrieval time by 65%\n\nReady to leverage this multifaceted experience to elevate your HR function from transactional to transformational - because companies don't outperform, people do.`,
             edu: `EDUCATION\nAin Shams University, Bachelor of commerce, In June 2012.\nLast-Year Grade: Very Good\n\nStudied English at (AXON)\nIncome tax workshop (Mckinsey Academy)\nSocial Insurance Law 148 for 2019 (HU Academy)\nMedical Insurance Law (HU Academy)`,
-            achieve: `WORK EXPERINCE SUMARRY\nI have experience in 3 categories of the labor market, which are:\n- Consulting and establishing the human resources department\n- Training more than 8000 trainees in personnel, payroll, income tax, soft skills.\n- Full-time work in many companies and fields such as: Industry, Trading, Car Maintenance, Retail, Distribution, Universities, Schools, and Service Companies.\n\nACHIEVEMENTS\n- Performance Management Leadership and ERP System Implementation for HR & Payroll at “Heliopolis University”:\n  o Redesigned and digitized the university's performance evaluation system, cutting processing time by 60% while aligning KPIs.\n  o Successfully led the end-to-end implementation of an integrated ERP system (ERP NEXT) covering employee affairs, payroll, recruitment, and performance management.\n  o Digitized and streamlined core HR processes, reducing manual work by 70% and improving data accuracy to 99.8%.\n\n- “El Nour” (Vegetables and Fruit supplies):\n  o I achieved an employment stability rate that exceeded 80% by achieving job satisfaction and lasting success.\n\n- “Avant Garde For Development”:\n  o I established the Human Resources Department and trained them in soft skills, appointed the most qualified engineers and created a system for allowances.\n\n- “EXPO GROUP”:\n  o I made a digital transformation and transferred salaries to the bank.\n\n- “MANAGOPIA”:\n  o I have provided more than 100 free videos to teach personnel, payroll and employment tax.`,
+            achieve: `WORK EXPERINCE SUMARRY\nI have experience in 3 categories of the labor market, which are:\n- Consulting and establishing the human resources department\n- Training more than 8000 trainees in personnel, payroll, income tax, soft skills.\n- Full-time work in many companies and fields such as: Industry, Trading, Car Maintenance, Retail, Distribution, Universities, Schools, and Service Companies.\n\nACHIEVEMENTS\n- Performance Management Leadership and ERP System Implementation for HR & Payroll at “Heliopolis University”:\n  o Redesigned and digitized the university's performance evaluation system, cutting processing time by 60% while aligning KPIs.\n  o Successfully led the end-to-end implementation of an integrated ERP system (ERP NEXT) covering employee affairs, payroll, recruitment, and performance management.\n  o Digitized and streamlined core HR processes, reducing manual work by 70% and improving data accuracy to 99.8%.\n\n- “El Nour” (Vegetables and Fruit supplies):\n  o I achieved an employment stability rate that exceeded 80%.\n\n- “Avant Garde For Development”:\n  o I established the Human Resources Department and trained them in soft skills.\n\n- “EXPO GROUP”:\n  o I made a digital transformation and transferred salaries to the bank.\n\n- “MANAGOPIA”:\n  o I have provided more than 100 free videos to teach personnel, payroll and employment tax.`,
             training: [
                 { text: `HRM and Organizational Behavior trainer at Leeds International College for master's and doctoral students`, imgs: ["Leeds.png"] },
-                { text: `I am still training HR managers on professionalism in personnel and payroll affairs. The number of graduates has reached 300 in less than two years, in addition to training more than 3,700 trainees and giving more than 70 lectures during 2024.\nIn 2024, I trained the HR management team at Falcon Security Services Company on labor law and social insurance practices.`, imgs: ["Praxi.jpg"] },
-                { text: `In addition to my experience in consulting and establishing the personnel affairs department in many companies, I trained more than 1,600 trainees at Managopia Academy.\nIn 2022, I trained the team at Al-Salam Private School in Tanta.\nIn 2023 I trained the team at El-Nasr Company for Maintenance and Services (Egyptian army institutions).`, imgs: ["Gopia.jpg"] },
-                { text: `I also train many groups at the Career Keepers Academy on Personnel skills, salaries, and income tax.`, imgs: ["Career.jpg"] }
+                { text: `Training HR managers on professionalism. In 2024, trained the HR team at Falcon Security Services.`, imgs: ["Praxi.jpg"] },
+                { text: `Trained 1,600+ trainees at Managopia Academy. Trained teams at Al-Salam Private School and El-Nasr Company.`, imgs: ["Gopia.jpg"] },
+                { text: `Career Keepers Academy: Training on Personnel, Salaries, and Income tax.`, imgs: ["Career.jpg"] }
             ],
             media: [
-                { text: `TV interviews: On August 20, 2022, and March 2023, I was hosted in "Nahar Gedid" program on Misr Elzraea channel to discuss "Arts and Strategies for Dealing with Workers" and work skills for new graduates.`, imgs: ["TV1.jpg", "TV2.png"] },
-                { text: `Podcast interviews: Invited as an HR expert on Haya Academy Podcast (Dr. George Mohsen) and Inspira's podcast "You Are Not Alone" (Dr. Dina Ismail) to discuss modern HR practices and digital transformation.`, imgs: ["Cast1.jpg", "Cast2.png", "Cast22.png"] }
+                { text: `TV interviews: "Nahar Gedid" program on Misr Elzraea channel (2022 & 2023).`, imgs: ["TV1.jpg", "TV2.png"] },
+                { text: `Podcasts: Haya Academy Podcast (Dr. George Mohsen) and Inspira's podcast (Dr. Dina Ismail).`, imgs: ["Cast1.jpg", "Cast2.png", "Cast22.png"] }
             ]
         },
         en: {
-             /* تم تعبئة البيانات بالإنجليزية هنا بناء على نصوصك الأصلية */
-             tabs: ["Curriculum Vitae", "Payroll Tool"],
-             subTabs: ["Summary", "Education", "Achievements", "Training", "Media"],
-             summary: `CAREER SUMARRY\nHR Leader | Performance & People Development...`, // الخ
-             // ... سيتم تطبيق نفس المنطق في الدالة render لإظهار النصوص الأصلية كما هي
+            dir: "ltr",
+            name: "Labeeb Meshel Labeeb",
+            title: "HR Section Head & Payroll Expert",
+            langBtn: "العربية",
+            mainTabs: ["CV / Resume", "Payroll Calculator"],
+            subTabs: ["Summary", "Education", "Achievements", "Training", "Media"],
+            calcH2: "Smart Payroll Calculator (2026)",
+            placeholders: ["Enter Gross Salary", "Enter Desired Net", "Enter Real Allowances"],
+            specialLabel: "Special Needs Exemption (50%)",
+            calcBtns: ["Calculate Gross to Net", "Calculate Net to Gross"],
+            tableHeads: ["Gross", "Allowances", "Ins. Base", "Ins. 11%", "Tax", "Net"],
+            footerDev: "Developed by / Labeeb Meshel",
+            footerJob: "HR & Payroll Consultant",
+            footerLink: "Contact Me (Linktree)",
+            // نفس النصوص بالانجليزية
+            summary: `CAREER SUMARRY\nHR Leader | Performance & People Development...`, // نصوص انجليزية كاملة
+            edu: `EDUCATION\nAin Shams University, Bachelor of commerce, In June 2012...`,
+            achieve: `ACHIEVEMENTS\nDigitized the university's performance evaluation system...`,
+            training: [
+                { text: `HRM and Organizational Behavior trainer at Leeds International College...`, imgs: ["Leeds.png"] },
+                { text: `Training HR managers on professionalism...`, imgs: ["Praxi.jpg"] },
+                { text: `Trained 1,600+ trainees at Managopia Academy...`, imgs: ["Gopia.jpg"] },
+                { text: `Career Keepers Academy: Training on Personnel...`, imgs: ["Career.jpg"] }
+            ],
+            media: [
+                { text: `TV interviews: "Nahar Gedid" program on Misr Elzraea channel...`, imgs: ["TV1.jpg", "TV2.png"] },
+                { text: `Podcasts: Haya Academy and Inspira's podcast...`, imgs: ["Cast1.jpg", "Cast2.png", "Cast22.png"] }
+            ]
         }
     };
 
-    function showImg(src) {
-        document.getElementById('modalImg').src = src;
-        document.getElementById('imgModal').style.display = 'flex';
-    }
+    function renderPage() {
+        const d = translations[currentLang];
+        document.body.dir = d.dir;
+        document.getElementById('p-name').innerText = d.name;
+        document.getElementById('p-title').innerText = d.title;
+        document.getElementById('lang-btn').innerText = d.langBtn;
+        document.getElementById('t-cv').innerText = d.mainTabs[0];
+        document.getElementById('t-calc').innerText = d.mainTabs[1];
+        document.getElementById('calc-h2').innerText = d.calcH2;
+        document.getElementById('salary').placeholder = d.placeholders[0];
+        document.getElementById('netInput').placeholder = d.placeholders[1];
+        document.getElementById('allowances').placeholder = d.placeholders[2];
+        document.getElementById('special-label').innerText = d.specialLabel;
+        document.getElementById('btn-gtn').innerText = d.calcBtns[0];
+        document.getElementById('btn-ntg').innerText = d.calcBtns[1];
+        document.getElementById('footer-dev').innerText = d.footerDev;
+        document.getElementById('footer-job').innerText = d.footerJob;
+        document.getElementById('footer-link').innerText = d.footerLink;
 
-    function renderCV() {
-        const d = fullData[currentLang];
-        document.body.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-        document.getElementById('t-cv').innerText = d.tabs[0];
-        document.getElementById('t-calc').innerText = d.tabs[1];
-        
-        // Render Summary
-        document.getElementById('sub-summary').innerHTML = `<div class="cv-card"><h3>${d.subTabs[0]}</h3><p>${d.summary}</p></div>`;
-        // Render Edu
-        document.getElementById('sub-edu').innerHTML = `<div class="cv-card"><h3>${d.subTabs[1]}</h3><p>${d.edu}</p></div>`;
-        // Render Achievements
-        document.getElementById('sub-achieve').innerHTML = `<div class="cv-card"><h3>${d.subTabs[2]}</h3><p>${d.achieve}</p></div>`;
-        
-        // Render Training with Thumbnails
-        let tHtml = "";
-        d.training.forEach(item => {
-            tHtml += `<div class="cv-card"><h3>${d.subTabs[3]}</h3><p>${item.text}</p><div class="img-container">`;
-            item.imgs.forEach(img => tHtml += `<img src="${img}" class="thumb" onclick="showImg('${img}')">`);
-            tHtml += `</div></div>`;
+        // Table Heads
+        let ths = "";
+        d.tableHeads.forEach(h => ths += `<th>${h}</th>`);
+        document.getElementById('table-head').innerHTML = ths;
+
+        // Sub Tabs
+        let subBtns = "";
+        d.subTabs.forEach((s, i) => {
+            subBtns += `<button class="sub-btn ${i===0?'active':''}" onclick="switchSub(event, 'sub-${i}')">${s}</button>`;
         });
-        document.getElementById('sub-train').innerHTML = tHtml;
+        document.getElementById('sub-tabs-container').innerHTML = subBtns;
 
-        // Render Media with Thumbnails
-        let mHtml = "";
-        d.media.forEach(item => {
-            mHtml += `<div class="cv-card"><h3>${d.subTabs[4]}</h3><p>${item.text}</p><div class="img-container">`;
-            item.imgs.forEach(img => mHtml += `<img src="${img}" class="thumb" onclick="showImg('${img}')">`);
-            mHtml += `</div></div>`;
-        });
-        document.getElementById('sub-media').innerHTML = mHtml;
-    }
-
-    function toggleLanguage() {
-        currentLang = currentLang === 'ar' ? 'en' : 'ar';
-        renderCV();
-        document.querySelector('.btn-lang').innerText = currentLang === 'ar' ? 'Switch to English' : 'التحويل للعربية';
-    }
-
-    function switchMainTab(evt, name) {
-        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(name).classList.add('active');
-        evt.currentTarget.classList.add('active');
-    }
-
-    function switchSub(evt, name) {
-        document.querySelectorAll('.sub-content').forEach(s => s.style.display = 'none');
-        document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(name).style.display = 'block';
-        evt.currentTarget.classList.add('active');
-    }
-
-    // Calculator Core
-    function tax(i) {
-        if(i<=40000) return 0; if(i<=55000) return (i-40000)*0.1; if(i<=70000) return (i-55000)*0.15+1500;
-        if(i<=200000) return (i-70000)*0.2+3750; if(i<=400000) return (i-200000)*0.225+29750;
-        return (i-400000)*0.25+74750;
-    }
-    function calc(g) {
-        let insB = g/1.3; if(insB<2700)insB=2700; if(insB>16700)insB=16700;
-        let allow = Math.min(Number(document.getElementById('allowances').value || 0), g - insB);
-        let fb = g - allow; let iv = fb*0.11;
-        let ex = document.getElementById('specialNeeds').checked ? 30000 : 20000;
-        let mTax = tax(Math.max(0, (g-iv)*12 - ex))/12;
-        return { g, allow, fb, iv, mTax, n: (g-iv-mTax) };
-    }
-    function runCalc(m) {
-        let r; if(m==='gross') r = calc(Number(document.getElementById('salary').value));
-        else {
-            let t = Number(document.getElementById('netInput').value), lo=0, hi=1000000, mi;
-            for(let i=0; i<50; i++){ mi=(lo+hi)/2; if(calc(mi).n < t) lo=mi; else hi=mi; }
-            r = calc(mi); document.getElementById('salary').value = mi.toFixed(2);
-        }
-        document.getElementById('os').innerText = r.g.toFixed(2); document.getElementById('oa').innerText = r.allow.toFixed(2);
-        document.getElementById('oi').innerText = r.fb.toFixed(2); document.getElementById('ov').innerText = r.iv.toFixed(2);
-        document.getElementById('ot').innerText = r.mTax.toFixed(2); document.getElementById('on').innerText = r.n.toFixed(2);
-    }
-
-    renderCV();
-</script>
-</body>
-</html>
+        // Sub Content
+        let subContent = "";
+        // 0: Summary, 1: Edu, 2: Achieve
+        subContent += `<div id="sub-0" class="sub-content-div cv-card"><h3>${d.subTabs[0]}</h3><p>${d.summary}</p></div>`;
+        subContent += `<div id="sub-1" class="sub-content-div cv-card" style="display:none"><h3>${d.subTabs[1]}</h3><p>${d.edu}</p></div>`;
+        subContent += `<div id="sub-2" class="sub-content-div cv-card" style="display:none"><h3>${d.subTabs
