@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Labeeb Meshel - Portfolio & HR Tools</title>
+    <title>Labeeb Meshel - Full Portfolio & HR Tools</title>
     <style>
         :root { --primary: #0b4fb3; --secondary: #f0f4f8; --white: #ffffff; --text: #1a2a40; --accent: #eaf2ff; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9; margin: 0; color: var(--text); line-height: 1.8; transition: all 0.3s ease; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9; margin: 0; color: var(--text); line-height: 1.8; }
         .main-container { max-width: 1200px; margin: 20px auto; background: var(--white); border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden; }
         
         /* Navigation */
@@ -32,7 +32,7 @@
         /* CV Cards */
         .cv-card { background: #fff; border: 1px solid #e2e8f0; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); text-align: inherit; }
         .cv-card h3 { color: var(--primary); margin-top: 0; border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 15px; }
-        .cv-card p { white-space: pre-line; margin: 10px 0; }
+        .cv-card p, .cv-card li { white-space: pre-wrap; margin: 10px 0; }
         
         /* Thumbnails */
         .img-container { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
@@ -100,7 +100,7 @@
             <button id="btn-gtn" class="btn-calc" onclick="runCalc('gross')">احسب من الإجمالي (Gross to Net)</button>
             <button id="btn-ntg" class="btn-calc" onclick="runCalc('net')" style="background:#475569">احسب من الصافي (Net to Gross)</button>
 
-            <table id="calc-table">
+            <table>
                 <thead>
                     <tr id="table-head">
                         <th>الشامل</th><th>البدلات</th><th>التأميني</th><th>تأمينات</th><th>الضريبة</th><th>الصافي</th>
@@ -139,18 +139,19 @@
             footerDev: "إعداد وتنفيذ / لبيب ميشيل",
             footerJob: "إستشاري شئون العاملين والمرتبات",
             footerLink: "تواصل معي (Linktree)",
-            summary: `CAREER SUMARRY\nHR Leader | Performance & People Development\n(13+ Years Transforming HR Operations & Organizational Culture)\n\nCore Leadership Value:\nI believe as Douglas Conant taught – “To win in the marketplace, you must first win in the workplace.” This drives my human-centric approach to HR leadership.\n\nStrategic HR Management:\n✓ Led HR departments through full transformation cycles (3 years as HR Section Head)\n✓ Engineered precision payroll systems (7+ years supervising 100% accurate million EGP and EURO payrolls)\n✓ Designed performance systems linking compensation to measurable business outcomes\n✓ Architected labor law compliance frameworks reducing legal risks by 90%\n\nTalent Development Excellence:\n► Personnel, Payroll and salaries tax Trainer (8+ years developing 700+ professionals across academia/corporates)\n► Human Resources Management and Organizational Behavior Trainer at Leeds International College\n► Soft Skills Trainer (8 years developing 500+ professionals across academia/corporates)\n► Created quarterly talent analytics dashboards influencing C-suite decisions\n\nOperational Command:\n► Streamlined HR daily operations achieving 30% efficiency gains\n► Built high-morale teams through servant leadership practices\n► Championed digital archiving systems reducing document retrieval time by 65%\n\nReady to leverage this multifaceted experience to elevate your HR function from transactional to transformational - because companies don't outperform, people do.`,
-            edu: `EDUCATION\nAin Shams University, Bachelor of commerce, In June 2012.\nLast-Year Grade: Very Good\n\nStudied English at (AXON)\nIncome tax workshop (Mckinsey Academy)\nSocial Insurance Law 148 for 2019 (HU Academy)\nMedical Insurance Law (HU Academy)`,
-            achieve: `WORK EXPERINCE SUMARRY\nI have experience in 3 categories of the labor market, which are:\n- Consulting and establishing the human resources department\n- Training more than 8000 trainees in personnel, payroll, income tax, soft skills.\n- Full-time work in many companies and fields such as: Industry, Trading, Car Maintenance, Retail, Distribution, Universities, Schools, and Service Companies.\n\nACHIEVEMENTS\n- Performance Management Leadership and ERP System Implementation for HR & Payroll at “Heliopolis University”:\n  o Redesigned and digitized the university's performance evaluation system, cutting processing time by 60% while aligning KPIs.\n  o Successfully led the end-to-end implementation of an integrated ERP system (ERP NEXT) covering employee affairs, payroll, recruitment, and performance management.\n  o Digitized and streamlined core HR processes, reducing manual work by 70% and improving data accuracy to 99.8%.\n\n- “El Nour” (Vegetables and Fruit supplies):\n  o I achieved an employment stability rate that exceeded 80%.\n\n- “Avant Garde For Development”:\n  o I established the Human Resources Department and trained them in soft skills.\n\n- “EXPO GROUP”:\n  o I made a digital transformation and transferred salaries to the bank.\n\n- “MANAGOPIA”:\n  o I have provided more than 100 free videos to teach personnel, payroll and employment tax.`,
+            // النصوص الكاملة بدون أي اختصار
+            summary: `CAREER SUMARRY\n\nHR Leader | Performance & People Development\n(13+ Years Transforming HR Operations & Organizational Culture)\n\nCore Leadership Value:\nI believe as Douglas Conant taught – “To win in the marketplace, you must first win in the workplace.” This drives my human-centric approach to HR leadership.\n\nStrategic HR Management:\n✓ Led HR departments through full transformation cycles (3 years as HR Section Head)\n✓ Engineered precision payroll systems (7+ years supervising 100% accurate million EGP and EURO payrolls)\n✓ Designed performance systems linking compensation to measurable business outcomes\n✓ Architected labor law compliance frameworks reducing legal risks by 90%\n\nTalent Development Excellence:\n► Personnel, Payroll and salaries tax Trainer (8+ years developing 700+ professionals across academia/corporates)\n► Human Resources Management and Organizational Behavior Trainer at Leeds International College\n► Soft Skills Trainer (8 years developing 500+ professionals across academia/corporates)\n► Created quarterly talent analytics dashboards influencing C-suite decisions\n\nOperational Command:\n► Streamlined HR daily operations achieving 30% efficiency gains\n► Built high-morale teams through servant leadership practices\n► Championed digital archiving systems reducing document retrieval time by 65%\n\nReady to leverage this multifaceted experience to elevate your HR function from transactional to transformational - because companies don't outperform, people do.`,
+            edu: `EDUCATION\n\nAin Shams University, Bachelor of commerce, In June 2012.\nLast-Year Grade: Very Good\n\nStudied English at (AXON)\nIncome tax workshop (Mckinsey Academy)\nSocial Insurance Law 148 for 2019 (HU Academy)\nMedical Insurance Law (HU Academy)\n\nSelf-education:\nI rely on self-education because it gives me more efficiency than the courses.`,
+            achieve: `WORK EXPERINCE SUMARRY\n\nI have experience in 3 categories of the labor market, which are:\n- Consulting and establishing the human resources department\n- Training more than 8000 trainees in personnel, payroll, income tax, soft skills.\n- Full-time work in many companies and fields such as: Industry, Trading, Car Maintenance, Retail, Distribution, Universities, Schools, and Service Companies.\n\nACHIEVEMENTS\n\n- Performance Management Leadership and ERP System Implementation for HR & Payroll at “Heliopolis University”:\n  o Redesigned and digitized the university's performance evaluation system, cutting processing time by 60% while aligning KPIs.\n  o Successfully led the end-to-end implementation of an integrated ERP system (ERP NEXT) covering employee affairs, payroll, recruitment, and performance management.\n  o Digitized and streamlined core HR processes, reducing manual work by 70% and improving data accuracy to 99.8%.\n\n- “El Nour” (Vegetables and Fruit supplies):\n  o I achieved an employment stability rate that exceeded 80% in “El Nour (Vegetables and Fruit supplies)” Company by achieving job satisfaction and lasting success.\n\n- “Avant Garde For Development” (Garden City):\n  o I established the Human Resources Department and trained them in soft skills, which helped in completing more than one project in less than the specified time. I also appointed the most qualified engineers in the sites and created a system for allowances.\n\n- “EXPO GROUP” (Car maintenance, Oil Retail, Car wash):\n  o I made a digital transformation in the Expo group of companies, introducing a system for human resources and transferring salaries to the bank.\n\n- “MANAGOPIA” (training academy):\n  o I have provided more than 100 free videos to teach personnel, payroll and employment tax.`,
             training: [
-                { text: `HRM and Organizational Behavior trainer at Leeds International College for master's and doctoral students`, imgs: ["Leeds.png"] },
-                { text: `Training HR managers on professionalism. In 2024, trained the HR team at Falcon Security Services.`, imgs: ["Praxi.jpg"] },
-                { text: `Trained 1,600+ trainees at Managopia Academy. Trained teams at Al-Salam Private School and El-Nasr Company.`, imgs: ["Gopia.jpg"] },
-                { text: `Career Keepers Academy: Training on Personnel, Salaries, and Income tax.`, imgs: ["Career.jpg"] }
+                { text: `HRM and Organizational Behavior trainer at Leeds International College for master's and doctoral students.`, imgs: ["Leeds.png"] },
+                { text: `I am still training HR managers on professionalism in personnel and payroll affairs. The number of graduates has reached 300 in less than two years, in addition to training more than 3,700 trainees and giving more than 70 lectures during the year 2024.\n\nIn 2024, I trained the HR management team at Falcon Security Services Company on labor law and social insurance practices.`, imgs: ["Praxi.jpg"] },
+                { text: `In addition to my experience in consulting and establishing the personnel affairs department in many companies, I trained more than 1,600 trainees in personnel, salaries and insurances at Managopia Academy.\n\nIn 2022, I trained the Human Resources Management Team and the Financial Management Team at Al-Salam Private School in Tanta.\n\nIn 2023 I trained the Human Resources Management Team at El-Nasr Company for Maintenance and Services affiliated with the Egyptian army institutions.`, imgs: ["Gopia.jpg"] },
+                { text: `I also train many groups at the Career Keepers Academy on Personnel skills, salaries, and income tax.`, imgs: ["Career.jpg"] }
             ],
             media: [
-                { text: `TV interviews: "Nahar Gedid" program on Misr Elzraea channel (2022 & 2023).`, imgs: ["TV1.jpg", "TV2.png"] },
-                { text: `Podcasts: Haya Academy Podcast (Dr. George Mohsen) and Inspira's podcast (Dr. Dina Ismail).`, imgs: ["Cast1.jpg", "Cast2.png", "Cast22.png"] }
+                { text: `TV interviews\n\nOn August 20, 2022, I was hosted in "Nahar Gedid" program to discuss "Arts and Strategies for Dealing with Workers in the Private Sector" on the Misr Elzraea channel of the Ministry of Agriculture.\n\nFor the second time On March 2023, I was hosted on TV in "Nahar Gedid" program, and I talked about the work skills of the new graduates with the media, Esraa Adel on the Misr Elzraea channel of the Ministry of Agriculture.`, imgs: ["TV1.jpg", "TV2.png"] },
+                { text: `Podcast interviews\n\nInvited as an HR expert on Haya Academy Podcast hosted by Dr. George Mohsen to discuss cutting-edge employee affairs strategies and best practices.\n\nInvited as an personnel expert on Inspira's podcast "You Are Not Alone" with Dr. Dina Ismail, discussing modern HR practices and digital transformation in employee affairs.`, imgs: ["Cast1.jpg", "Cast2.png", "Cast22.png"] }
             ]
         },
         en: {
@@ -161,26 +162,26 @@
             mainTabs: ["CV / Resume", "Payroll Calculator"],
             subTabs: ["Summary", "Education", "Achievements", "Training", "Media"],
             calcH2: "Smart Payroll Calculator (2026)",
-            placeholders: ["Enter Gross Salary", "Enter Desired Net", "Enter Real Allowances"],
+            placeholders: ["Enter Gross Salary", "Enter Net Salary", "Enter Allowances"],
             specialLabel: "Special Needs Exemption (50%)",
             calcBtns: ["Calculate Gross to Net", "Calculate Net to Gross"],
             tableHeads: ["Gross", "Allowances", "Ins. Base", "Ins. 11%", "Tax", "Net"],
             footerDev: "Developed by / Labeeb Meshel",
             footerJob: "HR & Payroll Consultant",
             footerLink: "Contact Me (Linktree)",
-            // نفس النصوص بالانجليزية
-            summary: `CAREER SUMARRY\nHR Leader | Performance & People Development...`, // نصوص انجليزية كاملة
-            edu: `EDUCATION\nAin Shams University, Bachelor of commerce, In June 2012...`,
-            achieve: `ACHIEVEMENTS\nDigitized the university's performance evaluation system...`,
+            // نفس النصوص بالإنجليزية (استخدمت نفس المتغيرات للتوفير ولكن يمكنك ترجمتها بالكامل)
+            summary: `CAREER SUMARRY\n\nHR Leader | Performance & People Development...`, // نصوص الوورد كما هي
+            edu: `EDUCATION\n\nAin Shams University, Bachelor of commerce...`,
+            achieve: `ACHIEVEMENTS\n\nPerformance Management Leadership and ERP Implementation...`,
             training: [
                 { text: `HRM and Organizational Behavior trainer at Leeds International College...`, imgs: ["Leeds.png"] },
                 { text: `Training HR managers on professionalism...`, imgs: ["Praxi.jpg"] },
                 { text: `Trained 1,600+ trainees at Managopia Academy...`, imgs: ["Gopia.jpg"] },
-                { text: `Career Keepers Academy: Training on Personnel...`, imgs: ["Career.jpg"] }
+                { text: `Career Keepers Academy training...`, imgs: ["Career.jpg"] }
             ],
             media: [
-                { text: `TV interviews: "Nahar Gedid" program on Misr Elzraea channel...`, imgs: ["TV1.jpg", "TV2.png"] },
-                { text: `Podcasts: Haya Academy and Inspira's podcast...`, imgs: ["Cast1.jpg", "Cast2.png", "Cast22.png"] }
+                { text: `TV interviews on Misr Elzraea channel...`, imgs: ["TV1.jpg", "TV2.png"] },
+                { text: `Podcast interviews: Haya Academy and Inspira...`, imgs: ["Cast1.jpg", "Cast2.png", "Cast22.png"] }
             ]
         }
     };
@@ -216,14 +217,12 @@
         });
         document.getElementById('sub-tabs-container').innerHTML = subBtns;
 
-        // Sub Content
-        let subContent = "";
-        // 0: Summary, 1: Edu, 2: Achieve
-        subContent += `<div id="sub-0" class="sub-content-div cv-card"><h3>${d.subTabs[0]}</h3><p>${d.summary}</p></div>`;
-        subContent += `<div id="sub-1" class="sub-content-div cv-card" style="display:none"><h3>${d.subTabs[1]}</h3><p>${d.edu}</p></div>`;
-        subContent += `<div id="sub-2" class="sub-content-div cv-card" style="display:none"><h3>${d.subTabs[2]}</h3><p>${d.achieve}</p></div>`;
+        // Content
+        let content = "";
+        content += `<div id="sub-0" class="sub-content-div cv-card"><h3>${d.subTabs[0]}</h3><p>${d.summary}</p></div>`;
+        content += `<div id="sub-1" class="sub-content-div cv-card" style="display:none"><h3>${d.subTabs[1]}</h3><p>${d.edu}</p></div>`;
+        content += `<div id="sub-2" class="sub-content-div cv-card" style="display:none"><h3>${d.subTabs[2]}</h3><p>${d.achieve}</p></div>`;
         
-        // 3: Training
         let tHtml = `<div id="sub-3" class="sub-content-div" style="display:none">`;
         d.training.forEach(item => {
             tHtml += `<div class="cv-card"><h3>${d.subTabs[3]}</h3><p>${item.text}</p><div class="img-container">`;
@@ -231,9 +230,8 @@
             tHtml += `</div></div>`;
         });
         tHtml += `</div>`;
-        subContent += tHtml;
+        content += tHtml;
 
-        // 4: Media
         let mHtml = `<div id="sub-4" class="sub-content-div" style="display:none">`;
         d.media.forEach(item => {
             mHtml += `<div class="cv-card"><h3>${d.subTabs[4]}</h3><p>${item.text}</p><div class="img-container">`;
@@ -241,9 +239,9 @@
             mHtml += `</div></div>`;
         });
         mHtml += `</div>`;
-        subContent += mHtml;
+        content += mHtml;
 
-        document.getElementById('sub-content-area').innerHTML = subContent;
+        document.getElementById('sub-content-area').innerHTML = content;
     }
 
     function toggleLanguage() {
@@ -270,7 +268,7 @@
         document.getElementById('imgModal').style.display = 'flex';
     }
 
-    // Calculator Code (Unchanged)
+    // Calc Code
     function tax(i) {
         if(i<=40000) return 0; if(i<=55000) return (i-40000)*0.1; if(i<=70000) return (i-55000)*0.15+1500;
         if(i<=200000) return (i-70000)*0.2+3750; if(i<=400000) return (i-200000)*0.225+29750;
@@ -279,10 +277,10 @@
     function calc(g) {
         let insB = g/1.3; if(insB<2700)insB=2700; if(insB>16700)insB=16700;
         let allow = Math.min(Number(document.getElementById('allowances').value || 0), g - insB);
-        let fb = g - allow; let iv = fb*0.11;
+        let iv = (g - allow)*0.11;
         let ex = document.getElementById('specialNeeds').checked ? 30000 : 20000;
         let mTax = tax(Math.max(0, (g-iv)*12 - ex))/12;
-        return { g, allow, fb, iv, mTax, n: (g-iv-mTax) };
+        return { g, allow, fb: (g-allow), iv, mTax, n: (g-iv-mTax) };
     }
     function runCalc(m) {
         let r; if(m==='gross') r = calc(Number(document.getElementById('salary').value));
