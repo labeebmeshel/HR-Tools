@@ -64,7 +64,7 @@
 <div class="main-container">
     <div class="tabs-nav">
         <button id="t-cv" class="tab-btn active" onclick="switchMainTab(event, 'cv-sec')">السيرة الذاتية / CV</button>
-        <button id="t-calc" class="tab-btn" onclick="switchMainTab(event, 'calc-sec')">حاسبة الـ Payroll</button>
+        <button id="t-calc" class="tab-btn" onclick="switchMainTab(event, 'calc-sec')">حساب ضريبة كسب العمل</button>
         <button id="t-s1" class="tab-btn" onclick="switchMainTab(event, 's1-sec')">س1 تأمينات</button>
     </div>
 
@@ -86,7 +86,7 @@
 
     <div id="calc-sec" class="content-section">
         <div class="calc-wrapper">
-            <h2 id="calc-h2" style="text-align:center; color:var(--primary);">حاسبة كسب العمل الذكية (2026)</h2>
+            <h2 id="calc-h2" style="text-align:center; color:var(--primary);">حاسبة ضريبة كسب العمل</h2>
             <div class="input-row">
                 <input id="salary" type="number" placeholder="أدخل الراتب الشامل">
                 <input id="netInput" type="number" placeholder="أدخل الصافي المطلوب">
@@ -142,10 +142,10 @@
 
     const translations = {
         ar: {
-            dir: "rtl", name: "لبيب ميشيل لبيب", title: "رئيس قسم الموارد البشرية وخبير الأجور", langBtn: "English",
-            mainTabs: ["السيرة الذاتية", "حاسبة الـ Payroll", "س1 تأمينات"],
+            dir: "rtl", name: "Labeeb Meshel Labeeb", title: "Personnel and Payroll Consultant and Trainer", langBtn: "English",
+            mainTabs: ["السيرة الذاتية", "حاسبة ضريبة كسب العمل", "س1 تأمينات"],
             subTabs: ["الملخص المهني", "التعليم", "الإنجازات", "التدريب", "الإعلام"],
-            calcH2: "حاسبة كسب العمل الذكية (2026)", s1H2: "حساب الأجر التأميني (س1)",
+            calcH2: "حاسبة ضريبة كسب العمل", s1H2: "حساب الأجر التأميني (س1)",
             specialLabel: "تطبيق إعفاء ذوي الهمم (50%)", calcBtns: ["احسب من الإجمالي", "احسب من الصافي", "حساب أجر الاشتراك"],
             tableHeads: ["الشامل", "البدلات", "التأميني", "تأمينات", "الضريبة", "الصافي"],
             footerDev: "إعداد وتنفيذ / لبيب ميشيل", footerJob: "إستشاري شئون العاملين والمرتبات", footerLink: "تواصل معي",
