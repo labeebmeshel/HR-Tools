@@ -6,85 +6,158 @@
     <title>الرئيسية - لبيب ميشيل</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #0b4fb3; --accent: #1e3a8a; --white: #ffffff; }
+        :root { 
+            --primary: #0b4fb3; 
+            --accent: #1e3a8a; 
+            --white: #ffffff; 
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+        }
+        
         body { 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
             margin: 0; 
             display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            flex-direction: column;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             text-align: center;
         }
-        .hero-section { max-width: 800px; padding: 40px; }
+
+        .hero-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .hero-section { 
+            max-width: 900px; 
+            width: 100%;
+        }
+
         h1 { 
             color: var(--primary); 
-            font-size: 3rem; 
-            margin-bottom: 10px; 
+            font-size: clamp(2rem, 5vw, 3.2rem); 
+            margin-bottom: 15px; 
             font-weight: 800;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            letter-spacing: -1px;
         }
-        p { font-size: 1.4rem; color: #475569; margin-bottom: 40px; }
+
+        .subtitle { 
+            font-size: clamp(1.1rem, 3vw, 1.5rem); 
+            color: var(--text-light); 
+            margin-bottom: 50px; 
+            font-weight: 400;
+        }
         
         .tools-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-            gap: 20px; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 25px; 
             margin-top: 20px;
         }
         
         .tool-card {
             background: var(--white);
-            padding: 30px 20px;
-            border-radius: 15px;
+            padding: 40px 20px;
+            border-radius: 20px;
             text-decoration: none;
             color: var(--primary);
-            font-weight: bold;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255,255,255,0.8);
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
         
         .tool-card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-12px);
+            box-shadow: 0 20px 35px -10px rgba(11, 79, 179, 0.2);
             border-color: var(--primary);
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: var(--primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover::before {
+            transform: scaleX(1);
         }
         
-        .tool-card i { font-size: 2.5rem; margin-bottom: 15px; display: block; }
-        .tool-card span { font-size: 1.2rem; }
+        .tool-card i { 
+            font-size: 3rem; 
+            margin-bottom: 20px; 
+            display: block;
+            color: var(--primary);
+        }
+
+        .tool-card span { 
+            font-size: 1.25rem; 
+            font-weight: 700;
+        }
+
+        .tool-card p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: 10px;
+            font-weight: 400;
+        }
+
+        /* Footer Style */
+        footer {
+            padding: 25px;
+            color: var(--text-light);
+            font-size: 0.95rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            background: rgba(255,255,255,0.3);
+        }
 
         @media (max-width: 600px) {
-            h1 { font-size: 2rem; }
-            p { font-size: 1.1rem; }
+            .hero-section { padding: 20px; }
+            .tools-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <div class="hero-section">
-        <h1>المصدر الأول لأدوات الموارد البشرية في مصر</h1>
-        <p>منصة لبيب ميشيل الاحترافية لخدمات الـ HR والـ Payroll</p>
+    <div class="hero-container">
+        <div class="hero-section">
+            <h1>المصدر الأول لأدوات الموارد البشرية في مصر</h1>
+            <p class="subtitle">حلول ذكية لإدارة الأجور، الضرائب، والتأمينات الاجتماعية</p>
 
-        <div class="tools-grid">
-            <div class="tool-card" onclick="window.parent.loadPage(event, 'cv-frame', 1)">
-                <i class="fas fa-file-user"></i>
-                <span>السيرة الذاتية</span>
-            </div>
-            
-            <div class="tool-card" onclick="window.parent.loadPage(event, 'tax-frame', 2)">
-                <i class="fas fa-calculator"></i>
-                <span>حاسبة الضرائب</span>
-            </div>
-            
-            <div class="tool-card" onclick="window.parent.loadPage(event, 's1-frame', 3)">
-                <i class="fas fa-file-invoice-dollar"></i>
-                <span>س1 تأمينات</span>
+            <div class="tools-grid">
+                <div class="tool-card" onclick="window.parent.loadPage(null, 'cv-frame', 1)">
+                    <i class="fas fa-id-card"></i>
+                    <span>السيرة الذاتية</span>
+                    <p>المسار المهني والإنجازات</p>
+                </div>
+                
+                <div class="tool-card" onclick="window.parent.loadPage(null, 'tax-frame', 2)">
+                    <i class="fas fa-calculator"></i>
+                    <span>حاسبة الضرائب</span>
+                    <p>Gross & Net طبقاً لأحدث القوانين</p>
+                </div>
+                
+                <div class="tool-card" onclick="window.parent.loadPage(null, 's1-frame', 3)">
+                    <i class="fas fa-file-contract"></i>
+                    <span>س1 تأمينات</span>
+                    <p>حساب أجر الاشتراك التأميني</p>
+                </div>
             </div>
         </div>
     </div>
+
+    <footer>
+        جميع الحقوق محفوظة &copy; 2026 لبيب ميشيل لبيب
+    </footer>
 
 </body>
 </html>
