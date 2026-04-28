@@ -8,29 +8,18 @@
         :root { --primary: #0b4fb3; --secondary: #f0f4f8; --white: #ffffff; --text: #1a2a40; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f1f5f9; padding: 20px; color: var(--text); }
         .calc-wrapper { max-width: 900px; margin: auto; background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
-        
-        /* العناوين */
         .main-title { text-align: center; color: var(--primary); margin-bottom: 5px; font-size: 1.6rem; }
         .sub-title { text-align: center; color: #64748b; font-size: 0.95rem; margin-bottom: 25px; line-height: 1.4; }
-
         .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .input-group { display: flex; flex-direction: column; }
         label { font-weight: bold; margin-bottom: 5px; color: var(--primary); font-size: 0.9rem; }
         input { padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; }
-        
-        .full-width { grid-column: span 2; }
-        
-        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1rem; margin-top: 10px; transition: 0.3s; }
-        .btn-calc:hover { background: #083b86; }
-
-        .special-chk { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 15px 0; font-weight: bold; background: #eaf2ff; padding: 10px; border-radius: 8px; }
-
+        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1rem; margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; margin-top: 25px; background: white; border-radius: 10px; overflow: hidden; font-size: 0.9rem; }
         th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: center; }
         th { background: var(--primary); color: white; }
         .res-val { font-weight: bold; color: #0b4fb3; }
-
-        @media (max-width: 600px) { .input-grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
+        @media (max-width: 600px) { .input-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -44,11 +33,11 @@
 
     <div class="input-grid">
         <div class="input-group">
-            <label>الأجر</label>
+            <label>الأجر (الأساسي)</label>
             <input id="base_salary" type="number" placeholder="0.00">
         </div>
         <div class="input-group">
-            <label>الأجر الإضافي (حوافز/عمولات/إضافي..)</label>
+            <label>الأجر الإضافي (حوافز/عمولات..)</label>
             <input id="extra_salary" type="number" placeholder="0.00">
         </div>
         <div class="input-group">
@@ -61,18 +50,18 @@
         </div>
     </div>
 
-    <div class="special-chk">
+    <div style="text-align:center; margin: 15px 0; background: #eaf2ff; padding: 10px; border-radius: 8px;">
         <input id="specialNeeds" type="checkbox">
-        <label for="specialNeeds">تطبيق إعفاء ذوي الهمم (50% من الشريحة الصفرية)</label>
+        <label for="specialNeeds" style="font-weight:bold; cursor:pointer;"> تطبيق إعفاء ذوي الهمم (50%)</label>
     </div>
 
-    <button class="btn-calc" onclick="calculateTax()">احسب الضريبة والتحليلات</button>
+    <button class="btn-calc" onclick="calculateTax()">احسب الآن</button>
 
     <table>
         <thead>
             <tr>
                 <th>إجمالي الأجر</th>
-                <th>البدلات المعفاة (تأمينياً)</th>
+                <th>البدلات المعفاة تأمينياً</th>
                 <th>الأجر التأميني</th>
                 <th>حصة العامل 11%</th>
                 <th>الضريبة</th>
@@ -93,62 +82,66 @@
 </div>
 
 <script>
-    function getTax(annualTaxableIncome) {
-        // شرائح قانون 7 لسنة 2024 (الوعاء الضريبي السنوي)
-        // الشريحة الصفرية أصبحت 40,000 جنيهاً
-        if (annualTaxableIncome <= 40000) return 0;
-        if (annualTaxableIncome <= 55000) return (annualTaxableIncome - 40000) * 0.10;
-        if (annualTaxableIncome <= 70000) return (annualTaxableIncome - 55000) * 0.15 + 1500;
-        if (annualTaxableIncome <= 200000) return (annualTaxableIncome - 70000) * 0.20 + 3750;
-        if (annualTaxableIncome <= 400000) return (annualTaxableIncome - 200000) * 0.225 + 29750;
-        if (annualTaxableIncome <= 1200000) return (annualTaxableIncome - 400000) * 0.25 + 74750;
-        return (annualTaxableIncome - 1200000) * 0.275 + 274750;
+    function getTax(annualTaxable) {
+        if (annualTaxable <= 40000) return 0;
+        if (annualTaxable <= 55000) return (annualTaxable - 40000) * 0.10;
+        if (annualTaxable <= 70000) return (annualTaxable - 55000) * 0.15 + 1500;
+        if (annualTaxable <= 200000) return (annualTaxable - 70000) * 0.20 + 3750;
+        if (annualTaxable <= 400000) return (annualTaxable - 200000) * 0.225 + 29750;
+        if (annualTaxable <= 1200000) return (annualTaxable - 400000) * 0.25 + 74750;
+        return (annualTaxable - 1200000) * 0.275 + 274750;
     }
 
     function calculateTax() {
         const base = Number(document.getElementById('base_salary').value || 0);
         const extra = Number(document.getElementById('extra_salary').value || 0);
         const allow = Number(document.getElementById('allowances').value || 0);
-        const healthExempt = Number(document.getElementById('tax_exemptions').value || 0);
+        const medExempt = Number(document.getElementById('tax_exemptions').value || 0);
         
         // 1. إجمالي الأجر
         const totalGross = base + extra + allow;
 
-        // 2. حسبة الأجر التأميني (بناءً على القاعدة التي تستخدمها 30% من الأجر الأساسي كبدلات معفاة بحد أقصى)
-        // نفرض أن الأجر التأميني يُحسب من (الأساسي + الإضافي)
-        let totalForIns = base + extra;
-        let insBase = totalForIns; // تبسيطاً، ويمكن تعديلها حسب حاجتك الدقيقة
-        
-        // تطبيق الحدود التأمينية لعام 2026 (تقديرياً كما في كود س1)
-        if (insBase < 2700) insBase = 2700;
-        if (insBase > 16700) insBase = 16700;
+        // 2. حسبة الأجر التأميني (المنطق المعدل)
+        // الأجر التأميني لا يدخل فيه "الأجر الإضافي" وفقاً لطلبك
+        // نحسب الـ 30% بناءً على الأجر الأساسي + البدلات
+        const totalForInsLogic = base + allow;
+        let theoreticalBase = totalForInsLogic / 1.30;
+        let maxLegalAllow = totalForInsLogic - theoreticalBase;
 
-        const exemptAllowances = totalGross - insBase;
-        const insWorkerShare = insBase * 0.11;
+        let finalInsBase = 0;
+        let finalExemptAllow = 0;
 
-        // 3. حساب الوعاء الضريبي السنوي
-        // الإعفاء الشخصي السنوي (20,000) + حصة التأمينات السنوية + الإعفاءات الطبية
-        const personalExemption = 20000;
-        const annualIns = insWorkerShare * 12;
-        const annualHealth = healthExempt * 12;
-        
-        let annualTaxable = (totalGross * 12) - personalExemption - annualIns - annualHealth;
-        
-        // إعفاء ذوي الهمم (إضافة 50% لقيمة الشريحة المعفاة تعادل خصم من الوعاء)
-        if (document.getElementById('specialNeeds').checked) {
-            annualTaxable = annualTaxable - 20000; // تخفيض الوعاء بما يعادل نصف الشريحة الصفرية
+        if (allow > maxLegalAllow) {
+            finalExemptAllow = maxLegalAllow;
+            finalInsBase = theoreticalBase;
+        } else {
+            finalExemptAllow = allow;
+            finalInsBase = base; // الأجر التأميني هو الأساسي طالما البدلات ضمن الـ 30%
         }
 
-        const monthlyTax = getTax(Math.max(0, annualTaxable)) / 12;
-        const netSalary = totalGross - insWorkerShare - monthlyTax;
+        // تطبيق حدود 2026 (2700 - 16700)
+        if (finalInsBase < 2700) finalInsBase = 2700;
+        if (finalInsBase > 16700) finalInsBase = 16700;
 
-        // عرض النتائج في الجدول
+        const insWorkerShare = finalInsBase * 0.11;
+
+        // 3. حساب الضريبة
+        const personalExemp = 20000;
+        const disabledExemp = document.getElementById('specialNeeds').checked ? 20000 : 0;
+        
+        // الوعاء الضريبي = (إجمالي الأجر - حصة التأمينات - الإعفاء الشخصي - إعفاء طبي)
+        let annualTaxable = (totalGross * 12) - (insWorkerShare * 12) - personalExemp - (medExempt * 12) - disabledExemp;
+
+        const monthlyTax = getTax(Math.max(0, annualTaxable)) / 12;
+        const net = totalGross - insWorkerShare - monthlyTax;
+
+        // العرض
         document.getElementById('res_total_gross').innerText = totalGross.toLocaleString();
-        document.getElementById('res_exempt_allow').innerText = exemptAllowances.toLocaleString();
-        document.getElementById('res_ins_base').innerText = insBase.toLocaleString();
+        document.getElementById('res_exempt_allow').innerText = finalExemptAllow.toLocaleString();
+        document.getElementById('res_ins_base').innerText = finalInsBase.toLocaleString();
         document.getElementById('res_ins_worker').innerText = insWorkerShare.toLocaleString();
         document.getElementById('res_tax').innerText = monthlyTax.toLocaleString(undefined, {maximumFractionDigits: 2});
-        document.getElementById('res_net').innerText = netSalary.toLocaleString(undefined, {maximumFractionDigits: 2});
+        document.getElementById('res_net').innerText = net.toLocaleString(undefined, {maximumFractionDigits: 2});
     }
 </script>
 
