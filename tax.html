@@ -1,1 +1,92 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll Tax Calculator</title>
+    <style>
+        :root { --primary: #0b4fb3; --secondary: #f0f4f8; --white: #ffffff; --text: #1a2a40; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; padding: 20px; color: var(--text); }
+        .calc-wrapper { max-width: 850px; margin: auto; background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.05); }
+        h2 { text-align: center; color: var(--primary); margin-bottom: 30px; }
+        .input-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+        input { padding: 15px; border: 1px solid #cbd5e1; border-radius: 10px; flex: 1; min-width: 200px; font-size: 1rem; }
+        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1rem; margin-bottom: 10px; transition: 0.3s; }
+        .btn-calc:hover { background: #083b86; }
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; background: white; border-radius: 10px; overflow: hidden; }
+        th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: center; }
+        th { background: var(--primary); color: white; }
+        .special-chk { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="calc-wrapper">
+        <h2>حاسبة ضريبة كسب العمل والـ Payroll (2026)</h2>
+        <div class="input-row">
+            <input id="salary" type="number" placeholder="أدخل الراتب الشامل (Gross)">
+            <input id="netInput" type="number" placeholder="أدخل الصافي المطلوب (Net)">
+        </div>
+        <input id="allowances" type="number" placeholder="أدخل البدلات الحقيقية المعفاة" style="width:100%; margin-bottom:15px; box-sizing: border-box;">
+        
+        <div class="special-chk">
+            <input id="specialNeeds" type="checkbox" style="width:20px; height:20px;">
+            <label>تطبيق إعفاء ذوي الهمم (50% إضافي)</label>
+        </div>
 
+        <button class="btn-calc" onclick="runCalc('gross')">احسب من الإجمالي (Gross to Net)</button>
+        <button class="btn-calc" onclick="runCalc('net')" style="background:#475569">احسب من الصافي (Net to Gross)</button>
+
+        <table>
+            <thead>
+                <tr><th>الشامل</th><th>البدلات</th><th>التأميني</th><th>تأمينات</th><th>الضريبة</th><th>الصافي</th></tr>
+            </thead>
+            <tbody>
+                <tr><td id="os">-</td><td id="oa">-</td><td id="oi">-</td><td id="ov">-</td><td id="ot">-</td><td id="on">-</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function getTax(inc) {
+            if(inc <= 40000) return 0;
+            if(inc <= 55000) return (inc - 40000) * 0.1;
+            if(inc <= 70000) return (inc - 55000) * 0.15 + 1500;
+            if(inc <= 200000) return (inc - 70000) * 0.2 + 3750;
+            if(inc <= 400000) return (inc - 200000) * 0.225 + 29750;
+            return (inc - 400000) * 0.25 + 74750;
+        }
+
+        function calcAll(gross) {
+            const allowIn = Number(document.getElementById('allowances').value || 0);
+            let insB = gross / 1.30;
+            if(insB < 2700) insB = 2700; if(insB > 16700) insB = 16700;
+            let finalA = allowIn > (gross - insB) ? (gross - insB) : allowIn;
+            let finalIns = gross - finalA;
+            const insV = finalIns * 0.11;
+            const exemp = document.getElementById('specialNeeds').checked ? 30000 : 20000;
+            const taxable = Math.max(0, (gross - insV) * 12 - exemp);
+            const mTax = getTax(taxable) / 12;
+            return { gross, finalA, finalIns, insV, mTax, net: (gross - insV - mTax) };
+        }
+
+        function runCalc(mode) {
+            let res;
+            if(mode === 'gross') res = calcAll(Number(document.getElementById('salary').value));
+            else {
+                let target = Number(document.getElementById('netInput').value), low = 0, high = 2000000, mid;
+                for(let i=0; i<60; i++) {
+                    mid = (low + high) / 2;
+                    if(calcAll(mid).net < target) low = mid; else high = mid;
+                }
+                res = calcAll(mid); document.getElementById('salary').value = mid.toFixed(2);
+            }
+            document.getElementById('os').innerText = res.gross.toFixed(2);
+            document.getElementById('oa').innerText = res.finalA.toFixed(2);
+            document.getElementById('oi').innerText = res.finalIns.toFixed(2);
+            document.getElementById('ov').innerText = res.insV.toFixed(2);
+            document.getElementById('ot').innerText = res.mTax.toFixed(2);
+            document.getElementById('on').innerText = res.net.toFixed(2);
+        }
+    </script>
+</body>
+</html>
