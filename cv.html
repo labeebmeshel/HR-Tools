@@ -3,160 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Labeeb Meshel - Senior HR Leader</title>
+    <title>Labeeb Meshel Labeeb - Resume</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --linkedin-blue: #0a66c2; --bg-gray: #f3f2ef; --text-main: #191919; --text-sub: #666666; --border-color: #ebebeb; }
-        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-gray); margin: 0; padding: 20px; color: var(--text-main); line-height: 1.5; }
-        
+        :root { --linkedin-blue: #0a66c2; --bg-gray: #f3f2ef; --text-main: #191919; --text-sub: #666666; }
+        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-gray); margin: 0; padding: 20px; color: var(--text-main); }
         .cv-container { max-width: 850px; margin: auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,0.08); }
         
-        /* Banner & Profile Section (LinkedIn Style) */
-        .header-banner { height: 180px; background: linear-gradient(135deg, #0b4fb3 0%, #1e3a8a 100%); position: relative; }
-        .profile-section { padding: 0 24px 24px; position: relative; margin-top: -80px; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
-        .profile-img { width: 160px; height: 160px; border-radius: 50%; border: 4px solid white; object-fit: cover; background: white; }
+        /* Header Style from Image */
+        .header-banner { height: 160px; background: linear-gradient(135deg, #0b4fb3 0%, #1e3a8a 100%); position: relative; }
+        .profile-section { padding: 0 24px 24px; position: relative; margin-top: -75px; }
+        .profile-img { width: 155px; height: 155px; border-radius: 50%; border: 4px solid white; object-fit: cover; background: white; }
         
-        .contact-actions { display: flex; gap: 10px; margin-bottom: 10px; }
-        .btn-connect { background: #0a66c2; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 14px; transition: 0.3s; text-decoration: none; display: flex; align-items: center; gap: 5px; }
-        .btn-connect:hover { background: #084a8a; }
+        .info-content { margin-top: 15px; }
+        .info-content h1 { margin: 0; font-size: 26px; font-weight: 600; }
+        .info-content .headline { font-size: 17px; color: var(--text-main); margin: 5px 0; font-weight: 500; }
+        .info-content .location { color: var(--text-sub); font-size: 14px; margin-bottom: 10px; }
 
-        .info-content { padding: 0 24px; margin-top: 10px; }
-        .info-content h1 { margin: 0; font-size: 28px; font-weight: 600; }
-        .info-content .headline { font-size: 18px; color: var(--text-main); margin: 6px 0; }
-        .info-content .sub-info { color: var(--text-sub); font-size: 14px; margin: 4px 0; }
-
-        /* Social Icons Area */
-        .social-links { display: flex; gap: 18px; margin-top: 15px; }
-        .social-links a { text-decoration: none; font-size: 26px; transition: 0.3s; }
+        /* Social Icons */
+        .social-links { display: flex; gap: 15px; margin-top: 10px; }
+        .social-links a { text-decoration: none; font-size: 24px; transition: 0.3s; }
         .social-links .fa-linkedin { color: #0a66c2; }
         .social-links .fa-facebook { color: #1877f2; }
         .social-links .fa-youtube { color: #ff0000; }
-        .social-links a:hover { transform: scale(1.15); opacity: 0.8; }
 
-        /* Sections Styling */
-        .section-box { padding: 24px; border-bottom: 1px solid var(--border-color); }
-        .section-box:last-child { border-bottom: none; }
-        .section-box h2 { font-size: 20px; color: var(--text-main); margin-top: 0; margin-bottom: 16px; }
-
-        .about-text { font-size: 15px; color: var(--text-main); white-space: pre-line; }
-
-        .experience-item { display: flex; gap: 15px; margin-bottom: 24px; }
-        .company-logo { width: 48px; height: 48px; object-fit: contain; }
-        .exp-details h3 { font-size: 16px; font-weight: 600; margin: 0; color: var(--text-main); }
-        .exp-details .company-name { font-size: 14px; margin: 2px 0; }
-        .exp-details .date-range { font-size: 14px; color: var(--text-sub); margin: 2px 0; }
-        .exp-details .description { font-size: 14px; color: var(--text-main); margin-top: 10px; white-space: pre-line; }
-
-        /* Skills Tags */
-        .skills-list { display: flex; gap: 10px; flex-wrap: wrap; }
-        .skill-tag { background: #f2f2f2; color: #666; padding: 6px 12px; border-radius: 15px; font-size: 13px; font-weight: 600; }
-
-        /* Media Grid */
-        .media-grid { display: flex; gap: 12px; margin-top: 15px; overflow-x: auto; padding-bottom: 10px; }
-        .media-item { min-width: 160px; height: 110px; border-radius: 8px; border: 1px solid var(--border-color); object-fit: cover; cursor: pointer; transition: 0.3s; }
-        .media-item:hover { transform: scale(1.03); }
-
-        @media (max-width: 600px) {
-            .profile-section { justify-content: center; text-align: center; }
-            .header-banner { height: 120px; }
-            .profile-img { width: 120px; height: 120px; margin-top: -40px; }
-        }
+        /* Document Body Style */
+        .section-box { padding: 20px 24px; border-bottom: 1px solid #ebebeb; }
+        .section-title { font-size: 18px; font-weight: 700; color: #0b4fb3; text-transform: uppercase; margin-bottom: 15px; border-bottom: 2px solid #0b4fb3; display: inline-block; }
+        .content-text { font-size: 14.5px; line-height: 1.6; white-space: pre-line; }
+        .sub-heading { font-weight: 700; text-decoration: underline; margin-top: 10px; display: block; }
+        
+        ul { padding-left: 20px; margin: 10px 0; }
+        li { margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
 <div class="cv-container">
     <div class="header-banner"></div>
-    
     <div class="profile-section">
         <img src="me.png" alt="Labeeb Meshel" class="profile-img">
-        <div class="contact-actions">
-            <a href="https://www.linkedin.com/in/labeeb-meshel-labeeb/" target="_blank" class="btn-connect">
-                <i class="fab fa-linkedin"></i> Connect
-            </a>
-        </div>
-    </div>
-
-    <div class="info-content">
-        <h1>Labeeb Meshel Labeeb</h1>
-        <p class="headline">Senior HR Leader | Performance & Talent Development Expert | Payroll & Tax Specialist</p>
-        <p class="sub-info">Cairo, Egypt</p>
-        
-        <div class="social-links">
-            <a href="https://www.linkedin.com/in/labeeb-meshel-labeeb/" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
-            <a href="https://www.facebook.com/Labeeb.Meshel.Labeeb" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
-            <a href="https://www.youtube.com/@labeebmeshellabeeb6590" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
-        </div>
-    </div>
-
-    <div class="section-box">
-        <h2>About</h2>
-        <p class="about-text">
-            Results-driven HR Professional with over 13 years of experience in transforming HR operations, elevating organizational culture, and driving business growth through strategic people management.
+        <div class="info-content">
+            <h1>Labeeb Meshel Labeeb</h1>
+            <p class="headline">Human Resources section head, Trainer (Personnel, Payroll, Income Tax, Soft skills, HRM, Organizational Behavior)</p>
+            <p class="location">Cairo, Egypt</p>
             
-            Specialized in engineering precision payroll systems, compensation & benefits structuring, labor law compliance, and talent development. Proven track record in leading departments through full transformation cycles and leveraging HRIS/ERP NEXT systems to optimize efficiency.
-        </p>
+            <div class="social-links">
+                <a href="https://www.linkedin.com/in/labeeb-meshel-labeeb/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                <a href="https://www.facebook.com/Labeeb.Meshel.Labeeb" target="_blank"><i class="fab fa-facebook"></i></a>
+                <a href="https://www.youtube.com/@labeebmeshellabeeb6590" target="_blank"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
     </div>
 
     <div class="section-box">
-        <h2>Experience</h2>
+        <div class="section-title">CAREER SUMMARY</div>
+        <div class="content-text">
+            <strong>HR Leader | Performance & People Development</strong>
+            (13+ Years Transforming HR Operations & Organizational Culture)
+            
+            <span class="sub-heading">Core Leadership Value:</span>
+            I believe as Douglas Conant taught – “To win in the marketplace, you must first win in the workplace.” This drives my human-centric approach to HR leadership.
+
+            <span class="sub-heading">Strategic HR Management:</span>
+            ✓ Led HR departments through full transformation cycles (3 years as HR Section Head)
+            ✓ Engineered precision payroll systems (7+ years supervising 100% accurate million EGP and EURO payrolls)
+            ✓ Designed performance systems linking compensation to measurable business outcomes
+            ✓ Architected labor law compliance frameworks reducing legal risks by 90%
+
+            <span class="sub-heading">Talent Development Excellence:</span>
+            ► Personnel, Payroll and salaries tax Trainer (8+ years developing 700+ professionals across academia/corporates)
+            ► Human Resources Management and Organizational Behavior Trainer at Leeds International College
+            ► Soft Skills Trainer (8 years developing 500+ professionals across academia/corporates)
+            ► Created quarterly talent analytics dashboards influencing C-suite decisions
+
+            <span class="sub-heading">Operational Command:</span>
+            ► Streamlined HR daily operations achieving 30% efficiency gains
+            ► Built high-morale teams through servant leadership practices
+            ► Championed digital archiving systems reducing document retrieval time by 65%
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-title">EDUCATION</div>
+        <div class="content-text">
+            Ain Shams University, Bachelor of commerce, In June 2012.
+            Last-Year Grade: Very Good
+            
+            <strong>Additional Studies:</strong>
+            • Studied English at (AXON)
+            • Income tax workshop (Mckinsey Academy)
+            • Social Insurance Law workshop (Mckinsey Academy)
+            • Labor Law workshop (Mckinsey Academy)
+            • Preparation of an HR specialist (AUC)
+            • HR Management (H.U)
+            • Professional HR Diploma (Leeds International College)
+            • TOT (Leeds International College)
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-title">FULL TIME EXPERIENCE</div>
         
-        <div class="experience-item">
-            <img src="Leeds.png" alt="Leeds" class="company-logo"> <div class="exp-details">
-                <h3>HR Manager | Lecturer in HRM & Organizational Behavior</h3>
-                <p class="company-name">Leeds International College</p>
-                <p class="date-range">2016 - Present</p>
-                <p class="description">
-                    ✓ Leading HR strategies for academia and corporates.
-                    ✓ Delivered professional training in HRM and Organizational Behavior to master's and doctoral students.
-                    ✓ Developed internal policies ensuring legal compliance and organizational justice.
-                </p>
-            </div>
-        </div>
-        
-        <div class="experience-item">
-            <img src="Praxi.jpg" alt="HU" class="company-logo"> <div class="exp-details">
-                <h3>HR Section Head (Payroll & Personnel)</h3>
-                <p class="company-name">Heliopolis University for Sustainable Development</p>
-                <p class="date-range">2018 - 2024</p>
-                <p class="description">
-                    ✓ Engineered precision payroll systems, supervising accurate payrolls.
-                    ✓ Led ERP NEXT implementation (Employee Affairs, Payroll, Recruitment).
-                    ✓ Digitized performance evaluation systems, cutting processing time by 60%.
-                </p>
-            </div>
+        <div class="content-text">
+            <strong>Leeds International College / Managopia Academy</strong>
+            (From Feb 2016 to Present)
+            <strong>HR Manager / Certified Trainer</strong>
+            • Helping the students and trainees to get their targets.
+            • Deliver the training for the trainees.
+            • Trainer for (Personnel – Payroll – Salaries Tax – Soft Skills).
+            • Responsible for training the students (Master – DBA) for (HRM – Organizational behavior).
+            • I have more than 1600 trainees and students.
+
+            <strong>Heliopolis University for Sustainable Development</strong>
+            (From Jan 2018 to Oct 2024)
+            <strong>HR Section Head (Personnel, Payroll & Insurance)</strong>
+            • Creating and leading the Payroll team.
+            • ERP NEXT implementation (Employee affairs, Payroll, Recruitment).
+            • Responsible for supervision and review for (800) employees and the payroll.
+            • Providing data for (Tax and insurance) authorities.
         </div>
     </div>
 
     <div class="section-box">
-        <h2>Education</h2>
-        <div class="experience-item">
-            <div class="exp-details">
-                <h3>Bachelor of Commerce, Accounting Department</h3>
-                <p class="company-name">Ain Shams University</p>
-                <p class="date-range">Graduated: June 2012 | Grade: Very Good</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="section-box">
-        <h2>Skills</h2>
-        <div class="skills-list">
-            <span class="skill-tag">Strategic HR Management</span>
-            <span class="skill-tag">Payroll Engineering</span>
-            <span class="skill-tag">Compensation & Benefits</span>
-            <span class="skill-tag">Labor Law Compliance (Egypt)</span>
-            <span class="skill-tag">HRIS/ERP NEXT</span>
-            <span class="skill-tag">Talent Development</span>
-            <span class="skill-tag">Organizational Behavior</span>
-        </div>
-    </div>
-
-    <div class="section-box">
-        <h2>Featured Media</h2>
-        <div class="media-grid">
-            <img src="TV1.jpg" class="media-item" title="TV Interview on Egypt Agricultural Channel">
-            <img src="TV1.jpg" class="media-item" title="Graduate Skills Discussion"> <img src="Cast1.jpg" class="media-item" title="Podcast - Employee Affairs Strategies">
+        <div class="section-title">SKILLS</div>
+        <div class="content-text">
+            <strong>Computer Skills:</strong>
+            • Very good at Microsoft Office (Excel, Word, PowerPoint).
+            • Very good at ERP systems (ERP NEXT).
+            
+            <strong>Language Skills:</strong>
+            • Arabic: Mother Tongue.
+            • English: Very Good.
         </div>
     </div>
 </div>
