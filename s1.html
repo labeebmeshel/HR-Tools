@@ -1,1 +1,50 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S1 Insurance Calculator</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; padding: 20px; display: flex; justify-content: center; }
+        .s1-box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); max-width: 500px; width: 100%; }
+        h2 { color: #0b4fb3; text-align: center; }
+        input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #cbd5e1; box-sizing: border-box; font-size: 1rem; }
+        .btn-calc { background: #0b4fb3; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1.1rem; }
+        .res-box { margin-top: 20px; padding: 20px; background: #f0f4f8; border-radius: 10px; border-right: 5px solid #0b4fb3; display: none; }
+        .res-box p { margin: 5px 0; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="s1-box">
+        <h2>حساب أجر الاشتراك (استمارة 1)</h2>
+        <input id="s1_salary" type="number" placeholder="الراتب الأساسي / الشامل">
+        <input id="s1_allowances" type="number" placeholder="البدلات الحقيقية">
+        <button class="btn-calc" onclick="calculateS1()">حساب الأجر التأميني</button>
 
+        <div id="s1_result" class="res-box">
+            <p>أجر الاشتراك التأميني: <span id="res_s1_base" style="color:#0b4fb3;">0</span></p>
+            <p>البدلات المعفاة قانوناً: <span id="res_s1_allow">0</span></p>
+            <p style="font-size:0.8rem; color:#666; margin-top:10px;">* الحدود لعام 2026: (2700 - 16700)</p>
+        </div>
+    </div>
+
+    <script>
+        function calculateS1() {
+            const s = Number(document.getElementById('s1_salary').value || 0);
+            const a = Number(document.getElementById('s1_allowances').value || 0);
+            const t = s + a;
+            let base = t / 1.30;
+            let mAllow = t - base;
+            let fAllow = a > mAllow ? mAllow : a;
+            let fBase = t - fAllow;
+            
+            if(fBase < 2700) fBase = 2700;
+            if(fBase > 16700) fBase = 16700;
+
+            document.getElementById('res_s1_base').innerText = fBase.toFixed(2);
+            document.getElementById('res_s1_allow').innerText = (t - fBase).toFixed(2);
+            document.getElementById('s1_result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
