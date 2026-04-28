@@ -1,122 +1,107 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Labeeb Meshel - Professional CV</title>
+    <title>Labeeb Meshel - Professional Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #0b4fb3; --secondary: #f0f4f8; --white: #ffffff; --text: #1a2a40; --accent: #eaf2ff; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9; margin: 0; padding: 20px; color: var(--text); line-height: 1.8; }
+        :root { --linkedin-blue: #0a66c2; --bg-gray: #f3f2ef; --text-main: #191919; --text-sub: #666666; }
+        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-gray); margin: 0; padding: 20px; color: var(--text-main); }
         
-        .cv-container { max-width: 900px; margin: auto; background: var(--white); border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.05); padding: 30px; }
+        .cv-container { max-width: 850px; margin: auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,0.08); }
         
-        /* Header Section */
-        .header-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); padding-bottom: 20px; margin-bottom: 25px; flex-wrap: wrap; gap: 20px; }
-        .profile-area { display: flex; align-items: center; gap: 20px; }
-        .profile-area img { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--primary); object-fit: cover; }
-        .btn-lang { padding: 8px 18px; cursor: pointer; border: 2px solid var(--primary); background: var(--white); color: var(--primary); border-radius: 8px; font-weight: bold; transition: 0.3s; }
-        .btn-lang:hover { background: var(--primary); color: white; }
-
-        /* Sub Tabs */
-        .sub-tabs { display: flex; gap: 8px; background: var(--accent); padding: 8px; border-radius: 10px; margin-bottom: 25px; flex-wrap: wrap; }
-        .sub-btn { padding: 8px 16px; border: none; background: white; border-radius: 6px; cursor: pointer; font-weight: 600; color: var(--primary); transition: 0.2s; font-size: 0.9rem; }
-        .sub-btn.active { background: var(--primary); color: white; }
-
-        /* Content Cards */
-        .cv-card { display: none; animation: fadeIn 0.4s ease; }
-        .cv-card.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Banner & Profile Section (LinkedIn Style) */
+        .header-banner { height: 150px; background: linear-gradient(90deg, #0b4fb3 0%, #1e3a8a 100%); position: relative; }
+        .profile-section { padding: 0 24px 24px; position: relative; margin-top: -60px; }
+        .profile-img { width: 150px; height: 150px; border-radius: 50%; border: 4px solid white; object-fit: cover; background: white; }
         
-        .card-content { background: #fff; border: 1px solid #e2e8f0; padding: 25px; border-radius: 12px; border-right: 5px solid var(--primary); }
-        .card-content h3 { color: var(--primary); margin-top: 0; border-bottom: 1px solid var(--accent); padding-bottom: 10px; }
-        .card-content p { white-space: pre-wrap; margin: 10px 0; font-size: 1rem; }
+        .info-content { margin-top: 15px; }
+        .info-content h1 { margin: 0; font-size: 24px; font-weight: 600; }
+        .info-content .headline { font-size: 18px; color: var(--text-main); margin: 4px 0; }
+        .info-content .location { color: var(--text-sub); font-size: 14px; }
 
-        /* Media / Images */
-        .img-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
-        .thumb { width: 120px; height: 85px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; transition: 0.3s; }
-        .thumb:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        /* Social Icons Area */
+        .social-links { display: flex; gap: 15px; margin-top: 15px; }
+        .social-links a { text-decoration: none; font-size: 24px; transition: 0.3s; }
+        .social-links .fa-linkedin { color: #0a66c2; }
+        .social-links .fa-facebook { color: #1877f2; }
+        .social-links .fa-youtube { color: #ff0000; }
+        .social-links a:hover { transform: scale(1.2); opacity: 0.8; }
 
-        #imgModal { display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; }
-        #imgModal img { max-width:90%; max-height:90%; border-radius:10px; }
+        /* Experience Tabs Style */
+        .section-box { padding: 24px; border-bottom: 1px solid #ebebeb; }
+        .section-box h2 { font-size: 20px; color: var(--text-main); margin-top: 0; }
+        .experience-item { margin-bottom: 20px; }
+        .exp-title { font-weight: 600; font-size: 16px; margin: 0; }
+        .exp-company { font-size: 14px; color: var(--text-main); margin: 2px 0; }
+        .exp-date { font-size: 14px; color: var(--text-sub); margin: 2px 0; }
+        .exp-desc { font-size: 14px; color: var(--text-main); margin-top: 8px; line-height: 1.5; }
+
+        /* Media Grid */
+        .media-grid { display: flex; gap: 10px; margin-top: 15px; overflow-x: auto; padding-bottom: 10px; }
+        .media-item { min-width: 150px; height: 100px; border-radius: 8px; border: 1px solid #ddd; object-fit: cover; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="imgModal" onclick="this.style.display='none'"><img src="" id="modalImg"></div>
-
 <div class="cv-container">
-    <div class="header-top">
-        <div class="profile-area">
-            <img src="me.png" alt="Labeeb Meshel">
-            <div>
-                <h1 id="p-name" style="margin:0; color:var(--primary);">لبيب ميشيل لبيب</h1>
-                <p id="p-title" style="margin:0; font-weight:bold; color:#64748b;">HR Section Head & Payroll Expert</p>
-            </div>
-        </div>
-        <button class="btn-lang" id="lang-btn" onclick="toggleLanguage()">English Version</button>
-    </div>
-
-    <div class="sub-tabs" id="sub-tabs">
-        <button class="sub-btn active" onclick="showSubTab(event, 'tab-summary')">الملخص المهني</button>
-        <button class="sub-btn" onclick="showSubTab(event, 'tab-edu')">التعليم</button>
-        <button class="sub-btn" onclick="showSubTab(event, 'tab-achieve')">الإنجازات</button>
-        <button class="sub-btn" onclick="showSubTab(event, 'tab-training')">التدريب</button>
-        <button class="sub-btn" onclick="showSubTab(event, 'tab-media')">الظهور الإعلامي</button>
-    </div>
-
-    <div id="tab-summary" class="cv-card active">
-        <div class="card-content">
-            <h3 id="h-summary">الملخص المهني / Career Summary</h3>
-            <p id="txt-summary">قائد في الموارد البشرية مع خبرة تزيد عن 13 عاماً في تحويل عمليات الـ HR وثقافة المؤسسات. خبير في إدارة الأجور (Payroll) وضرائب كسب العمل، ومحاضر معتمد في مجالات إدارة الموارد البشرية والسلوك التنظيمي.</p>
-        </div>
-    </div>
-
-    <div id="tab-edu" class="cv-card">
-        <div class="card-content">
-            <h3 id="h-edu">التعليم والشهادات</h3>
-            <p id="txt-edu">بكالوريوس التجارة - جامعة عين شمس (2012) بتقدير جيد جداً.
-دراسات متخصصة في قانون العمل والتأمينات الاجتماعية (قانون 148 لسنة 2019) وقوانين التأمين الطبي.</p>
-        </div>
-    </div>
-
-    <div id="tab-achieve" class="cv-card">
-        <div class="card-content">
-            <h3 id="h-achieve">أبرز الإنجازات</h3>
-            <p id="txt-achieve">- إعادة تصميم نظام تقييم الأداء في جامعة هليوبوليس (تقليل الوقت بنسبة 60%).
-- قيادة تطبيق نظام ERP NEXT بدقة بيانات 99.8%.
-- تأسيس قسم الموارد البشرية في شركة Avant Garde For Development.
-- تقديم أكثر من 100 فيديو تعليمي مجاني عبر منصة Managopia.</p>
-        </div>
-    </div>
-
-    <div id="tab-training" class="cv-card">
-        <div class="card-content">
-            <h3 id="h-training">الخبرة التدريبية</h3>
-            <p id="txt-training">محاضر بمادة الـ HRM والسلوك التنظيمي لطلبة الماجستير والدكتوراه بكلية ليدز الدولية. تدريب أكثر من 1600 متدرب في أكاديمية مانجوبيا، وتدريب فرق الـ HR في شركات كبرى مثل فالكون جروب.</p>
-            <div class="img-grid">
-                <img src="Leeds.png" class="thumb" onclick="openImg(this.src)">
-                <img src="Praxi.jpg" class="thumb" onclick="openImg(this.src)">
-                <img src="Career.jpg" class="thumb" onclick="openImg(this.src)">
+    <div class="header-banner"></div>
+    <div class="profile-section">
+        <img src="me.png" alt="Labeeb Meshel" class="profile-img">
+        <div class="info-content">
+            <h1>Labeeb Meshel Labeeb</h1>
+            <p class="headline">HR Section Head | Payroll & Income Tax Expert | Certified Trainer</p>
+            <p class="location">Cairo, Egypt</p>
+            
+            <div class="social-links">
+                <a href="https://www.linkedin.com/in/labeeb-meshel-labeeb/" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                <a href="https://www.facebook.com/Labeeb.Meshel.Labeeb" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
+                <a href="https://www.youtube.com/@labeebmeshellabeeb6590" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
             </div>
         </div>
     </div>
 
-    <div id="tab-media" class="cv-card">
-        <div class="card-content">
-            <h3 id="h-media">اللقاءات الإعلامية</h3>
-            <p id="txt-media">لقاءات تلفزيونية في برنامج "نهار جديد" على قناة مصر الزراعية لمناقشة مهارات الخريجين وسوق العمل، بالإضافة إلى لقاءات بودكاست مع أكاديمية هيا وإنسبايرا.</p>
-            <div class="img-grid">
-                <img src="TV1.jpg" class="thumb" onclick="openImg(this.src)">
-                <img src="Cast1.jpg" class="thumb" onclick="openImg(this.src)">
-                <img src="Cast2.png" class="thumb" onclick="openImg(this.src)">
-            </div>
+    <div class="section-box">
+        <h2>About</h2>
+        <p class="exp-desc">HR Leader with 13+ years of experience in transforming HR operations and organizational culture. Passionate about helping businesses achieve the greatest implementation of labor, insurance, and tax laws while ensuring organizational justice through solid internal policies.</p>
+    </div>
+
+    <div class="section-box">
+        <h2>Experience</h2>
+        <div class="experience-item">
+            <p class="exp-title">HR Section Head</p>
+            <p class="exp-company">Heliopolis University for Sustainable Development</p>
+            <p class="exp-date">Jan 2018 - Present</p>
+            <p class="exp-desc">Leading HR operations, payroll management, and strategic HR initiatives including ERP NEXT implementation with 99.8% data accuracy.</p>
+        </div>
+        
+        <div class="experience-item">
+            <p class="exp-title">Certified Trainer (HRM & Organizational Behavior)</p>
+            <p class="exp-company">Leeds International College / Managopia Academy</p>
+            <p class="exp-date">Feb 2016 - Present</p>
+            <p class="exp-desc">Delivered training to 1600+ trainees. Instructing MBA and DBA candidates in HRM and Organizational Behavior.</p>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <h2>Education</h2>
+        <div class="experience-item">
+            <p class="exp-title">Bachelor of Commerce</p>
+            <p class="exp-company">Ain Shams University</p>
+            <p class="exp-date">Graduated 2012 - Very Good Grade</p>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <h2>Media Presence</h2>
+        <div class="media-grid">
+            <img src="TV1.jpg" class="media-item" title="TV Interview - Egypt Agricultural Channel">
+            <img src="Cast1.jpg" class="media-item" title="Podcast - Haya Academy">
+            <img src="Leeds.png" class="media-item" title="Training at Leeds College">
         </div>
     </div>
 </div>
 
-<script>
-    let lang = 'ar';
-    const data = {
-        ar: {
-            title: "HR Section Head & Payroll Expert",
-            summary: "قائد في الموارد البشرية مع خبرة تزيد عن 13 عاماً في تحويل عمليات الـ HR
+</body>
+</html>
