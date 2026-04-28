@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labeeb Meshel - HR Platform</title>
+    <style>
+        :root { --primary: #0b4fb3; --white: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f1f5f9; overflow: hidden; }
+        
+        /* Navigation Bar */
+        .nav-bar { display: flex; background: var(--primary); padding: 5px; position: sticky; top: 0; z-index: 1000; }
+        .nav-btn { flex: 1; padding: 15px; border: none; background: none; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem; border-radius: 8px; }
+        .nav-btn.active { background: white; color: var(--primary); }
+
+        /* Container for Pages */
+        .page-frame { width: 100%; height: calc(100vh - 60px); border: none; display: none; }
+        .page-frame.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="nav-bar">
+        <button class="nav-btn active" onclick="loadPage(event, 'cv-frame')">السيرة الذاتية</button>
+        <button class="nav-btn" onclick="loadPage(event, 'tax-frame')">حاسبة الضرائب</button>
+        <button class="nav-btn" onclick="loadPage(event, 's1-frame')">س1 تأمينات</button>
+    </div>
+
+    <iframe id="cv-frame" class="page-frame active" src="cv.html"></iframe>
+    <iframe id="tax-frame" class="page-frame" src="tax.html"></iframe>
+    <iframe id="s1-frame" class="page-frame" src="s1.html"></iframe>
+
+    <script>
+        function loadPage(evt, frameId) {
+            // إخفاء كل الإطارات
+            document.querySelectorAll('.page-frame').forEach(f => f.classList.remove('active'));
+            // إزالة نشاط الأزرار
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            // إظهار الإطار المطلوب وتفعيل الزر
+            document.getElementById(frameId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>
