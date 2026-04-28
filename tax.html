@@ -3,90 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payroll Tax Calculator</title>
+    <title>حاسبة ضريبة كسب العمل - مصر 2024</title>
     <style>
         :root { --primary: #0b4fb3; --secondary: #f0f4f8; --white: #ffffff; --text: #1a2a40; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; padding: 20px; color: var(--text); }
-        .calc-wrapper { max-width: 850px; margin: auto; background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.05); }
-        h2 { text-align: center; color: var(--primary); margin-bottom: 30px; }
-        .input-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
-        input { padding: 15px; border: 1px solid #cbd5e1; border-radius: 10px; flex: 1; min-width: 200px; font-size: 1rem; }
-        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1rem; margin-bottom: 10px; transition: 0.3s; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f1f5f9; padding: 20px; color: var(--text); }
+        .calc-wrapper { max-width: 900px; margin: auto; background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
+        
+        /* العناوين */
+        .main-title { text-align: center; color: var(--primary); margin-bottom: 5px; font-size: 1.6rem; }
+        .sub-title { text-align: center; color: #64748b; font-size: 0.95rem; margin-bottom: 25px; line-height: 1.4; }
+
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .input-group { display: flex; flex-direction: column; }
+        label { font-weight: bold; margin-bottom: 5px; color: var(--primary); font-size: 0.9rem; }
+        input { padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; }
+        
+        .full-width { grid-column: span 2; }
+        
+        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1rem; margin-top: 10px; transition: 0.3s; }
         .btn-calc:hover { background: #083b86; }
-        table { width: 100%; border-collapse: collapse; margin-top: 25px; background: white; border-radius: 10px; overflow: hidden; }
+
+        .special-chk { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 15px 0; font-weight: bold; background: #eaf2ff; padding: 10px; border-radius: 8px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; background: white; border-radius: 10px; overflow: hidden; font-size: 0.9rem; }
         th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: center; }
         th { background: var(--primary); color: white; }
-        .special-chk { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; font-weight: bold; }
+        .res-val { font-weight: bold; color: #0b4fb3; }
+
+        @media (max-width: 600px) { .input-grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
     </style>
 </head>
 <body>
-    <div class="calc-wrapper">
-        <h2>حاسبة ضريبة كسب العمل والـ Payroll (2026)</h2>
-        <div class="input-row">
-            <input id="salary" type="number" placeholder="أدخل الراتب الشامل (Gross)">
-            <input id="netInput" type="number" placeholder="أدخل الصافي المطلوب (Net)">
-        </div>
-        <input id="allowances" type="number" placeholder="أدخل البدلات الحقيقية المعفاة" style="width:100%; margin-bottom:15px; box-sizing: border-box;">
-        
-        <div class="special-chk">
-            <input id="specialNeeds" type="checkbox" style="width:20px; height:20px;">
-            <label>تطبيق إعفاء ذوي الهمم (50% إضافي)</label>
-        </div>
 
-        <button class="btn-calc" onclick="runCalc('gross')">احسب من الإجمالي (Gross to Net)</button>
-        <button class="btn-calc" onclick="runCalc('net')" style="background:#475569">احسب من الصافي (Net to Gross)</button>
+<div class="calc-wrapper">
+    <h1 class="main-title">حساب ضريبة كسب العمل في القطاع الخاص والحكومي - مصر</h1>
+    <p class="sub-title">
+        طبقاً لقانون الضريبة على الدخل رقم 91 لسنة 2005 ولائحته التنفيذية رقم 991 لسنة 2005<br>
+        وآخر تعديل بالقانون رقم 7 لسنة 2024
+    </p>
 
-        <table>
-            <thead>
-                <tr><th>الشامل</th><th>البدلات</th><th>التأميني</th><th>تأمينات</th><th>الضريبة</th><th>الصافي</th></tr>
-            </thead>
-            <tbody>
-                <tr><td id="os">-</td><td id="oa">-</td><td id="oi">-</td><td id="ov">-</td><td id="ot">-</td><td id="on">-</td></tr>
-            </tbody>
-        </table>
+    <div class="input-grid">
+        <div class="input-group">
+            <label>الأجر</label>
+            <input id="base_salary" type="number" placeholder="0.00">
+        </div>
+        <div class="input-group">
+            <label>الأجر الإضافي (حوافز/عمولات/إضافي..)</label>
+            <input id="extra_salary" type="number" placeholder="0.00">
+        </div>
+        <div class="input-group">
+            <label>إعفاءات ضريبية (تأمين صحي/حياة)</label>
+            <input id="tax_exemptions" type="number" placeholder="0.00">
+        </div>
+        <div class="input-group">
+            <label>البدلات الحقيقية</label>
+            <input id="allowances" type="number" placeholder="0.00">
+        </div>
     </div>
 
-    <script>
-        function getTax(inc) {
-            if(inc <= 40000) return 0;
-            if(inc <= 55000) return (inc - 40000) * 0.1;
-            if(inc <= 70000) return (inc - 55000) * 0.15 + 1500;
-            if(inc <= 200000) return (inc - 70000) * 0.2 + 3750;
-            if(inc <= 400000) return (inc - 200000) * 0.225 + 29750;
-            return (inc - 400000) * 0.25 + 74750;
+    <div class="special-chk">
+        <input id="specialNeeds" type="checkbox">
+        <label for="specialNeeds">تطبيق إعفاء ذوي الهمم (50% من الشريحة الصفرية)</label>
+    </div>
+
+    <button class="btn-calc" onclick="calculateTax()">احسب الضريبة والتحليلات</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>إجمالي الأجر</th>
+                <th>البدلات المعفاة (تأمينياً)</th>
+                <th>الأجر التأميني</th>
+                <th>حصة العامل 11%</th>
+                <th>الضريبة</th>
+                <th>الصافي</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td id="res_total_gross">-</td>
+                <td id="res_exempt_allow">-</td>
+                <td id="res_ins_base">-</td>
+                <td id="res_ins_worker">-</td>
+                <td id="res_tax">-</td>
+                <td id="res_net" class="res-val">-</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function getTax(annualTaxableIncome) {
+        // شرائح قانون 7 لسنة 2024 (الوعاء الضريبي السنوي)
+        // الشريحة الصفرية أصبحت 40,000 جنيهاً
+        if (annualTaxableIncome <= 40000) return 0;
+        if (annualTaxableIncome <= 55000) return (annualTaxableIncome - 40000) * 0.10;
+        if (annualTaxableIncome <= 70000) return (annualTaxableIncome - 55000) * 0.15 + 1500;
+        if (annualTaxableIncome <= 200000) return (annualTaxableIncome - 70000) * 0.20 + 3750;
+        if (annualTaxableIncome <= 400000) return (annualTaxableIncome - 200000) * 0.225 + 29750;
+        if (annualTaxableIncome <= 1200000) return (annualTaxableIncome - 400000) * 0.25 + 74750;
+        return (annualTaxableIncome - 1200000) * 0.275 + 274750;
+    }
+
+    function calculateTax() {
+        const base = Number(document.getElementById('base_salary').value || 0);
+        const extra = Number(document.getElementById('extra_salary').value || 0);
+        const allow = Number(document.getElementById('allowances').value || 0);
+        const healthExempt = Number(document.getElementById('tax_exemptions').value || 0);
+        
+        // 1. إجمالي الأجر
+        const totalGross = base + extra + allow;
+
+        // 2. حسبة الأجر التأميني (بناءً على القاعدة التي تستخدمها 30% من الأجر الأساسي كبدلات معفاة بحد أقصى)
+        // نفرض أن الأجر التأميني يُحسب من (الأساسي + الإضافي)
+        let totalForIns = base + extra;
+        let insBase = totalForIns; // تبسيطاً، ويمكن تعديلها حسب حاجتك الدقيقة
+        
+        // تطبيق الحدود التأمينية لعام 2026 (تقديرياً كما في كود س1)
+        if (insBase < 2700) insBase = 2700;
+        if (insBase > 16700) insBase = 16700;
+
+        const exemptAllowances = totalGross - insBase;
+        const insWorkerShare = insBase * 0.11;
+
+        // 3. حساب الوعاء الضريبي السنوي
+        // الإعفاء الشخصي السنوي (20,000) + حصة التأمينات السنوية + الإعفاءات الطبية
+        const personalExemption = 20000;
+        const annualIns = insWorkerShare * 12;
+        const annualHealth = healthExempt * 12;
+        
+        let annualTaxable = (totalGross * 12) - personalExemption - annualIns - annualHealth;
+        
+        // إعفاء ذوي الهمم (إضافة 50% لقيمة الشريحة المعفاة تعادل خصم من الوعاء)
+        if (document.getElementById('specialNeeds').checked) {
+            annualTaxable = annualTaxable - 20000; // تخفيض الوعاء بما يعادل نصف الشريحة الصفرية
         }
 
-        function calcAll(gross) {
-            const allowIn = Number(document.getElementById('allowances').value || 0);
-            let insB = gross / 1.30;
-            if(insB < 2700) insB = 2700; if(insB > 16700) insB = 16700;
-            let finalA = allowIn > (gross - insB) ? (gross - insB) : allowIn;
-            let finalIns = gross - finalA;
-            const insV = finalIns * 0.11;
-            const exemp = document.getElementById('specialNeeds').checked ? 30000 : 20000;
-            const taxable = Math.max(0, (gross - insV) * 12 - exemp);
-            const mTax = getTax(taxable) / 12;
-            return { gross, finalA, finalIns, insV, mTax, net: (gross - insV - mTax) };
-        }
+        const monthlyTax = getTax(Math.max(0, annualTaxable)) / 12;
+        const netSalary = totalGross - insWorkerShare - monthlyTax;
 
-        function runCalc(mode) {
-            let res;
-            if(mode === 'gross') res = calcAll(Number(document.getElementById('salary').value));
-            else {
-                let target = Number(document.getElementById('netInput').value), low = 0, high = 2000000, mid;
-                for(let i=0; i<60; i++) {
-                    mid = (low + high) / 2;
-                    if(calcAll(mid).net < target) low = mid; else high = mid;
-                }
-                res = calcAll(mid); document.getElementById('salary').value = mid.toFixed(2);
-            }
-            document.getElementById('os').innerText = res.gross.toFixed(2);
-            document.getElementById('oa').innerText = res.finalA.toFixed(2);
-            document.getElementById('oi').innerText = res.finalIns.toFixed(2);
-            document.getElementById('ov').innerText = res.insV.toFixed(2);
-            document.getElementById('ot').innerText = res.mTax.toFixed(2);
-            document.getElementById('on').innerText = res.net.toFixed(2);
-        }
-    </script>
+        // عرض النتائج في الجدول
+        document.getElementById('res_total_gross').innerText = totalGross.toLocaleString();
+        document.getElementById('res_exempt_allow').innerText = exemptAllowances.toLocaleString();
+        document.getElementById('res_ins_base').innerText = insBase.toLocaleString();
+        document.getElementById('res_ins_worker').innerText = insWorkerShare.toLocaleString();
+        document.getElementById('res_tax').innerText = monthlyTax.toLocaleString(undefined, {maximumFractionDigits: 2});
+        document.getElementById('res_net').innerText = netSalary.toLocaleString(undefined, {maximumFractionDigits: 2});
+    }
+</script>
+
 </body>
 </html>
