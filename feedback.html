@@ -8,6 +8,30 @@
     <style>
         :root { --primary: #0b4fb3; --bg: #f1f5f9; --white: #ffffff; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); padding: 20px; color: #1e293b; }
+        
+        /* تصميم نافذة كلمة المرور */
+        #passwordOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); display: flex; align-items: center; justify-content: center;
+            z-index: 9999;
+        }
+        .login-box {
+            background: white; padding: 40px; border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 90%;
+        }
+        .login-box i { font-size: 3rem; color: var(--primary); margin-bottom: 20px; }
+        .login-box input {
+            width: 100%; padding: 12px; margin: 20px 0; border: 2px solid #cbd5e1;
+            border-radius: 10px; font-size: 1.2rem; text-align: center; outline: none;
+        }
+        .btn-login {
+            background: var(--primary); color: white; border: none; padding: 12px 30px;
+            border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%;
+        }
+
+        /* إخفاء محتوى الأداة في البداية */
+        #mainContent { display: none; }
+
         .form-wrapper { max-width: 650px; margin: auto; background: var(--white); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
         h2 { color: var(--primary); text-align: center; margin-bottom: 5px; }
         p.subtitle { text-align: center; color: #64748b; margin-bottom: 25px; font-size: 0.9rem; }
@@ -16,29 +40,30 @@
         label { display: block; font-weight: bold; margin-bottom: 8px; color: var(--primary); font-size: 0.95rem; }
         input, select, textarea { 
             width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; 
-            font-size: 1rem; outline: none; transition: 0.3s; box-sizing: border-box; background: #fdfdfd;
-            font-family: inherit;
+            font-size: 1rem; outline: none; box-sizing: border-box; background: #fdfdfd; font-family: inherit;
         }
-        input:focus, select:focus, textarea:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(11, 79, 179, 0.1); }
-        
         .btn-submit { 
             background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; 
             font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; 
-            display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
         }
-        .btn-submit:hover { opacity: 0.9; transform: translateY(-2px); }
-        .btn-submit:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
-
-        .status-msg { 
-            margin-top: 20px; padding: 15px; border-radius: 10px; text-align: center; 
-            font-weight: bold; display: none; animation: fadeIn 0.5s;
-        }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .status-msg { margin-top: 20px; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; display: none; }
     </style>
 </head>
 <body>
 
-<div class="form-wrapper">
+<div id="passwordOverlay">
+    <div class="login-box">
+        <i class="fas fa-lock"></i>
+        <h3>نظام الملاحظات المحمي</h3>
+        <p style="color:#64748b">يرجى إدخال كلمة المرور للوصول للنموذج</p>
+        <input type="password" id="passInput" placeholder="أدخل كلمة المرور">
+        <button class="btn-login" onclick="checkPassword()">دخول</button>
+        <p id="loginError" style="color: #ef4444; margin-top: 10px; font-size: 0.9rem; display: none;">كلمة المرور غير صحيحة!</p>
+    </div>
+</div>
+
+<div id="mainContent" class="form-wrapper">
     <h2><i class="fas fa-chart-line"></i> نظام قياس الأداء وتطوير الأدوات</h2>
     <p class="subtitle">سجل ملاحظاتك واقتراحاتك لتحسين تجربة العمل</p>
     
@@ -66,17 +91,7 @@
 
         <div class="input-group">
             <label>الوصف الشامل:</label>
-            <textarea id="description" rows="3" placeholder="اشرح الملاحظة بشكل واضح..." required></textarea>
-        </div>
-
-        <div class="input-group">
-            <label>خطوات التكرار (إن وجدت):</label>
-            <textarea id="steps" rows="2" placeholder="كيف ظهر الخطأ؟"></textarea>
-        </div>
-
-        <div class="input-group">
-            <label>مثال تطبيقي:</label>
-            <input type="text" id="example" placeholder="رقم / حالة / سيناريو">
+            <textarea id="description" rows="3" required></textarea>
         </div>
 
         <div class="input-group">
@@ -88,16 +103,32 @@
             </select>
         </div>
 
-        <button type="submit" class="btn-submit" id="submitBtn">
-            <i class="fas fa-paper-plane"></i> إرسال الملاحظة للنظام
-        </button>
+        <button type="submit" class="btn-submit" id="submitBtn">إرسال الملاحظة</button>
     </form>
-
     <div id="statusMsg" class="status-msg"></div>
 </div>
 
 <script>
-    // الرابط الخاص بك المحدث والمدمج
+    // --- إعدادات الحماية ---
+    const SECRET_PASS = "123456"; // يفضل تغيير كلمة المرور من هنا
+
+    function checkPassword() {
+        const input = document.getElementById('passInput').value;
+        const error = document.getElementById('loginError');
+        if (input === SECRET_PASS) {
+            document.getElementById('passwordOverlay').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+        } else {
+            error.style.display = 'block';
+        }
+    }
+
+    // السماح بالدخول عند الضغط على Enter
+    document.getElementById('passInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') checkPassword();
+    });
+
+    // --- إعدادات الإرسال للجوجل شيت ---
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPED7F54Z89VoUQzjEwKke79t39BpZTbZ1t6lIxrJ_r6QCbaKVaDRwU__AWZbP-6Q1/exec';
 
     document.getElementById('feedbackForm').addEventListener('submit', function(e) {
@@ -108,42 +139,30 @@
         btn.disabled = true;
         status.style.display = 'block';
         status.style.background = '#e2e8f0';
-        status.style.color = '#1e293b';
-        status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تسجيل البيانات في النظام...';
+        status.innerHTML = 'جاري الإرسال...';
 
         const formData = {
             userName: document.getElementById('userName').value,
             toolName: document.getElementById('toolName').value,
             noteType: document.getElementById('noteType').value,
             description: document.getElementById('description').value,
-            steps: document.getElementById('steps').value,
-            example: document.getElementById('example').value,
             priority: document.getElementById('priority').value
         };
 
-        // استخدام Fetch مع وضع no-cors للسماح بإرسال البيانات للجوجل سكريبت بنجاح
         fetch(SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors', 
-            cache: 'no-cache',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            mode: 'no-cors',
             body: JSON.stringify(formData)
         }).then(() => {
-            // مع وضع no-cors، الطلب ينجح دائماً في الوصول للشيت حتى لو لم يرجع رد
             status.style.background = '#dcfce7';
             status.style.color = '#15803d';
-            status.innerHTML = '<i class="fas fa-check-circle"></i> تم الإرسال بنجاح! راجع ملف الإكسيل الآن.';
+            status.innerHTML = 'تم الإرسال بنجاح!';
             document.getElementById('feedbackForm').reset();
             btn.disabled = false;
-            
-            // إخفاء رسالة النجاح بعد 4 ثواني
             setTimeout(() => { status.style.display = 'none'; }, 4000);
-        }).catch(err => {
+        }).catch(() => {
             status.style.background = '#fee2e2';
-            status.style.color = '#b91c1c';
-            status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> عذراً، لم نتمكن من الوصول للنظام.';
+            status.innerHTML = 'خطأ في الإرسال';
             btn.disabled = false;
         });
     });
