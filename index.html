@@ -8,8 +8,8 @@
         :root { --primary: #0b4fb3; --white: #ffffff; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f1f5f9; overflow: hidden; }
         
-        .nav-bar { display: flex; background: var(--primary); padding: 5px; position: sticky; top: 0; z-index: 1000; }
-        .nav-btn { flex: 1; padding: 15px; border: none; background: none; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem; border-radius: 8px; }
+        .nav-bar { display: flex; background: var(--primary); padding: 5px; position: sticky; top: 0; z-index: 1000; overflow-x: auto; }
+        .nav-btn { flex: 1; padding: 15px; border: none; background: none; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem; border-radius: 8px; white-space: nowrap; }
         .nav-btn.active { background: white; color: var(--primary); }
 
         .page-frame { width: 100%; height: calc(100vh - 60px); border: none; display: none; }
@@ -23,12 +23,14 @@
         <button class="nav-btn" onclick="loadPage(event, 'cv-frame', 1)">السيرة الذاتية</button>
         <button class="nav-btn" onclick="loadPage(event, 'tax-frame', 2)">حاسبة الضرائب</button>
         <button class="nav-btn" onclick="loadPage(event, 's1-frame', 3)">س1 تأمينات</button>
+        <button class="nav-btn" onclick="loadPage(event, 'tafqit-frame', 4)">أداة التفقيط</button>
     </div>
 
     <iframe id="home-frame" class="page-frame active" src="home.html"></iframe>
     <iframe id="cv-frame" class="page-frame" src="cv.html"></iframe>
     <iframe id="tax-frame" class="page-frame" src="tax.html"></iframe>
     <iframe id="s1-frame" class="page-frame" src="s1.html"></iframe>
+    <iframe id="tafqit-frame" class="page-frame" src="tafqit.html"></iframe>
 
     <script>
         function loadPage(evt, frameId, btnIndex) {
@@ -37,15 +39,13 @@
             
             document.getElementById(frameId).classList.add('active');
             
-            // في حال تم الاستدعاء من داخل الـ iframe (الصفحة الرئيسية)
-            if (evt && evt.currentTarget) {
-                evt.currentTarget.classList.add('active');
-            } else {
-                // تفعيل الزر المناسب في الناف بار العلوي
-                document.querySelectorAll('.nav-btn')[btnIndex].classList.add('active');
+            // تفعيل الزر المناسب في الناف بار العلوي
+            const buttons = document.querySelectorAll('.nav-btn');
+            if (buttons[btnIndex]) {
+                buttons[btnIndex].classList.add('active');
             }
         }
-        // اجعل الوظيفة متاحة للـ Iframes
+        // اجعل الوظيفة متاحة للـ Iframes (مثل صفحة home)
         window.loadPage = loadPage;
     </script>
 </body>
