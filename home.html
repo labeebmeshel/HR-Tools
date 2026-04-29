@@ -33,7 +33,7 @@
         }
 
         .hero-section { 
-            max-width: 900px; 
+            max-width: 1000px; 
             width: 100%;
         }
 
@@ -42,7 +42,6 @@
             font-size: clamp(2rem, 5vw, 3.2rem); 
             margin: 0;
             font-weight: 800;
-            letter-spacing: -1px;
             line-height: 1.2;
         }
 
@@ -82,14 +81,14 @@
         
         .tools-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
-            gap: 25px; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 20px; 
             margin-top: 20px;
         }
         
         .tool-card {
             background: var(--white);
-            padding: 40px 20px;
+            padding: 30px 15px;
             border-radius: 20px;
             text-decoration: none;
             color: var(--primary);
@@ -97,59 +96,38 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid rgba(255,255,255,0.8);
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
         }
         
         .tool-card:hover {
-            transform: translateY(-12px);
+            transform: translateY(-10px);
             box-shadow: 0 20px 35px -10px rgba(11, 79, 179, 0.2);
             border-color: var(--primary);
         }
-
-        .tool-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 4px;
-            background: var(--primary);
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-
-        .tool-card:hover::before {
-            transform: scaleX(1);
-        }
         
         .tool-card i { 
-            font-size: 3rem; 
-            margin-bottom: 20px; 
+            font-size: 2.5rem; 
+            margin-bottom: 15px; 
             display: block;
             color: var(--primary);
         }
 
         .tool-card span { 
-            font-size: 1.25rem; 
+            font-size: 1.15rem; 
             font-weight: 700;
         }
 
         .tool-card p {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-light);
-            margin-top: 10px;
-            font-weight: 400;
+            margin-top: 8px;
         }
 
         footer {
-            padding: 25px;
+            padding: 20px;
             color: var(--text-light);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             border-top: 1px solid rgba(0,0,0,0.05);
             background: rgba(255,255,255,0.3);
-        }
-
-        @media (max-width: 600px) {
-            .hero-section { padding: 20px; }
-            .tools-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -160,32 +138,35 @@
             <h1>المصدر الأول</h1>
             <span class="main-title-sub">لأدوات الموارد البشرية في مصر</span>
             <p class="subtitle">مشروع الميثاق الذكي برعاية أكاديمية براكسي PRAXI</p>
-            <p class="subtitle">حلول ذكية لإدارة السياسات واللوائح، شئون العاملين، الأجور، الضرائب، والتأمينات الاجتماعية</p>
-
-
             
             <div class="social-links">
-                <a href="https://web.facebook.com/praxiacademy/" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
-                <a href="https://www.linkedin.com/company/praxiacademy/" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                <a href="https://web.facebook.com/praxiacademy/" target="_blank"><i class="fab fa-facebook"></i></a>
+                <a href="https://www.linkedin.com/company/praxiacademy/" target="_blank"><i class="fab fa-linkedin"></i></a>
             </div>
 
             <div class="tools-grid">
                 <div class="tool-card" onclick="window.parent.loadPage(null, 'cv-frame', 1)">
                     <i class="fas fa-id-card"></i>
                     <span>السيرة الذاتية</span>
-                    <p>المسار المهني والإنجازات</p>
+                    <p>Professional Resume</p>
                 </div>
                 
                 <div class="tool-card" onclick="window.parent.loadPage(null, 'tax-frame', 2)">
                     <i class="fas fa-calculator"></i>
                     <span>حاسبة الضرائب</span>
-                    <p>Gross & Net طبقاً لأحدث القوانين</p>
+                    <p>Gross & Net Tax</p>
                 </div>
                 
                 <div class="tool-card" onclick="window.parent.loadPage(null, 's1-frame', 3)">
                     <i class="fas fa-file-contract"></i>
                     <span>س1 تأمينات</span>
-                    <p>حساب أجر الاشتراك التأميني</p>
+                    <p>أجر الاشتراك التأميني</p>
+                </div>
+
+                <div class="tool-card" onclick="window.parent.loadPage(null, 'tafqit-frame', 4)">
+                    <i class="fas fa-spell-check"></i>
+                    <span>أداة التفقيط</span>
+                    <p>Number to Words</p>
                 </div>
             </div>
         </div>
