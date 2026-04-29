@@ -3,34 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أداة التفقيط المجمع - الميثاق الذكي</title>
+    <title>أداة التفقيط الذكي من إكسيل</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #0b4fb3; --secondary: #f8fafc; --white: #ffffff; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f1f5f9; padding: 20px; color: #1e293b; }
-        .calc-wrapper { max-width: 950px; margin: auto; background: var(--white); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        h2 { color: var(--primary); text-align: center; margin-bottom: 10px; }
-        p.desc { text-align: center; color: #64748b; margin-bottom: 25px; }
+        .calc-wrapper { max-width: 1000px; margin: auto; background: var(--white); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h2 { color: var(--primary); text-align: center; margin-bottom: 5px; }
+        p.desc { text-align: center; color: #64748b; margin-bottom: 20px; }
         
-        .input-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; background: var(--secondary); padding: 20px; border-radius: 15px; }
-        .input-field { display: flex; flex-direction: column; }
-        .input-field label { font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; color: var(--primary); }
-        input { padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; text-align: center; font-weight: bold; }
+        .paste-area { margin-bottom: 25px; text-align: center; }
+        textarea { width: 95%; height: 120px; padding: 15px; border: 2px dashed #cbd5e1; border-radius: 12px; font-size: 1rem; text-align: right; outline: none; transition: 0.3s; background: #fdfdfd; resize: none; }
+        textarea:focus { border-color: var(--primary); background: #fff; }
         
         .actions { text-align: center; margin-bottom: 30px; display: flex; gap: 10px; justify-content: center; }
-        .btn { border: none; padding: 12px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .btn { border: none; padding: 12px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; font-size: 1rem; }
         .btn-convert { background: var(--primary); color: white; }
         .btn-copy { background: #10b981; color: white; display: none; }
+        .btn-clear { background: #ef4444; color: white; }
         .btn:hover { opacity: 0.9; transform: translateY(-2px); }
 
-        .table-container { overflow-x: auto; margin-top: 20px; display: none; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; }
-        th { background: var(--primary); color: white; padding: 12px; font-size: 0.9rem; }
-        td { padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; color: #334155; }
-        tr:hover { background-color: #f1f5f9; }
-        .num-col { font-weight: bold; color: var(--primary); width: 15%; }
-        .ar-col { width: 42.5%; }
-        .en-col { width: 42.5%; text-align: left; direction: ltr; }
+        .table-container { overflow-x: auto; margin-top: 20px; display: none; border-radius: 12px; border: 1px solid #e2e8f0; }
+        table { width: 100%; border-collapse: collapse; background: white; min-width: 800px; }
+        th { background: var(--primary); color: white; padding: 15px; font-size: 0.95rem; position: sticky; top: 0; }
+        td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; color: #334155; vertical-align: middle; }
+        tr:hover { background-color: #f8fafc; }
+        .num-col { font-weight: bold; color: var(--primary); width: 15%; text-align: center; }
+        .ar-col { width: 42.5%; line-height: 1.6; }
+        .en-col { width: 42.5%; text-align: left; direction: ltr; line-height: 1.6; }
 
         .toast { position: fixed; bottom: 20px; right: 20px; background: #334155; color: white; padding: 12px 24px; border-radius: 8px; display: none; z-index: 1000; }
     </style>
@@ -38,18 +38,22 @@
 <body>
 
 <div class="calc-wrapper">
-    <h2>مسير التفقيط المجمع</h2>
-    <p class="desc">أدخل حتى 10 مبالغ لاستخراج جدول تفقيط جاهز للنسخ</p>
+    <h2>التفقيط الذكي للمسيرات (Excel Paste)</h2>
+    <p class="desc">انسخ عمود المبالغ من الإكسيل والصقه هنا مباشرة</p>
     
-    <div class="input-grid" id="inputContainer">
-        </div>
+    <div class="paste-area">
+        <textarea id="bulkInput" placeholder="قم بلصق الأرقام هنا... (رقم في كل سطر)"></textarea>
+    </div>
 
     <div class="actions">
-        <button class="btn btn-convert" onclick="generateTable()">
-            <i class="fas fa-magic"></i> إنشاء الجدول
+        <button class="btn btn-convert" onclick="processBulk()">
+            <i class="fas fa-magic"></i> تفقيط الكل
         </button>
         <button id="copyBtn" class="btn btn-copy" onclick="copyTable()">
-            <i class="fas fa-copy"></i> نسخ الجدول بالكامل
+            <i class="fas fa-copy"></i> نسخ الجدول للاكسيل
+        </button>
+        <button class="btn btn-clear" onclick="clearAll()">
+            <i class="fas fa-trash"></i> مسح
         </button>
     </div>
 
@@ -57,7 +61,7 @@
         <table id="resultTable">
             <thead>
                 <tr>
-                    <th>المبلغ</th>
+                    <th>المبلغ الرقمي</th>
                     <th>التفقيط بالعربي</th>
                     <th>Tafqeet (English)</th>
                 </tr>
@@ -67,19 +71,9 @@
     </div>
 </div>
 
-<div id="toast" class="toast">تم نسخ الجدول إلى الحافظة!</div>
+<div id="toast" class="toast">تم نسخ الجدول بنجاح!</div>
 
 <script>
-    // إنشاء الحقول عند التحميل
-    const container = document.getElementById('inputContainer');
-    for (let i = 1; i <= 10; i++) {
-        container.innerHTML += `
-            <div class="input-field">
-                <label>مبلغ ${i}</label>
-                <input type="number" step="0.01" class="amount-input" placeholder="0.00">
-            </div>`;
-    }
-
     const onesAr = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة', 'عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
     const tensAr = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
     const hundredsAr = ['', 'مائة', 'مائتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
@@ -116,60 +110,55 @@
         return tafqeetEn(Math.floor(num / 1000000)) + ' Million' + (num % 1000000 !== 0 ? ' ' + tafqeetEn(num % 1000000) : '');
     }
 
-    function generateTable() {
-        const inputs = document.querySelectorAll('.amount-input');
+    function processBulk() {
+        const input = document.getElementById('bulkInput').value;
+        const lines = input.split(/[\n,]+/).map(l => l.trim()).filter(l => l !== "" && !isNaN(l));
+        
+        if (lines.length === 0) {
+            alert("يرجى لصق أرقام صحيحة");
+            return;
+        }
+
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
-        let hasData = false;
 
-        inputs.forEach(input => {
-            const val = parseFloat(input.value);
-            if (!isNaN(val) && val > 0) {
-                hasData = true;
-                const intPart = Math.floor(val);
-                const decPart = Math.round((val - intPart) * 100);
+        lines.forEach(line => {
+            const val = parseFloat(line);
+            const intPart = Math.floor(val);
+            const decPart = Math.round((val - intPart) * 100);
 
-                let arText = "فقط " + tafqeetAr(intPart) + " جنيهاً مصرياً" + (decPart > 0 ? " و" + tafqeetAr(decPart) + " قرشاً لا غير" : " لا غير");
-                let enText = "Only " + tafqeetEn(intPart) + " EGP" + (decPart > 0 ? " and " + tafqeetEn(decPart) + " Piastres" : "") + " only.";
+            let arText = "فقط " + tafqeetAr(intPart) + " جنيهاً مصرياً" + (decPart > 0 ? " و" + tafqeetAr(decPart) + " قرشاً لا غير" : " لا غير");
+            let enText = "Only " + tafqeetEn(intPart) + " EGP" + (decPart > 0 ? " and " + tafqeetEn(decPart) + " Piastres" : "") + " only.";
 
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="num-col">${val.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                        <td class="ar-col">${arText}</td>
-                        <td class="en-col">${enText}</td>
-                    </tr>`;
-            }
+            tbody.innerHTML += `
+                <tr>
+                    <td class="num-col">${val.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                    <td class="ar-col">${arText}</td>
+                    <td class="en-col">${enText}</td>
+                </tr>`;
         });
 
-        if (hasData) {
-            document.getElementById('tableContainer').style.display = 'block';
-            document.getElementById('copyBtn').style.display = 'flex';
-        } else {
-            alert("يرجى إدخال مبلغ واحد على الأقل");
-        }
+        document.getElementById('tableContainer').style.display = 'block';
+        document.getElementById('copyBtn').style.display = 'flex';
+    }
+
+    function clearAll() {
+        document.getElementById('bulkInput').value = '';
+        document.getElementById('tableBody').innerHTML = '';
+        document.getElementById('tableContainer').style.display = 'none';
+        document.getElementById('copyBtn').style.display = 'none';
     }
 
     function copyTable() {
         const table = document.getElementById('resultTable');
-        let range, sel;
-        if (document.createRange && window.getSelection) {
-            range = document.createRange();
-            sel = window.getSelection();
-            sel.removeAllRanges();
-            try {
-                range.selectNodeContents(table);
-                sel.addRange(range);
-            } catch (e) {
-                range.selectNode(table);
-                sel.addRange(range);
-            }
-            document.execCommand('copy');
-            sel.removeAllRanges();
-            showToast();
-        }
-    }
-
-    function showToast() {
+        const range = document.createRange();
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        range.selectNodeContents(table);
+        sel.addRange(range);
+        document.execCommand('copy');
+        sel.removeAllRanges();
+        
         const t = document.getElementById('toast');
         t.style.display = 'block';
         setTimeout(() => t.style.display = 'none', 2500);
