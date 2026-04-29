@@ -1,30 +1,40 @@
-function tafqeetAr(num) {
+<script>
+    const onesAr = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة', 'عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
+    const tensAr = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+    const hundredsAr = ['', 'مائة', 'مائتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+
+    function tafqeetAr(num) {
         if (num === 0) return 'صفر';
         if (num < 20) return onesAr[num];
         
-        // تعديل منطق الآحاد والعشرات هنا
+        // ضبط العشرات (تقديم الآحاد على العشرات)
         if (num < 100) {
             const unit = num % 10;
             const ten = Math.floor(num / 10);
             return (unit !== 0 ? onesAr[unit] + ' و' : '') + tensAr[ten];
         }
         
+        // ضبط المئات
         if (num < 1000) {
             const remainder = num % 100;
             return hundredsAr[Math.floor(num / 100)] + (remainder !== 0 ? ' و' + tafqeetAr(remainder) : '');
         }
         
+        // ضبط الآلاف (القاعدة القانونية الصحيحة)
         if (num < 1000000) {
             const remainder = num % 1000;
             const thousands = Math.floor(num / 1000);
-            let thosandsWord = '';
+            let thousandsWord = '';
             
-            if (thousands === 1) thosandsWord = 'ألف';
-            else if (thousands === 2) thosandsWord = 'ألفين';
-            else if (thousands >= 3 && thousands <= 10) thosandsWord = tafqeetAr(thousands) + ' آلاف';
-            else thosandsWord = tafqeetAr(thousands) + ' ألف';
+            if (thousands === 1) thousandsWord = 'ألف';
+            else if (thousands === 2) thousandsWord = 'ألفين';
+            else if (thousands >= 3 && thousands <= 10) thousandsWord = tafqeetAr(thousands) + ' آلاف';
+            else {
+                // للأعداد من 11 لـ 99 ألف (تقديم الآحاد على العشرات)
+                thousandsWord = tafqeetAr(thousands) + ' ألف';
+            }
             
-            return thosandsWord + (remainder !== 0 ? ' و' + tafqeetAr(remainder) : '');
+            return thousandsWord + (remainder !== 0 ? ' و' + tafqeetAr(remainder) : '');
         }
         
         if (num < 1000000000) {
@@ -33,3 +43,49 @@ function tafqeetAr(num) {
         }
         return 'رقم كبير جداً';
     }
+
+    function tafqeetEn(num) {
+        const onesEn = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        const tensEn = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        
+        if (num === 0) return 'Zero';
+        if (num < 20) return onesEn[num];
+        if (num < 100) return tensEn[Math.floor(num / 10)] + (num % 10 !== 0 ? '-' + onesEn[num % 10] : '');
+        if (num < 1000) return onesEn[Math.floor(num / 100)] + ' Hundred' + (num % 100 !== 0 ? ' and ' + tafqeetEn(num % 100) : '');
+        if (num < 1000000) return tafqeetEn(Math.floor(num / 1000)) + ' Thousand' + (num % 1000 !== 0 ? ' ' + tafqeetEn(num % 1000) : '');
+        return tafqeetEn(Math.floor(num / 1000000)) + ' Million' + (num % 1000000 !== 0 ? ' ' + tafqeetEn(num % 1000000) : '');
+    }
+
+    function processConversion() {
+        const val = document.getElementById('numInput').value;
+        if (!val || val < 0) {
+            alert("يرجى إدخال مبلغ صحيح");
+            return;
+        }
+
+        const num = parseFloat(val);
+        const integerPart = Math.floor(num);
+        const decimalPart = Math.round((num - integerPart) * 100);
+
+        // النتيجة العربية
+        let resAr = "فقط " + tafqeetAr(integerPart) + " جنيهاً مصرياً";
+        if (decimalPart > 0) resAr += " و" + tafqeetAr(decimalPart) + " قرشاً لا غير";
+        else resAr += " لا غير";
+        document.getElementById('resAr').innerText = resAr;
+
+        // النتيجة الإنجليزية
+        let resEn = "Only " + tafqeetEn(integerPart) + " Egyptian Pounds";
+        if (decimalPart > 0) resEn += " and " + tafqeetEn(decimalPart) + " Piastres";
+        resEn += " only.";
+        document.getElementById('resEn').innerText = resEn;
+    }
+
+    function copyText(id) {
+        const text = document.getElementById(id).innerText;
+        if (text === "--") return;
+        navigator.clipboard.writeText(text);
+        const t = document.getElementById('toast');
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 2000);
+    }
+</script>
