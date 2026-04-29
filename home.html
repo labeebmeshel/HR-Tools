@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الرئيسية - لبيب ميشيل</title>
+    <title>الرئيسية - الميثاق الذكي</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { 
@@ -40,16 +40,44 @@
         h1 { 
             color: var(--primary); 
             font-size: clamp(2rem, 5vw, 3.2rem); 
-            margin-bottom: 15px; 
+            margin: 0;
             font-weight: 800;
             letter-spacing: -1px;
+            line-height: 1.2;
+        }
+
+        .main-title-sub {
+            color: var(--primary);
+            font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+            font-weight: 800;
+            margin-bottom: 10px;
+            display: block;
         }
 
         .subtitle { 
-            font-size: clamp(1.1rem, 3vw, 1.5rem); 
-            color: var(--text-light); 
-            margin-bottom: 50px; 
-            font-weight: 400;
+            font-size: clamp(1rem, 2.5vw, 1.3rem); 
+            color: var(--accent); 
+            margin-bottom: 20px; 
+            font-weight: 600;
+        }
+
+        .social-links {
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .social-links a {
+            color: var(--primary);
+            font-size: 1.8rem;
+            transition: transform 0.3s ease;
+            text-decoration: none;
+        }
+
+        .social-links a:hover {
+            transform: scale(1.2);
+            color: var(--accent);
         }
         
         .tools-grid { 
@@ -111,7 +139,6 @@
             font-weight: 400;
         }
 
-        /* Footer Style */
         footer {
             padding: 25px;
             color: var(--text-light);
@@ -130,8 +157,14 @@
 
     <div class="hero-container">
         <div class="hero-section">
-            <h1>المصدر الأول لأدوات الموارد البشرية في مصر</h1>
-            <p class="subtitle">حلول ذكية لإدارة الأجور، الضرائب، والتأمينات الاجتماعية</p>
+            <h1>المصدر الأول</h1>
+            <span class="main-title-sub">لأدوات الموارد البشرية في مصر</span>
+            <p class="subtitle">مشروع الميثاق الذكي برعاية أكاديمية براكسي PRAXI</p>
+            
+            <div class="social-links">
+                <a href="https://web.facebook.com/praxiacademy/" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
+                <a href="https://www.linkedin.com/company/praxiacademy/" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+            </div>
 
             <div class="tools-grid">
                 <div class="tool-card" onclick="window.parent.loadPage(null, 'cv-frame', 1)">
@@ -156,7 +189,7 @@
     </div>
 
     <footer>
-        جميع الحقوق محفوظة &copy; 2026 لبيب ميشيل لبيب
+        جميع الحقوق محفوظة &copy; 2026 - أكاديمية براكسي
     </footer>
 
 </body>
