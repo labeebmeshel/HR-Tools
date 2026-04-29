@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أداة التفقيط الاحترافية</title>
+    <title>أداة التفقيط الاحترافية - الميثاق الذكي</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #0b4fb3; --secondary: #f0f4f8; --white: #ffffff; }
@@ -13,58 +13,88 @@
         
         .input-group { margin-bottom: 20px; text-align: center; }
         label { display: block; font-weight: bold; margin-bottom: 10px; color: var(--primary); font-size: 1.1rem; }
-        input { width: 80%; padding: 15px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 1.5rem; text-align: center; outline: none; transition: 0.3s; }
+        input { width: 85%; padding: 15px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 1.5rem; text-align: center; outline: none; transition: 0.3s; }
         input:focus { border-color: var(--primary); }
         
-        .convert-btn { background: var(--primary); color: white; border: none; padding: 15px 40px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.3s; width: 80%; }
+        .convert-btn { background: var(--primary); color: white; border: none; padding: 15px 40px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.3s; width: 85%; }
         .convert-btn:hover { background: #084a8a; transform: translateY(-2px); }
 
         .result-box { margin-top: 30px; padding: 20px; border-radius: 15px; background: #f8fafc; border: 1px solid #e2e8f0; }
-        .res-item { position: relative; padding: 15px; background: white; border-radius: 10px; margin-bottom: 15px; border: 1px solid #edf2f7; }
+        .res-item { position: relative; padding: 15px; background: white; border-radius: 10px; margin-bottom: 15px; border: 1px solid #edf2f7; text-align: right; }
         .res-label { font-size: 0.9rem; color: #64748b; font-weight: bold; display: block; margin-bottom: 10px; }
-        .res-text { font-size: 1.15rem; color: #0f172a; font-weight: 600; line-height: 1.6; padding-left: 45px; min-height: 25px; }
+        .res-text { font-size: 1.1rem; color: #0f172a; font-weight: 600; line-height: 1.6; padding-left: 50px; min-height: 30px; word-wrap: break-word; }
         
-        .copy-btn { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); background: #f1f5f9; border: none; padding: 8px; border-radius: 8px; cursor: pointer; color: var(--primary); transition: 0.3s; }
+        .copy-btn { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: #f1f5f9; border: none; padding: 10px; border-radius: 8px; cursor: pointer; color: var(--primary); transition: 0.3s; }
         .copy-btn:hover { background: var(--primary); color: white; }
-        .copy-btn i { font-size: 1.1rem; }
         
-        .toast { position: fixed; bottom: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 8px; display: none; z-index: 1000; }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 8px; display: none; z-index: 1000; font-weight: bold; }
+        
+        /* خاص باللغة الإنجليزية في وضع RTL */
+        .en-res { text-align: left; direction: ltr; }
+        .en-res .copy-btn { left: auto; right: 10px; }
+        .en-res .res-text { padding-left: 0; padding-right: 50px; }
     </style>
 </head>
 <body>
 
 <div class="calc-wrapper">
-    <h2>أداة التفقيط المالي</h2>
+    <h2>أداة التفقيط المالي الذكية</h2>
     
     <div class="input-group">
-        <label>أدخل المبلغ الرقمي (بالجنيه):</label>
+        <label>أدخل المبلغ الرقمي:</label>
         <input id="numInput" type="number" step="0.01" placeholder="0.00">
         <br>
-        <button class="convert-btn" onclick="convert()">تحويل إلى حروف</button>
+        <button class="convert-btn" onclick="processConversion()">تحويل المبلغ إلى نصوص</button>
     </div>
 
     <div class="result-box">
         <div class="res-item">
-            <span class="res-label">التفقيط بالعربي:</span>
+            <span class="res-label">التفقيط باللغة العربية:</span>
             <div id="resAr" class="res-text">--</div>
             <button class="copy-btn" onclick="copyText('resAr')" title="نسخ"><i class="fas fa-copy"></i></button>
         </div>
         
-        <div class="res-item">
-            <span class="res-label">In English:</span>
+        <div class="res-item en-res">
+            <span class="res-label" style="text-align: left; direction: ltr;">In English Language:</span>
             <div id="resEn" class="res-text">--</div>
-            <button class="copy-btn" onclick="copyText('resEn')" title="نسخ"><i class="fas fa-copy"></i></button>
+            <button class="copy-btn" onclick="copyText('resEn')" title="Copy"><i class="fas fa-copy"></i></button>
         </div>
     </div>
 </div>
 
 <div id="toast" class="toast">تم النسخ بنجاح!</div>
 
-<script src="https://cdn.jsdelivr.net/npm/n2words@2.0.2/dist/n2words.min.js"></script>
 <script>
-    function convert() {
+    const onesAr = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة', 'عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
+    const tensAr = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+    const hundredsAr = ['', 'مائة', 'مائتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+
+    function tafqeetAr(num) {
+        if (num === 0) return 'صفر';
+        if (num < 20) return onesAr[num];
+        if (num < 100) return tensAr[Math.floor(num / 10)] + (num % 10 !== 0 ? ' و' + onesAr[num % 10] : '');
+        if (num < 1000) return hundredsAr[Math.floor(num / 100)] + (num % 100 !== 0 ? ' و' + tafqeetAr(num % 100) : '');
+        if (num < 1000000) return tafqeetAr(Math.floor(num / 1000)) + ' ألف' + (num % 1000 !== 0 ? ' و' + tafqeetAr(num % 1000) : '');
+        if (num < 1000000000) return tafqeetAr(Math.floor(num / 1000000)) + ' مليون' + (num % 1000000 !== 0 ? ' و' + tafqeetAr(num % 1000000) : '');
+        return 'رقم كبير جداً';
+    }
+
+    function tafqeetEn(num) {
+        const onesEn = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        const tensEn = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        
+        if (num === 0) return 'Zero';
+        if (num < 20) return onesEn[num];
+        if (num < 100) return tensEn[Math.floor(num / 10)] + (num % 10 !== 0 ? '-' + onesEn[num % 10] : '');
+        if (num < 1000) return onesEn[Math.floor(num / 100)] + ' Hundred' + (num % 100 !== 0 ? ' and ' + tafqeetEn(num % 100) : '');
+        if (num < 1000000) return tafqeetEn(Math.floor(num / 1000)) + ' Thousand' + (num % 1000 !== 0 ? ' ' + tafqeetEn(num % 1000) : '');
+        if (num < 1000000000) return tafqeetEn(Math.floor(num / 1000000)) + ' Million' + (num % 1000000 !== 0 ? ' ' + tafqeetEn(num % 1000000) : '');
+        return 'Too Large';
+    }
+
+    function processConversion() {
         const val = document.getElementById('numInput').value;
-        if (!val || val == 0) {
+        if (!val || val < 0) {
             alert("يرجى إدخال مبلغ صحيح");
             return;
         }
@@ -73,37 +103,26 @@
         const integerPart = Math.floor(num);
         const decimalPart = Math.round((num - integerPart) * 100);
 
-        // التفقيط العربي
-        try {
-            let arText = "فقط " + n2words(integerPart, {lang: 'ar'}) + " جنيه مصري";
-            if (decimalPart > 0) {
-                arText += " و " + n2words(decimalPart, {lang: 'ar'}) + " قرشاً لا غير";
-            } else {
-                arText += " لا غير";
-            }
-            document.getElementById('resAr').innerText = arText;
-        } catch (e) { document.getElementById('resAr').innerText = "خطأ في التحويل"; }
+        // التنفيذ العربي
+        let resAr = "فقط " + tafqeetAr(integerPart) + " جنيهاً مصرياً";
+        if (decimalPart > 0) resAr += " و" + tafqeetAr(decimalPart) + " قرشاً لا غير";
+        else resAr += " لا غير";
+        document.getElementById('resAr').innerText = resAr;
 
-        // التفقيط الإنجليزي
-        try {
-            let enText = "Only " + n2words(integerPart, {lang: 'en'}) + " Egyptian Pounds";
-            if (decimalPart > 0) {
-                enText += " and " + n2words(decimalPart, {lang: 'en'}) + " Piastres";
-            }
-            enText += " only.";
-            document.getElementById('resEn').innerText = enText;
-        } catch (e) { document.getElementById('resEn').innerText = "Error in conversion"; }
+        // التنفيذ الإنجليزي
+        let resEn = "Only " + tafqeetEn(integerPart) + " Egyptian Pounds";
+        if (decimalPart > 0) resEn += " and " + tafqeetEn(decimalPart) + " Piastres";
+        resEn += " only.";
+        document.getElementById('resEn').innerText = resEn;
     }
 
-    function copyText(elementId) {
-        const text = document.getElementById(elementId).innerText;
+    function copyText(id) {
+        const text = document.getElementById(id).innerText;
         if (text === "--") return;
-        
-        navigator.clipboard.writeText(text).then(() => {
-            const toast = document.getElementById('toast');
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 2000);
-        });
+        navigator.clipboard.writeText(text);
+        const t = document.getElementById('toast');
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 2000);
     }
 </script>
 </body>
