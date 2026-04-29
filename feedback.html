@@ -8,103 +8,110 @@
     <style>
         :root { --primary: #0b4fb3; --bg: #f1f5f9; --white: #ffffff; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); padding: 20px; color: #1e293b; }
-        .form-container { max-width: 650px; margin: auto; background: var(--white); padding: 35px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        h2 { color: var(--primary); text-align: center; margin-bottom: 5px; font-size: 1.8rem; }
-        p.subtitle { text-align: center; color: #64748b; margin-bottom: 30px; font-size: 0.9rem; }
+        .form-wrapper { max-width: 650px; margin: auto; background: var(--white); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h2 { color: var(--primary); text-align: center; margin-bottom: 5px; }
+        p.subtitle { text-align: center; color: #64748b; margin-bottom: 25px; font-size: 0.9rem; }
         
-        .input-group { margin-bottom: 20px; }
+        .input-group { margin-bottom: 18px; text-align: right; }
         label { display: block; font-weight: bold; margin-bottom: 8px; color: var(--primary); font-size: 0.95rem; }
-        input, select, textarea { width: 100%; padding: 12px 15px; border: 1.5px solid #cbd5e1; border-radius: 10px; box-sizing: border-box; font-family: inherit; font-size: 1rem; transition: 0.3s; outline: none; }
-        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(11, 79, 179, 0.1); }
+        input, select, textarea { 
+            width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; 
+            font-size: 1rem; outline: none; transition: 0.3s; box-sizing: border-box; background: #fdfdfd;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(11, 79, 179, 0.1); }
         
-        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        
-        .btn-submit { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1.1rem; margin-top: 20px; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-submit:hover { background: #084a8a; transform: translateY(-2px); }
+        .btn-submit { 
+            background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; 
+            font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; 
+            display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px;
+        }
+        .btn-submit:hover { opacity: 0.9; transform: translateY(-2px); }
         .btn-submit:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
-        
-        .status { text-align: center; margin-top: 20px; padding: 12px; border-radius: 10px; display: none; font-weight: 600; }
-        .status.success { background: #dcfce7; color: #15803d; display: block; }
-        .status.error { background: #fee2e2; color: #b91c1c; display: block; }
-        .status.loading { background: #f1f5f9; color: #475569; display: block; }
+
+        .status-msg { 
+            margin-top: 20px; padding: 15px; border-radius: 10px; text-align: center; 
+            font-weight: bold; display: none; animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div class="form-container">
-    <h2>نموذج تطوير الأدوات والأداء</h2>
-    <p class="subtitle">ساهم في تحسين أدواتنا عبر تسجيل ملاحظاتك بدقة</p>
+<div class="form-wrapper">
+    <h2><i class="fas fa-chart-line"></i> نظام قياس الأداء وتطوير الأدوات</h2>
+    <p class="subtitle">سجل ملاحظاتك واقتراحاتك لتحسين تجربة العمل</p>
     
     <form id="feedbackForm">
-        <div class="grid-inputs">
-            <div class="input-group">
-                <label><i class="fas fa-user"></i> اسم الشخص:</label>
-                <input type="text" id="userName" placeholder="اكتب اسمك" required>
-            </div>
-            <div class="input-group">
-                <label><i class="fas fa-tools"></i> اسم الأداة:</label>
-                <input type="text" id="toolName" placeholder="مثال: حاسبة الضريبة" required>
-            </div>
-        </div>
-
-        <div class="grid-inputs">
-            <div class="input-group">
-                <label><i class="fas fa-tag"></i> نوع الملاحظة:</label>
-                <select id="noteType">
-                    <option>خطأ</option>
-                    <option>اقتراح تطوير</option>
-                    <option>تحسين تجربة مستخدم</option>
-                    <option>فكرة أداة جديدة</option>
-                    <option>ملاحظة عامة</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label><i class="fas fa-exclamation-circle"></i> الأولوية:</label>
-                <select id="priority">
-                    <option style="color: #10b981;">منخفضة</option>
-                    <option style="color: #f59e0b;">متوسطة</option>
-                    <option style="color: #ef4444;">عالية</option>
-                </select>
-            </div>
+        <div class="input-group">
+            <label>اسم مقدم الملاحظة:</label>
+            <input type="text" id="userName" placeholder="اكتب اسمك هنا" required>
         </div>
 
         <div class="input-group">
-            <label><i class="fas fa-align-right"></i> الوصف الشامل:</label>
+            <label>اسم الأداة المعنية:</label>
+            <input type="text" id="toolName" placeholder="مثال: حاسبة ضريبة كسب العمل" required>
+        </div>
+
+        <div class="input-group">
+            <label>نوع الملاحظة:</label>
+            <select id="noteType">
+                <option value="خطأ">⚠️ خطأ تقني</option>
+                <option value="اقتراح تطوير">💡 اقتراح تطوير</option>
+                <option value="تحسين تجربة مستخدم">🎨 تحسين تجربة مستخدم</option>
+                <option value="فكرة أداة جديدة">🚀 فكرة أداة جديدة</option>
+                <option value="ملاحظة عامة">📝 ملاحظة عامة</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>الوصف الشامل:</label>
             <textarea id="description" rows="3" placeholder="اشرح الملاحظة بشكل واضح..." required></textarea>
         </div>
 
         <div class="input-group">
-            <label><i class="fas fa-redo"></i> خطوات التكرار (إن وجدت):</label>
+            <label>خطوات التكرار (إن وجدت):</label>
             <textarea id="steps" rows="2" placeholder="كيف ظهر الخطأ؟"></textarea>
         </div>
 
         <div class="input-group">
-            <label><i class="fas fa-lightbulb"></i> مثال تطبيقي:</label>
+            <label>مثال تطبيقي:</label>
             <input type="text" id="example" placeholder="رقم / حالة / سيناريو">
+        </div>
+
+        <div class="input-group">
+            <label>أولوية الملاحظة:</label>
+            <select id="priority">
+                <option value="منخفضة">🔵 منخفضة</option>
+                <option value="متوسطة">🟡 متوسطة</option>
+                <option value="عالية">🔴 عالية</option>
+            </select>
         </div>
 
         <button type="submit" class="btn-submit" id="submitBtn">
             <i class="fas fa-paper-plane"></i> إرسال الملاحظة للنظام
         </button>
     </form>
-    
-    <div id="status" class="status"></div>
+
+    <div id="statusMsg" class="status-msg"></div>
 </div>
 
 <script>
-    // الرابط الخاص بك مدمج هنا
+    // الرابط الخاص بك المحدث والمدمج
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPED7F54Z89VoUQzjEwKke79t39BpZTbZ1t6lIxrJ_r6QCbaKVaDRwU__AWZbP-6Q1/exec';
 
     document.getElementById('feedbackForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
-        const status = document.getElementById('status');
+        const status = document.getElementById('statusMsg');
         
         btn.disabled = true;
-        status.className = 'status loading';
-        status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تسجيل البيانات في شيت جوجل...';
+        status.style.display = 'block';
+        status.style.background = '#e2e8f0';
+        status.style.color = '#1e293b';
+        status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تسجيل البيانات في النظام...';
 
-        const data = {
+        const formData = {
             userName: document.getElementById('userName').value,
             toolName: document.getElementById('toolName').value,
             noteType: document.getElementById('noteType').value,
@@ -114,22 +121,29 @@
             priority: document.getElementById('priority').value
         };
 
+        // استخدام Fetch مع وضع no-cors للسماح بإرسال البيانات للجوجل سكريبت بنجاح
         fetch(SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors',
+            mode: 'no-cors', 
             cache: 'no-cache',
-            body: JSON.stringify(data)
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
         }).then(() => {
-            status.className = 'status success';
-            status.innerHTML = '<i class="fas fa-check-circle"></i> تم الإرسال بنجاح! شكراً لمساهمتك.';
+            // مع وضع no-cors، الطلب ينجح دائماً في الوصول للشيت حتى لو لم يرجع رد
+            status.style.background = '#dcfce7';
+            status.style.color = '#15803d';
+            status.innerHTML = '<i class="fas fa-check-circle"></i> تم الإرسال بنجاح! راجع ملف الإكسيل الآن.';
             document.getElementById('feedbackForm').reset();
             btn.disabled = false;
             
-            // إخفاء الرسالة بعد 5 ثواني
-            setTimeout(() => { status.className = 'status'; }, 5000);
+            // إخفاء رسالة النجاح بعد 4 ثواني
+            setTimeout(() => { status.style.display = 'none'; }, 4000);
         }).catch(err => {
-            status.className = 'status error';
-            status.innerHTML = '<i class="fas fa-times-circle"></i> حدث خطأ في الاتصال، يرجى المحاولة مرة أخرى.';
+            status.style.background = '#fee2e2';
+            status.style.color = '#b91c1c';
+            status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> عذراً، لم نتمكن من الوصول للنظام.';
             btn.disabled = false;
         });
     });
