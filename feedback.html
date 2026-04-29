@@ -1,1 +1,139 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام الملاحظات - الميثاق الذكي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #0b4fb3; --bg: #f1f5f9; --white: #ffffff; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); padding: 20px; color: #1e293b; }
+        .form-container { max-width: 650px; margin: auto; background: var(--white); padding: 35px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h2 { color: var(--primary); text-align: center; margin-bottom: 5px; font-size: 1.8rem; }
+        p.subtitle { text-align: center; color: #64748b; margin-bottom: 30px; font-size: 0.9rem; }
+        
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; color: var(--primary); font-size: 0.95rem; }
+        input, select, textarea { width: 100%; padding: 12px 15px; border: 1.5px solid #cbd5e1; border-radius: 10px; box-sizing: border-box; font-family: inherit; font-size: 1rem; transition: 0.3s; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(11, 79, 179, 0.1); }
+        
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        .btn-submit { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1.1rem; margin-top: 20px; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-submit:hover { background: #084a8a; transform: translateY(-2px); }
+        .btn-submit:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
+        
+        .status { text-align: center; margin-top: 20px; padding: 12px; border-radius: 10px; display: none; font-weight: 600; }
+        .status.success { background: #dcfce7; color: #15803d; display: block; }
+        .status.error { background: #fee2e2; color: #b91c1c; display: block; }
+        .status.loading { background: #f1f5f9; color: #475569; display: block; }
+    </style>
+</head>
+<body>
 
+<div class="form-container">
+    <h2>نموذج تطوير الأدوات والأداء</h2>
+    <p class="subtitle">ساهم في تحسين أدواتنا عبر تسجيل ملاحظاتك بدقة</p>
+    
+    <form id="feedbackForm">
+        <div class="grid-inputs">
+            <div class="input-group">
+                <label><i class="fas fa-user"></i> اسم الشخص:</label>
+                <input type="text" id="userName" placeholder="اكتب اسمك" required>
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-tools"></i> اسم الأداة:</label>
+                <input type="text" id="toolName" placeholder="مثال: حاسبة الضريبة" required>
+            </div>
+        </div>
+
+        <div class="grid-inputs">
+            <div class="input-group">
+                <label><i class="fas fa-tag"></i> نوع الملاحظة:</label>
+                <select id="noteType">
+                    <option>خطأ</option>
+                    <option>اقتراح تطوير</option>
+                    <option>تحسين تجربة مستخدم</option>
+                    <option>فكرة أداة جديدة</option>
+                    <option>ملاحظة عامة</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-exclamation-circle"></i> الأولوية:</label>
+                <select id="priority">
+                    <option style="color: #10b981;">منخفضة</option>
+                    <option style="color: #f59e0b;">متوسطة</option>
+                    <option style="color: #ef4444;">عالية</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label><i class="fas fa-align-right"></i> الوصف الشامل:</label>
+            <textarea id="description" rows="3" placeholder="اشرح الملاحظة بشكل واضح..." required></textarea>
+        </div>
+
+        <div class="input-group">
+            <label><i class="fas fa-redo"></i> خطوات التكرار (إن وجدت):</label>
+            <textarea id="steps" rows="2" placeholder="كيف ظهر الخطأ؟"></textarea>
+        </div>
+
+        <div class="input-group">
+            <label><i class="fas fa-lightbulb"></i> مثال تطبيقي:</label>
+            <input type="text" id="example" placeholder="رقم / حالة / سيناريو">
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+            <i class="fas fa-paper-plane"></i> إرسال الملاحظة للنظام
+        </button>
+    </form>
+    
+    <div id="status" class="status"></div>
+</div>
+
+<script>
+    // الرابط الخاص بك مدمج هنا
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPED7F54Z89VoUQzjEwKke79t39BpZTbZ1t6lIxrJ_r6QCbaKVaDRwU__AWZbP-6Q1/exec';
+
+    document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const status = document.getElementById('status');
+        
+        btn.disabled = true;
+        status.className = 'status loading';
+        status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تسجيل البيانات في شيت جوجل...';
+
+        const data = {
+            userName: document.getElementById('userName').value,
+            toolName: document.getElementById('toolName').value,
+            noteType: document.getElementById('noteType').value,
+            description: document.getElementById('description').value,
+            steps: document.getElementById('steps').value,
+            example: document.getElementById('example').value,
+            priority: document.getElementById('priority').value
+        };
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            cache: 'no-cache',
+            body: JSON.stringify(data)
+        }).then(() => {
+            status.className = 'status success';
+            status.innerHTML = '<i class="fas fa-check-circle"></i> تم الإرسال بنجاح! شكراً لمساهمتك.';
+            document.getElementById('feedbackForm').reset();
+            btn.disabled = false;
+            
+            // إخفاء الرسالة بعد 5 ثواني
+            setTimeout(() => { status.className = 'status'; }, 5000);
+        }).catch(err => {
+            status.className = 'status error';
+            status.innerHTML = '<i class="fas fa-times-circle"></i> حدث خطأ في الاتصال، يرجى المحاولة مرة أخرى.';
+            btn.disabled = false;
+        });
+    });
+</script>
+
+</body>
+</html>
