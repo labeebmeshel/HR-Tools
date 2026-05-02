@@ -3,160 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام الملاحظات - الميثاق الذكي</title>
+    <title>تطوير الأداء - الميثاق الذكي</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #0b4fb3; --bg: #f1f5f9; --white: #ffffff; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); padding: 20px; color: #1e293b; }
-        
-        /* تصميم نافذة الدخول */
+        :root {
+            --primary: #0b4fb3;
+            --primary-dark: #083d8d;
+            --accent: #10b981;
+            --bg: #f8fafc;
+            --white: #ffffff;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: var(--bg);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        /* واجهة الدخول */
         #passwordOverlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg); display: flex; align-items: center; justify-content: center;
-            z-index: 9999;
+            position: fixed;
+            inset: 0;
+            background: rgba(11, 79, 179, 0.05);
+            backdrop-filter: blur(15px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
         }
-        .login-box {
-            background: white; padding: 40px; border-radius: 25px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 90%;
+
+        .login-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid rgba(255,255,255,0.7);
         }
-        .login-box i.lock-icon { font-size: 3.5rem; color: var(--primary); margin-bottom: 20px; }
-        
-        .pass-container { position: relative; margin: 20px 0; }
-        .login-box input {
-            width: 100%; padding: 15px; border: 2px solid #cbd5e1;
-            border-radius: 12px; font-size: 1.2rem; text-align: center; outline: none; box-sizing: border-box;
+
+        .login-card i { font-size: 3.5rem; color: var(--primary); margin-bottom: 20px; }
+
+        .login-card input {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            text-align: center;
+            outline: none;
+            transition: 0.3s;
         }
-        .login-box input:focus { border-color: var(--primary); }
-        
+
+        .login-card input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(11, 79, 179, 0.1); }
+
         .btn-login {
-            background: var(--primary); color: white; border: none; padding: 15px;
-            border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1.1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            transition: 0.3s;
         }
 
-        /* إخفاء المحتوى الرئيسي */
-        #mainContent { display: none; }
+        .btn-login:hover { background: var(--primary-dark); transform: translateY(-2px); }
 
-        .form-wrapper { max-width: 650px; margin: auto; background: var(--white); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        h2 { color: var(--primary); text-align: center; }
-        .input-group { margin-bottom: 18px; text-align: right; }
-        label { display: block; font-weight: bold; margin-bottom: 8px; color: var(--primary); }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; box-sizing: border-box; }
-        
-        .file-input-wrapper { background: #f8fafc; border: 2px dashed #cbd5e1; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; margin-top: 10px; }
+        /* حاوية النموذج الرئيسي */
+        #mainContent { display: none; width: 95%; max-width: 700px; margin: 40px auto; }
+
+        .form-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        }
+
+        .header-area { text-align: center; margin-bottom: 35px; }
+        .header-area h2 { color: var(--primary); margin: 0; font-size: 1.8rem; }
+        .header-area p { color: #64748b; margin-top: 8px; }
+
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 700; margin-bottom: 8px; color: var(--primary); font-size: 0.9rem; }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background: #fdfdfd;
+            font-family: inherit;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(11, 79, 179, 0.05);
+        }
+
+        /* منطقة رفع الصور المظورة */
+        .upload-container {
+            border: 2px dashed #cbd5e1;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #f8fafc;
+        }
+
+        .upload-container:hover { border-color: var(--primary); background: #f1f5f9; }
+        .upload-container i { font-size: 2rem; color: #94a3b8; margin-bottom: 10px; }
         #fileInput { display: none; }
 
-        .btn-submit { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; }
-        .status-msg { margin-top: 20px; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; display: none; }
+        .btn-submit {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover { background: var(--primary-dark); box-shadow: 0 10px 20px rgba(11, 79, 179, 0.2); }
+        .btn-submit:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+        .status-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
-<!-- شاشة الدخول -->
+<!-- شاشة الحماية -->
 <div id="passwordOverlay">
-    <div class="login-box">
-        <i class="fas fa-user-shield lock-icon"></i>
-        <h3>منطقة محمية</h3>
-        <p style="color:#64748b">يرجى إدخال كلمة المرور للوصول</p>
-        
-        <div class="pass-container">
-            <input type="password" id="passInput" placeholder="أدخل كلمة المرور" autocomplete="off">
-        </div>
-        
-        <button class="btn-login" onclick="checkPassword()">تحقق ودخول</button>
-        <p id="loginError" style="color: #ef4444; margin-top: 15px; font-weight: bold; display: none;">❌ كلمة المرور غير صحيحة!</p>
+    <div class="login-card">
+        <i class="fas fa-shield-alt"></i>
+        <h3>نظام الملاحظات الداخلي</h3>
+        <p style="color: #64748b;">يرجى إدخال كلمة المرور للمتابعة</p>
+        <input type="password" id="passInput" placeholder="••••••">
+        <button class="btn-login" onclick="checkAuth()">دخول النظام</button>
+        <p id="authError" style="color: var(--error); margin-top: 15px; font-weight: bold; display: none;">❌ كلمة المرور غير صحيحة</p>
     </div>
 </div>
 
-<!-- محتوى الأداة الرئيسي -->
-<div id="mainContent" class="form-wrapper">
-    <h2><i class="fas fa-chart-line"></i> قياس الأداء وتطوير الأدوات</h2>
-    <form id="feedbackForm">
-        <div class="input-group">
-            <label>اسم الشخص:</label>
-            <input type="text" id="userName" required>
+<!-- الواجهة الرئيسية -->
+<div id="mainContent">
+    <div class="form-card">
+        <div class="header-area">
+            <h2>قياس الأداء وتوثيق التطوير</h2>
+            <p>شاركنا ملاحظاتك لتحسين أدوات الميثاق الذكي</p>
         </div>
-        <div class="input-group">
-            <label>اسم الأداة:</label>
-            <input type="text" id="toolName" required>
-        </div>
-        <div class="input-group">
-            <label>نوع الملاحظة:</label>
-            <select id="noteType">
-                <option>خطأ تقني</option>
-                <option>اقتراح تطوير</option>
-            </select>
-        </div>
-        <div class="input-group">
-            <label>الوصف:</label>
-            <textarea id="description" rows="3" required></textarea>
-        </div>
-        
-        <div class="input-group">
-            <label>إرفاق صورة للمشكلة (اختياري):</label>
-            <div class="file-input-wrapper" onclick="document.getElementById('fileInput').click()">
-                <i class="fas fa-cloud-upload-alt"></i> <span id="fileNameDisplay">اضغط لرفع صورة</span>
-                <input type="file" id="fileInput" accept="image/*" onchange="updateFileName()">
+
+        <form id="perfForm">
+            <div class="input-group">
+                <label>اسم مقدم الطلب</label>
+                <input type="text" id="userName" placeholder="اكتب اسمك الثنائي" required>
             </div>
-        </div>
 
-        <div class="input-group">
-            <label>الأولوية:</label>
-            <select id="priority">
-                <option>منخفضة</option>
-                <option>متوسطة</option>
-                <option>عالية</option>
-            </select>
-        </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="input-group">
+                    <label>الأداة المعنية</label>
+                    <input type="text" id="toolName" placeholder="مثال: حاسبة الضرائب" required>
+                </div>
+                <div class="input-group">
+                    <label>نوع الملاحظة</label>
+                    <select id="noteType">
+                        <option>خطأ تقني</option>
+                        <option>اقتراح تطوير</option>
+                        <option>تحسين واجهة</option>
+                        <option>فكرة جديدة</option>
+                    </select>
+                </div>
+            </div>
 
-        <button type="submit" class="btn-submit" id="submitBtn">إرسال وتوثيق الملاحظة</button>
-    </form>
-    <div id="statusMsg" class="status-msg"></div>
+            <div class="input-group">
+                <label>وصف الملاحظة</label>
+                <textarea id="description" rows="4" placeholder="يرجى شرح التفاصيل بوضوح..." required></textarea>
+            </div>
+
+            <div class="input-group">
+                <label>إرفاق لقطة شاشة (Screenshot)</label>
+                <div class="upload-container" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-image" id="iconStatus"></i>
+                    <div id="fileText">اضغط هنا لرفع صورة توضيحية</div>
+                    <input type="file" id="fileInput" accept="image/*" onchange="handleFile()">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>مستوى الأهمية</label>
+                <select id="priority">
+                    <option value="منخفضة">🔵 منخفضة - تحسين مستقبلي</option>
+                    <option value="متوسطة">🟡 متوسطة - للأهمية</option>
+                    <option value="عالية">🔴 عالية - تعطل العمل</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">
+                <i class="fas fa-paper-plane"></i> إرسال وتوثيق الآن
+            </button>
+        </form>
+
+        <div id="statusBox" class="status-box"></div>
+    </div>
 </div>
 
 <script>
-    // --- إعدادات كلمة المرور ---
-    const SECRET_PASS = "123456"; // تأكد أن هذه هي الكلمة التي تدخلها
+    const AUTH_KEY = "123456"; // كلمة المرور الافتراضية
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw9bHhSgf_bb4hd-HAF7Fp8-QANiqhajSwVmKWzqSoeY-HxwD3Zc7XHKBdTq98yiv4s/exec";
 
-    function checkPassword() {
-        const inputField = document.getElementById('passInput');
-        const errorMsg = document.getElementById('loginError');
-        
-        // استخدام trim() لإزالة أي مسافات زائدة قد يكتبها المستخدم بالخطأ
-        if (inputField.value.trim() === SECRET_PASS) {
+    function checkAuth() {
+        const val = document.getElementById('passInput').value;
+        if (val === AUTH_KEY) {
             document.getElementById('passwordOverlay').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
         } else {
-            errorMsg.style.display = 'block';
-            inputField.value = ""; // مسح الحقل للمحاولة مرة أخرى
-            inputField.focus();
+            document.getElementById('authError').style.display = 'block';
+            document.getElementById('passInput').value = "";
         }
     }
 
-    // تفعيل الدخول بمجرد الضغط على زر Enter
-    document.getElementById('passInput').addEventListener('keyup', function(event) {
-        if (event.key === 'Enter') {
-            checkPassword();
-        }
-    });
-
-    // --- إعدادات الإرسال ---
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxnTmNEp48M_GmGc_4waWNSpogvPbr-8SLoULNI9dui-YN-S_dyZZ7mD0yeHJm1lfOX/exec';
-
-    function updateFileName() {
+    function handleFile() {
         const file = document.getElementById('fileInput').files[0];
-        document.getElementById('fileNameDisplay').innerText = file ? file.name : "اضغط لرفع صورة";
+        if (file) {
+            document.getElementById('fileText').innerText = "تم اختيار: " + file.name;
+            document.getElementById('iconStatus').style.color = "#10b981";
+        }
     }
 
-    document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+    document.getElementById('perfForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
-        const status = document.getElementById('statusMsg');
+        const status = document.getElementById('statusBox');
         const fileInput = document.getElementById('fileInput');
-        
+
         btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الرفع والتوثيق...';
+        
         status.style.display = 'block';
-        status.style.background = '#e2e8f0';
-        status.innerHTML = 'جاري المعالجة والرفع...';
+        status.style.background = '#f1f5f9';
+        status.style.color = '#475569';
+        status.innerText = "يتم الآن معالجة البيانات...";
 
         let fileData = null;
         let fileName = null;
@@ -171,7 +291,7 @@
             });
         }
 
-        const formData = {
+        const payload = {
             userName: document.getElementById('userName').value,
             toolName: document.getElementById('toolName').value,
             noteType: document.getElementById('noteType').value,
@@ -184,20 +304,26 @@
         fetch(SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
-            body: JSON.stringify(formData)
+            body: JSON.stringify(payload)
         }).then(() => {
             status.style.background = '#dcfce7';
             status.style.color = '#15803d';
-            status.innerHTML = '✅ تم الإرسال بنجاح!';
-            document.getElementById('feedbackForm').reset();
-            document.getElementById('fileNameDisplay').innerText = "اضغط لرفع صورة";
+            status.innerHTML = '✅ تم تسجيل الملاحظة بنجاح في نظام الميثاق الذكي!';
+            document.getElementById('perfForm').reset();
+            document.getElementById('fileText').innerText = "اضغط هنا لرفع صورة توضيحية";
             btn.disabled = false;
-            setTimeout(() => { status.style.display = 'none'; }, 4000);
-        }).catch(() => {
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال وتوثيق الآن';
+        }).catch(err => {
             status.style.background = '#fee2e2';
-            status.innerHTML = '❌ حدث خطأ في الإرسال';
+            status.style.color = '#b91c1c';
+            status.innerText = "❌ حدث خطأ في الاتصال، يرجى المحاولة لاحقاً.";
             btn.disabled = false;
         });
+    });
+
+    // السماح بالدخول عبر Enter
+    document.getElementById('passInput').addEventListener('keypress', (e) => {
+        if(e.key === 'Enter') checkAuth();
     });
 </script>
 
