@@ -9,41 +9,67 @@
         :root { --primary: #0b4fb3; --bg: #f1f5f9; --white: #ffffff; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); padding: 20px; color: #1e293b; }
         
-        #passwordOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .login-box { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 90%; }
-        .login-box input { width: 100%; padding: 12px; margin: 20px 0; border: 2px solid #cbd5e1; border-radius: 10px; text-align: center; outline: none; }
-        .btn-login { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
+        /* تصميم نافذة الدخول */
+        #passwordOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); display: flex; align-items: center; justify-content: center;
+            z-index: 9999;
+        }
+        .login-box {
+            background: white; padding: 40px; border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 90%;
+        }
+        .login-box i.lock-icon { font-size: 3.5rem; color: var(--primary); margin-bottom: 20px; }
+        
+        .pass-container { position: relative; margin: 20px 0; }
+        .login-box input {
+            width: 100%; padding: 15px; border: 2px solid #cbd5e1;
+            border-radius: 12px; font-size: 1.2rem; text-align: center; outline: none; box-sizing: border-box;
+        }
+        .login-box input:focus { border-color: var(--primary); }
+        
+        .btn-login {
+            background: var(--primary); color: white; border: none; padding: 15px;
+            border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1.1rem;
+        }
 
+        /* إخفاء المحتوى الرئيسي */
         #mainContent { display: none; }
+
         .form-wrapper { max-width: 650px; margin: auto; background: var(--white); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        h2 { color: var(--primary); text-align: center; margin-bottom: 20px; }
+        h2 { color: var(--primary); text-align: center; }
         .input-group { margin-bottom: 18px; text-align: right; }
         label { display: block; font-weight: bold; margin-bottom: 8px; color: var(--primary); }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; box-sizing: border-box; font-family: inherit; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; box-sizing: border-box; }
         
-        /* تنسيق خانة رفع الملف */
-        .file-input-wrapper { background: #f8fafc; border: 2px dashed #cbd5e1; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; }
-        .file-input-wrapper:hover { border-color: var(--primary); }
+        .file-input-wrapper { background: #f8fafc; border: 2px dashed #cbd5e1; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; margin-top: 10px; }
         #fileInput { display: none; }
 
-        .btn-submit { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-submit:disabled { background: #94a3b8; }
+        .btn-submit { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; }
         .status-msg { margin-top: 20px; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; display: none; }
     </style>
 </head>
 <body>
 
+<!-- شاشة الدخول -->
 <div id="passwordOverlay">
     <div class="login-box">
-        <i class="fas fa-lock" style="font-size: 3rem; color: var(--primary);"></i>
-        <h3>نظام الملاحظات المحمي</h3>
-        <input type="password" id="passInput" placeholder="أدخل كلمة المرور">
-        <button class="btn-login" onclick="checkPassword()">دخول</button>
+        <i class="fas fa-user-shield lock-icon"></i>
+        <h3>منطقة محمية</h3>
+        <p style="color:#64748b">يرجى إدخال كلمة المرور للوصول</p>
+        
+        <div class="pass-container">
+            <input type="password" id="passInput" placeholder="أدخل كلمة المرور" autocomplete="off">
+        </div>
+        
+        <button class="btn-login" onclick="checkPassword()">تحقق ودخول</button>
+        <p id="loginError" style="color: #ef4444; margin-top: 15px; font-weight: bold; display: none;">❌ كلمة المرور غير صحيحة!</p>
     </div>
 </div>
 
+<!-- محتوى الأداة الرئيسي -->
 <div id="mainContent" class="form-wrapper">
-    <h2><i class="fas fa-chart-line"></i> قياس الأداء وتوثيق المشكلات</h2>
+    <h2><i class="fas fa-chart-line"></i> قياس الأداء وتطوير الأدوات</h2>
     <form id="feedbackForm">
         <div class="input-group">
             <label>اسم الشخص:</label>
@@ -76,26 +102,45 @@
         <div class="input-group">
             <label>الأولوية:</label>
             <select id="priority">
+                <option>منخفضة</option>
                 <option>متوسطة</option>
                 <option>عالية</option>
             </select>
         </div>
 
-        <button type="submit" class="btn-submit" id="submitBtn">إرسال وتوثيق</button>
+        <button type="submit" class="btn-submit" id="submitBtn">إرسال وتوثيق الملاحظة</button>
     </form>
     <div id="statusMsg" class="status-msg"></div>
 </div>
 
 <script>
-    const SECRET_PASS = "123456"; 
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxnTmNEp48M_GmGc_4waWNSpogvPbr-8SLoULNI9dui-YN-S_dyZZ7mD0yeHJm1lfOX/exec';
+    // --- إعدادات كلمة المرور ---
+    const SECRET_PASS = "123456"; // تأكد أن هذه هي الكلمة التي تدخلها
 
     function checkPassword() {
-        if (document.getElementById('passInput').value === SECRET_PASS) {
+        const inputField = document.getElementById('passInput');
+        const errorMsg = document.getElementById('loginError');
+        
+        // استخدام trim() لإزالة أي مسافات زائدة قد يكتبها المستخدم بالخطأ
+        if (inputField.value.trim() === SECRET_PASS) {
             document.getElementById('passwordOverlay').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
+        } else {
+            errorMsg.style.display = 'block';
+            inputField.value = ""; // مسح الحقل للمحاولة مرة أخرى
+            inputField.focus();
         }
     }
+
+    // تفعيل الدخول بمجرد الضغط على زر Enter
+    document.getElementById('passInput').addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            checkPassword();
+        }
+    });
+
+    // --- إعدادات الإرسال ---
+    const SCRIPT_URL = 'ضع_رابط_الاسكريبت_هنا';
 
     function updateFileName() {
         const file = document.getElementById('fileInput').files[0];
@@ -115,8 +160,7 @@
 
         let fileData = null;
         let fileName = null;
-        https://script.google.com/macros/s/AKfycbxDicQ7J8XjF9zkLc0IYYv-4PHK6fa4WfDkTfDFZyxkcoYlz-ETsWGkAm_L3qwRtzsz/exec
-        // تحويل الصورة لـ Base64 إذا وجدت
+
         if (fileInput.files.length > 0) {
             const file = fileInput.files[0];
             fileName = file.name;
@@ -137,26 +181,25 @@
             fileName: fileName
         };
 
-        // تعديل بسيط لضمان عدم التعليق
         fetch(SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors', 
+            mode: 'no-cors',
             body: JSON.stringify(formData)
         }).then(() => {
-            // سنفترض النجاح هنا لأن no-cors لا يعطي ردًا
             status.style.background = '#dcfce7';
             status.style.color = '#15803d';
-            status.innerHTML = 'تم الإرسال بنجاح! راجع الشيت الآن.';
+            status.innerHTML = '✅ تم الإرسال بنجاح!';
             document.getElementById('feedbackForm').reset();
             document.getElementById('fileNameDisplay').innerText = "اضغط لرفع صورة";
             btn.disabled = false;
-        }).catch(err => {
-            console.error(err);
-            status.innerHTML = 'حدث خطأ، تأكد من اتصال الإنترنت.';
+            setTimeout(() => { status.style.display = 'none'; }, 4000);
+        }).catch(() => {
+            status.style.background = '#fee2e2';
+            status.innerHTML = '❌ حدث خطأ في الإرسال';
             btn.disabled = false;
-        });
         });
     });
 </script>
+
 </body>
 </html>
