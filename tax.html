@@ -439,6 +439,7 @@
             <th>البدلات المعفاة تأمينياً</th>
             <th>الأجر التأميني</th>
             <th>حصة العامل 11%</th>
+            <th>الوعاء الضريبي السنوي</th>
             <th>الضريبة</th>
             <th id="th-net">الصافي</th>
         </tr>
@@ -449,6 +450,7 @@
             <td id="res_exempt_allow">—</td>
             <td id="res_ins_base">—</td>
             <td id="res_ins_worker">—</td>
+            <td id="res_annual_taxable">—</td>
             <td id="res_tax">—</td>
             <td id="res_net" class="res-val">—</td>
         </tr>
@@ -499,7 +501,7 @@
     }
 
     function resetResults() {
-        ['res_total_gross','res_exempt_allow','res_ins_base','res_ins_worker','res_tax','res_net'].forEach(function(id) {
+        ['res_total_gross','res_exempt_allow','res_ins_base','res_ins_worker','res_annual_taxable','res_tax','res_net'].forEach(function(id) {
             document.getElementById(id).innerText = '—';
         });
         document.getElementById('breakdown-section').style.display = 'none';
@@ -597,8 +599,9 @@
         document.getElementById('res_exempt_allow').innerText = money(r.finalExemptAllow);
         document.getElementById('res_ins_base').innerText     = money(r.finalInsBase);
         document.getElementById('res_ins_worker').innerText   = money(r.insShare);
-        document.getElementById('res_tax').innerText          = money(r.monthlyTax);
-        document.getElementById('res_net').innerText          = money(r.net);
+        document.getElementById('res_annual_taxable').innerText = money(r.annualTaxable);
+        document.getElementById('res_tax').innerText           = money(r.monthlyTax);
+        document.getElementById('res_net').innerText           = money(r.net);
 
         /* breakdown bars */
         var total = r.totalGross;
