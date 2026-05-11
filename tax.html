@@ -567,43 +567,51 @@
         };
     }
 
-    /* ── Reverse: net → gross (binary search) ────────── */
-    /* المنطق: الإعفاءات (تأمين طبي/حياة) بتتضاف على الإجمالي وبتتخصم من الصافي
-       يعني الصافي الحقيقي = net_from_calcForward - medExempt
-       فنبحث عن base بحيث calcForward(...).net - medExempt ≈ targetNet              */
+    /* ── Reverse: net → gross ────────────────────────── */
+    /* المنطق الصحيح:
+       1. نبحث عن base يطلع منه net = targetNet بالظبط (بدون إعفاءات في calcForward)
+       2. بعدين نضيف medExempt للـ totalGross (الشركة بتدفعها فوق)
+       3. وبنعرض totalGross + medExempt كإجمالي، والصافي = targetNet           */
     function calcReverse(targetNet, allow, medExempt, disabled) {
-        var adjustedTarget = targetNet + medExempt; // الصافي قبل خصم الإعفاء
-        var lo = 0, hi = adjustedTarget * 5 + 100000;
+        // ابحث عن base بحيث net = targetNet (بدون إعفاءات عشان ما تأثرش على البحث)
+        var lo = 0, hi = targetNet * 5 + 100000;
 
         for (var i = 0; i < 80; i++) {
             var mid = (lo + hi) / 2;
-            var result = calcForward(mid, 0, allow, medExempt, disabled);
-            if (result.net < adjustedTarget) lo = mid;
+            var result = calcForward(mid, 0, allow, 0, disabled);
+            if (result.net < targetNet) lo = mid;
             else hi = mid;
-            if (Math.abs(result.net - adjustedTarget) < 0.01) break;
+            if (Math.abs(result.net - targetNet) < 0.01) break;
         }
 
         var base = (lo + hi) / 2;
+        // الآن احسب بالإعفاءات عشان تأثر على الوعاء الضريبي بالشكل الصح
+        // لكن الصافي المعروض = targetNet (الإعفاءات زيادة على الإجمالي مش خصم من الصافي)
         var r = calcForward(base, 0, allow, medExempt, disabled);
-        // الصافي الفعلي بعد خصم الإعفاءات
-        r.netAfterExempt = r.net - medExempt;
+        // الإعفاءات خفضت الضريبة → الصافي الحقيقي > targetNet
+        // نعدل الإجمالي المعروض: نضيف medExempt للـ gross عشان يكون صح
+        r.totalGrossDisplay = r.totalGross + medExempt;
+        r.netDisplay = targetNet;
         return r;
     }
 
     /* ── Display ─────────────────────────────────────── */
-    function displayResults(r, gross, net) {
-        document.getElementById('res_total_gross').innerText  = money(r.totalGross);
-        document.getElementById('res_exempt_allow').innerText = money(r.finalExemptAllow);
-        document.getElementById('res_ins_base').innerText     = money(r.finalInsBase);
-        document.getElementById('res_ins_worker').innerText   = money(r.insShare);
-        document.getElementById('res_annual_taxable').innerText = money(r.annualTaxable);
-        document.getElementById('res_tax').innerText           = money(r.monthlyTax);
-        document.getElementById('res_net').innerText           = money(r.netAfterExempt !== undefined ? r.netAfterExempt : r.net);
+    function displayResults(r) {
+        var gross = r.totalGrossDisplay !== undefined ? r.totalGrossDisplay : r.totalGross;
+        var net   = r.netDisplay       !== undefined ? r.netDisplay        : r.net;
+
+        document.getElementById('res_total_gross').innerText     = money(gross);
+        document.getElementById('res_exempt_allow').innerText    = money(r.finalExemptAllow);
+        document.getElementById('res_ins_base').innerText        = money(r.finalInsBase);
+        document.getElementById('res_ins_worker').innerText      = money(r.insShare);
+        document.getElementById('res_annual_taxable').innerText  = money(r.annualTaxable);
+        document.getElementById('res_tax').innerText             = money(r.monthlyTax);
+        document.getElementById('res_net').innerText             = money(net);
 
         /* breakdown bars */
-        var total = r.totalGross;
+        var total = gross;
         if (total > 0) {
-            var netPct = (r.net / total) * 100;
+            var netPct = (net / total) * 100;
             var insPct = (r.insShare / total) * 100;
             var taxPct = (r.monthlyTax / total) * 100;
 
@@ -613,7 +621,7 @@
                 document.getElementById('bar_tax').style.width = Math.min(taxPct, 100) + '%';
             }, 80);
 
-            document.getElementById('pct_net').innerText = pctStr(netPct) + ' — ' + money(r.net);
+            document.getElementById('pct_net').innerText = pctStr(netPct) + ' — ' + money(net);
             document.getElementById('pct_ins').innerText = pctStr(insPct) + ' — ' + money(r.insShare);
             document.getElementById('pct_tax').innerText = pctStr(taxPct) + ' — ' + money(r.monthlyTax);
             document.getElementById('breakdown-section').style.display = '';
@@ -645,11 +653,13 @@
             var r = calcReverse(targetNet, allow, medExempt, disabled);
             displayResults(r);
 
-            var base = r.totalGross - allow;
-            note.innerHTML = '💡 <strong>نتيجة الحساب العكسي:</strong> عشان تستلم صافي ' + money(targetNet) +
-                ' شهرياً (بعد خصم الإعفاءات ' + money(medExempt) + ')' +
-                '، الأجر الأساسي في عقدك لازم يكون تقريباً <strong>' + money(base) + '</strong>' +
-                ' والإجمالي الكلي (أساسي + بدلات) = <strong>' + money(r.totalGross) + '</strong>';
+            var displayGross = r.totalGrossDisplay !== undefined ? r.totalGrossDisplay : r.totalGross;
+            var base = displayGross - allow;
+            var noteText = '💡 <strong>نتيجة الحساب العكسي:</strong> عشان تستلم صافي ' + money(targetNet) + ' شهرياً';
+            if (medExempt > 0) noteText += ' (والإعفاءات ' + money(medExempt) + ' بتتضاف على الإجمالي)';
+            noteText += '، الأجر الأساسي في عقدك لازم يكون تقريباً <strong>' + money(base) + '</strong>'
+                      + ' والإجمالي الكلي (أساسي + بدلات' + (medExempt > 0 ? ' + إعفاءات' : '') + ') = <strong>' + money(displayGross) + '</strong>';
+            note.innerHTML = noteText;
             note.classList.add('visible');
         }
     }
