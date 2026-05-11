@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حاسبة ضريبة كسب العمل - مصر 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary: #0d3b7d;
+    --primary-mid: #1a5bbf;
+    --primary-light: #dbeafe;
+    --gold: #c9982a;
+    --gold-light: #fef3c7;
+    --surface: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --text-hint: #94a3b8;
+    --success: #059669;
+    --success-light: #d1fae5;
+    --danger: #dc2626;
+    --danger-light: #fee2e2;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow: 0 4px 16px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 40px rgba(13,59,125,0.15);
+  }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: linear-gradient(135deg, #0d3b7d 0%, #1a5bbf 40%, #0f4a9e 100%);
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+    color: var(--text-main);
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page-wrapper {
+    max-width: 860px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* === HEADER === */
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+    padding: 0 8px;
+  }
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fcd34d;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 14px;
+    letter-spacing: 0.5px;
+  }
+  .header-badge::before { content: '⚖️'; font-size: 14px; }
+  .header h1 {
+    color: #fff;
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+  .header p {
+    color: rgba(255,255,255,0.65);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* === MAIN CARD === */
+  .main-card {
+    background: var(--card);
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .card-section {
+    padding: 28px 28px 24px;
+  }
+  .card-section + .card-section {
+    border-top: 1px solid var(--border);
+  }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 18px;
+  }
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 18px;
+    background: var(--gold);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* === INPUT GRID === */
+  .input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 560px) { .input-grid { grid-template-columns: 1fr; } }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .input-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+  .input-group .hint {
+    font-size: 11px;
+    color: var(--text-hint);
+    margin-top: -4px;
+    margin-bottom: 2px;
+  }
+
+  .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .input-wrapper input {
+    width: 100%;
+    padding: 11px 48px 11px 14px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-main);
+    background: var(--surface);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+  .input-wrapper input::-webkit-inner-spin-button,
+  .input-wrapper input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .input-wrapper input:focus {
+    border-color: var(--primary-mid);
+    box-shadow: 0 0 0 3px rgba(26,91,191,0.12);
+    background: #fff;
+  }
+  .input-currency {
+    position: absolute;
+    left: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-hint);
+    pointer-events: none;
+    letter-spacing: 0.5px;
+  }
+
+  /* === TOGGLE === */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    user-select: none;
+  }
+  .toggle-row:hover { border-color: var(--primary-mid); background: #eff6ff; }
+  .toggle-row.active { border-color: var(--primary-mid); background: #eff6ff; }
+  .toggle-info { display: flex; flex-direction: column; gap: 2px; }
+  .toggle-info strong { font-size: 14px; color: var(--text-main); }
+  .toggle-info span { font-size: 12px; color: var(--text-muted); }
+  .toggle-switch {
+    position: relative;
+    width: 46px;
+    height: 26px;
+    background: var(--border-strong);
+    border-radius: 100px;
+    transition: background 0.3s;
+    flex-shrink: 0;
+  }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    top: 3px;
+    right: 3px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s;
+  }
+  .toggle-row.active .toggle-switch { background: var(--primary-mid); }
+  .toggle-row.active .toggle-switch::after { transform: translateX(-20px); }
+
+  /* === BUTTON === */
+  .btn-calc {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-mid) 100%);
+    color: #fff;
+    font-family: 'Cairo', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 14px rgba(13,59,125,0.35);
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.3px;
+  }
+  .btn-calc::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+  }
+  .btn-calc:hover { opacity: 0.92; box-shadow: 0 6px 20px rgba(13,59,125,0.4); }
+  .btn-calc:active { transform: translateY(1px); }
+
+  /* === RESULTS === */
+  .results-section {
+    background: linear-gradient(135deg, #f0f5ff 0%, #f8fafc 100%);
+    padding: 28px;
+    display: none;
+  }
+  .results-section.visible { display: block; }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 560px) { .results-grid { grid-template-columns: 1fr 1fr; } }
+
+  .result-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: box-shadow 0.2s;
+  }
+  .result-card:hover { box-shadow: var(--shadow-sm); }
+  .result-card .rc-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+  .result-card .rc-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary);
+    direction: ltr;
+    text-align: right;
+  }
+  .result-card .rc-sub {
+    font-size: 11px;
+    color: var(--text-hint);
+  }
+  .result-card.highlight {
+    border-color: var(--primary-mid);
+    background: linear-gradient(135deg, #eff6ff, #fff);
+  }
+  .result-card.danger .rc-value { color: var(--danger); }
+  .result-card.success { border-color: #6ee7b7; background: linear-gradient(135deg, #f0fdf4, #fff); }
+  .result-card.success .rc-value { color: var(--success); font-size: 22px; }
+
+  /* === BREAKDOWN === */
+  .breakdown-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin: 20px 0 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .breakdown-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  .bar-label { width: 130px; flex-shrink: 0; color: var(--text-muted); text-align: right; }
+  .bar-track {
+    flex: 1;
+    background: var(--border);
+    border-radius: 100px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .bar-fill.take-home { background: linear-gradient(90deg, #059669, #10b981); }
+  .bar-fill.insurance { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+  .bar-fill.tax { background: linear-gradient(90deg, #ef4444, #f87171); }
+  .bar-amount {
+    width: 110px;
+    flex-shrink: 0;
+    font-weight: 600;
+    color: var(--text-main);
+    direction: ltr;
+    text-align: left;
+    font-size: 13px;
+  }
+
+  /* === TAX BRACKETS === */
+  .brackets-mini {
+    background: var(--gold-light);
+    border: 1px solid #fde68a;
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    margin-top: 16px;
+  }
+  .brackets-mini .bm-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #92400e;
+    margin-bottom: 10px;
+  }
+  .brackets-mini .bm-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    padding: 4px 0;
+    border-bottom: 1px solid #fde68a;
+    color: #78350f;
+  }
+  .brackets-mini .bm-row:last-child { border-bottom: none; }
+  .brackets-mini .bm-row .active-bracket {
+    background: #92400e;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* === NOTE FOOTER === */
+  .note-footer {
+    padding: 16px 28px;
+    border-top: 1px solid var(--border);
+    background: #fafafa;
+    font-size: 11.5px;
+    color: var(--text-hint);
+    line-height: 1.7;
+    text-align: center;
+  }
+  .note-footer strong { color: var(--text-muted); }
+
+  /* === ANIMATIONS === */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .results-section.visible { animation: fadeUp 0.4s ease; }
+  .result-card { animation: fadeUp 0.3s ease both; }
+  .result-card:nth-child(1) { animation-delay: 0.05s; }
+  .result-card:nth-child(2) { animation-delay: 0.10s; }
+  .result-card:nth-child(3) { animation-delay: 0.15s; }
+  .result-card:nth-child(4) { animation-delay: 0.20s; }
+  .result-card:nth-child(5) { animation-delay: 0.25s; }
+  .result-card:nth-child(6) { animation-delay: 0.30s; }
+</style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <div class="header">
+    <div class="header-badge">قانون رقم 7 لسنة 2024</div>
+    <h1>حاسبة ضريبة كسب العمل<br>القطاع الخاص والحكومي</h1>
+    <p>طبقاً لقانون الضريبة على الدخل رقم 91 لسنة 2005 — الإعفاء الشخصي 20,000 جنيه | حد التأمينات 2,700 – 16,700</p>
+  </div>
+
+  <div class="main-card">
+
+    <!-- INPUT SECTION -->
+    <div class="card-section">
+      <div class="section-label">بيانات الراتب</div>
+      <div class="input-grid">
+        <div class="input-group">
+          <label>الأجر الأساسي</label>
+          <div class="input-wrapper">
+            <input id="base_salary" type="number" placeholder="0" inputmode="numeric">
+            <span class="input-currency">ج.م</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>الأجر الإضافي</label>
+          <span class="hint">حوافز · عمولات · مكافآت</span>
+          <div class="input-wrapper">
+            <input id="extra_salary" type="number" placeholder="0" inputmode="numeric">
+            <span class="input-currency">ج.م</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>البدلات الحقيقية</label>
+          <span class="hint">بدل سكن · مواصلات · اتصالات</span>
+          <div class="input-wrapper">
+            <input id="allowances" type="number" placeholder="0" inputmode="numeric">
+            <span class="input-currency">ج.م</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>إعفاءات ضريبية شهرية</label>
+          <span class="hint">تأمين صحي · تأمين حياة</span>
+          <div class="input-wrapper">
+            <input id="tax_exemptions" type="number" placeholder="0" inputmode="numeric">
+            <span class="input-currency">ج.م</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPECIAL NEEDS TOGGLE -->
+    <div class="card-section">
+      <div class="section-label">إعفاءات خاصة</div>
+      <div class="toggle-row" id="toggleRow" onclick="toggleSpecialNeeds()">
+        <div class="toggle-info">
+          <strong>إعفاء ذوي الهمم</strong>
+          <span>خصم إضافي 20,000 جنيه من الوعاء الضريبي السنوي</span>
+        </div>
+        <div class="toggle-switch" id="toggleSwitch"></div>
+      </div>
+    </div>
+
+    <!-- CALCULATE BUTTON -->
+    <div class="card-section" style="padding-top: 0; padding-bottom: 28px;">
+      <button class="btn-calc" onclick="calculateTax()">🧮 احسب الآن</button>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="results-section" id="resultsSection">
+      <div class="section-label">النتائج الشهرية</div>
+
+      <div class="results-grid">
+        <div class="result-card">
+          <span class="rc-label">إجمالي الراتب</span>
+          <span class="rc-value" id="res_total_gross">—</span>
+          <span class="rc-sub">قبل الاستقطاعات</span>
+        </div>
+        <div class="result-card highlight">
+          <span class="rc-label">الأجر التأميني</span>
+          <span class="rc-value" id="res_ins_base">—</span>
+          <span class="rc-sub">الوعاء الخاضع للتأمين</span>
+        </div>
+        <div class="result-card">
+          <span class="rc-label">البدلات المعفاة</span>
+          <span class="rc-value" id="res_exempt_allow">—</span>
+          <span class="rc-sub">معفاة من التأمينات</span>
+        </div>
+        <div class="result-card">
+          <span class="rc-label">حصة العامل 11%</span>
+          <span class="rc-value" id="res_ins_worker">—</span>
+          <span class="rc-sub">اشتراك التأمينات</span>
+        </div>
+        <div class="result-card danger">
+          <span class="rc-label">الضريبة الشهرية</span>
+          <span class="rc-value" id="res_tax">—</span>
+          <span class="rc-sub">ضريبة كسب العمل</span>
+        </div>
+        <div class="result-card success">
+          <span class="rc-label">الراتب الصافي</span>
+          <span class="rc-value" id="res_net">—</span>
+          <span class="rc-sub">المبلغ المستلم</span>
+        </div>
+      </div>
+
+      <!-- VISUAL BREAKDOWN -->
+      <div class="breakdown-title">تحليل توزيع الراتب</div>
+      <div class="breakdown-bar">
+        <div class="bar-row">
+          <span class="bar-label">صافي الاستلام</span>
+          <div class="bar-track"><div class="bar-fill take-home" id="bar_net" style="width:0%"></div></div>
+          <span class="bar-amount" id="pct_net">—</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">اشتراك التأمينات</span>
+          <div class="bar-track"><div class="bar-fill insurance" id="bar_ins" style="width:0%"></div></div>
+          <span class="bar-amount" id="pct_ins">—</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">ضريبة الدخل</span>
+          <div class="bar-track"><div class="bar-fill tax" id="bar_tax" style="width:0%"></div></div>
+          <span class="bar-amount" id="pct_tax">—</span>
+        </div>
+      </div>
+
+      <!-- TAX BRACKETS INFO -->
+      <div class="brackets-mini">
+        <div class="bm-title">⚡ شرائح ضريبة الدخل السنوية المطبقة</div>
+        <div class="bm-row"><span>أول 40,000 ج.م</span><span id="b1">0% — معفاة</span></div>
+        <div class="bm-row"><span>40,001 – 55,000 ج.م</span><span id="b2">10%</span></div>
+        <div class="bm-row"><span>55,001 – 70,000 ج.م</span><span id="b3">15%</span></div>
+        <div class="bm-row"><span>70,001 – 200,000 ج.م</span><span id="b4">20%</span></div>
+        <div class="bm-row"><span>200,001 – 400,000 ج.م</span><span id="b5">22.5%</span></div>
+        <div class="bm-row"><span>400,001 – 1,200,000 ج.م</span><span id="b6">25%</span></div>
+        <div class="bm-row"><span>أكثر من 1,200,000 ج.م</span><span id="b7">27.5%</span></div>
+      </div>
+    </div>
+
+    <!-- FOOTER NOTE -->
+    <div class="note-footer">
+      <strong>تنبيه:</strong> الحسابات للأغراض الإرشادية فقط · <strong>حد التأمينات 2026:</strong> أدنى 2,700 ج.م — أقصى 16,700 ج.م · <strong>الإعفاء الشخصي:</strong> 20,000 ج.م سنوياً<br>
+      استشر محاسبك أو المختص الضريبي للحصول على الحساب الدقيق لحالتك.
+    </div>
+  </div>
+
+</div>
+
+<script>
+  var specialNeeds = false;
+
+  function toggleSpecialNeeds() {
+    specialNeeds = !specialNeeds;
+    document.getElementById('toggleRow').classList.toggle('active', specialNeeds);
+  }
+
+  function fmt(n) {
+    return Math.round(n).toLocaleString('ar-EG');
+  }
+  function fmtD(n) {
+    return n.toLocaleString('ar-EG', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  }
+  function pct(n) { return Math.round(n) + '%'; }
+
+  function getTax(annual) {
+    if (annual <= 40000) return 0;
+    if (annual <= 55000) return (annual - 40000) * 0.10;
+    if (annual <= 70000) return (annual - 55000) * 0.15 + 1500;
+    if (annual <= 200000) return (annual - 70000) * 0.20 + 3750;
+    if (annual <= 400000) return (annual - 200000) * 0.225 + 29750;
+    if (annual <= 1200000) return (annual - 400000) * 0.25 + 74750;
+    return (annual - 1200000) * 0.275 + 274750;
+  }
+
+  function getActiveBracket(annual) {
+    if (annual <= 40000) return 0;
+    if (annual <= 55000) return 1;
+    if (annual <= 70000) return 2;
+    if (annual <= 200000) return 3;
+    if (annual <= 400000) return 4;
+    if (annual <= 1200000) return 5;
+    return 6;
+  }
+
+  function calculateTax() {
+    var base = Number(document.getElementById('base_salary').value || 0);
+    var extra = Number(document.getElementById('extra_salary').value || 0);
+    var allow = Number(document.getElementById('allowances').value || 0);
+    var medExempt = Number(document.getElementById('tax_exemptions').value || 0);
+
+    var totalGross = base + extra + allow;
+    if (totalGross <= 0) return;
+
+    // Insurance base calculation
+    var totalForInsLogic = base + allow;
+    var theoreticalBase = totalForInsLogic / 1.30;
+    var maxLegalAllow = totalForInsLogic - theoreticalBase;
+
+    var finalInsBase, finalExemptAllow;
+    if (allow > maxLegalAllow) {
+      finalExemptAllow = maxLegalAllow;
+      finalInsBase = theoreticalBase;
+    } else {
+      finalExemptAllow = allow;
+      finalInsBase = base;
+    }
+
+    if (finalInsBase < 2700) finalInsBase = 2700;
+    if (finalInsBase > 16700) finalInsBase = 16700;
+
+    var insWorkerShare = finalInsBase * 0.11;
+
+    // Tax calculation
+    var personalExemp = 20000;
+    var disabledExemp = specialNeeds ? 20000 : 0;
+    var annualTaxable = (totalGross * 12) - (insWorkerShare * 12) - personalExemp - (medExempt * 12) - disabledExemp;
+    annualTaxable = Math.max(0, annualTaxable);
+
+    var monthlyTax = getTax(annualTaxable) / 12;
+    var net = totalGross - insWorkerShare - monthlyTax;
+
+    // Display results
+    document.getElementById('res_total_gross').innerText = fmt(totalGross) + ' ج.م';
+    document.getElementById('res_ins_base').innerText = fmt(finalInsBase) + ' ج.م';
+    document.getElementById('res_exempt_allow').innerText = fmtD(finalExemptAllow) + ' ج.م';
+    document.getElementById('res_ins_worker').innerText = fmtD(insWorkerShare) + ' ج.م';
+    document.getElementById('res_tax').innerText = fmtD(monthlyTax) + ' ج.م';
+    document.getElementById('res_net').innerText = fmtD(net) + ' ج.م';
+
+    // Progress bars
+    var netPct = (net / totalGross) * 100;
+    var insPct = (insWorkerShare / totalGross) * 100;
+    var taxPct = (monthlyTax / totalGross) * 100;
+
+    setTimeout(function() {
+      document.getElementById('bar_net').style.width = Math.min(netPct, 100) + '%';
+      document.getElementById('bar_ins').style.width = Math.min(insPct, 100) + '%';
+      document.getElementById('bar_tax').style.width = Math.min(taxPct, 100) + '%';
+    }, 100);
+
+    document.getElementById('pct_net').innerText = pct(netPct) + ' — ' + fmtD(net) + ' ج.م';
+    document.getElementById('pct_ins').innerText = pct(insPct) + ' — ' + fmtD(insWorkerShare) + ' ج.م';
+    document.getElementById('pct_tax').innerText = pct(taxPct) + ' — ' + fmtD(monthlyTax) + ' ج.م';
+
+    // Highlight active bracket
+    var activeBracket = getActiveBracket(annualTaxable);
+    var bracketIds = ['b1','b2','b3','b4','b5','b6','b7'];
+    var bracketTexts = ['0% — معفاة','10%','15%','20%','22.5%','25%','27.5%'];
+    bracketIds.forEach(function(id, i) {
+      var el = document.getElementById(id);
+      el.innerHTML = i === activeBracket
+        ? '<span class="active-bracket">' + bracketTexts[i] + ' ◀ شريحتك</span>'
+        : bracketTexts[i];
+    });
+
+    // Show results
+    var section = document.getElementById('resultsSection');
+    section.classList.add('visible');
+    section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // Allow Enter key to calculate
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') calculateTax();
+  });
+</script>
+</body>
+</html>
