@@ -393,14 +393,6 @@
                 </div>
             </div>
             <div class="input-group">
-                <label for="r_extra">الأجر الإضافي المتوقع</label>
-                <div class="sub-label">حوافز · عمولات (اختياري)</div>
-                <div class="input-wrapper">
-                    <input id="r_extra" type="number" min="0" placeholder="0">
-                    <span class="input-currency">ج.م</span>
-                </div>
-            </div>
-            <div class="input-group">
                 <label for="r_allowances">البدلات الحقيقية</label>
                 <div class="sub-label">سكن · مواصلات · اتصالات</div>
                 <div class="input-wrapper">
@@ -410,7 +402,7 @@
             </div>
             <div class="input-group">
                 <label for="r_tax_exemptions">إعفاءات ضريبية شهرية</label>
-                <div class="sub-label">تأمين طبي · تأمين حياة</div>
+                <div class="sub-label">تأمين طبي · تأمين حياة — تُضاف للإجمالي وتُخصم من الصافي</div>
                 <div class="input-wrapper">
                     <input id="r_tax_exemptions" type="number" min="0" placeholder="0">
                     <span class="input-currency">ج.م</span>
@@ -576,21 +568,26 @@
     }
 
     /* ── Reverse: net → gross (binary search) ────────── */
-    function calcReverse(targetNet, extra, allow, medExempt, disabled) {
-        /* We need to find `base` such that calcForward(base, ...).net ≈ targetNet.
-           net is monotonically increasing with base, so binary search works perfectly. */
-        var lo = 0, hi = targetNet * 5 + 100000;  // generous upper bound
+    /* المنطق: الإعفاءات (تأمين طبي/حياة) بتتضاف على الإجمالي وبتتخصم من الصافي
+       يعني الصافي الحقيقي = net_from_calcForward - medExempt
+       فنبحث عن base بحيث calcForward(...).net - medExempt ≈ targetNet              */
+    function calcReverse(targetNet, allow, medExempt, disabled) {
+        var adjustedTarget = targetNet + medExempt; // الصافي قبل خصم الإعفاء
+        var lo = 0, hi = adjustedTarget * 5 + 100000;
 
         for (var i = 0; i < 80; i++) {
             var mid = (lo + hi) / 2;
-            var result = calcForward(mid, extra, allow, medExempt, disabled);
-            if (result.net < targetNet) lo = mid;
+            var result = calcForward(mid, 0, allow, medExempt, disabled);
+            if (result.net < adjustedTarget) lo = mid;
             else hi = mid;
-            if (Math.abs(result.net - targetNet) < 0.01) break;
+            if (Math.abs(result.net - adjustedTarget) < 0.01) break;
         }
 
         var base = (lo + hi) / 2;
-        return calcForward(base, extra, allow, medExempt, disabled);
+        var r = calcForward(base, 0, allow, medExempt, disabled);
+        // الصافي الفعلي بعد خصم الإعفاءات
+        r.netAfterExempt = r.net - medExempt;
+        return r;
     }
 
     /* ── Display ─────────────────────────────────────── */
@@ -601,7 +598,7 @@
         document.getElementById('res_ins_worker').innerText   = money(r.insShare);
         document.getElementById('res_annual_taxable').innerText = money(r.annualTaxable);
         document.getElementById('res_tax').innerText           = money(r.monthlyTax);
-        document.getElementById('res_net').innerText           = money(r.net);
+        document.getElementById('res_net').innerText           = money(r.netAfterExempt !== undefined ? r.netAfterExempt : r.net);
 
         /* breakdown bars */
         var total = r.totalGross;
@@ -641,17 +638,18 @@
 
         } else {
             var targetNet = getInput('net_salary_input');
-            var extra     = getInput('r_extra');
             var allow     = getInput('r_allowances');
             var medExempt = getInput('r_tax_exemptions');
             if (targetNet <= 0) return;
 
-            var r = calcReverse(targetNet, extra, allow, medExempt, disabled);
+            var r = calcReverse(targetNet, allow, medExempt, disabled);
             displayResults(r);
 
+            var base = r.totalGross - allow;
             note.innerHTML = '💡 <strong>نتيجة الحساب العكسي:</strong> عشان تستلم صافي ' + money(targetNet) +
-                ' شهرياً، الأجر الأساسي في عقدك لازم يكون تقريباً <strong>' + money(r.totalGross - extra - allow) + '</strong>' +
-                ' والإجمالي الكلي (أساسي + بدلات + إضافي) = <strong>' + money(r.totalGross) + '</strong>';
+                ' شهرياً (بعد خصم الإعفاءات ' + money(medExempt) + ')' +
+                '، الأجر الأساسي في عقدك لازم يكون تقريباً <strong>' + money(base) + '</strong>' +
+                ' والإجمالي الكلي (أساسي + بدلات) = <strong>' + money(r.totalGross) + '</strong>';
             note.classList.add('visible');
         }
     }
