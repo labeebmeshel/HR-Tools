@@ -1,29 +1,54 @@
-async function updateUI() {
-    try {
-        // قراءة الملف من الجيت هب (استخدم رابط raw للملف)
-        const response = await fetch('config.json?v=' + new Date().getTime()); 
-        const config = await response.json();
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labeeb Meshel - HR Platform</title>
+    <style>
+        :root { --primary: #0b4fb3; --white: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f1f5f9; overflow: hidden; }
+        
+        .nav-bar { display: flex; background: var(--primary); padding: 5px; position: sticky; top: 0; z-index: 1000; overflow-x: auto; }
+        .nav-btn { flex: 1; padding: 15px; border: none; background: none; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem; border-radius: 8px; white-space: nowrap; }
+        .nav-btn.active { background: white; color: var(--primary); }
 
-        // 1. التحكم في البطاقات (Cards)
-        if (!config.cv_visible) document.getElementById('tool-cv').style.display = 'none';
-        if (!config.tax_visible) document.getElementById('tool-tax').style.display = 'none';
-        if (!config.s1_visible) document.getElementById('tool-s1').style.display = 'none';
-        if (!config.tafqit_visible) document.getElementById('tool-tafqit').style.display = 'none';
-        if (!config.performance_visible) document.getElementById('tool-feedback').style.display = 'none';
+        .page-frame { width: 100%; height: calc(100vh - 60px); border: none; display: none; }
+        .page-frame.active { display: block; }
+    </style>
+</head>
+<body>
 
-        // 2. إخفاء التابات العلوية (Navbar)
-        // سنبحث عن التابة بناءً على النص أو الـ ID
-        const tabs = window.parent.document.querySelectorAll('.nav-tab'); // افترضنا أن هذا كلاس التابة
-        tabs.forEach(tab => {
-            if (tab.innerText.includes("السيرة") && !config.cv_visible) tab.style.display = 'none';
-            if (tab.innerText.includes("الضرائب") && !config.tax_visible) tab.style.display = 'none';
-            // ... وهكذا لبقية التابات
-        });
+    <div class="nav-bar" id="mainNav">
+        <button class="nav-btn active" onclick="loadPage(event, 'home-frame', 0)">الرئيسية</button>
+        <button class="nav-btn" onclick="loadPage(event, 'cv-frame', 1)">السيرة الذاتية</button>
+        <button class="nav-btn" onclick="loadPage(event, 'tax-frame', 2)">حاسبة الضرائب</button>
+        <button class="nav-btn" onclick="loadPage(event, 's1-frame', 3)">س1 تأمينات</button>
+        <button class="nav-btn" onclick="loadPage(event, 'tafqit-frame', 4)">أداة التفقيط</button>
+        <button class="nav-btn" onclick="loadPage(event, 'feedback-frame', 5)">قياس الأداء</button>
+    </div>
 
-    } catch (error) {
-        console.log("Error loading config:", error);
-    }
-}
+    <iframe id="home-frame" class="page-frame active" src="home.html"></iframe>
+    <iframe id="cv-frame" class="page-frame" src="cv.html"></iframe>
+    <iframe id="tax-frame" class="page-frame" src="tax.html"></iframe>
+    <iframe id="s1-frame" class="page-frame" src="s1.html"></iframe>
+    <iframe id="tafqit-frame" class="page-frame" src="tafqit.html"></iframe>
+    <iframe id="feedback-frame" class="page-frame" src="feedback.html"></iframe>
 
-// تشغيل الدالة بمجرد فتح الصفحة
-window.onload = updateUI;
+    <script>
+        function loadPage(evt, frameId, btnIndex) {
+            document.querySelectorAll('.page-frame').forEach(f => f.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(frameId).classList.add('active');
+            
+            // تفعيل الزر المناسب في الناف بار العلوي
+            const buttons = document.querySelectorAll('.nav-btn');
+            if (buttons[btnIndex]) {
+                buttons[btnIndex].classList.add('active');
+            }
+        }
+        // اجعل الوظيفة متاحة للـ Iframes (مثل صفحة home)
+        window.loadPage = loadPage;
+    </script>
+</body>
+</html>
