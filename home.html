@@ -86,6 +86,7 @@
             margin-top: 20px;
         }
         
+        /* التعديل هنا ليدعم الإخفاء */
         .tool-card {
             background: var(--white);
             padding: 30px 15px;
@@ -96,6 +97,11 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid rgba(255,255,255,0.8);
             cursor: pointer;
+            display: block; /* القيمة الافتراضية */
+        }
+
+        .tool-card.hidden {
+            display: none;
         }
         
         .tool-card:hover {
@@ -128,6 +134,53 @@
             font-size: 0.9rem;
             border-top: 1px solid rgba(0,0,0,0.05);
             background: rgba(255,255,255,0.3);
+            position: relative;
+        }
+
+        /* --- تصميم لوحة التحكم --- */
+        #adminPanel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.3);
+            z-index: 1000;
+            width: 300px;
+            text-align: right;
+            direction: rtl;
+        }
+        .admin-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .admin-close {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        .secret-trigger {
+            cursor: default;
+            opacity: 0.5;
         }
     </style>
 </head>
@@ -144,32 +197,32 @@
                 <a href="https://www.linkedin.com/company/praxiacademy/" target="_blank"><i class="fab fa-linkedin"></i></a>
             </div>
 
-            <div class="tools-grid">
-                <div class="tool-card" onclick="window.parent.loadPage(null, 'cv-frame', 1)">
+            <div class="tools-grid" id="toolsGrid">
+                <div class="tool-card" id="tool-cv" onclick="window.parent.loadPage(null, 'cv-frame', 1)">
                     <i class="fas fa-id-card"></i>
                     <span>السيرة الذاتية</span>
                     <p>Professional Resume</p>
                 </div>
                 
-                <div class="tool-card" onclick="window.parent.loadPage(null, 'tax-frame', 2)">
+                <div class="tool-card" id="tool-tax" onclick="window.parent.loadPage(null, 'tax-frame', 2)">
                     <i class="fas fa-calculator"></i>
                     <span>حاسبة الضرائب</span>
                     <p>Gross & Net Tax</p>
                 </div>
                 
-                <div class="tool-card" onclick="window.parent.loadPage(null, 's1-frame', 3)">
+                <div class="tool-card" id="tool-s1" onclick="window.parent.loadPage(null, 's1-frame', 3)">
                     <i class="fas fa-file-contract"></i>
                     <span>س1 تأمينات</span>
                     <p>أجر الاشتراك التأميني</p>
                 </div>
 
-                <div class="tool-card" onclick="window.parent.loadPage(null, 'tafqit-frame', 4)">
+                <div class="tool-card" id="tool-tafqit" onclick="window.parent.loadPage(null, 'tafqit-frame', 4)">
                     <i class="fas fa-spell-check"></i>
                     <span>أداة التفقيط</span>
                     <p>Number to Words</p>
                 </div>
 
-                <div class="tool-card" onclick="window.parent.loadPage(null, 'feedback-frame', 5)">
+                <div class="tool-card" id="tool-feedback" onclick="window.parent.loadPage(null, 'feedback-frame', 5)">
                     <i class="fas fa-chart-line"></i>
                     <span>قياس الأداء</span>
                     <p>Performance Feedback</p>
@@ -178,9 +231,95 @@
         </div>
     </div>
 
+    <div id="overlay"></div>
+    <div id="adminPanel">
+        <h3 style="color: var(--primary); margin-top: 0;">لوحة تحكم الأدوات</h3>
+        
+        <div class="admin-item">
+            <span>السيرة الذاتية</span>
+            <input type="checkbox" checked onchange="toggleTool('tool-cv', this.checked)">
+        </div>
+        <div class="admin-item">
+            <span>حاسبة الضرائب</span>
+            <input type="checkbox" checked onchange="toggleTool('tool-tax', this.checked)">
+        </div>
+        <div class="admin-item">
+            <span>س1 تأمينات</span>
+            <input type="checkbox" checked onchange="toggleTool('tool-s1', this.checked)">
+        </div>
+        <div class="admin-item">
+            <span>أداة التفقيط</span>
+            <input type="checkbox" checked onchange="toggleTool('tool-tafqit', this.checked)">
+        </div>
+        <div class="admin-item">
+            <span>قياس الأداء</span>
+            <input type="checkbox" checked onchange="toggleTool('tool-feedback', this.checked)">
+        </div>
+        
+        <button class="admin-close" onclick="closeAdmin()">إغلاق وحفظ</button>
+    </div>
+
     <footer>
-        جميع الحقوق محفوظة &copy; 2026 - أكاديمية براكسي
+        جميع الحقوق محفوظة &copy; 2026 - <span class="secret-trigger" onclick="openAdmin()">أكاديمية براكسي</span>
     </footer>
+
+    <script>
+        // كلمة السر
+        const ADMIN_PASS = "1234";
+
+        // وظيفة فتح لوحة التحكم
+        function openAdmin() {
+            let pass = prompt("أدخل كلمة المرور للدخول للوحة التحكم:");
+            if (pass === ADMIN_PASS) {
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('overlay').style.display = 'block';
+                syncCheckboxes();
+            } else {
+                alert("كلمة مرور خاطئة!");
+            }
+        }
+
+        function closeAdmin() {
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // إخفاء وإظهار الأدوات
+        function toggleTool(toolId, isVisible) {
+            const tool = document.getElementById(toolId);
+            if (isVisible) {
+                tool.classList.remove('hidden');
+                localStorage.setItem(toolId, 'visible');
+            } else {
+                tool.classList.add('hidden');
+                localStorage.setItem(toolId, 'hidden');
+            }
+        }
+
+        // تحميل الإعدادات المحفوظة عند فتح الصفحة
+        function loadSettings() {
+            const tools = ['tool-cv', 'tool-tax', 'tool-s1', 'tool-tafqit', 'tool-feedback'];
+            tools.forEach(id => {
+                const status = localStorage.getItem(id);
+                if (status === 'hidden') {
+                    document.getElementById(id).classList.add('hidden');
+                }
+            });
+        }
+
+        // مزامنة الشيك بوكس مع الحالة الحالية
+        function syncCheckboxes() {
+            const tools = ['tool-cv', 'tool-tax', 'tool-s1', 'tool-tafqit', 'tool-feedback'];
+            const checkboxes = document.querySelectorAll('#adminPanel input[type="checkbox"]');
+            tools.forEach((id, index) => {
+                const status = localStorage.getItem(id);
+                checkboxes[index].checked = (status !== 'hidden');
+            });
+        }
+
+        // تشغيل التحميل عند البداية
+        window.onload = loadSettings;
+    </script>
 
 </body>
 </html>
