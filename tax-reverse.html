@@ -1,1 +1,393 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة الصافي إلى الإجمالي - مصر 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0b4fb3;
+            --primary-dark: #093e8d;
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --surface-soft: #f8fbff;
+            --text: #14263f;
+            --muted: #5d728d;
+            --border: #d9e3f0;
+            --success: #0d8a49;
+            --shadow: 0 12px 28px rgba(13, 46, 94, 0.12);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
+            background: radial-gradient(circle at top right, #e8f1ff 0%, var(--bg) 55%);
+            color: var(--text);
+            padding: 24px;
+            min-height: 100vh;
+        }
+        .calc-wrapper {
+            max-width: 980px;
+            margin: 0 auto;
+            background: var(--surface);
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.7);
+        }
+        .main-title {
+            text-align: center;
+            color: var(--primary);
+            margin: 0;
+            font-size: clamp(1.25rem, 2.8vw, 1.75rem);
+            font-weight: 700;
+            line-height: 1.4;
+        }
+        .sub-title {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.93rem;
+            margin: 10px auto 24px;
+            line-height: 1.6;
+            max-width: 700px;
+        }
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        .input-group { display: flex; flex-direction: column; gap: 6px; }
+        .input-group label { font-weight: 700; color: var(--primary); font-size: 0.91rem; }
+        .input-group .sub-label { font-size: 0.78rem; color: var(--muted); margin-top: -4px; }
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        .input-wrapper input[type="number"], .input-wrapper select {
+            width: 100%;
+            padding: 12px 13px 12px 44px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-family: "Cairo", sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            background: #fff;
+            -moz-appearance: textfield;
+        }
+        .input-wrapper select { padding-left: 15px; cursor: pointer; }
+        .input-wrapper input[type="number"]::-webkit-inner-spin-button,
+        .input-wrapper input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+        .input-wrapper input[type="number"]:focus, .input-wrapper select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(11,79,179,0.12);
+        }
+        .input-currency {
+            position: absolute;
+            left: 13px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #94a3b8;
+            pointer-events: none;
+            letter-spacing: 0.3px;
+        }
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 10px 0 18px;
+        }
+        .special-card {
+            background: var(--surface-soft);
+            border: 1px solid #d8e8ff;
+            border-radius: 12px;
+            padding: 13px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .special-card:hover { border-color: var(--primary); }
+        .special-card input[type="checkbox"] { accent-color: var(--primary); width: 17px; height: 17px; cursor: pointer; }
+        .special-card label { cursor: pointer; font-size: 0.93rem; font-weight: 600; color: var(--text); }
+        .special-card .sc-sub { font-size: 0.78rem; color: var(--muted); }
+        .btn-calc {
+            background: linear-gradient(135deg, var(--primary) 0%, #1662d4 100%);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 11px;
+            cursor: pointer;
+            font-family: "Cairo", sans-serif;
+            font-weight: 700;
+            width: 100%;
+            font-size: 1.06rem;
+            box-shadow: 0 4px 14px rgba(11,79,179,0.3);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            font-size: 0.91rem;
+            background: #fff;
+        }
+        th, td { border: 1px solid #e4edf9; padding: 11px 10px; text-align: center; }
+        th { background: #0f5bc8; color: #fff; font-weight: 600; font-size: 0.88rem; }
+        .res-val { color: var(--success); font-weight: 800; font-size: 1rem; }
+        .breakdown-section {
+            margin-top: 20px;
+            background: #f8fbff;
+            border: 1px solid #deebff;
+            border-radius: 14px;
+            padding: 18px 20px;
+        }
+        .breakdown-title { font-size: 0.88rem; font-weight: 700; color: var(--primary); margin-bottom: 14px; }
+        .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 0.84rem; }
+        .bar-label { width: 120px; color: var(--muted); text-align: right; font-weight: 500; }
+        .bar-track { flex: 1; background: #e2e8f0; border-radius: 100px; height: 9px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 100px; transition: width 0.5s ease; }
+        .bar-fill.net { background: linear-gradient(90deg, #0d8a49, #22c55e); }
+        .bar-fill.ins { background: linear-gradient(90deg, #d97706, #f59e0b); }
+        .bar-fill.tax { background: linear-gradient(90deg, #c0392b, #ef4444); }
+        .bar-amount { width: 130px; font-weight: 600; color: var(--text); text-align: left; direction: ltr; }
+        .reverse-note {
+            background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px;
+            padding: 11px 15px; font-size: 0.83rem; color: #92400e; margin-top: 16px; line-height: 1.6; display: none;
+        }
+        .reverse-note.visible { display: block; }
+        .hint { margin-top: 14px; font-size: 0.84rem; color: var(--muted); text-align: center; }
+    </style>
+</head>
+<body>
+<div class="calc-wrapper">
+    <h1 class="main-title">حساب ضريبة كسب العمل — من الصافي للإجمالي</h1>
+    <p class="sub-title">طبقاً لقانون الضريبة على الدخل رقم 91 لسنة 2005 وتعديلاته بقانون 7 لسنة 2024</p>
 
+    <div class="input-grid">
+        <div class="input-group">
+            <label for="net_salary_input">الراتب الصافي المستهدف (شهري)</label>
+            <div class="sub-label">المبلغ اللي تستلمه فعلاً</div>
+            <div class="input-wrapper">
+                <input id="net_salary_input" type="number" min="0" placeholder="0">
+                <span class="input-currency">ج.م</span>
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="r_allowances">البدلات الحقيقية</label>
+            <div class="sub-label">سكن · مواصلات · اتصالات</div>
+            <div class="input-wrapper">
+                <input id="r_allowances" type="number" min="0" placeholder="0">
+                <span class="input-currency">ج.م</span>
+            </div>
+        </div>
+        <div class="input-group" style="grid-column: span 2;">
+            <label for="r_tax_exemptions">إعفاءات ضريبية شهرية</label>
+            <div class="sub-label">تأمين طبي · تأمين حياة — تُضاف للإجمالي وتُخصم من الصافي</div>
+            <div class="input-wrapper">
+                <input id="r_tax_exemptions" type="number" min="0" placeholder="0">
+                <span class="input-currency">ج.م</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="options-container">
+        <div class="input-group" style="background: var(--surface-soft); border: 1px solid #d8e8ff; padding: 12px; border-radius: 12px;">
+            <label for="insuranceMode" style="color: var(--primary);">نظام احتساب الأجر التأميني</label>
+            <div class="input-wrapper" style="margin-top: 5px;">
+                <select id="insuranceMode" onchange="toggleManualInput()">
+                    <option value="auto">حساب الأجر التأميني تلقائياً</option>
+                    <option value="manual">حساب الأجر التأميني يدوي (إدخال مخصص)</option>
+                    <option value="none">عدم حساب أجر تأميني (0)</option>
+                </select>
+            </div>
+            <div id="manualInsuranceWrapper" class="input-wrapper" style="margin-top: 10px; display: none;">
+                <input id="manual_insurance_wage" type="number" min="0" placeholder="اكتب الأجر التأميني المخصص">
+                <span class="input-currency">ج.م</span>
+            </div>
+        </div>
+
+        <div class="special-card" onclick="document.getElementById('specialNeeds').click()">
+            <input id="specialNeeds" type="checkbox" onclick="event.stopPropagation()">
+            <div>
+                <label for="specialNeeds">تطبيق إعفاء ذوي الهمم</label>
+                <div class="sc-sub">خصم إضافي من الوعاء الضريبي السنوي</div>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-calc" type="button" onclick="calculateTax()">🧮 احسب الآن</button>
+
+    <table>
+        <thead>
+        <tr>
+            <th>الإجمالي المحسوب</th>
+            <th>البدلات المعفاة تأمينياً</th>
+            <th>الأجر التأميني</th>
+            <th>حصة العامل 11%</th>
+            <th>الإعفاءات المستقطعة</th>
+            <th>الوعاء الضريبي السنوي</th>
+            <th>الضريبة</th>
+            <th>الصافي المستهدف ✔</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td id="res_total_gross">—</td>
+            <td id="res_exempt_allow">—</td>
+            <td id="res_ins_base">—</td>
+            <td id="res_ins_worker">—</td>
+            <td id="res_med_exempt" style="color: #d97706; font-weight: bold;">—</td>
+            <td id="res_annual_taxable">—</td>
+            <td id="res_tax">—</td>
+            <td id="res_net" class="res-val">—</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="breakdown-section" id="breakdown-section" style="display:none;">
+        <div class="breakdown-title">📊 توزيع الراتب واستقطاعات الـ Payroll المعفاة</div>
+        <div class="bar-row">
+            <span class="bar-label">الصافي المستلم</span>
+            <div class="bar-track"><div class="bar-fill net" id="bar_net" style="width:0%"></div></div>
+            <span class="bar-amount" id="pct_net">—</span>
+        </div>
+        <div class="bar-row">
+            <span class="bar-label">اشتrack التأمينات</span>
+            <div class="bar-track"><div class="bar-fill ins" id="bar_ins" style="width:0%"></div></div>
+            <span class="bar-amount" id="pct_ins">—</span>
+        </div>
+        <div class="bar-row">
+            <span class="bar-label">ضريبة الدخل</span>
+            <div class="bar-track"><div class="bar-fill tax" id="bar_tax" style="width:0%"></div></div>
+            <span class="bar-amount" id="pct_tax">—</span>
+        </div>
+    </div>
+    <div class="reverse-note" id="reverse-note"></div>
+    <p class="hint">ملاحظة: تعتمد الحسبة الحالية على مصفوفة الدخل الاستثنائية وإسقاط تدرج الشرائح التنازلية.</p>
+</div>
+
+<script>
+    function toggleManualInput() {
+        var mode = document.getElementById('insuranceMode').value;
+        document.getElementById('manualInsuranceWrapper').style.display = (mode === 'manual') ? 'block' : 'none';
+    }
+
+    function money(v) { return Number(v).toFixed(2) + ' ج.م'; }
+    function pctStr(v) { return Math.round(v) + '%'; }
+    function getInput(id) { return Number(document.getElementById(id).value || 0); }
+
+    function getTax(annualTaxable) {
+        if (annualTaxable <= 0) return 0;
+        let annualTax = 0; let r = annualTaxable; 
+        if (annualTaxable <= 600000) {
+            if (r > 40000) {
+                r -= 40000; 
+                let ch2 = Math.min(r, 15000);  annualTax += ch2 * 0.10;  r -= ch2;  
+                let ch3 = Math.min(r, 15000);  annualTax += ch3 * 0.15;  r -= ch3;  
+                let ch4 = Math.min(r, 130000); annualTax += ch4 * 0.20;  r -= ch4;  
+                let ch5 = Math.min(r, 200000); annualTax += ch5 * 0.225; r -= ch5;  
+                let ch6 = Math.min(r, 800000); annualTax += ch6 * 0.25;  r -= ch6;  
+                if (r > 0) annualTax += r * 0.275;
+            }
+        } else if (annualTaxable <= 700000) {
+            let ch2 = Math.min(r, 55000); annualTax += ch2 * 0.10; r -= ch2;
+            let ch3 = Math.min(r, 15000); annualTax += ch3 * 0.15; r -= ch3;
+            let ch4 = Math.min(r, 130000); annualTax += ch4 * 0.20; r -= ch4;
+            let ch5 = Math.min(r, 200000); annualTax += ch5 * 0.225; r -= ch5;
+            let ch6 = Math.min(r, 800000); annualTax += ch6 * 0.25; r -= ch6;
+            if (r > 0) annualTax += r * 0.275;
+        } else if (annualTaxable <= 800000) {
+            let ch3 = Math.min(r, 70000); annualTax += ch3 * 0.15; r -= ch3;
+            let ch4 = Math.min(r, 130000); annualTax += ch4 * 0.20; r -= ch4;
+            let ch5 = Math.min(r, 200000); annualTax += ch5 * 0.225; r -= ch5;
+            let ch6 = Math.min(r, 800000); annualTax += ch6 * 0.25; r -= ch6;
+            if (r > 0) annualTax += r * 0.275;
+        } else if (annualTaxable <= 900000) {
+            let ch4 = Math.min(r, 200000); annualTax += ch4 * 0.20; r -= ch4;
+            let ch5 = Math.min(r, 200000); annualTax += ch5 * 0.225; r -= ch5;
+            let ch6 = Math.min(r, 800000); annualTax += ch6 * 0.25; r -= ch6;
+            if (r > 0) annualTax += r * 0.275;
+        } else if (annualTaxable <= 1200000) {
+            let ch5 = Math.min(r, 400000); annualTax += ch5 * 0.225; r -= ch5;
+            let ch6 = Math.min(r, 800000); annualTax += ch6 * 0.25; r -= ch6;
+            if (r > 0) annualTax += r * 0.275;
+        } else {
+            let ch6 = Math.min(r, 1200000); annualTax += ch6 * 0.25; r -= ch6;
+            if (r > 0) annualTax += r * 0.275;
+        }
+        return annualTax;
+    }
+
+    function calcInsuranceReverse(baseCalculated, allow, insMode, manualWage) {
+        if (insMode === 'none') return { finalInsBase: 0, finalExemptAllow: 0 };
+        if (insMode === 'manual') {
+            let f = Math.max(2700, Math.min(16700, manualWage));
+            let e = Math.max(0, Math.min(allow, (baseCalculated + allow) - f));
+            return { finalInsBase: Math.round(f), finalExemptAllow: Math.round(e) };
+        }
+        const MAX = 16700; let f = baseCalculated;
+        if (baseCalculated >= MAX) { f = MAX; } else {
+            let pot = baseCalculated / 0.7;
+            if (pot > MAX) { f = MAX; } else {
+                if (allow > pot * 0.3) f = (baseCalculated + allow) - (pot * 0.3);
+            }
+        }
+        f = Math.max(2700, Math.min(MAX, f));
+        let e = Math.max(0, Math.min(allow, (baseCalculated + allow) - f));
+        return { finalInsBase: Math.round(f), finalExemptAllow: Math.round(e) };
+    }
+
+    function calcForwardForReverse(base, allow, medExempt, disabled, insMode, manualWage) {
+        var totalGross = base + allow;
+        var ins = calcInsuranceReverse(base, allow, insMode, manualWage);
+        var insShare = Math.round(ins.finalInsBase * 0.11);
+        var finalAnnual = Math.max(0, ((totalGross - insShare - medExempt) * 12) - 20000 - (disabled ? 10000 : 0));
+        var monthlyTax = Math.round(getTax(finalAnnual) / 12);
+        var net = totalGross - insShare - monthlyTax - medExempt;
+        return {
+            totalGross: totalGross, finalInsBase: ins.finalInsBase, finalExemptAllow: ins.finalExemptAllow,
+            insShare: insShare, medExemptMonthly: medExempt, annualTaxable: finalAnnual, monthlyTax: monthlyTax, net: net
+        };
+    }
+
+    function calculateTax() {
+        var targetNet = getInput('net_salary_input'), allow = getInput('r_allowances'), medExempt = getInput('r_tax_exemptions');
+        var disabled = document.getElementById('specialNeeds').checked, insMode = document.getElementById('insuranceMode').value, manualWage = getInput('manual_insurance_wage');
+        if (targetNet <= 0) return;
+
+        var lo = 0, hi = targetNet * 5 + 100000; var r;
+        for (var i = 0; i < 100; i++) {
+            var mid = (lo + hi) / 2;
+            r = calcForwardForReverse(mid, allow, medExempt, disabled, insMode, manualWage);
+            if (r.net < targetNet) lo = mid; else hi = mid;
+            if (Math.abs(r.net - targetNet) < 0.01) break;
+        }
+
+        var gross = r.totalGross;
+        document.getElementById('res_total_gross').innerText = money(gross);
+        document.getElementById('res_exempt_allow').innerText = money(r.finalExemptAllow);
+        document.getElementById('res_ins_base').innerText = money(r.finalInsBase);
+        document.getElementById('res_ins_worker').innerText = money(r.insShare);
+        document.getElementById('res_med_exempt').innerText = money(medExempt);
+        document.getElementById('res_annual_taxable').innerText = money(r.annualTaxable);
+        document.getElementById('res_tax').innerText = money(r.monthlyTax);
+        document.getElementById('res_net').innerText = money(targetNet);
+
+        document.getElementById('bar_net').style.width = (targetNet/gross)*100 + '%';
+        document.getElementById('bar_ins').style.width = (r.insShare/gross)*100 + '%';
+        document.getElementById('bar_tax').style.width = (r.monthlyTax/gross)*100 + '%';
+        document.getElementById('pct_net').innerText = pctStr((targetNet/gross)*100) + ' — ' + money(targetNet);
+        document.getElementById('pct_ins').innerText = pctStr((r.insShare/gross)*100) + ' — ' + money(r.insShare);
+        document.getElementById('pct_tax').innerText = pctStr((r.monthlyTax/gross)*100) + ' — ' + money(r.monthlyTax);
+        document.getElementById('breakdown-section').style.display = '';
+
+        var note = document.getElementById('reverse-note');
+        var noteText = '💡 <strong>نتيجة الحساب العكسي المفصول:</strong> عشان تستلم صافي ' + money(targetNet) + ' شهرياً، الأجر الأساسي المجرّد لازم يكون: <strong>' + money(gross - allow) + '</strong> والإجمالي الكلي (أساسي + بدلات) = <strong>' + money(gross) + '</strong>';
+        note.innerHTML = noteText; note.style.display = 'block'; note.classList.add('visible');
+    }
+</script>
+</body>
+</html>
