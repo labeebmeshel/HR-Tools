@@ -88,9 +88,7 @@
             color: var(--primary);
             box-shadow: 0 2px 8px rgba(11,79,179,0.13);
         }
-        .mode-btn .mode-icon {
-            font-size: 1.1rem;
-        }
+        .mode-btn .mode-icon { font-size: 1.1rem; }
         .mode-badge {
             font-size: 0.72rem;
             background: #d0e2ff;
@@ -99,10 +97,7 @@
             border-radius: 100px;
             font-weight: 700;
         }
-        .mode-btn.active .mode-badge {
-            background: var(--primary);
-            color: #fff;
-        }
+        .mode-btn.active .mode-badge { background: var(--primary); color: #fff; }
 
         /* ===== INPUTS ===== */
         .input-grid {
@@ -113,23 +108,10 @@
         }
 
         .input-group { display: flex; flex-direction: column; gap: 6px; }
+        .input-group label { font-weight: 700; color: var(--primary); font-size: 0.91rem; }
+        .input-group .sub-label { font-size: 0.78rem; color: var(--muted); margin-top: -4px; }
 
-        .input-group label {
-            font-weight: 700;
-            color: var(--primary);
-            font-size: 0.91rem;
-        }
-        .input-group .sub-label {
-            font-size: 0.78rem;
-            color: var(--muted);
-            margin-top: -4px;
-        }
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
+        .input-wrapper { position: relative; display: flex; align-items: center; }
         .input-wrapper input[type="number"] {
             width: 100%;
             padding: 12px 13px 12px 44px;
@@ -160,7 +142,6 @@
             letter-spacing: 0.3px;
         }
 
-        /* reverse mode highlight */
         .input-group.reverse-primary label { color: #0d8a49; }
         .input-group.reverse-primary .input-wrapper input:focus {
             border-color: #0d8a49;
@@ -209,82 +190,4 @@
             margin-top: 20px;
             border-radius: 12px;
             overflow: hidden;
-            font-size: 0.91rem;
-            background: #fff;
-        }
-        th, td {
-            border: 1px solid #e4edf9;
-            padding: 11px 10px;
-            text-align: center;
-        }
-        th { background: #0f5bc8; color: #fff; font-weight: 600; font-size: 0.88rem; }
-        .res-val { color: var(--success); font-weight: 800; font-size: 1rem; }
-
-        /* ===== BREAKDOWN BAR ===== */
-        .breakdown-section {
-            margin-top: 20px;
-            background: #f8fbff;
-            border: 1px solid #deebff;
-            border-radius: 14px;
-            padding: 18px 20px;
-        }
-        .breakdown-title {
-            font-size: 0.88rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .bar-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 9px;
-            font-size: 0.84rem;
-        }
-        .bar-row:last-child { margin-bottom: 0; }
-        .bar-label { width: 120px; flex-shrink: 0; color: var(--muted); text-align: right; font-weight: 500; }
-        .bar-track {
-            flex: 1;
-            background: #e2e8f0;
-            border-radius: 100px;
-            height: 9px;
-            overflow: hidden;
-        }
-        .bar-fill {
-            height: 100%;
-            border-radius: 100px;
-            transition: width 0.7s cubic-bezier(0.34,1.3,0.64,1);
-        }
-        .bar-fill.net   { background: linear-gradient(90deg, #0d8a49, #22c55e); }
-        .bar-fill.ins   { background: linear-gradient(90deg, #d97706, #f59e0b); }
-        .bar-fill.tax   { background: linear-gradient(90deg, #c0392b, #ef4444); }
-        .bar-amount { width: 130px; flex-shrink: 0; font-weight: 600; color: var(--text); text-align: left; font-size: 0.84rem; direction: ltr; }
-
-        /* ===== REVERSE NOTE ===== */
-        .reverse-note {
-            background: #fffbeb;
-            border: 1px solid #fde68a;
-            border-radius: 10px;
-            padding: 11px 15px;
-            font-size: 0.83rem;
-            color: #92400e;
-            margin-top: 16px;
-            line-height: 1.6;
-            display: none;
-        }
-        .reverse-note.visible { display: block; }
-
-        .hint {
-            margin-top: 14px;
-            font-size: 0.84rem;
-            color: var(--muted);
-            text-align: center;
-            line-height: 1.6;
-        }
-
-        @media (max-width: 760px) {
-            body { padding: 12px; }
-            .calc-wrapper { padding: 20px 14px
+            font-size: 0
