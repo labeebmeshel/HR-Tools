@@ -417,6 +417,9 @@
         </div>
     </div>
 
+    <div class="reverse-note" id="reverse-note"></div>
+    <p class="hint">ملاحظة: تعتمد الحسبة الحالية على مصفوفة الدخل الاستثنائية وإسقاط تدرج الشرائح التنازلية المخصصة للأجور المرتفعة.</p>
+</div>
 
 <script>
     var currentMode = 'forward';
@@ -452,7 +455,7 @@
         });
     }
 
-    // دالة تنسيق آمنة تحمي دورة الحساب العكسي من التهنيج الـ NaN
+    // دالة تنسيق رياضية آمنة وبدون وضع الفواصل النصية المربكة لمعادلة البحث العكسي
     function money(v) {
         return Number(v).toFixed(2) + ' ج.م';
     }
@@ -533,7 +536,7 @@
             return { finalInsBase: Math.round(finalInsBase), finalExemptAllow: Math.round(finalExemptAllow) };
         }
 
-        // المسار التلقائي الذكي (Auto Mode) بناءً على البدلات الـ 30% والحدود
+        // المسار التلقائي الذكي (Auto Mode)
         const MAX_INSURANCE_WAGE = 16700;
         const MIN_INSURANCE_WAGE = 2700;
         let finalInsBase = base;
@@ -593,13 +596,14 @@
         };
     }
 
-    /* ── حساب الصافي للإجمالي العكسي ── */
+    /* ── ضبط وتصحيح دالة الحساب العكسي لتمرير المتغيرات التأمينية للـ Loop بدقة ثنائية ── */
     function calcReverse(targetNet, allow, medExempt, disabled, insMode, manualWage) {
         var lo = 0, hi = targetNet * 5 + 100000;
         var r;
 
-        for (var i = 0; i < 80; i++) {
+        for (var i = 0; i < 90; i++) {
             var mid = (lo + hi) / 2;
+            // نمرر الـ insMode الحالي للـ Loop للتفريق بين التلقائي واليدوي أثناء التخمين العكسي
             r = calcForward(mid, 0, allow, medExempt, disabled, insMode, manualWage);
             if (r.net < targetNet) lo = mid;
             else hi = mid;
