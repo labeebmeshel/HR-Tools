@@ -455,7 +455,6 @@
         });
     }
 
-    // دالة تنسيق رياضية آمنة وبدون وضع الفواصل النصية المربكة لمعادلة البحث العكسي
     function money(v) {
         return Number(v).toFixed(2) + ' ج.م';
     }
@@ -536,7 +535,6 @@
             return { finalInsBase: Math.round(finalInsBase), finalExemptAllow: Math.round(finalExemptAllow) };
         }
 
-        // المسار التلقائي الذكي (Auto Mode)
         const MAX_INSURANCE_WAGE = 16700;
         const MIN_INSURANCE_WAGE = 2700;
         let finalInsBase = base;
@@ -596,14 +594,14 @@
         };
     }
 
-    /* ── ضبط وتصحيح دالة الحساب العكسي لتمرير المتغيرات التأمينية للـ Loop بدقة ثنائية ── */
+    /* ── تم تعديل منطق الحساب العكسي لدمج البدلات وإخضاعها لقوانين الـ Payroll لعام 2026 ── */
     function calcReverse(targetNet, allow, medExempt, disabled, insMode, manualWage) {
         var lo = 0, hi = targetNet * 5 + 100000;
         var r;
 
-        for (var i = 0; i < 90; i++) {
+        for (var i = 0; i < 100; i++) {
             var mid = (lo + hi) / 2;
-            // نمرر الـ insMode الحالي للـ Loop للتفريق بين التلقائي واليدوي أثناء التخمين العكسي
+            // يتم تخمين الراتب الأساسي (mid) مع تمرير البدلات مباشرة ليتم جمعها وحساب التأمينات والضرائب معاً
             r = calcForward(mid, 0, allow, medExempt, disabled, insMode, manualWage);
             if (r.net < targetNet) lo = mid;
             else hi = mid;
