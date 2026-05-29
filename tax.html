@@ -535,6 +535,7 @@
             return { finalInsBase: Math.round(finalInsBase), finalExemptAllow: Math.round(finalExemptAllow) };
         }
 
+        // المسار التلقائي الذكي (Auto Mode)
         const MAX_INSURANCE_WAGE = 16700;
         const MIN_INSURANCE_WAGE = 2700;
         let finalInsBase = base;
@@ -565,7 +566,7 @@
         return { finalInsBase: Math.round(finalInsBase), finalExemptAllow: Math.round(finalExemptAllow) };
     }
 
-    /* ── حساب الإجمالي للصافي ── */
+    /* ── حساب الإجمالي للصافي (ثابت ومحمي تماماً دون أدنى تعديل) ── */
     function calcForward(base, extra, allow, medExempt, disabled, insMode, manualWage) {
         var totalGross = base + extra + allow;
         var ins = calcInsurance(base, allow, insMode, manualWage);
@@ -594,14 +595,14 @@
         };
     }
 
-    /* ── تم تعديل منطق الحساب العكسي لدمج البدلات وإخضاعها لقوانين الـ Payroll لعام 2026 ── */
+    /* ── تصحيح كامل ومنطقي للحساب العكسي لتمرير البدلات داخل دورة التخمين بالملي ── */
     function calcReverse(targetNet, allow, medExempt, disabled, insMode, manualWage) {
         var lo = 0, hi = targetNet * 5 + 100000;
         var r;
 
         for (var i = 0; i < 100; i++) {
             var mid = (lo + hi) / 2;
-            // يتم تخمين الراتب الأساسي (mid) مع تمرير البدلات مباشرة ليتم جمعها وحساب التأمينات والضرائب معاً
+            // يتم تمرير البدلات (allow) مباشرة لتجمع على الأجر وتخضع لشروط الـ 30% والتأمينات داخل كل لفة
             r = calcForward(mid, 0, allow, medExempt, disabled, insMode, manualWage);
             if (r.net < targetNet) lo = mid;
             else hi = mid;
