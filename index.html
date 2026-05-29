@@ -21,15 +21,17 @@
     <div class="nav-bar" id="mainNav">
         <button class="nav-btn active" onclick="loadPage(event, 'home-frame', 0)">الرئيسية</button>
         <button class="nav-btn" onclick="loadPage(event, 'cv-frame', 1)">السيرة الذاتية</button>
-        <button class="nav-btn" onclick="loadPage(event, 'tax-frame', 2)">حاسبة الضرائب</button>
-        <button class="nav-btn" onclick="loadPage(event, 's1-frame', 3)">س1 تأمينات</button>
-        <button class="nav-btn" onclick="loadPage(event, 'tafqit-frame', 4)">أداة التفقيط</button>
-        <button class="nav-btn" onclick="loadPage(event, 'feedback-frame', 5)">قياس الأداء</button>
+        <button class="nav-btn" onclick="loadPage(event, 'tax-frame', 2)">حاسبة الضرائب (إجمالي ← صافي)</button>
+        <button class="nav-btn" onclick="loadPage(event, 'tax-reverse-frame', 3)">حاسبة الضرائب (صافي ← إجمالي)</button>
+        <button class="nav-btn" onclick="loadPage(event, 's1-frame', 4)">س1 تأمينات</button>
+        <button class="nav-btn" onclick="loadPage(event, 'tafqit-frame', 5)">أداة التفقيط</button>
+        <button class="nav-btn" onclick="loadPage(event, 'feedback-frame', 6)">قياس الأداء</button>
     </div>
 
     <iframe id="home-frame" class="page-frame active" src="home.html"></iframe>
     <iframe id="cv-frame" class="page-frame" src="cv.html"></iframe>
     <iframe id="tax-frame" class="page-frame" src="tax.html"></iframe>
+    <iframe id="tax-reverse-frame" class="page-frame" src="tax-reverse.html"></iframe>
     <iframe id="s1-frame" class="page-frame" src="s1.html"></iframe>
     <iframe id="tafqit-frame" class="page-frame" src="tafqit.html"></iframe>
     <iframe id="feedback-frame" class="page-frame" src="feedback.html"></iframe>
