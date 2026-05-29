@@ -281,39 +281,35 @@
 
     <div id="section-forward">
         <div class="input-grid">
-            <div class="input-grid">
-                <div class="input-group">
-                    <label for="base_salary">الأجر الأساسي (شهري)</label>
-                    <div class="input-wrapper">
-                        <input id="base_salary" type="number" min="0" placeholder="0">
-                        <span class="input-currency">ج.م</span>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="extra_salary">الأجر الإضافي</label>
-                    <div class="sub-label">حوافز · عمولات · مكافآت</div>
-                    <div class="input-wrapper">
-                        <input id="extra_salary" type="number" min="0" placeholder="0">
-                        <span class="input-currency">ج.م</span>
-                    </div>
+            <div class="input-group">
+                <label for="base_salary">الأجر الأساسي (شهري)</label>
+                <div class="input-wrapper">
+                    <input id="base_salary" type="number" min="0" placeholder="0">
+                    <span class="input-currency">ج.م</span>
                 </div>
             </div>
-            <div class="input-grid">
-                <div class="input-group">
-                    <label for="allowances">البدلات الحقيقية</label>
-                    <div class="sub-label">سكن · مواصلات · اتصالات</div>
-                    <div class="input-wrapper">
-                        <input id="allowances" type="number" min="0" placeholder="0">
-                        <span class="input-currency">ج.م</span>
-                    </div>
+            <div class="input-group">
+                <label for="extra_salary">الأجر الإضافي</label>
+                <div class="sub-label">حوافز · عمولات · مكافآت</div>
+                <div class="input-wrapper">
+                    <input id="extra_salary" type="number" min="0" placeholder="0">
+                    <span class="input-currency">ج.م</span>
                 </div>
-                <div class="input-group">
-                    <label for="tax_exemptions">إعفاءات ضريبية شهرية</label>
-                    <div class="sub-label">تأمين طبي · تأمين حياة</div>
-                    <div class="input-wrapper">
-                        <input id="tax_exemptions" type="number" min="0" placeholder="0">
-                        <span class="input-currency">ج.م</span>
-                    </div>
+            </div>
+            <div class="input-group">
+                <label for="allowances">البدلات الحقيقية</label>
+                <div class="sub-label">سكن · مواصلات · اتصالات</div>
+                <div class="input-wrapper">
+                    <input id="allowances" type="number" min="0" placeholder="0">
+                    <span class="input-currency">ج.م</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="tax_exemptions">إعفاءات ضريبية شهرية</label>
+                <div class="sub-label">تأمين طبي · تأمين حياة</div>
+                <div class="input-wrapper">
+                    <input id="tax_exemptions" type="number" min="0" placeholder="0">
+                    <span class="input-currency">ج.م</span>
                 </div>
             </div>
         </div>
@@ -411,4 +407,98 @@
         </div>
         <div class="bar-row">
             <span class="bar-label">اشتراك التأمينات</span>
-            <div class="bar-track
+            <div class="bar-track"><div class="bar-fill ins" id="bar_ins" style="width:0%"></div></div>
+            <span class="bar-amount" id="pct_ins">—</span>
+        </div>
+        <div class="bar-row">
+            <span class="bar-label">ضريبة الدخل</span>
+            <div class="bar-track"><div class="bar-fill tax" id="bar_tax" style="width:0%"></div></div>
+            <span class="bar-amount" id="pct_tax">—</span>
+        </div>
+    </div>
+
+    <div class="reverse-note" id="reverse-note"></div>
+    <p class="hint">ملاحظة: تعتمد الحسبة الحالية على مصفوفة الدخل الاستثنائية وإسقاط تدرج الشرائح التنازلية المخصصة للأجور المرتفعة.</p>
+</div>
+
+<script>
+    var currentMode = 'forward';
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('section-forward').style.display = mode === 'forward' ? '' : 'none';
+        document.getElementById('section-reverse').style.display = mode === 'reverse' ? '' : 'none';
+        document.getElementById('btn-forward').classList.toggle('active', mode === 'forward');
+        document.getElementById('btn-reverse').classList.toggle('active', mode === 'reverse');
+
+        document.getElementById('th-gross').innerText = mode === 'forward' ? 'إجمالي الأجر' : 'الإجمالي المحسوب';
+        document.getElementById('th-net').innerText   = mode === 'forward' ? 'الصافي' : 'الصافي المستهدف ✔';
+
+        resetResults();
+    }
+
+    function toggleManualInput() {
+        var mode = document.getElementById('insuranceMode').value;
+        document.getElementById('manualInsuranceWrapper').style.display = (mode === 'manual') ? 'block' : 'none';
+    }
+
+    function resetResults() {
+        ['res_total_gross','res_exempt_allow','res_ins_base','res_ins_worker','res_med_exempt','res_annual_taxable','res_tax','res_net'].forEach(function(id) {
+            document.getElementById(id).innerText = '—';
+        });
+        document.getElementById('breakdown-section').style.display = 'none';
+        document.getElementById('reverse-note').classList.remove('visible');
+        document.getElementById('reverse-note').style.display = 'none';
+        document.getElementById('reverse-note').innerText = '';
+        ['bar_net','bar_ins','bar_tax'].forEach(function(id) {
+            document.getElementById(id).style.width = '0%';
+        });
+    }
+
+    function money(v) {
+        return Number(v).toFixed(2) + ' ج.م';
+    }
+    function pctStr(v) { return Math.round(v) + '%'; }
+
+    /* ── حساب شرائح الضرائب بناءً على شرحك الدقيق بالملي (دون تغيير) ── */
+    function getTax(annualTaxable) {
+        if (annualTaxable <= 0) return 0;
+        
+        let annualTax = 0;
+        let r = annualTaxable; 
+
+        if (annualTaxable <= 600000) {
+            if (r > 40000) {
+                r -= 40000; 
+                let ch2 = Math.min(r, 15000);  annualTax += ch2 * 0.10;  r -= ch2;  
+                let ch3 = Math.min(r, 15000);  annualTax += ch3 * 0.15;  r -= ch3;  
+                let ch4 = Math.min(r, 130000); annualTax += ch4 * 0.20;  r -= ch4;  
+                let ch5 = Math.min(r, 200000); annualTax += ch5 * 0.225; r -= ch5;  
+                let ch6 = Math.min(r, 800000); annualTax += ch6 * 0.25;  r -= ch6;  
+                if (r > 0) annualTax += r * 0.275;                                  
+            }
+        } 
+        else if (annualTaxable > 600000 && annualTaxable <= 700000) {
+            let ch2 = Math.min(r, 55000);  annualTax += ch2 * 0.10;  r -= ch2;
+            let ch3 = Math.min(r, 15000);  annualTax += ch3 * 0.15;  r -= ch3;
+            let ch4 = Math.min(r, 130000); annualTax += ch4 * 0.20;  r -= ch4;
+            let ch5 = Math.min(r, 200000); annualTax += ch5 * 0.225; r -= ch5;
+            let ch6 = Math.min(r, 800000); annualTax += ch6 * 0.25;  r -= ch6;
+            if (r > 0) annualTax += r * 0.275;
+        } 
+        else if (annualTaxable > 700000 && annualTaxable <= 800000) {
+            let ch3 = Math.min(r, 70000);  annualTax += ch3 * 0.15;  r -= ch3;
+            let ch4 = Math.min(r, 130000); annualTax += ch4 * 0.20;  r -= ch4;
+            let ch5 = Math.min(r, 200000); annualTax += ch5 * 0.225; r -= ch5;
+            let ch6 = Math.min(r, 800000); annualTax += ch6 * 0.25;  r -= ch6;
+            if (r > 0) annualTax += r * 0.275;
+        } 
+        else if (annualTaxable > 800000 && annualTaxable <= 900000) {
+            let ch4 = Math.min(r, 200000); annualTax += ch4 * 0.20;  r -= ch4;
+            let ch5 = Math.min(r, 200000); annualTax += ch5 * 0.225; r -= ch5;
+            let ch6 = Math.min(r, 800000); annualTax += ch6 * 0.25;  r -= ch6;
+            if (r > 0) annualTax += r * 0.275;
+        } 
+        else if (annualTaxable > 900000 && annualTaxable <= 1200000) {
+            let ch5 = Math.min(r, 400000); annualTax += ch5 * 0.225; r -= ch5;
+            let ch6 = Math.min(r, 800000); annualTax +=
