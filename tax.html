@@ -112,7 +112,7 @@
         .input-group .sub-label { font-size: 0.78rem; color: var(--muted); margin-top: -4px; }
 
         .input-wrapper { position: relative; display: flex; align-items: center; }
-        .input-wrapper input[type="number"] {
+        .input-wrapper input[type="number"], .input-wrapper select {
             width: 100%;
             padding: 12px 13px 12px 44px;
             border: 1px solid var(--border);
@@ -125,9 +125,10 @@
             background: #fff;
             -moz-appearance: textfield;
         }
+        .input-wrapper select { padding-left: 15px; cursor: pointer; }
         .input-wrapper input[type="number"]::-webkit-inner-spin-button,
         .input-wrapper input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
-        .input-wrapper input[type="number"]:focus {
+        .input-wrapper input[type="number"]:focus, .input-wrapper select:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(11,79,179,0.12);
@@ -142,14 +143,8 @@
             letter-spacing: 0.3px;
         }
 
-        .input-group.reverse-primary label { color: #0d8a49; }
-        .input-group.reverse-primary .input-wrapper input:focus {
-            border-color: #0d8a49;
-            box-shadow: 0 0 0 3px rgba(13,138,73,0.12);
-        }
-
-        /* ===== CARDS & CHECKBOXES ===== */
-        .checkbox-container {
+        /* ===== OPTIONS & CARDS ===== */
+        .options-container {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
@@ -259,7 +254,7 @@
         @media (max-width: 760px) {
             body { padding: 12px; }
             .calc-wrapper { padding: 20px 14px; }
-            .checkbox-container { grid-template-columns: 1fr; }
+            .options-container { grid-template-columns: 1fr; }
             table { display: block; overflow-x: auto; white-space: nowrap; }
         }
     </style>
@@ -349,16 +344,23 @@
         </div>
     </div>
 
-    <div class="checkbox-container">
-        <div class="special-card" onclick="document.getElementById('isInsured').click()">
-            <input id="isInsured" type="checkbox" checked onclick="event.stopPropagation()">
-            <div>
-                <label for="isInsured">حساب الأجر التأميني للموظف</label>
-                <div class="sc-sub">إلغاء الخيار يعفي الراتب تماماً من استقطاع التأمينات (11%)</div>
+    <div class="options-container">
+        <div class="input-group" style="background: var(--surface-soft); border: 1px solid #d8e8ff; padding: 12px; border-radius: 12px;">
+            <label for="insuranceMode" style="color: var(--primary);">نظام احتساب الأجر التأميني</label>
+            <div class="input-wrapper" style="margin-top: 5px;">
+                <select id="insuranceMode" onchange="toggleManualInput()">
+                    <option value="auto">حساب الأجر التأميني تلقائياً</option>
+                    <option value="manual">حساب الأجر التأميني يدوي (إدخال مخصص)</option>
+                    <option value="none">عدم حساب أجر تأميني (0)</option>
+                </select>
+            </div>
+            <div id="manualInsuranceWrapper" class="input-wrapper" style="margin-top: 10px; display: none;">
+                <input id="manual_insurance_wage" type="number" min="0" placeholder="اكتب الأجر التأميني المخصص">
+                <span class="input-currency">ج.م</span>
             </div>
         </div>
 
-        <div class="special-card" onclick="document.getElementById('specialNeeds').click()">
+        <div class="special-card" onclick="document.getElementById('specialNeeds').click()" style="height: 100%;">
             <input id="specialNeeds" type="checkbox" onclick="event.stopPropagation()">
             <div>
                 <label for="specialNeeds">تطبيق إعفاء ذوي الهمم</label>
@@ -435,6 +437,11 @@
         resetResults();
     }
 
+    function toggleManualInput() {
+        var mode = document.getElementById('insuranceMode').value;
+        document.getElementById('manualInsuranceWrapper').style.display = (mode === 'manual') ? 'block' : 'none';
+    }
+
     function resetResults() {
         ['res_total_gross','res_exempt_allow','res_ins_base','res_ins_worker','res_med_exempt','res_annual_taxable','res_tax','res_net'].forEach(function(id) {
             document.getElementById(id).innerText = '—';
@@ -448,13 +455,13 @@
         });
     }
 
-    // دالة التنسيق آمنة تماماً بدون فواصل الآلاف المربكة للعمليات الرياضية
+    // دالة تنسيق آمنة تحمي دورة الحساب العكسي من التهنيج الـ NaN
     function money(v) {
         return Number(v).toFixed(2) + ' ج.م';
     }
     function pctStr(v) { return Math.round(v) + '%'; }
 
-    /* ── حساب شرائح الضرائب الرسمية بناءً على شرحك الدقيق بالملي ── */
+    /* ── حساب شرائح الضرائب بناءً على شرحك الدقيق بالملي ── */
     function getTax(annualTaxable) {
         if (annualTaxable <= 0) return 0;
         
@@ -511,11 +518,25 @@
         return v < 0 ? 0 : v;
     }
 
-    /* ── حساب التأمينات الاجتماعية المطور لعام 2026 ── */
-    function calcInsurance(base, allow, isInsured) {
-        if (!isInsured) {
+    /* ── نظام التأمينات المطور ذو الـ 3 مسارات الحسابية ── */
+    function calcInsurance(base, allow, insMode, manualWage) {
+        if (insMode === 'none') {
             return { finalInsBase: 0, finalExemptAllow: 0 };
         }
+        
+        if (insMode === 'manual') {
+            let finalInsBase = manualWage;
+            if (finalInsBase > 16700) finalInsBase = 16700;
+            if (finalInsBase < 2700 && finalInsBase > 0) finalInsBase = 2700;
+            
+            let finalExemptAllow = (base + allow) - finalInsBase;
+            if (finalExemptAllow > allow) finalExemptAllow = allow;
+            if (finalExemptAllow < 0) finalExemptAllow = 0;
+            
+            return { finalInsBase: Math.round(finalInsBase), finalExemptAllow: Math.round(finalExemptAllow) };
+        }
+
+        // المسار التلقائي الذكي (Auto Mode) بناءً على البدلات الـ 30% والحدود
         const MAX_INSURANCE_WAGE = 16700;
         const MIN_INSURANCE_WAGE = 2700;
         let finalInsBase = base;
@@ -547,9 +568,9 @@
     }
 
     /* ── حساب الإجمالي للصافي ── */
-    function calcForward(base, extra, allow, medExempt, disabled, isInsured) {
+    function calcForward(base, extra, allow, medExempt, disabled, insMode, manualWage) {
         var totalGross = base + extra + allow;
-        var ins = calcInsurance(base, allow, isInsured);
+        var ins = calcInsurance(base, allow, insMode, manualWage);
         var insShare = Math.round(ins.finalInsBase * 0.11);
         
         var monthlyTaxableBase = totalGross - insShare - medExempt;
@@ -576,13 +597,13 @@
     }
 
     /* ── حساب الصافي للإجمالي العكسي ── */
-    function calcReverse(targetNet, allow, medExempt, disabled, isInsured) {
+    function calcReverse(targetNet, allow, medExempt, disabled, insMode, manualWage) {
         var lo = 0, hi = targetNet * 5 + 100000;
         var r;
 
         for (var i = 0; i < 80; i++) {
             var mid = (lo + hi) / 2;
-            r = calcForward(mid, 0, allow, medExempt, disabled, isInsured);
+            r = calcForward(mid, 0, allow, medExempt, disabled, insMode, manualWage);
             if (r.net < targetNet) lo = mid;
             else hi = mid;
             if (Math.abs(r.net - targetNet) < 0.01) break;
@@ -627,7 +648,8 @@
     /* ── المدخل الرئيسي عند الضغط على الزر ── */
     function calculateTax() {
         var disabled = document.getElementById('specialNeeds').checked;
-        var isInsured = document.getElementById('isInsured').checked;
+        var insMode = document.getElementById('insuranceMode').value;
+        var manualWage = getInput('manual_insurance_wage');
         var note = document.getElementById('reverse-note');
 
         if (currentMode === 'forward') {
@@ -637,7 +659,7 @@
             var medExempt = getInput('tax_exemptions');
             if (base + extra + allow <= 0) return;
 
-            var r = calcForward(base, extra, allow, medExempt, disabled, isInsured);
+            var r = calcForward(base, extra, allow, medExempt, disabled, insMode, manualWage);
             displayResults(r);
             note.style.display = 'none';
             note.classList.remove('visible');
@@ -648,7 +670,7 @@
             var medExempt = getInput('r_tax_exemptions');
             if (targetNet <= 0) return;
 
-            var r = calcReverse(targetNet, allow, medExempt, disabled, isInsured);
+            var r = calcReverse(targetNet, allow, medExempt, disabled, insMode, manualWage);
             displayResults(r);
 
             var displayGross = r.totalGross;
