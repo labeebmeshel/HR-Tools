@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حاسبة الصافي إلى الإجمالي المتقدمة - مصر 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <!-- مكتبة زرقاء آمنة لمعالجة ملفات الإكسيل داخل المتصفح مباشرة -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -191,11 +192,12 @@
 <body>
 <div class="calc-wrapper">
     <h1 class="main-title">حساب ضريبة كسب العمل — من الصافي للإجمالي</h1>
-    <p class="sub-title">طبقاً لقانون الضريبة على الدخل رقم 91 لسنة 2005 وتعديلاته بقانون 7 لسنة 2024 (يدعم المعالجة الجماعية عبر إكسيل)</p>
+    <p class="sub-title">طبقاً لقانون الضريبة على الدخل رقم 91 لسنة 2005 وتعديلاته بقانون 7 لسنة 2024</p>
 
+    <!-- ===== قسم رفع ومعالجة ملفات الإكسيل (Excel Bulk Processing) ===== -->
     <div class="excel-section">
         <div class="excel-title">📁 تشغيل الحساب العكسي الجماعي عبر ملف Excel</div>
-        <p style="font-size: 0.82rem; color: var(--muted); margin-bottom: 10px;">ارفع كشف الموظفين بالصافي والبدلات، وسيقوم النظام باستخراج الأجر الأساسي التعاقدي والإجمالي تلقائياً.</p>
+        <p style="font-size: 0.82rem; color: var(--muted); margin-bottom: 10px;">ارفع كشف الموظفين بالصافي والبدلات، وسيقوم النظام باستخراج الأجر الإجمالي الكلي لكل موظف حسب طبيعة تأمينه.</p>
         <div class="excel-btn-group">
             <button class="btn-secondary" onclick="downloadTemplate()">📥 تحميل نموذج القالب الجاهز</button>
             <label class="file-input-label" for="excel-file">⚙️ ارفع ملف الموظفين وافحص الآن</label>
@@ -204,6 +206,7 @@
         <div id="excel-status" style="margin-top: 10px; font-size: 0.85rem; font-weight: 600; color: var(--success);"></div>
     </div>
 
+    <!-- ===== إدخال البيانات الفردية المعتاد ===== -->
     <div class="input-grid">
         <div class="input-group">
             <label for="net_salary_input">الراتب الصافي المستهدف (شهري)</label>
@@ -391,7 +394,6 @@
         };
     }
 
-    // النواة المحاسبية المستقلة والمسؤولة عن تشغيل التخمين العكسي بدقة ثنائية
     function runCoreReverseEngine(targetNet, allow, medExempt, disabled, insMode, manualWage) {
         var lo = 0, hi = targetNet * 5 + 100000; var r;
         for (var i = 0; i < 100; i++) {
@@ -437,19 +439,19 @@
        📊 برمجيات إدارة ومعالجة ملفات الإكسيل (Excel Integration)
        ========================================================================= */
     
-    // 1. دالة تحميل نموذج شيت الإدخال الجاهز
+    // 1. دالة تحميل نموذج شيت الإدخال المرن
     function downloadTemplate() {
         var data = [
-            {"كود الموظف": "101", "اسم الموظف": "أحمد علي", "الصافي المستهدف": 10000, "البدلات الحقيقية": 2000, "إعفاءات طبية/حياة": 0, "هل ذو همم؟ (نعم/لا)": "لا"},
-            {"كود الموظف": "102", "اسم الموظف": "سارة محمد", "الصافي المستهدف": 15000, "البدلات الحقيقية": 3000, "إعفاءات طبية/حياة": 200, "هل ذو همم؟ (نعم/لا)": "نعم"}
+            {"كود الموظف": "101", "اسم الموظف": "أحمد علي", "الصافي المستهدف": 10000, "البدلات الحقيقية": 2000, "إعفاءات طبية/حياة": 0, "هل ذو همم؟ (نعم/لا)": "لا", "نظام حساب التأمينات (تلقائي/بدون)": "تلقائي"},
+            {"كود الموظف": "102", "اسم الموظف": "جون سميث", "الصافي المستهدف": 15000, "البدلات الحقيقية": 0, "إعفاءات طبية/حياة": 0, "هل ذو همم؟ (نعم/لا)": "لا", "نظام حساب التأمينات (تلقائي/بدون)": "بدون"}
         ];
         var ws = XLSX.utils.json_to_sheet(data);
         var wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Template");
-        XLSX.writeFile(wb, "Payroll_Reverse_Template.xlsx");
+        XLSX.writeFile(wb, "Payroll_Reverse_Flex_Template.xlsx");
     }
 
-    // 2. دالة قراءة ومعالجة شيت الرفع وتحويل الصافي لإجمالي جماعي
+    // 2. دالة قراءة ومعالجة شيت الرفع واستخراج كشف الإجمالي فقط
     function handleExcelUpload(input) {
         var file = input.files[0];
         if (!file) return;
@@ -463,9 +465,8 @@
             var firstSheet = workbook.Sheets[workbook.SheetNames[0]];
             var rows = XLSX.utils.sheet_to_json(firstSheet);
 
-            var processedData = [];
+            var resultReport = [];
 
-            // المرور على كل موظف داخل الإكسيل وحساب المتغيرات بدقة
             rows.forEach(function(row) {
                 var empId = row["كود الموظف"] || "—";
                 var empName = row["اسم الموظف"] || "—";
@@ -474,44 +475,44 @@
                 var medExempt = Number(row["إعفاءات طبية/حياة"] || 0);
                 var isDisabledStr = String(row["هل ذو همم؟ (نعم/لا)"] || "").trim();
                 var disabled = (isDisabledStr === "نعم" || isDisabledStr === "yes");
+                
+                // تحديد وضع التأمينات بناءً على خانة شيت الإكسيل
+                var insModeStr = String(row["نظام حساب التأمينات (تلقائي/بدون)"] || "").trim();
+                var currentInsMode = 'auto'; // الافتراضي تلقائي
+                if (insModeStr === "بدون" || insModeStr === "none" || insModeStr === "0") {
+                    currentInsMode = 'none';
+                }
 
                 if (targetNet > 0) {
-                    // تشغيل المحرك العكسي المطور للفصل التام
-                    var r = runCoreReverseEngine(targetNet, allow, medExempt, disabled, 'auto', 0);
+                    // تشغيل المحرك العكسي بالوضع الديناميكي المختار لكل موظف
+                    var r = runCoreReverseEngine(targetNet, allow, medExempt, disabled, currentInsMode, 0);
                     var gross = r.totalGross;
-                    var contractBase = gross - allow; // الأجر الأساسي في العقد
 
-                    processedData.push({
+                    // بناء كشف الإجمالي المبسط والنظيف بناءً على طلبك
+                    resultReport.push({
                         "كود الموظف": empId,
                         "اسم الموظف": empName,
                         "الصافي المستهدف": targetNet,
                         "البدلات المدخلة": allow,
-                        "الإعفاءات المستقطعة": medExempt,
-                        "هل ذو همم؟": disabled ? "نعم" : "لا",
-                        "الأجر التأميني المحسوب": r.finalInsBase,
-                        "حصة العامل 11%": r.insShare,
-                        "الوعاء الضريبي السنوي": r.annualTaxable,
-                        "ضريبة الدخل الشهرية": r.monthlyTax,
-                        "الراتب الأساسي في العقد": Number(contractBase.toFixed(2)),
-                        "الإجمالي الكلي المحسوب": Number(gross.toFixed(2))
+                        "نظام التأمين المطبق": currentInsMode === 'none' ? "بدون حساب تأمينات" : "حساب تلقائي",
+                        "الإجمالي الكلي المحسوب (Gross Salary)": Number(gross.toFixed(2))
                     });
                 }
             });
 
-            if(processedData.length === 0) {
-                document.getElementById('excel-status').innerText = "❌ لم يتم العثور على رواتب صافية صالحة للحساب في الملف.";
+            if(resultReport.length === 0) {
+                document.getElementById('excel-status').innerText = "❌ لم يتم العثور على بيانات رواتب صالحة.";
                 return;
             }
 
-            // توليد ملف النتيجة النهائي للـ Payroll
-            var newWs = XLSX.utils.json_to_sheet(processedData);
+            // توليد ملف الإكسيل النظيف المستهدف
+            var newWs = XLSX.utils.json_to_sheet(resultReport);
             var newWb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(newWb, newWs, "Payroll_Results");
+            XLSX.utils.book_append_sheet(newWb, newWs, "Final_Gross_Report");
             
-            // تحميل ملف النتيجة فوراً للمستخدم
-            XLSX.writeFile(newWb, "Payroll_Gross_Calculated_Report.xlsx");
-            document.getElementById('excel-status').innerText = "✅ تم حساب الرواتب بنجاح وتحميل تقرير الإجمالي الشامل الكلي!";
-            input.value = ''; // تفريغ الخانة لجولات حسابية جديدة
+            XLSX.writeFile(newWb, "Final_Gross_Payroll_Report.xlsx");
+            document.getElementById('excel-status').innerText = "✅ تم الانتهاء بنجاح وتحميل كشف الأجر الإجمالي الكلي الموحد!";
+            input.value = ''; 
         };
 
         reader.readAsArrayBuffer(file);
