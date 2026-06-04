@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حاسبة الصافي إلى الإجمالي المتقدمة - مصر 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-    <!-- مكتبة زرقاء آمنة لمعالجة ملفات الإكسيل داخل المتصفح مباشرة -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -194,7 +193,6 @@
     <h1 class="main-title">حساب ضريبة كسب العمل — من الصافي للإجمالي</h1>
     <p class="sub-title">طبقاً لقانون الضريبة على الدخل رقم 91 لسنة 2005 وتعديلاته بقانون 7 لسنة 2024</p>
 
-    <!-- ===== قسم رفع ومعالجة ملفات الإكسيل (Excel Bulk Processing) ===== -->
     <div class="excel-section">
         <div class="excel-title">📁 تشغيل الحساب العكسي الجماعي عبر ملف Excel</div>
         <p style="font-size: 0.82rem; color: var(--muted); margin-bottom: 10px;">ارفع كشف الموظفين بالصافي والبدلات، وسيقوم النظام باستخراج الأجر الإجمالي الكلي لكل موظف حسب طبيعة تأمينه.</p>
@@ -206,22 +204,23 @@
         <div id="excel-status" style="margin-top: 10px; font-size: 0.85rem; font-weight: 600; color: var(--success);"></div>
     </div>
 
-    <!-- ===== إدخال البيانات الفردية المعتاد ===== -->
     <div class="input-grid">
-        <div class="input-group">
-            <label for="net_salary_input">الراتب الصافي المستهدف (شهري)</label>
-            <div class="sub-label">المبلغ اللي تستلمه فعلاً</div>
-            <div class="input-wrapper">
-                <input id="net_salary_input" type="number" min="0" placeholder="0">
-                <span class="input-currency">ج.م</span>
+        <div class="input-grid">
+            <div class="input-group">
+                <label for="net_salary_input">الراتب الصافي المستهدف (شهري)</label>
+                <div class="sub-label">المبلغ اللي تستلمه فعلاً</div>
+                <div class="input-wrapper">
+                    <input id="net_salary_input" type="number" min="0" placeholder="0">
+                    <span class="input-currency">ج.م</span>
+                </div>
             </div>
-        </div>
-        <div class="input-group">
-            <label for="r_allowances">البدلات الحقيقية</label>
-            <div class="sub-label">سكن · مواصلات · اتصالات</div>
-            <div class="input-wrapper">
-                <input id="r_allowances" type="number" min="0" placeholder="0">
-                <span class="input-currency">ج.م</span>
+            <div class="input-group">
+                <label for="r_allowances">البدلات الحقيقية</label>
+                <div class="sub-label">سكن · مواصلات · اتصالات</div>
+                <div class="input-wrapper">
+                    <input id="r_allowances" type="number" min="0" placeholder="0">
+                    <span class="input-currency">ج.م</span>
+                </div>
             </div>
         </div>
         <div class="input-group" style="grid-column: span 2;">
@@ -362,6 +361,7 @@
         return annualTax;
     }
 
+    // الميزان التأميني الجديد والمعدل بناءً على توجيهك الصارم بالملي
     function calcInsuranceReverse(baseCalculated, allow, insMode, manualWage) {
         if (insMode === 'none') return { finalInsBase: 0, finalExemptAllow: 0 };
         if (insMode === 'manual') {
@@ -369,15 +369,21 @@
             let e = Math.max(0, Math.min(allow, (baseCalculated + allow) - f));
             return { finalInsBase: Math.round(f), finalExemptAllow: Math.round(e) };
         }
-        const MAX = 16700; let f = baseCalculated;
-        if (baseCalculated >= MAX) { f = MAX; } else {
-            let pot = baseCalculated / 0.7;
-            if (pot > MAX) { f = MAX; } else {
-                if (allow > pot * 0.3) f = (baseCalculated + allow) - (pot * 0.3);
-            }
+        
+        const MAX = 16700;
+        const MIN = 2700;
+        
+        // الأجر الشامل = الأجر الأساسي التقديري + البدلات الحقيقية
+        let totalGross = baseCalculated + allow;
+        let f = totalGross; // الأجر التأميني يساوي الأجر الشامل بالكامل
+
+        // لو الأجر الشامل تخطى الحد الأقصى 16700، يتم تثبيته فوراً عند 16700
+        if (totalGross > MAX) {
+            f = MAX;
         }
-        f = Math.max(2700, Math.min(MAX, f));
-        let e = Math.max(0, Math.min(allow, (baseCalculated + allow) - f));
+
+        f = Math.max(MIN, f);
+        let e = Math.max(0, Math.min(allow, totalGross - f));
         return { finalInsBase: Math.round(f), finalExemptAllow: Math.round(e) };
     }
 
@@ -439,11 +445,11 @@
        📊 برمجيات إدارة ومعالجة ملفات الإكسيل (Excel Integration)
        ========================================================================= */
     
-    // 1. دالة تحميل نموذج شيت الإدخال المرن
     function downloadTemplate() {
         var data = [
             {"كود الموظف": "101", "اسم الموظف": "أحمد علي", "الصافي المستهدف": 10000, "البدلات الحقيقية": 2000, "إعفاءات طبية/حياة": 0, "هل ذو همم؟ (نعم/لا)": "لا", "نظام حساب التأمينات (تلقائي/بدون)": "تلقائي"},
-            {"كود الموظف": "102", "اسم الموظف": "جون سميث", "الصافي المستهدف": 15000, "البدلات الحقيقية": 0, "إعفاءات طبية/حياة": 0, "هل ذو همم؟ (نعم/لا)": "لا", "نظام حساب التأمينات (تلقائي/بدون)": "بدون"}
+            {"كود الموظف": "102", "اسم الموظف": "جون سميث", "الصافي المستهدف": 25000, "البدلات الحقيقية": 0, "إعفاءات طبية/حياة": 0, "هل ذو همم؟ (نعم/لا)": "لا", "نظام حساب التأمينات (تلقائي/بدون)": "تلقائي"},
+            {"كود الموظف": "103", "اسم الموظف": "خبير مستشار", "الصافي المستهدف": 30000, "البدلات الحقيقية": 0, "إعفاءات طبية/حياة": 0, "هل ذو همم؟ (نعم/لا)": "لا", "نظام حساب التأمينات (تلقائي/بدون)": "بدون"}
         ];
         var ws = XLSX.utils.json_to_sheet(data);
         var wb = XLSX.utils.book_new();
@@ -451,13 +457,12 @@
         XLSX.writeFile(wb, "Payroll_Reverse_Flex_Template.xlsx");
     }
 
-    // 2. دالة قراءة ومعالجة شيت الرفع واستخراج كشف الإجمالي فقط
     function handleExcelUpload(input) {
         var file = input.files[0];
         if (!file) return;
 
         var reader = new FileReader();
-        document.getElementById('excel-status').innerText = "⏳ جاري قراءة الملف وتشغيل محرك الحساب العكسي الذاتي...";
+        document.getElementById('excel-status').innerText = "⏳ جاري قراءة الملف وتشغيل محرك الحساب العكسي المحدث...";
 
         reader.onload = function(e) {
             var data = new Uint8Array(e.target.result);
@@ -476,25 +481,23 @@
                 var isDisabledStr = String(row["هل ذو همم؟ (نعم/لا)"] || "").trim();
                 var disabled = (isDisabledStr === "نعم" || isDisabledStr === "yes");
                 
-                // تحديد وضع التأمينات بناءً على خانة شيت الإكسيل
                 var insModeStr = String(row["نظام حساب التأمينات (تلقائي/بدون)"] || "").trim();
-                var currentInsMode = 'auto'; // الافتراضي تلقائي
+                var currentInsMode = 'auto';
                 if (insModeStr === "بدون" || insModeStr === "none" || insModeStr === "0") {
                     currentInsMode = 'none';
                 }
 
                 if (targetNet > 0) {
-                    // تشغيل المحرك العكسي بالوضع الديناميكي المختار لكل موظف
                     var r = runCoreReverseEngine(targetNet, allow, medExempt, disabled, currentInsMode, 0);
                     var gross = r.totalGross;
 
-                    // بناء كشف الإجمالي المبسط والنظيف بناءً على طلبك
                     resultReport.push({
                         "كود الموظف": empId,
                         "اسم الموظف": empName,
                         "الصافي المستهدف": targetNet,
                         "البدلات المدخلة": allow,
-                        "نظام التأمين المطبق": currentInsMode === 'none' ? "بدون حساب تأمينات" : "حساب تلقائي",
+                        "نظام التأمين": currentInsMode === 'none' ? "بدون حساب تأمينات (0)" : "حساب تلقائي للكامل بقفل 16700",
+                        "الأجر التأميني الناتج": r.finalInsBase,
                         "الإجمالي الكلي المحسوب (Gross Salary)": Number(gross.toFixed(2))
                     });
                 }
@@ -505,13 +508,12 @@
                 return;
             }
 
-            // توليد ملف الإكسيل النظيف المستهدف
             var newWs = XLSX.utils.json_to_sheet(resultReport);
             var newWb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(newWb, newWs, "Final_Gross_Report");
             
             XLSX.writeFile(newWb, "Final_Gross_Payroll_Report.xlsx");
-            document.getElementById('excel-status').innerText = "✅ تم الانتهاء بنجاح وتحميل كشف الأجر الإجمالي الكلي الموحد!";
+            document.getElementById('excel-status').innerText = "✅ تم الانتهاء بنجاح وتحميل كشف الأجر الإجمالي الموحد الشامل!";
             input.value = ''; 
         };
 
