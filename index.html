@@ -8,9 +8,46 @@
         :root { --primary: #0b4fb3; --white: #ffffff; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f1f5f9; overflow: hidden; }
         
-        .nav-bar { display: flex; background: var(--primary); padding: 5px; position: sticky; top: 0; z-index: 1000; overflow-x: auto; }
-        .nav-btn { flex: 1; padding: 15px; border: none; background: none; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem; border-radius: 8px; white-space: nowrap; }
+        .nav-bar { display: flex; background: var(--primary); padding: 5px; position: sticky; top: 0; z-index: 1000; overflow-x: visible; }
+        .nav-btn { flex: 1; padding: 15px; border: none; background: none; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem; border-radius: 8px; white-space: nowrap; text-align: center; }
         .nav-btn.active { background: white; color: var(--primary); }
+
+        /* ===== تنسيق القائمة المنسدلة (Dropdown) ===== */
+        .dropdown { position: relative; flex: 1; display: flex; }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #ffffff;
+            min-width: 260px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.15);
+            z-index: 1001;
+            top: 100%;
+            right: 0;
+            border-radius: 8px;
+            padding: 5px 0;
+            border: 1px solid #e1e5e9;
+        }
+        .dropdown-content button {
+            color: #333333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            border: none;
+            background: none;
+            text-align: right;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .dropdown-content button:hover { background-color: #f1f5f9; color: var(--primary); }
+        .dropdown-content button.active { background-color: #e8f1ff; color: var(--primary); }
+        
+        /* إظهار القائمة عند تمرير الماوس فوق التابة الرئيسية */
+        .dropdown:hover .dropdown-content { display: block; }
+        .dropdown:hover .nav-btn { background: rgba(255,255,255,0.1); }
+        .dropdown.active-parent .nav-btn { background: white; color: var(--primary); }
 
         .page-frame { width: 100%; height: calc(100vh - 60px); border: none; display: none; }
         .page-frame.active { display: block; }
@@ -21,12 +58,19 @@
     <div class="nav-bar" id="mainNav">
         <button class="nav-btn active" onclick="loadPage(event, 'home-frame', 0)">الرئيسية</button>
         <button class="nav-btn" onclick="loadPage(event, 'cv-frame', 1)">السيرة الذاتية</button>
-        <button class="nav-btn" onclick="loadPage(event, 'tax-frame', 2)">حاسبة الضرائب (إجمالي ← صافي)</button>
-        <button class="nav-btn" onclick="loadPage(event, 'tax-reverse-frame', 3)">حاسبة الضرائب الفردية (صافي ← إجمالي)</button>
-        <button class="nav-btn" onclick="loadPage(event, 'tax-reverse-bulk-frame', 4)">حاسبة الضرائب الجماعية (صافي ← إجمالي)</button>
-        <button class="nav-btn" onclick="loadPage(event, 's1-frame', 5)">س1 تأمينات</button>
-        <button class="nav-btn" onclick="loadPage(event, 'tafqit-frame', 6)">أداة التفقيط</button>
-        <button class="nav-btn" onclick="loadPage(event, 'feedback-frame', 7)">قياس الأداء</button>
+        
+        <div class="dropdown" id="taxDropdownParent">
+            <button class="nav-btn" style="width: 100%;">حاسبات الضرائب والرواتب ▾</button>
+            <div class="dropdown-content">
+                <button class="sub-nav-btn" onclick="loadDropdownPage(event, 'tax-frame', 'حاسبة الضرائب (إجمالي ← صافي)')">حاسبة الضرائب (إجمالي ← صافي)</button>
+                <button class="sub-nav-btn" onclick="loadDropdownPage(event, 'tax-reverse-frame', 'حاسبة الضرائب الفردية (صافي ← إجمالي)')">حاسبة الضرائب الفردية (صافي ← إجمالي)</button>
+                <button class="sub-nav-btn" onclick="loadDropdownPage(event, 'tax-reverse-bulk-frame', 'حاسبة الضرائب الجماعية (صافي ← إجمالي)')">حاسبة الضرائب الجماعية (صافي ← إجمالي)</button>
+            </div>
+        </div>
+
+        <button class="nav-btn" onclick="loadPage(event, 's1-frame', 3)">س1 تأمينات</button>
+        <button class="nav-btn" onclick="loadPage(event, 'tafqit-frame', 4)">أداة التفقيط</button>
+        <button class="nav-btn" onclick="loadPage(event, 'feedback-frame', 5)">قياس الأداء</button>
     </div>
 
     <iframe id="home-frame" class="page-frame active" src="home.html"></iframe>
@@ -39,19 +83,42 @@
     <iframe id="feedback-frame" class="page-frame" src="feedback.html"></iframe>
 
     <script>
+        // دالة التنقل للأزرار الرئيسية العادية
         function loadPage(evt, frameId, btnIndex) {
             document.querySelectorAll('.page-frame').forEach(f => f.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.sub-nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('taxDropdownParent').classList.remove('active-parent');
             
             document.getElementById(frameId).classList.add('active');
             
-            // تفعيل الزر المناسب في الناف بار العلوي
             const buttons = document.querySelectorAll('.nav-btn');
             if (buttons[btnIndex]) {
                 buttons[btnIndex].classList.add('active');
             }
         }
-        // اجعل الوظيفة متاحة للـ Iframes (مثل صفحة home)
+
+        // دالة مخصصة للتنقل بين خيارات القائمة المنسدلة وتغيير عنوان التابة الرئيسية ديناميكياً
+        function loadDropdownPage(evt, frameId, selectedName) {
+            evt.stopPropagation(); // منع إغلاق الـ Dropdown بشكل مفاجئ
+            
+            document.querySelectorAll('.page-frame').forEach(f => f.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.sub-nav-btn').forEach(b => b.classList.remove('active'));
+            
+            // تفعيل الـ Iframe المطلوب
+            document.getElementById(frameId).classList.add('active');
+            
+            // تفعيل الخيار المختار داخل القائمة المنسدلة
+            evt.currentTarget.classList.add('active');
+            
+            // جعل تابة القائمة المنسدلة الرئيسية تأخذ الاستايل الأبيض (نشط) وتحديث اسمها بناء على المختار
+            const dropdownParent = document.getElementById('taxDropdownParent');
+            dropdownParent.classList.add('active-parent');
+            dropdownParent.querySelector('.nav-btn').innerHTML = selectedName + " ▾";
+        }
+
+        // اجعل الوظائف متاحة للـ Iframes
         window.loadPage = loadPage;
     </script>
 </body>
