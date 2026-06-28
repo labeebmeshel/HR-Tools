@@ -1,1 +1,341 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة الصافي إلى الإجمالي - جماعي (Excel) - مصر 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #0b4fb3;
+            --primary-dark: #093e8d;
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --surface-soft: #f8fbff;
+            --text: #14263f;
+            --muted: #5d728d;
+            --border: #d9e3f0;
+            --success: #0d8a49;
+            --shadow: 0 12px 28px rgba(13, 46, 94, 0.12);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
+            background: radial-gradient(circle at top right, #e8f1ff 0%, var(--bg) 55%);
+            color: var(--text);
+            padding: 24px;
+            min-height: 100vh;
+        }
+        .calc-wrapper {
+            max-width: 980px;
+            margin: 0 auto;
+            background: var(--surface);
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.7);
+        }
+        .main-title {
+            text-align: center;
+            color: var(--primary);
+            margin: 0;
+            font-size: clamp(1.25rem, 2.8vw, 1.75rem);
+            font-weight: 700;
+            line-height: 1.4;
+        }
+        .sub-title {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.93rem;
+            margin: 10px auto 6px;
+            line-height: 1.6;
+            max-width: 700px;
+        }
+        .mode-pill {
+            display: block;
+            text-align: center;
+            margin: 0 auto 22px;
+            width: fit-content;
+            background: #eef3fc;
+            color: var(--primary);
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: 100px;
+        }
 
+        /* ===== EXCEL AREA STYLE ===== */
+        .excel-section {
+            background: #fff;
+            border: 2px dashed #0b4fb3;
+            border-radius: 14px;
+            padding: 28px 22px;
+            text-align: center;
+            margin-bottom: 10px;
+            transition: background 0.3s;
+        }
+        .excel-section:hover { background: #f3f7ff; }
+        .excel-icon { font-size: 2.4rem; margin-bottom: 6px; }
+        .excel-title { font-weight: 700; color: var(--primary); margin-bottom: 8px; font-size: 1.05rem; }
+        .excel-desc { font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; max-width: 560px; margin-left: auto; margin-right: auto; line-height: 1.7; }
+        .excel-btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+        .btn-secondary {
+            background: #eef3fc; color: var(--primary); border: 1px solid #d0e2ff;
+            padding: 11px 20px; border-radius: 10px; cursor: pointer; font-family: "Cairo", sans-serif; font-weight: 600; font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .btn-secondary:hover { background: #d0e2ff; }
+        .file-input-label {
+            background: linear-gradient(135deg, var(--primary) 0%, #1662d4 100%); color: #fff; padding: 11px 20px; border-radius: 10px;
+            cursor: pointer; font-weight: 700; font-size: 0.9rem; display: inline-block;
+            box-shadow: 0 4px 14px rgba(11,79,179,0.3);
+            transition: opacity 0.2s, transform 0.12s;
+        }
+        .file-input-label:hover { opacity: 0.92; transform: translateY(-1px); }
+        #excel-file { display: none; }
+        #excel-status { margin-top: 14px; font-size: 0.88rem; font-weight: 600; color: var(--success); min-height: 20px; }
+
+        .options-card {
+            background: var(--surface-soft);
+            border: 1px solid #d8e8ff;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 22px 0 4px;
+        }
+        .options-card-title { font-weight: 700; color: var(--primary); font-size: 0.93rem; margin-bottom: 10px; }
+        .options-card-sub { font-size: 0.82rem; color: var(--muted); line-height: 1.7; }
+
+        .template-fields {
+            margin-top: 18px;
+            text-align: right;
+            background: #fbfdff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+        .template-fields-title { font-weight: 700; color: var(--text); font-size: 0.86rem; margin-bottom: 8px; }
+        .template-fields ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+        .template-fields li { font-size: 0.81rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+        .template-fields li::before { content: "•"; color: var(--primary); font-weight: 900; }
+
+        .hint { margin-top: 20px; font-size: 0.84rem; color: var(--muted); text-align: center; line-height: 1.6; }
+
+        @media (max-width: 760px) {
+            body { padding: 12px; }
+            .calc-wrapper { padding: 20px 14px; }
+            .template-fields ul { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="calc-wrapper">
+    <h1 class="main-title">حساب ضريبة كسب العمل — من الصافي للإجمالي</h1>
+    <p class="sub-title">طبقاً لقانون الضريبة على الدخل رقم 91 لسنة 2005 وتعديلاته بقانون 7 لسنة 2024</p>
+    <span class="mode-pill">📁 حساب جماعي عبر Excel</span>
+
+    <div class="excel-section">
+        <div class="excel-icon">📊</div>
+        <div class="excel-title">تشغيل الحساب العكسي الجماعي عبر ملف Excel</div>
+        <p class="excel-desc">ارفع كشف الموظفين بالصافي والبدلات، وسيقوم النظام باستخراج الأجر الإجمالي الكلي لكل موظف حسب طبيعة تأمينه، ثم يُحمّل تلقائياً تقرير Excel جاهز بالنتائج.</p>
+        <div class="excel-btn-group">
+            <button class="btn-secondary" onclick="downloadTemplate()">📥 تحميل نموذج القالب الجاهز</button>
+            <label class="file-input-label" for="excel-file">⚙️ ارفع ملف الموظفين وافحص الآن</label>
+            <input type="file" id="excel-file" accept=".xlsx, .xls" onchange="handleExcelUpload(this)">
+        </div>
+        <div id="excel-status"></div>
+    </div>
+
+    <div class="template-fields">
+        <div class="template-fields-title">📋 أعمدة القالب المطلوبة في ملف الإكسيل:</div>
+        <ul>
+            <li>كود الموظف</li>
+            <li>اسم الموظف</li>
+            <li>الصافي المستهدف</li>
+            <li>البدلات الحقيقية</li>
+            <li>إعفاءات طبية/حياة</li>
+            <li>هل ذو همم؟ (نعم/لا)</li>
+            <li>نظام حساب التأمينات (تلقائي/بدون)</li>
+        </ul>
+    </div>
+
+    <div class="options-card">
+        <div class="options-card-title">⚙️ كيف يعمل محرك الحساب الجماعي؟</div>
+        <div class="options-card-sub">
+            لكل صف في الملف، يقوم النظام بالبحث التكراري (Binary Search) عن الأجر الأساسي الذي يحقق الصافي المطلوب بالضبط، مع تطبيق نظام التأمينات المحدد (تلقائي بقفل 16,700 ج.م أو بدون حساب تأميني)، وخصم الإعفاء الشخصي السنوي (20,000 ج.م أو 30,000 لذوي الهمم) وفق شرائح الضريبة التصاعدية المعتمدة. تُصدَّر النتائج تلقائياً في ملف <strong>Final_Gross_Payroll_Report.xlsx</strong> يتضمن الإجمالي الكلي والأجر التأميني لكل موظف.
+        </div>
+    </div>
+
+    <p class="hint">ملاحظة: النتائج تقديرية وتعتمد على المدخلات في الملف المرفوع. يُفضّل مراجعة شؤون العاملين للحالات الخاصة. للحساب الفردي التفصيلي، استخدم حاسبة "الحساب الفردي" المخصصة.</p>
+</div>
+
+<script>
+    function getInput(id) { return Number((document.getElementById(id) || {}).value || 0); }
+
+    /* ── دالة شرائح الضريبة مع قاعدة نقطة البداية بحسب حجم الوعاء ── */
+    function getTax(annualTaxable) {
+        if (annualTaxable <= 0) return 0;
+        let annualTax = 0; let r = annualTaxable;
+        if (annualTaxable <= 600000) {
+            if (r > 40000) {
+                r -= 40000;
+                let ch2 = Math.min(r, 15000);  annualTax += ch2 * 0.10;  r -= ch2;
+                let ch3 = Math.min(r, 15000);  annualTax += ch3 * 0.15;  r -= ch3;
+                let ch4 = Math.min(r, 130000); annualTax += ch4 * 0.20;  r -= ch4;
+                let ch5 = Math.min(r, 200000); annualTax += ch5 * 0.225; r -= ch5;
+                let ch6 = Math.min(r, 800000); annualTax += ch6 * 0.25;  r -= ch6;
+                if (r > 0) annualTax += r * 0.275;
+            }
+        } else if (annualTaxable <= 700000) {
+            let ch2 = Math.min(r, 55000); annualTax += ch2 * 0.10; r -= ch2;
+            let ch3 = Math.min(r, 15000); annualTax += ch3 * 0.15; r -= ch3;
+            let ch4 = Math.min(r, 130000); annualTax += ch4 * 0.20; r -= ch4;
+            let ch5 = Math.min(r, 200000); annualTax += ch5 * 0.225; r -= ch5;
+            let ch6 = Math.min(r, 800000); annualTax += ch6 * 0.25; r -= ch6;
+            if (r > 0) annualTax += r * 0.275;
+        } else if (annualTaxable <= 800000) {
+            let ch3 = Math.min(r, 70000); annualTax += ch3 * 0.15; r -= ch3;
+            let ch4 = Math.min(r, 130000); annualTax += ch4 * 0.20; r -= ch4;
+            let ch5 = Math.min(r, 200000); annualTax += ch5 * 0.225; r -= ch5;
+            let ch6 = Math.min(r, 800000); annualTax += ch6 * 0.25; r -= ch6;
+            if (r > 0) annualTax += r * 0.275;
+        } else if (annualTaxable <= 900000) {
+            let ch4 = Math.min(r, 200000); annualTax += ch4 * 0.20; r -= ch4;
+            let ch5 = Math.min(r, 200000); annualTax += ch5 * 0.225; r -= ch5;
+            let ch6 = Math.min(r, 800000); annualTax += ch6 * 0.25; r -= ch6;
+            if (r > 0) annualTax += r * 0.275;
+        } else if (annualTaxable <= 1200000) {
+            let ch5 = Math.min(r, 400000); annualTax += ch5 * 0.225; r -= ch5;
+            let ch6 = Math.min(r, 800000); annualTax += ch6 * 0.25; r -= ch6;
+            if (r > 0) annualTax += r * 0.275;
+        } else {
+            let ch6 = Math.min(r, 1200000); annualTax += ch6 * 0.25; r -= ch6;
+            if (r > 0) annualTax += r * 0.275;
+        }
+        return annualTax;
+    }
+
+    /* ── منطق الأجر التأميني (مع دعم: تلقائي / بدون) ── */
+    function calcInsuranceReverse(baseCalculated, allow, insMode) {
+        if (insMode === 'none') return { finalInsBase: 0, finalExemptAllow: 0 };
+
+        const MAX = 16700;
+        const MIN = 2700;
+
+        let totalGross = baseCalculated + allow;
+        let f = totalGross;
+
+        if (totalGross > MAX) f = MAX;
+
+        f = Math.max(MIN, f);
+        let e = Math.max(0, Math.min(allow, totalGross - f));
+        return { finalInsBase: Math.round(f), finalExemptAllow: Math.round(e) };
+    }
+
+    function calcForwardForReverse(base, allow, medExempt, disabled, insMode) {
+        var totalGross = base + allow;
+        var ins = calcInsuranceReverse(base, allow, insMode);
+        var insShare = Math.round(ins.finalInsBase * 0.11);
+        var finalAnnual = Math.max(0, ((totalGross - insShare - medExempt) * 12) - 20000 - (disabled ? 10000 : 0));
+        var monthlyTax = Math.round(getTax(finalAnnual) / 12);
+        var net = totalGross - insShare - monthlyTax - medExempt;
+        return {
+            totalGross: totalGross, finalInsBase: ins.finalInsBase, finalExemptAllow: ins.finalExemptAllow,
+            insShare: insShare, medExemptMonthly: medExempt, annualTaxable: finalAnnual, monthlyTax: monthlyTax, net: net
+        };
+    }
+
+    function runCoreReverseEngine(targetNet, allow, medExempt, disabled, insMode) {
+        var lo = 0, hi = targetNet * 5 + 100000; var r;
+        for (var i = 0; i < 100; i++) {
+            var mid = (lo + hi) / 2;
+            r = calcForwardForReverse(mid, allow, medExempt, disabled, insMode);
+            if (r.net < targetNet) lo = mid; else hi = mid;
+            if (Math.abs(r.net - targetNet) < 0.01) break;
+        }
+        return r;
+    }
+
+    /* =========================================================================
+       📊 برمجيات إدارة ومعالجة ملفات الإكسيل (Excel Integration)
+       ========================================================================= */
+
+    function downloadTemplate() {
+        var data = [
+            {"كود الموظف": "101", "اسم الموظف": "أحمد علي", "الصافي المستهدف": 10000, "البدلات الحقيقية": 2000, "إعفاءات طبية/حياة": 0, "هل ذو همم؟ (نعم/لا)": "لا", "نظام حساب التأمينات (تلقائي/بدون)": "تلقائي"},
+            {"كود الموظف": "102", "اسم الموظف": "جون سميث", "الصافي المستهدف": 25000, "البدلات الحقيقية": 0, "إعفاءات طبية/حياة": 0, "هل ذو همم؟ (نعم/لا)": "لا", "نظام حساب التأمينات (تلقائي/بدون)": "تلقائي"},
+            {"كود الموظف": "103", "اسم الموظف": "خبير مستشار", "الصافي المستهدف": 30000, "البدلات الحقيقية": 0, "إعفاءات طبية/حياة": 0, "هل ذو همم؟ (نعم/لا)": "لا", "نظام حساب التأمينات (تلقائي/بدون)": "بدون"}
+        ];
+        var ws = XLSX.utils.json_to_sheet(data);
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Template");
+        XLSX.writeFile(wb, "Payroll_Reverse_Group_Template.xlsx");
+    }
+
+    function handleExcelUpload(input) {
+        var file = input.files[0];
+        if (!file) return;
+
+        var reader = new FileReader();
+        document.getElementById('excel-status').innerText = "⏳ جاري قراءة الملف وتشغيل محرك الحساب العكسي...";
+
+        reader.onload = function(e) {
+            var data = new Uint8Array(e.target.result);
+            var workbook = XLSX.read(data, {type: 'array'});
+            var firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            var rows = XLSX.utils.sheet_to_json(firstSheet);
+
+            var resultReport = [];
+
+            rows.forEach(function(row) {
+                var empId = row["كود الموظف"] || "—";
+                var empName = row["اسم الموظف"] || "—";
+                var targetNet = Number(row["الصافي المستهدف"] || 0);
+                var allow = Number(row["البدلات الحقيقية"] || 0);
+                var medExempt = Number(row["إعفاءات طبية/حياة"] || 0);
+                var isDisabledStr = String(row["هل ذو همم؟ (نعم/لا)"] || "").trim();
+                var disabled = (isDisabledStr === "نعم" || isDisabledStr === "yes");
+
+                var insModeStr = String(row["نظام حساب التأمينات (تلقائي/بدون)"] || "").trim();
+                var currentInsMode = 'auto';
+                if (insModeStr === "بدون" || insModeStr === "none" || insModeStr === "0") {
+                    currentInsMode = 'none';
+                }
+
+                if (targetNet > 0) {
+                    var r = runCoreReverseEngine(targetNet, allow, medExempt, disabled, currentInsMode);
+                    var gross = r.totalGross;
+
+                    resultReport.push({
+                        "كود الموظف": empId,
+                        "اسم الموظف": empName,
+                        "الصافي المستهدف": targetNet,
+                        "البدلات المدخلة": allow,
+                        "نظام التأمين": currentInsMode === 'none' ? "بدون حساب تأمينات (0)" : "حساب تلقائي للكامل بقفل 16700",
+                        "الأجر التأميني الناتج": r.finalInsBase,
+                        "حصة العامل بالتأمينات 11%": r.insShare,
+                        "الضريبة الشهرية": r.monthlyTax,
+                        "الإجمالي الكلي المحسوب (Gross Salary)": Number(gross.toFixed(2))
+                    });
+                }
+            });
+
+            if(resultReport.length === 0) {
+                document.getElementById('excel-status').innerText = "❌ لم يتم العثور على بيانات رواتب صالحة.";
+                return;
+            }
+
+            var newWs = XLSX.utils.json_to_sheet(resultReport);
+            var newWb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(newWb, newWs, "Final_Gross_Report");
+
+            XLSX.writeFile(newWb, "Final_Gross_Payroll_Report.xlsx");
+            document.getElementById('excel-status').innerText = "✅ تم الانتهاء بنجاح وتحميل كشف الأجر الإجمالي الموحد الشامل (" + resultReport.length + " موظف)!";
+            input.value = '';
+        };
+
+        reader.readAsArrayBuffer(file);
+    }
+</script>
+</body>
+</html>
