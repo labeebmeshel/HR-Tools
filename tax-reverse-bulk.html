@@ -156,6 +156,7 @@
             <li>إعفاءات طبية/حياة</li>
             <li>هل ذو همم؟ (نعم/لا)</li>
             <li>نظام حساب التأمينات (تلقائي/بدون)</li>
+            <li>الأجر التأميني اليدوي (اختياري)</li>
         </ul>
     </div>
 
@@ -215,41 +216,64 @@
         return annualTax;
     }
 
-    /* ── منطق الأجر التأميني (مع دعم: تلقائي / بدون) ── */
-    function calcInsuranceReverse(baseCalculated, allow, insMode) {
+    /* ── منطق الأجر التأميني (مع دعم: تلقائي / بدون) ──
+       القاعدة:
+       - لو البدلات ≤ 30% من الأجر الأساسي → التأميني = الأجر الأساسي (البدلات كلها معفاة)
+       - لو البدلات > 30% من الأجر الأساسي → التأميني = الشامل ÷ 1.30
+       - في كل الحالات: 2,700 ≤ التأميني ≤ 16,700
+       - البدلات المعفاة = الشامل - التأميني، بحد أقصى البدلات الفعلية
+    ── */
+    function calcInsuranceReverse(baseCalculated, allow, insMode, manualWage) {
         if (insMode === 'none') return { finalInsBase: 0, finalExemptAllow: 0 };
 
         const MAX = 16700;
         const MIN = 2700;
 
-        let totalGross = baseCalculated + allow;
-        let f = totalGross;
+        let base = baseCalculated;
+        let totalGross = base + allow;
+        let insBase;
 
-        if (totalGross > MAX) f = MAX;
+        if (manualWage > 0) {
+            // أجر تأميني يدوي: يُستخدم مباشرةً مع تطبيق الحدود فقط
+            insBase = Math.max(MIN, Math.min(MAX, manualWage));
+        } else if (allow <= base * 0.30) {
+            // البدلات ضمن 30% من الأساسي → التأميني = الأساسي
+            insBase = base;
+        } else {
+            // البدلات تتجاوز 30% → التأميني = الشامل ÷ 1.30
+            insBase = totalGross / 1.30;
+        }
 
-        f = Math.max(MIN, f);
-        let e = Math.max(0, Math.min(allow, totalGross - f));
-        return { finalInsBase: Math.round(f), finalExemptAllow: Math.round(e) };
+        // تطبيق الحدود: لا يقل عن 2,700 ولا يتجاوز 16,700
+        insBase = Math.max(MIN, Math.min(MAX, insBase));
+
+        // البدلات المعفاة = الشامل - التأميني، بحد أقصى البدلات الفعلية
+        let exemptAllow = Math.min(allow, Math.max(0, totalGross - insBase));
+
+        return { finalInsBase: Math.round(insBase), finalExemptAllow: Math.round(exemptAllow) };
     }
 
-    function calcForwardForReverse(base, allow, medExempt, disabled, insMode) {
-        var totalGross = base + allow;
-        var ins = calcInsuranceReverse(base, allow, insMode);
+    function calcForwardForReverse(base, allow, medExempt, disabled, insMode, manualWage) {
+        var totalGross = base + allow;  // الإجمالي الكلي = أساسي + بدلات
+        var ins = calcInsuranceReverse(base, allow, insMode, manualWage || 0);
         var insShare = Math.round(ins.finalInsBase * 0.11);
+        // الوعاء الضريبي يُحسب على الإجمالي كاملاً (أساسي + بدلات − استقطاعات)
         var finalAnnual = Math.max(0, ((totalGross - insShare - medExempt) * 12) - 20000 - (disabled ? 10000 : 0));
         var monthlyTax = Math.round(getTax(finalAnnual) / 12);
-        var net = totalGross - insShare - monthlyTax - medExempt;
+        // الصافي = الأجر الأساسي فقط − اشتراكات التأمين − الضريبة − الإعفاءات
+        // (البدلات تُصرف للموظف كاملةً فوق الصافي المستهدف، ولا تُخصم منه)
+        var net = base - insShare - monthlyTax - medExempt;
         return {
             totalGross: totalGross, finalInsBase: ins.finalInsBase, finalExemptAllow: ins.finalExemptAllow,
             insShare: insShare, medExemptMonthly: medExempt, annualTaxable: finalAnnual, monthlyTax: monthlyTax, net: net
         };
     }
 
-    function runCoreReverseEngine(targetNet, allow, medExempt, disabled, insMode) {
+    function runCoreReverseEngine(targetNet, allow, medExempt, disabled, insMode, manualWage) {
         var lo = 0, hi = targetNet * 5 + 100000; var r;
         for (var i = 0; i < 100; i++) {
             var mid = (lo + hi) / 2;
-            r = calcForwardForReverse(mid, allow, medExempt, disabled, insMode);
+            r = calcForwardForReverse(mid, allow, medExempt, disabled, insMode, manualWage || 0);
             if (r.net < targetNet) lo = mid; else hi = mid;
             if (Math.abs(r.net - targetNet) < 0.01) break;
         }
@@ -262,9 +286,9 @@
 
     function downloadTemplate() {
         var data = [
-            {"كود الموظف": "101", "اسم الموظف": "أحمد علي", "الصافي المستهدف": 10000, "البدلات الحقيقية": 2000, "إعفاءات طبية/حياة": 0, "هل ذو همم؟ (نعم/لا)": "لا", "نظام حساب التأمينات (تلقائي/بدون)": "تلقائي"},
-            {"كود الموظف": "102", "اسم الموظف": "جون سميث", "الصافي المستهدف": 25000, "البدلات الحقيقية": 0, "إعفاءات طبية/حياة": 0, "هل ذو همم؟ (نعم/لا)": "لا", "نظام حساب التأمينات (تلقائي/بدون)": "تلقائي"},
-            {"كود الموظف": "103", "اسم الموظف": "خبير مستشار", "الصافي المستهدف": 30000, "البدلات الحقيقية": 0, "إعفاءات طبية/حياة": 0, "هل ذو همم؟ (نعم/لا)": "لا", "نظام حساب التأمينات (تلقائي/بدون)": "بدون"}
+            {"كود الموظف": "101", "اسم الموظف": "أحمد علي",     "الصافي المستهدف": 10000, "البدلات الحقيقية": 2000, "إعفاءات طبية/حياة": 0, "هل ذو همم؟ (نعم/لا)": "لا", "نظام حساب التأمينات (تلقائي/بدون)": "تلقائي", "الأجر التأميني اليدوي (اتركه فارغاً للحساب التلقائي)": ""},
+            {"كود الموظف": "102", "اسم الموظف": "جون سميث",     "الصافي المستهدف": 25000, "البدلات الحقيقية": 0,    "إعفاءات طبية/حياة": 0, "هل ذو همم؟ (نعم/لا)": "لا", "نظام حساب التأمينات (تلقائي/بدون)": "تلقائي", "الأجر التأميني اليدوي (اتركه فارغاً للحساب التلقائي)": 12000},
+            {"كود الموظف": "103", "اسم الموظف": "خبير مستشار",  "الصافي المستهدف": 30000, "البدلات الحقيقية": 0,    "إعفاءات طبية/حياة": 0, "هل ذو همم؟ (نعم/لا)": "لا", "نظام حساب التأمينات (تلقائي/بدون)": "بدون",    "الأجر التأميني اليدوي (اتركه فارغاً للحساب التلقائي)": ""}
         ];
         var ws = XLSX.utils.json_to_sheet(data);
         var wb = XLSX.utils.book_new();
@@ -302,16 +326,27 @@
                     currentInsMode = 'none';
                 }
 
+                // الأجر التأميني اليدوي: لو فيه قيمة يستخدمها، لو فاضي يحسب تلقائياً
+                var manualWageRaw = row["الأجر التأميني اليدوي (اتركه فارغاً للحساب التلقائي)"];
+                var manualWage = (manualWageRaw !== undefined && manualWageRaw !== "" && !isNaN(Number(manualWageRaw)))
+                    ? Number(manualWageRaw) : 0;
+
                 if (targetNet > 0) {
-                    var r = runCoreReverseEngine(targetNet, allow, medExempt, disabled, currentInsMode);
+                    var r = runCoreReverseEngine(targetNet, allow, medExempt, disabled, currentInsMode, manualWage);
                     var gross = r.totalGross;
+
+                    var insModeLabel = currentInsMode === 'none'
+                        ? "بدون حساب تأمينات (0)"
+                        : manualWage > 0
+                            ? "يدوي (" + manualWage.toLocaleString() + " ج.م)"
+                            : "حساب تلقائي بقاعدة 30%";
 
                     resultReport.push({
                         "كود الموظف": empId,
                         "اسم الموظف": empName,
                         "الصافي المستهدف": targetNet,
                         "البدلات المدخلة": allow,
-                        "نظام التأمين": currentInsMode === 'none' ? "بدون حساب تأمينات (0)" : "حساب تلقائي للكامل بقفل 16700",
+                        "نظام التأمين": insModeLabel,
                         "الأجر التأميني الناتج": r.finalInsBase,
                         "حصة العامل بالتأمينات 11%": r.insShare,
                         "الضريبة الشهرية": r.monthlyTax,
