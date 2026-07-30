@@ -87,7 +87,7 @@
 
   .hidden { display: none !important; }
 
-  /* Quiz */
+  /* Quiz Style */
   .qhead {
     position: sticky; top: 0; background: rgba(248, 250, 252, 0.95); backdrop-filter: blur(5px); z-index: 5;
     padding: 12px 0 16px; margin-bottom: 12px;
@@ -98,7 +98,7 @@
 
   .qcard {
     border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin-bottom: 16px; background: #fff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02); transition: 0.3s;
   }
   .qcard.answered { border-color: var(--primary); background: #f8fafc; }
   .qnum {
@@ -106,13 +106,15 @@
     border-radius: 50%; background: var(--primary); color: #fff; font-size: 13px; font-weight: 800; margin-inline-start: 8px;
   }
   .qtext { font-size: 16px; font-weight: 700; color: var(--ink); margin: 2px 0 16px; text-align: right; }
+  
+  /* Scale Buttons Logic Fix */
   .scale { display: flex; gap: 8px; }
-  .scale button {
+  .scale .opt-btn {
     flex: 1; padding: 12px 4px; border-radius: 10px; border: 1.5px solid var(--line); background: #fff;
     cursor: pointer; font-weight: 700; font-size: 15px; color: var(--navy-2); transition: all .15s ease; font-family: inherit;
   }
-  .scale button:hover { border-color: var(--primary); color: var(--primary); }
-  .scale button.sel { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(11, 79, 179, 0.3); }
+  .scale .opt-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .scale .opt-btn.sel { background: var(--primary) !important; border-color: var(--primary) !important; color: #fff !important; box-shadow: 0 4px 10px rgba(11, 79, 179, 0.3); }
   .scale-labels { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); margin-top: 8px; font-weight: 600; }
 
   .quiz-footer {
@@ -150,7 +152,7 @@
   tbody tr:hover { background: #f8fafc; }
   .pill { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 22px; padding: 0 6px; border-radius: 6px; color: #fff; font-weight: 800; font-size: 12px; }
 
-  /* Password Overlay for Dashboard only */
+  /* Password Overlay */
   #passwordOverlay {
     position: fixed; inset: 0;
     background: rgba(11, 79, 179, 0.2);
@@ -175,7 +177,7 @@
 </head>
 <body>
 
-<!-- Dashboard Password Modal (Hidden by Default) -->
+<!-- Dashboard Password Modal -->
 <div id="passwordOverlay" class="hidden">
     <div class="auth-card">
         <i class="fas fa-user-shield"></i>
@@ -201,7 +203,7 @@
     <button class="tab-btn" id="tab-btn-dash" onclick="switchTab('dash')"><i class="fas fa-lock"></i> لوحة النتائج (خاص بالإدارة)</button>
   </div>
 
-  <!-- TAB 1: ASSESSMENT TOOL (OPEN TO ALL) -->
+  <!-- TAB 1: ASSESSMENT TOOL -->
   <div id="tab-quiz">
     <div class="card" id="stage-intro">
       <h1>بيانات المشارك</h1>
@@ -277,7 +279,7 @@
     </div>
   </div>
 
-  <!-- TAB 2: DASHBOARD (PROTECTED BY PASSWORD) -->
+  <!-- TAB 2: DASHBOARD -->
   <div id="tab-dash" class="hidden">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
@@ -327,7 +329,7 @@
   const AUTH_KEY = "Labeeb";
   const STORAGE_KEY = "disc_results_db_v1";
 
-  // Tab Switcher & Authentication Check
+  // Tab Switcher & Auth Logic
   function switchTab(tab) {
     if (tab === 'dash') {
       const isAuthed = sessionStorage.getItem('disc_authed') === 'true';
@@ -366,7 +368,7 @@
     switchTab('quiz');
   }
 
-  // Database Handling
+  // Local Data DB
   function getDB() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
     catch(e) { return []; }
@@ -378,7 +380,7 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
   }
 
-  // Quiz Questions
+  // 44 Questions Array
   var QUESTIONS = [
     "أنا شخص قيادي ومهتم بتحقيق نتائج ملموسة", "بستمتع بالتعامل مع الناس ومقابلتهم",
     "تصرفاتي ثابتة ويسهل على الآخرين توقعها", "بحب الأعمال اللي فيها تواصل مباشر مع الناس",
@@ -452,34 +454,61 @@
     document.getElementById('stage-intro').classList.remove('hidden');
   });
 
+  // Build Quiz DOM with Fixed Click Selection Event
   function buildQuiz(){
     var holder = document.getElementById('questions-holder');
     holder.innerHTML = '';
+    
     QUESTIONS.forEach(function(text, idx){
       var card = document.createElement('div');
       card.className = 'qcard';
-      card.innerHTML = `<div class="qtext"><span class="qnum">${idx+1}</span>${text}</div>`;
+      card.id = 'qcard-' + idx;
+
+      var qtext = document.createElement('div');
+      qtext.className = 'qtext';
+      qtext.innerHTML = '<span class="qnum">' + (idx+1) + '</span>' + text;
+      card.appendChild(qtext);
 
       var scale = document.createElement('div');
       scale.className = 'scale';
+
       for(var v=1; v<=5; v++){
-        (function(val){
-          var b = document.createElement('button');
-          b.type = 'button'; b.textContent = val;
-          b.onclick = function(){
-            answers[idx] = val;
-            scale.querySelectorAll('button').forEach(s => s.classList.remove('sel'));
-            b.classList.add('sel');
-            card.classList.add('answered');
-            updateProgress();
-          };
-          scale.appendChild(b);
-        })(v);
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'opt-btn';
+        b.textContent = v;
+        b.setAttribute('data-q', idx);
+        b.setAttribute('data-v', v);
+
+        b.addEventListener('click', function(e){
+          var qIdx = parseInt(this.getAttribute('data-q'));
+          var val = parseInt(this.getAttribute('data-v'));
+
+          answers[qIdx] = val;
+
+          var parentScale = this.parentElement;
+          var btnList = parentScale.querySelectorAll('.opt-btn');
+          btnList.forEach(function(btn){ btn.classList.remove('sel'); });
+
+          this.classList.add('sel');
+          document.getElementById('qcard-' + qIdx).classList.add('answered');
+
+          updateProgress();
+        });
+
+        scale.appendChild(b);
       }
+
       card.appendChild(scale);
-      card.innerHTML += `<div class="scale-labels"><span>1 - أقل حاجة تشبهني</span><span>5 - أكتر حاجة تشبهني</span></div>`;
+
+      var labels = document.createElement('div');
+      labels.className = 'scale-labels';
+      labels.innerHTML = '<span>1 - أقل حاجة تشبهني</span><span>5 - أكتر حاجة تشبهني</span>';
+      card.appendChild(labels);
+
       holder.appendChild(card);
     });
+
     updateProgress();
   }
 
@@ -499,6 +528,7 @@
     window.scrollTo(0,0);
   });
 
+  // Calculate & Auto Save Results
   function computeResults(){
     var totals = {D:0,I:0,S:0,C:0};
     QUESTIONS.forEach(function(_, idx){ totals[categoryOf(idx)] += answers[idx]; });
@@ -525,6 +555,7 @@
     document.getElementById('chip-email').textContent = userInfo.email;
     document.getElementById('chip-whats').textContent = userInfo.whats;
 
+    // Save to local storage database
     saveToDB({
       date: new Date().toISOString(),
       name: userInfo.name,
@@ -546,6 +577,7 @@
     document.getElementById('stage-intro').classList.remove('hidden');
   });
 
+  // Render Dashboard Table Data
   function renderDashboardTable() {
     const db = getDB();
     const q = (document.getElementById('in-search') ? document.getElementById('in-search').value : '').toLowerCase();
