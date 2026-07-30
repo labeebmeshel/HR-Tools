@@ -3,17 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRAXI | تقييم الأنماط السلوكية DISC</title>
+<title>الميثاق الذكي | أداة ولوحة نتائج تقييم DISC</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-  :root{
+  :root {
     --primary: #0b4fb3;
-    --navy: #0b4fb3;
     --navy-2: #1e3a8a;
     --paper: #f8fafc;
     --card: #FFFFFF;
     --ink: #1e293b;
     --muted: #64748b;
-    --gold: #C9A227;
     --line: #e2e8f0;
 
     --d: #dc2626;
@@ -32,25 +31,49 @@
     line-height: 1.7;
   }
 
-  .wrap { max-width: 760px; margin: 0 auto; padding: 28px 18px 90px; }
+  /* --- Password Protection Overlay --- */
+  #passwordOverlay {
+    position: fixed; inset: 0;
+    background: rgba(11, 79, 179, 0.15);
+    backdrop-filter: blur(15px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 10000;
+  }
+  .auth-card {
+    background: var(--card); padding: 40px 30px; border-radius: 24px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.1); width: 90%; max-width: 380px; text-align: center;
+    border: 1px solid var(--line);
+  }
+  .auth-card i { font-size: 3rem; color: var(--primary); margin-bottom: 15px; }
+  .auth-card h3 { margin: 0 0 10px; color: var(--primary); font-weight: 800; }
+  .auth-card input {
+    width: 100%; padding: 12px; border: 1.5px solid var(--line); border-radius: 12px;
+    outline: none; text-align: center; font-size: 16px; margin-top: 10px;
+  }
 
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 20px 18px 80px; }
+
+  /* Header & Navigation */
   .brand {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 22px;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
   }
-  .brand-name {
-    font-weight: 800; letter-spacing: .5px; color: var(--primary);
-    font-size: 18px;
-  }
+  .brand-name { font-weight: 800; color: var(--primary); font-size: 18px; }
   .brand-name span { color: var(--navy-2); }
-  .brand-tag { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+  .nav-tabs {
+    display: flex; gap: 10px; background: #e2e8f0; padding: 5px; border-radius: 14px; margin-bottom: 24px;
+  }
+  .tab-btn {
+    flex: 1; padding: 12px; border: none; background: none; font-weight: 700;
+    color: var(--muted); cursor: pointer; border-radius: 10px; transition: 0.3s;
+    display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px;
+  }
+  .tab-btn.active { background: var(--card); color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
   .card {
-    background: var(--card);
-    border: 1px solid rgba(255,255,255,0.8);
-    border-radius: 20px;
-    padding: 32px 26px;
-    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+    background: var(--card); border: 1px solid rgba(255,255,255,0.8);
+    border-radius: 20px; padding: 30px 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
   }
 
   h1 { font-size: 22px; margin: 0 0 6px; color: var(--primary); font-weight: 800; }
@@ -60,8 +83,7 @@
   label { display: block; font-size: 13.5px; font-weight: 700; color: var(--navy-2); margin-bottom: 6px; }
   input[type=text], input[type=email], input[type=tel] {
     width: 100%; padding: 12px 14px; border-radius: 10px; border: 1.5px solid var(--line);
-    font-size: 15px; background: #FCFBF9; color: var(--ink);
-    font-family: inherit; transition: all 0.3s ease;
+    font-size: 15px; background: #FCFBF9; color: var(--ink); font-family: inherit; transition: 0.3s;
   }
   input:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(11, 79, 179, 0.1); }
   .err { color: var(--d); font-size: 12.5px; margin-top: 5px; display: none; }
@@ -69,20 +91,18 @@
   .field.invalid .err { display: block; }
 
   .btn {
-    appearance: none; border: none; cursor: pointer;
-    font-family: inherit; font-weight: 700; font-size: 15px;
-    padding: 13px 24px; border-radius: 10px;
-    background: var(--primary); color: #fff;
-    transition: transform .12s ease, background .15s ease, box-shadow .2s ease;
-    box-shadow: 0 4px 12px rgba(11, 79, 179, 0.2);
+    appearance: none; border: none; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 15px;
+    padding: 13px 24px; border-radius: 10px; background: var(--primary); color: #fff;
+    transition: 0.2s; box-shadow: 0 4px 12px rgba(11, 79, 179, 0.2);
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   }
   .btn:hover { background: var(--navy-2); }
-  .btn:active { transform: scale(.98); }
   .btn:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
-  .btn-ghost {
-    background: transparent; color: var(--navy-2); border: 1.5px solid var(--line); box-shadow: none;
-  }
+  .btn-ghost { background: transparent; color: var(--navy-2); border: 1.5px solid var(--line); box-shadow: none; }
   .btn-ghost:hover { background: #f1f5f9; }
+  .btn-danger { background: var(--d); box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2); }
+  .btn-danger:hover { background: #b91c1c; }
+
   .btn-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
   .btn-row.split { justify-content: space-between; }
 
@@ -93,264 +113,294 @@
     position: sticky; top: 0; background: rgba(248, 250, 252, 0.95); backdrop-filter: blur(5px); z-index: 5;
     padding: 12px 0 16px; margin-bottom: 12px;
   }
-  .progress-outer {
-    height: 10px; border-radius: 99px; background: var(--line); overflow: hidden;
-  }
-  .progress-inner {
-    height: 100%; background: linear-gradient(90deg, var(--primary), var(--navy-2));
-    width: 0%; transition: width .25s ease;
-  }
-  .progress-label {
-    display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-top: 8px; font-weight: 600;
-  }
+  .progress-outer { height: 10px; border-radius: 99px; background: var(--line); overflow: hidden; }
+  .progress-inner { height: 100%; background: linear-gradient(90deg, var(--primary), var(--navy-2)); width: 0%; transition: width .25s ease; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-top: 8px; font-weight: 600; }
 
   .qcard {
-    border: 1px solid var(--line); border-radius: 16px;
-    padding: 20px 20px 18px; margin-bottom: 16px; background: #fff;
+    border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin-bottom: 16px; background: #fff;
     box-shadow: 0 4px 12px rgba(0,0,0,0.02);
   }
   .qcard.answered { border-color: var(--primary); background: #f8fafc; }
   .qnum {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; border-radius: 50%;
-    background: var(--primary); color: #fff; font-size: 13px; font-weight: 800;
-    margin-inline-start: 8px;
+    display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px;
+    border-radius: 50%; background: var(--primary); color: #fff; font-size: 13px; font-weight: 800; margin-inline-start: 8px;
   }
   .qtext { font-size: 16px; font-weight: 700; color: var(--ink); margin: 2px 0 16px; text-align: right; }
   .scale { display: flex; gap: 8px; }
   .scale button {
-    flex: 1; padding: 12px 4px; border-radius: 10px; border: 1.5px solid var(--line);
-    background: #fff; cursor: pointer; font-weight: 700; font-size: 15px; color: var(--navy-2);
-    transition: all .15s ease; font-family: inherit;
+    flex: 1; padding: 12px 4px; border-radius: 10px; border: 1.5px solid var(--line); background: #fff;
+    cursor: pointer; font-weight: 700; font-size: 15px; color: var(--navy-2); transition: all .15s ease; font-family: inherit;
   }
   .scale button:hover { border-color: var(--primary); color: var(--primary); }
-  .scale button.sel {
-    background: var(--primary); border-color: var(--primary); color: #fff;
-    box-shadow: 0 4px 10px rgba(11, 79, 179, 0.3);
-  }
-  .scale-labels {
-    display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted);
-    margin-top: 8px; padding: 0 2px; font-weight: 600;
-  }
+  .scale button.sel { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(11, 79, 179, 0.3); }
+  .scale-labels { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); margin-top: 8px; font-weight: 600; }
 
   .quiz-footer {
     position: sticky; bottom: 0; background: rgba(248, 250, 252, 0.95); backdrop-filter: blur(5px);
-    padding: 16px 0; margin-top: 10px;
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    border-top: 1px solid var(--line);
+    padding: 16px 0; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line);
   }
-  .quiz-footer .status { font-size: 13px; color: var(--muted); font-weight: 600; }
 
   /* Results */
-  .badge-final {
-    display: flex; align-items: baseline; justify-content: center; gap: 4px;
-    margin: 8px 0 4px;
-  }
-  .badge-final .letter {
-    font-size: 64px; font-weight: 900; line-height: 1;
-    font-family: 'Segoe UI', sans-serif;
-  }
+  .badge-final { display: flex; align-items: baseline; justify-content: center; gap: 4px; margin: 8px 0 4px; }
+  .badge-final .letter { font-size: 64px; font-weight: 900; line-height: 1; font-family: 'Segoe UI', sans-serif; }
   .result-title { text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 2px; font-weight: 600; }
   .result-name { text-align: center; font-size: 16px; color: var(--primary); margin-bottom: 22px; font-weight: 800; }
 
   .bars { margin: 20px 0 10px; }
   .bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-  .bar-letter {
-    width: 36px; height: 36px; border-radius: 10px; color: #fff; font-weight: 800;
-    display: flex; align-items: center; justify-content: center; flex: none; font-size: 16px;
-  }
+  .bar-letter { width: 36px; height: 36px; border-radius: 10px; color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; flex: none; font-size: 16px; }
   .bar-track { flex: 1; height: 18px; border-radius: 99px; background: #e2e8f0; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 99px; width: 0%; transition: width .6s ease; }
   .bar-score { width: 34px; text-align: left; font-weight: 800; font-size: 14px; color: var(--primary); flex: none; }
 
-  .desc-box {
-    background: #f8fafc; border: 1px solid var(--line); border-radius: 14px;
-    padding: 18px; margin-top: 20px; font-size: 14.5px; color: var(--ink); text-align: right;
-  }
-
+  .desc-box { background: #f8fafc; border: 1px solid var(--line); border-radius: 14px; padding: 18px; margin-top: 20px; font-size: 14.5px; color: var(--ink); text-align: right; }
   .chip-row { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; justify-content: center; }
-  .chip {
-    font-size: 12px; padding: 6px 14px; border-radius: 99px; background: #f1f5f9;
-    border: 1px solid var(--line); color: var(--muted); font-weight: 600;
-  }
+  .chip { font-size: 12px; padding: 6px 14px; border-radius: 99px; background: #f1f5f9; border: 1px solid var(--line); color: var(--muted); font-weight: 600; }
 
-  footer.note { text-align: center; color: var(--muted); font-size: 12px; margin-top: 24px; font-weight: 600; }
+  /* Dashboard Table */
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: #f8fafc; border: 1px solid var(--line); border-radius: 14px; padding: 14px; text-align: center; }
+  .stat-card b { display: block; font-size: 22px; color: var(--primary); }
+  .stat-card span { font-size: 12px; color: var(--muted); font-weight: 700; }
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; max-height: 500px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  thead th { background: var(--primary); color: #fff; padding: 12px; text-align: right; font-weight: 700; position: sticky; top: 0; }
+  tbody td { padding: 12px; border-bottom: 1px solid var(--line); text-align: right; }
+  tbody tr:hover { background: #f8fafc; }
+  .pill { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 22px; padding: 0 6px; border-radius: 6px; color: #fff; font-weight: 800; font-size: 12px; }
 
   @media print {
-    .no-print { display: none !important; }
+    .no-print, .nav-tabs, #passwordOverlay { display: none !important; }
     body { background: #fff; }
     .card { box-shadow: none; border: none; }
   }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="brand">
-    <div>
+<!-- Password Lock Screen -->
+<div id="passwordOverlay">
+    <div class="auth-card">
+        <i class="fas fa-lock"></i>
+        <h3>أداة تقييم DISC</h3>
+        <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">منطقة محمية، أدخل كلمة السر للبدء</p>
+        <input type="password" id="passInput" placeholder="أدخل كلمة المرور" onkeydown="if(event.key==='Enter') checkAuth()">
+        <button class="btn" onclick="checkAuth()" style="width: 100%; margin-top: 15px;">دخول</button>
+    </div>
+</div>
+
+<!-- Main Secured App Content -->
+<div id="mainContent" class="hidden">
+  <div class="wrap">
+
+    <div class="brand">
       <div class="brand-name">الميثاق الذكي <span>| PRAXI Academy</span></div>
-      <div class="brand-tag">تقييم الأنماط السلوكية — DISC</div>
-    </div>
-  </div>
-
-  <!-- STAGE 1: DATA ENTRY -->
-  <div class="card" id="stage-intro">
-    <h1>قبل ما نبدأ</h1>
-    <p class="sub">من فضلك سجّل بياناتك، وبعدها هننتقل لأسئلة التقييم (44 سؤال، تجاوب عليهم من 1 لـ 5).</p>
-
-    <div class="field" id="f-name">
-      <label>الاسم</label>
-      <input type="text" id="in-name" placeholder="اكتب اسمك بالكامل">
-      <div class="err">من فضلك اكتب الاسم</div>
+      <button class="btn btn-ghost" onclick="lockApp()" style="padding: 6px 14px; font-size: 12px;"><i class="fas fa-sign-out-alt"></i> قفل</button>
     </div>
 
-    <div class="field" id="f-job">
-      <label>الوظيفة</label>
-      <input type="text" id="in-job" placeholder="المسمى الوظيفي الحالي">
-      <div class="err">من فضلك اكتب الوظيفة</div>
+    <!-- Top Navigation Tabs -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" id="tab-btn-quiz" onclick="switchTab('quiz')"><i class="fas fa-clipboard-list"></i> إجراء تقييم جديد</button>
+      <button class="tab-btn" id="tab-btn-dash" onclick="switchTab('dash')"><i class="fas fa-chart-pie"></i> لوحة النتائج المخزنة</button>
     </div>
 
-    <div class="field" id="f-email">
-      <label>البريد الإلكتروني</label>
-      <input type="email" id="in-email" placeholder="example@email.com">
-      <div class="err">من فضلك اكتب بريد إلكتروني صحيح</div>
-    </div>
+    <!-- TAB 1: ASSESSMENT TOOL -->
+    <div id="tab-quiz">
+      <!-- STAGE 1: INTRO FORM -->
+      <div class="card" id="stage-intro">
+        <h1>بيانات المشارك</h1>
+        <p class="sub">من فضلك سجل بياناتك للانتقال لأسئلة التقييم الـ 44.</p>
 
-    <div class="field" id="f-whats">
-      <label>رقم الواتس</label>
-      <input type="tel" id="in-whats" placeholder="01xxxxxxxxx">
-      <div class="err">من فضلك اكتب رقم واتس صحيح</div>
-    </div>
+        <div class="field" id="f-name">
+          <label>الاسم بالكامل</label>
+          <input type="text" id="in-name" placeholder="اكتب اسمك">
+          <div class="err">من فضلك اكتب الاسم</div>
+        </div>
 
-    <div class="btn-row">
-      <button class="btn" id="btn-start">الانتقال للمرحلة الثانية ←</button>
-    </div>
-  </div>
+        <div class="field" id="f-job">
+          <label>الوظيفة</label>
+          <input type="text" id="in-job" placeholder="المسمى الوظيفي">
+          <div class="err">من فضلك اكتب الوظيفة</div>
+        </div>
 
-  <!-- STAGE 2: QUIZ -->
-  <div class="hidden" id="stage-quiz">
-    <div class="qhead">
-      <div class="progress-outer"><div class="progress-inner" id="progress-bar"></div></div>
-      <div class="progress-label">
-        <span id="progress-text">0 / 44 تمت الإجابة عليها</span>
-        <span>تقييم الأنماط السلوكية DISC</span>
+        <div class="field" id="f-email">
+          <label>البريد الإلكتروني</label>
+          <input type="email" id="in-email" placeholder="example@email.com">
+          <div class="err">من فضلك اكتب بريد إلكتروني صحيح</div>
+        </div>
+
+        <div class="field" id="f-whats">
+          <label>رقم الواتس</label>
+          <input type="tel" id="in-whats" placeholder="01xxxxxxxxx">
+          <div class="err">من فضلك اكتب رقم واتس صحيح</div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn" id="btn-start">بدء التقييم ←</button>
+        </div>
+      </div>
+
+      <!-- STAGE 2: QUESTIONS -->
+      <div class="hidden" id="stage-quiz">
+        <div class="qhead">
+          <div class="progress-outer"><div class="progress-inner" id="progress-bar"></div></div>
+          <div class="progress-label">
+            <span id="progress-text">0 / 44 تمت الإجابة عليها</span>
+            <span>تقييم الأنماط السلوكية DISC</span>
+          </div>
+        </div>
+
+        <div id="questions-holder"></div>
+
+        <div class="quiz-footer">
+          <button class="btn btn-ghost no-print" id="btn-back-intro">رجوع</button>
+          <span class="status" id="status-text" style="font-size:12px;">جاوب على كل الأسئلة</span>
+          <button class="btn" id="btn-finish" disabled>عرض النتيجة</button>
+        </div>
+      </div>
+
+      <!-- STAGE 3: RESULTS -->
+      <div class="hidden" id="stage-results">
+        <div class="card">
+          <div class="result-title">النمط السلوكي الغالب حسب DISC</div>
+          <div class="badge-final" id="badge-final"></div>
+          <div class="result-name" id="result-name"></div>
+
+          <div class="bars" id="bars-holder"></div>
+          <div class="desc-box" id="desc-box"></div>
+
+          <div class="chip-row">
+            <div class="chip" id="chip-job"></div>
+            <div class="chip" id="chip-email"></div>
+            <div class="chip" id="chip-whats"></div>
+          </div>
+
+          <div class="btn-row split no-print" style="margin-top:22px;">
+            <button class="btn btn-ghost" id="btn-restart">بدء تقييم جديد</button>
+            <button class="btn" onclick="window.print()"><i class="fas fa-print"></i> طباعة النتيجة PDF</button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div id="questions-holder"></div>
+    <!-- TAB 2: ADMIN DASHBOARD -->
+    <div id="tab-dash" class="hidden">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h1>لوحة النتائج المخزنة</h1>
+            <p class="sub" style="margin:0;">قاعدة البيانات المحلية المسجلة من الأداة</p>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-ghost" onclick="exportCSV()"><i class="fas fa-file-excel"></i> تصدير Excel CSV</button>
+            <button class="btn btn-ghost" onclick="exportJSON()"><i class="fas fa-download"></i> نسخة احتياطية</button>
+            <button class="btn btn-danger" onclick="clearData()"><i class="fas fa-trash"></i> مسح البيانات</button>
+          </div>
+        </div>
 
-    <div class="quiz-footer">
-      <button class="btn btn-ghost no-print" id="btn-back-intro">رجوع</button>
-      <span class="status" id="status-text">جاوب على كل الأسئلة عشان تعرض النتيجة</span>
-      <button class="btn" id="btn-finish" disabled>عرض النتيجة</button>
-    </div>
-  </div>
+        <div class="stat-row" id="stat-row"></div>
 
-  <!-- STAGE 3: RESULTS -->
-  <div class="hidden" id="stage-results">
-    <div class="card">
-      <div class="result-title">النمط السلوكي الغالب حسب DISC</div>
-      <div class="badge-final" id="badge-final"></div>
-      <div class="result-name" id="result-name"></div>
-      <div style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:14px;" id="save-status"></div>
+        <div style="margin-bottom: 15px;">
+          <input type="text" id="in-search" placeholder="بحث بالاسم، الوظيفة، أو الإيميل..." oninput="renderDashboardTable()">
+        </div>
 
-      <div class="bars" id="bars-holder"></div>
-
-      <div class="desc-box" id="desc-box"></div>
-
-      <div class="chip-row">
-        <div class="chip" id="chip-job"></div>
-        <div class="chip" id="chip-email"></div>
-        <div class="chip" id="chip-whats"></div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>التاريخ</th>
+                <th>الاسم</th>
+                <th>الوظيفة</th>
+                <th>الإيميل</th>
+                <th>الواتس</th>
+                <th>D</th>
+                <th>I</th>
+                <th>S</th>
+                <th>C</th>
+                <th>النتيجة</th>
+              </tr>
+            </thead>
+            <tbody id="dash-tbody"></tbody>
+          </table>
+        </div>
       </div>
-
-      <div class="btn-row split no-print" style="margin-top:22px;">
-        <button class="btn btn-ghost" id="btn-restart">بدء تقييم جديد</button>
-        <button class="btn" id="btn-print">طباعة / حفظ النتيجة PDF</button>
-      </div>
     </div>
-    <footer class="note">مشروع الميثاق الذكي برعاية أكاديمية براكسي PRAXI</footer>
-  </div>
 
+  </div>
 </div>
 
 <script>
-(function(){
+  const AUTH_KEY = "Labeeb";
+  const STORAGE_KEY = "disc_results_db_v1";
 
-  // ضع رابط الـ Google Apps Script Web App الخاص بك هنا
-  var SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
-
-  function sendToBackend(payload){
-    if(!SCRIPT_URL || SCRIPT_URL.indexOf('PASTE_') === 0){
-      setSaveStatus('لم يتم حفظ النتيجة في قاعدة البيانات (الربط غير مفعّل بعد)', true);
-      return;
+  // Password Authentication
+  function checkAuth() {
+    if (document.getElementById('passInput').value === AUTH_KEY) {
+      document.getElementById('passwordOverlay').style.display = 'none';
+      document.getElementById('mainContent').classList.remove('hidden');
+      sessionStorage.setItem('disc_authed', 'true');
+      renderDashboardTable();
+    } else {
+      alert("كلمة المرور غير صحيحة!");
     }
-    setSaveStatus('جاري حفظ النتيجة...', false);
-    fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    }).then(function(res){ return res.json(); })
-      .then(function(data){
-        if(data && data.ok){ setSaveStatus('تم حفظ النتيجة بنجاح ✓', false); }
-        else { setSaveStatus('تعذر حفظ النتيجة في قاعدة البيانات', true); }
-      })
-      .catch(function(err){
-        setSaveStatus('تعذر حفظ النتيجة (تأكد من الاتصال بالإنترنت)', true);
-      });
   }
 
-  function setSaveStatus(text, isWarning){
-    var el = document.getElementById('save-status');
-    if(!el) return;
-    el.textContent = text;
-    el.style.color = isWarning ? 'var(--d)' : 'var(--muted)';
+  function lockApp() {
+    sessionStorage.removeItem('disc_authed');
+    location.reload();
   }
 
+  if(sessionStorage.getItem('disc_authed') === 'true') {
+    document.getElementById('passwordOverlay').style.display = 'none';
+    document.getElementById('mainContent').classList.remove('hidden');
+  }
+
+  // Navigation Tabs
+  function switchTab(tab) {
+    document.getElementById('tab-quiz').classList.toggle('hidden', tab !== 'quiz');
+    document.getElementById('tab-dash').classList.toggle('hidden', tab !== 'dash');
+    document.getElementById('tab-btn-quiz').classList.toggle('active', tab === 'quiz');
+    document.getElementById('tab-btn-dash').classList.toggle('active', tab === 'dash');
+    if(tab === 'dash') renderDashboardTable();
+  }
+
+  // Local Storage Functions
+  function getDB() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+    catch(e) { return []; }
+  }
+
+  function saveToDB(record) {
+    const db = getDB();
+    db.push(record);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  }
+
+  // Questions Data
   var QUESTIONS = [
-    "أنا شخص قيادي ومهتم بتحقيق نتائج ملموسة",
-    "بستمتع بالتعامل مع الناس ومقابلتهم",
-    "تصرفاتي ثابتة ويسهل على الآخرين توقعها",
-    "بحب الأعمال اللي فيها تواصل مباشر مع الناس",
-    "شخصيتي قوية ومؤثرة",
-    "الناس بتحبني وبتشوف فيا قائد",
-    "بفضّل الاستقرار في شغلانة واحدة بدل التنقل بين مهام كتير",
-    "عندي علاقات واسعة والناس بتحبني",
-    "بحب التحديات وبقبلها بسهولة",
-    "عندي مهارة في الكلام والإلقاء قدام الناس",
-    "صبور جدًا في الشغل اللي محتاج دقة وتفاصيل",
-    "مش بتضايق لو رئيسي بيراقب شغلي",
-    "بقرر بسرعة",
-    "بحفز الناس اللي حواليا",
-    "مش بحب التغيير الكتير في شغلي",
-    "بجيد في التعامل مع الناس والكلام معاهم",
-    "ممكن أكسر التعليمات لو الشغل يتطلب كده",
-    "بحقق إنتاج كبير وسريع من خلال تنظيم شغل الناس اللي حواليا",
-    "بخلص المهمة اللي في إيدي قبل ما أبدأ في تانية",
-    "العلاقات ورضا الناس أهم عندي من إنجاز المهام بسرعة",
-    "بحب أخد صلاحيات أكتر في شغلي",
-    "بترك انطباع كويس أول ما الناس تقابلني",
-    "ولائي عالي للجهة اللي بشتغل فيها وبدافع عنها",
-    "بطيع أوامر رؤسائي بسهولة",
-    "التغييرات الكبيرة مش بتضايقني",
-    "بحب أساعد غيري",
-    "مش بحب أستعجل في الشغل",
-    "بخاف من الغلط عشان محدش يزعل مني",
-    "بفضّل إني أدير الشغل وأوجه الناس",
-    "بفضّل إن الناس تشاركني في إدارة الشغل",
-    "هادئ وبقدر أهدي اللي حواليا",
-    "بقيّم شغلي وشغل غيري باستمرار",
-    "بحب الأنشطة الجماعية",
-    "بسمع لغيري باهتمام وحب",
-    "بحب إن التطور يكون تدريجي مش مفاجئ",
-    "بفكر بحرص عشان محافظش أخسر علاقاتي",
-    "بحل المشاكل حتى لو من غير مراعاة مشاعر التانيين",
-    "بخالف اللوائح بطريقة ذكية لو محتاج",
-    "حريص إني ألتزم بالأنظمة والقواعد",
-    "بتعامل بمرونة مع غيري",
-    "توجيهاتي لغيري واضحة ومباشرة",
-    "بقدر أحرك الناس من غير ما أدي أوامر واضحة",
-    "بفضّل الأنظمة الثابتة بدل الأوامر المباشرة",
-    "تنفيذ الأوامر مش بيضايقني"
+    "أنا شخص قيادي ومهتم بتحقيق نتائج ملموسة", "بستمتع بالتعامل مع الناس ومقابلتهم",
+    "تصرفاتي ثابتة ويسهل على الآخرين توقعها", "بحب الأعمال اللي فيها تواصل مباشر مع الناس",
+    "شخصيتي قوية ومؤثرة", "الناس بتحبني وبتشوف فيا قائد",
+    "بفضّل الاستقرار في شغلانة واحدة بدل التنقل بين مهام كتير", "عندي علاقات واسعة والناس بتحبني",
+    "بحب التحديات وبقبلها بسهولة", "عندي مهارة في الكلام والإلقاء قدام الناس",
+    "صبور جدًا في الشغل اللي محتاج دقة وتفاصيل", "مش بتضايق لو رئيسي بيراقب شغلي",
+    "بقرر بسرعة", "بحفز الناس اللي حواليا", "مش بحب التغيير الكتير في شغلي",
+    "بجيد في التعامل مع الناس والكلام معاهم", "ممكن أكسر التعليمات لو الشغل يتطلب كده",
+    "بحقق إنتاج كبير وسريع من خلال تنظيم شغل الناس اللي حواليا", "بخلص المهمة اللي في إيدي قبل ما أبدأ في تانية",
+    "العلاقات ورضا الناس أهم عندي من إنجاز المهام بسرعة", "بحب أخد صلاحيات أكتر في شغلي",
+    "بترك انطباع كويس أول ما الناس تقابلني", "ولائي عالي للجهة اللي بشتغل فيها وبدافع عنها",
+    "بطيع أوامر رؤسائي بسهولة", "التغييرات الكبيرة مش بتضايقني", "بحب أساعد غيري",
+    "مش بحب أستعجل في الشغل", "بخاف من الغلط عشان محدش يزعل مني",
+    "بفضّل إني أدير الشغل وأوجه الناس", "بفضّل إن الناس تشاركني في إدارة الشغل",
+    "هادئ وبقدر أهدي اللي حواليا", "بقيّم شغلي وشغل غيري باستمرار",
+    "بحب الأنشطة الجماعية", "بسمع لغيري باهتمام وحب",
+    "بحب إن التطور يكون تدريجي مش مفاجئ", "بفكر بحرص عشان محافظش أخسر علاقاتي",
+    "بحل المشاكل حتى لو من غير مراعاة مشاعر التانيين", "بخالف اللوائح بطريقة ذكية لو محتاج",
+    "حريص إني ألتزم بالأنظمة والقواعد", "بتعامل بمرونة مع غيري",
+    "توجيهاتي لغيري واضحة ومباشرة", "بقدر أحرك الناس من غير ما أدي أوامر واضحة",
+    "بفضّل الأنظمة الثابتة بدل الأوامر المباشرة", "تنفيذ الأوامر مش بيضايقني"
   ];
 
   var CAT_ORDER = ['D','I','S','C'];
@@ -363,16 +413,12 @@
     C: "شخصية دقيقة ومنظمة، بتحب الالتزام بالأنظمة والقواعد، وبتحرص على الجودة والتفاصيل قبل اتخاذ أي قرار."
   };
 
-  function categoryOf(index){ return CAT_ORDER[index % 4]; }
+  function categoryOf(idx) { return CAT_ORDER[idx % 4]; }
 
   var answers = {};
   var userInfo = {};
 
-  var stageIntro = document.getElementById('stage-intro');
-  var stageQuiz = document.getElementById('stage-quiz');
-  var stageResults = document.getElementById('stage-results');
-  var questionsHolder = document.getElementById('questions-holder');
-
+  // Form Validation
   function validateField(fieldId, inputId, validatorFn){
     var field = document.getElementById(fieldId);
     var input = document.getElementById(inputId);
@@ -382,10 +428,10 @@
   }
 
   document.getElementById('btn-start').addEventListener('click', function(){
-    var okName = validateField('f-name','in-name', function(v){ return v.length > 1; });
-    var okJob = validateField('f-job','in-job', function(v){ return v.length > 1; });
-    var okEmail = validateField('f-email','in-email', function(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); });
-    var okWhats = validateField('f-whats','in-whats', function(v){ return /^[0-9+\s]{8,}$/.test(v); });
+    var okName = validateField('f-name','in-name', v => v.length > 1);
+    var okJob = validateField('f-job','in-job', v => v.length > 1);
+    var okEmail = validateField('f-email','in-email', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
+    var okWhats = validateField('f-whats','in-whats', v => /^[0-9+\s]{8,}$/.test(v));
 
     if(!(okName && okJob && okEmail && okWhats)) return;
 
@@ -397,55 +443,43 @@
     };
 
     buildQuiz();
-    stageIntro.classList.add('hidden');
-    stageQuiz.classList.remove('hidden');
+    document.getElementById('stage-intro').classList.add('hidden');
+    document.getElementById('stage-quiz').classList.remove('hidden');
     window.scrollTo(0,0);
   });
 
   document.getElementById('btn-back-intro').addEventListener('click', function(){
-    stageQuiz.classList.add('hidden');
-    stageIntro.classList.remove('hidden');
-    window.scrollTo(0,0);
+    document.getElementById('stage-quiz').classList.add('hidden');
+    document.getElementById('stage-intro').classList.remove('hidden');
   });
 
   function buildQuiz(){
-    questionsHolder.innerHTML = '';
+    var holder = document.getElementById('questions-holder');
+    holder.innerHTML = '';
     QUESTIONS.forEach(function(text, idx){
       var card = document.createElement('div');
       card.className = 'qcard';
-      card.id = 'qcard-' + idx;
-
-      var qtext = document.createElement('div');
-      qtext.className = 'qtext';
-      qtext.innerHTML = '<span class="qnum">' + (idx+1) + '</span>' + text;
-      card.appendChild(qtext);
+      card.innerHTML = `<div class="qtext"><span class="qnum">${idx+1}</span>${text}</div>`;
 
       var scale = document.createElement('div');
       scale.className = 'scale';
       for(var v=1; v<=5; v++){
         (function(val){
           var b = document.createElement('button');
-          b.type = 'button';
-          b.textContent = val;
-          b.addEventListener('click', function(){
+          b.type = 'button'; b.textContent = val;
+          b.onclick = function(){
             answers[idx] = val;
-            var siblings = scale.querySelectorAll('button');
-            siblings.forEach(function(s){ s.classList.remove('sel'); });
+            scale.querySelectorAll('button').forEach(s => s.classList.remove('sel'));
             b.classList.add('sel');
             card.classList.add('answered');
             updateProgress();
-          });
+          };
           scale.appendChild(b);
         })(v);
       }
       card.appendChild(scale);
-
-      var labels = document.createElement('div');
-      labels.className = 'scale-labels';
-      labels.innerHTML = '<span>1 - أقل حاجة تشبهني</span><span>5 - أكتر حاجة تشبهني</span>';
-      card.appendChild(labels);
-
-      questionsHolder.appendChild(card);
+      card.innerHTML += `<div class="scale-labels"><span>1 - أقل حاجة تشبهني</span><span>5 - أكتر حاجة تشبهني</span></div>`;
+      holder.appendChild(card);
     });
     updateProgress();
   }
@@ -455,118 +489,125 @@
     var pct = Math.round((answered/44)*100);
     document.getElementById('progress-bar').style.width = pct + '%';
     document.getElementById('progress-text').textContent = answered + ' / 44 تمت الإجابة عليها';
-    var finishBtn = document.getElementById('btn-finish');
-    var statusText = document.getElementById('status-text');
-    if(answered === 44){
-      finishBtn.disabled = false;
-      statusText.textContent = 'تمام، كل الأسئلة اتجاوبت';
-    } else {
-      finishBtn.disabled = true;
-      statusText.textContent = 'باقي ' + (44-answered) + ' سؤال عشان تعرض النتيجة';
-    }
+    document.getElementById('btn-finish').disabled = (answered < 44);
   }
 
   document.getElementById('btn-finish').addEventListener('click', function(){
     if(Object.keys(answers).length < 44) return;
     computeResults();
-    stageQuiz.classList.add('hidden');
-    stageResults.classList.remove('hidden');
+    document.getElementById('stage-quiz').classList.add('hidden');
+    document.getElementById('stage-results').classList.remove('hidden');
     window.scrollTo(0,0);
   });
 
   function computeResults(){
     var totals = {D:0,I:0,S:0,C:0};
-    QUESTIONS.forEach(function(_, idx){
-      var cat = categoryOf(idx);
-      totals[cat] += answers[idx];
-    });
+    QUESTIONS.forEach(function(_, idx){ totals[categoryOf(idx)] += answers[idx]; });
 
-    var sorted = CAT_ORDER.slice().sort(function(a,b){ return totals[b]-totals[a]; });
+    var sorted = CAT_ORDER.slice().sort((a,b) => totals[b]-totals[a]);
     var top2 = sorted.slice(0,2);
 
-    var badge = document.getElementById('badge-final');
-    badge.innerHTML = '';
-    top2.forEach(function(cat){
-      var span = document.createElement('span');
-      span.className = 'letter';
-      span.style.color = CAT_COLOR[cat];
-      span.textContent = cat;
-      badge.appendChild(span);
-    });
+    document.getElementById('badge-final').innerHTML = top2.map(c => `<span class="letter" style="color:${CAT_COLOR[c]}">${c}</span>`).join('');
     document.getElementById('result-name').textContent = userInfo.name + ' — ' + userInfo.job;
 
     var barsHolder = document.getElementById('bars-holder');
     barsHolder.innerHTML = '';
-    var max = 55;
     sorted.forEach(function(cat){
-      var row = document.createElement('div');
-      row.className = 'bar-row';
-
-      var letter = document.createElement('div');
-      letter.className = 'bar-letter';
-      letter.style.background = CAT_COLOR[cat];
-      letter.textContent = cat;
-      row.appendChild(letter);
-
-      var track = document.createElement('div');
-      track.className = 'bar-track';
-      var fill = document.createElement('div');
-      fill.className = 'bar-fill';
-      fill.style.background = CAT_COLOR[cat];
-      track.appendChild(fill);
-      row.appendChild(track);
-
-      var score = document.createElement('div');
-      score.className = 'bar-score';
-      score.textContent = totals[cat];
-      row.appendChild(score);
-
-      barsHolder.appendChild(row);
-
-      setTimeout((function(f, val){
-        return function(){ f.style.width = Math.round((val/max)*100) + '%'; };
-      })(fill, totals[cat]), 60);
+      barsHolder.innerHTML += `
+        <div class="bar-row">
+          <div class="bar-letter" style="background:${CAT_COLOR[cat]}">${cat}</div>
+          <div class="bar-track"><div class="bar-fill" style="background:${CAT_COLOR[cat]}; width:${Math.round((totals[cat]/55)*100)}%"></div></div>
+          <div class="bar-score">${totals[cat]}</div>
+        </div>`;
     });
 
-    var descBox = document.getElementById('desc-box');
-    descBox.innerHTML = top2.map(function(cat){
-      return '<div style="margin-bottom:10px;"><b style="color:' + CAT_COLOR[cat] + '">' + cat + ' — ' + CAT_NAME[cat] + ':</b> ' + CAT_DESC[cat] + '</div>';
-    }).join('');
-
+    document.getElementById('desc-box').innerHTML = top2.map(c => `<div style="margin-bottom:10px;"><b style="color:${CAT_COLOR[c]}">${c} — ${CAT_NAME[c]}:</b> ${CAT_DESC[c]}</div>`).join('');
     document.getElementById('chip-job').textContent = userInfo.job;
     document.getElementById('chip-email').textContent = userInfo.email;
     document.getElementById('chip-whats').textContent = userInfo.whats;
 
-    sendToBackend({
+    // Save Record to Local Storage DB
+    saveToDB({
+      date: new Date().toISOString(),
       name: userInfo.name,
       job: userInfo.job,
       email: userInfo.email,
       whats: userInfo.whats,
-      D: totals.D,
-      I: totals.I,
-      S: totals.S,
-      C: totals.C,
+      D: totals.D, I: totals.I, S: totals.S, C: totals.C,
       topResult: top2.join('')
     });
   }
 
   document.getElementById('btn-restart').addEventListener('click', function(){
-    answers = {};
-    userInfo = {};
+    answers = {}; userInfo = {};
     document.getElementById('in-name').value = '';
     document.getElementById('in-job').value = '';
     document.getElementById('in-email').value = '';
     document.getElementById('in-whats').value = '';
-    stageResults.classList.add('hidden');
-    stageIntro.classList.remove('hidden');
-    window.scrollTo(0,0);
+    document.getElementById('stage-results').classList.add('hidden');
+    document.getElementById('stage-intro').classList.remove('hidden');
   });
 
-  document.getElementById('btn-print').addEventListener('click', function(){
-    window.print();
-  });
+  // Render Dashboard Table
+  function renderDashboardTable() {
+    const db = getDB();
+    const q = (document.getElementById('in-search') ? document.getElementById('in-search').value : '').toLowerCase();
+    const tbody = document.getElementById('dash-tbody');
+    const filtered = db.filter(r => (r.name + ' ' + r.job + ' ' + r.email).toLowerCase().includes(q));
 
-})();
+    tbody.innerHTML = filtered.map(r => `
+      <tr>
+        <td>${new Date(r.date).toLocaleDateString('ar-EG')}</td>
+        <td><b>${r.name}</b></td>
+        <td>${r.job}</td>
+        <td>${r.email}</td>
+        <td>${r.whats}</td>
+        <td>${r.D}</td>
+        <td>${r.I}</td>
+        <td>${r.S}</td>
+        <td>${r.C}</td>
+        <td>${r.topResult.split('').map(l => `<span class="pill" style="background:${CAT_COLOR[l]||'#999'}">${l}</span>`).join(' ')}</td>
+      </tr>
+    `).join('');
+
+    // Update Stats
+    const counts = {D:0,I:0,S:0,C:0};
+    db.forEach(r => r.topResult.split('').forEach(l => counts[l]=(counts[l]||0)+1));
+    document.getElementById('stat-row').innerHTML = `
+      <div class="stat-card"><b>${db.length}</b><span>الإجمالي</span></div>
+      <div class="stat-card"><b style="color:var(--d)">${counts.D||0}</b><span>Dominance (D)</span></div>
+      <div class="stat-card"><b style="color:var(--i)">${counts.I||0}</b><span>Influence (I)</span></div>
+      <div class="stat-card"><b style="color:var(--s)">${counts.S||0}</b><span>Steadiness (S)</span></div>
+      <div class="stat-card"><b style="color:var(--c)">${counts.C||0}</b><span>Compliance (C)</span></div>
+    `;
+  }
+
+  // Export Data Functions
+  function exportCSV() {
+    const db = getDB();
+    if(!db.length) return alert('لا توجد بيانات لتصديرها');
+    let csv = "\uFEFFالتاريخ,الاسم,الوظيفة,الإيميل,الواتس,D,I,S,C,النتيجة\n";
+    db.forEach(r => {
+      csv += `"${new Date(r.date).toLocaleString()}","${r.name}","${r.job}","${r.email}","${r.whats}",${r.D},${r.I},${r.S},${r.C},"${r.topResult}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'disc_results_db.csv'; a.click();
+  }
+
+  function exportJSON() {
+    const db = getDB();
+    const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'disc_backup.json'; a.click();
+  }
+
+  function clearData() {
+    if(confirm('هل أنت متأكد من مسح جميع النتائج المسجلة من الجهاز؟')) {
+      localStorage.removeItem(STORAGE_KEY);
+      renderDashboardTable();
+    }
+  }
 </script>
 </body>
 </html>
