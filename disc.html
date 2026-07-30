@@ -31,26 +31,6 @@
     line-height: 1.7;
   }
 
-  /* --- Password Protection Overlay --- */
-  #passwordOverlay {
-    position: fixed; inset: 0;
-    background: rgba(11, 79, 179, 0.15);
-    backdrop-filter: blur(15px);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 10000;
-  }
-  .auth-card {
-    background: var(--card); padding: 40px 30px; border-radius: 24px;
-    box-shadow: 0 10px 35px rgba(0,0,0,0.1); width: 90%; max-width: 380px; text-align: center;
-    border: 1px solid var(--line);
-  }
-  .auth-card i { font-size: 3rem; color: var(--primary); margin-bottom: 15px; }
-  .auth-card h3 { margin: 0 0 10px; color: var(--primary); font-weight: 800; }
-  .auth-card input {
-    width: 100%; padding: 12px; border: 1.5px solid var(--line); border-radius: 12px;
-    outline: none; text-align: center; font-size: 16px; margin-top: 10px;
-  }
-
   .wrap { max-width: 1000px; margin: 0 auto; padding: 20px 18px 80px; }
 
   .brand {
@@ -80,7 +60,7 @@
 
   .field { margin-bottom: 18px; text-align: right; }
   label { display: block; font-size: 13.5px; font-weight: 700; color: var(--navy-2); margin-bottom: 6px; }
-  input[type=text], input[type=email], input[type=tel] {
+  input[type=text], input[type=email], input[type=tel], input[type=password] {
     width: 100%; padding: 12px 14px; border-radius: 10px; border: 1.5px solid var(--line);
     font-size: 15px; background: #FCFBF9; color: var(--ink); font-family: inherit; transition: 0.3s;
   }
@@ -170,6 +150,22 @@
   tbody tr:hover { background: #f8fafc; }
   .pill { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 22px; padding: 0 6px; border-radius: 6px; color: #fff; font-weight: 800; font-size: 12px; }
 
+  /* Password Overlay for Dashboard only */
+  #passwordOverlay {
+    position: fixed; inset: 0;
+    background: rgba(11, 79, 179, 0.2);
+    backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 10000;
+  }
+  .auth-card {
+    background: var(--card); padding: 35px 25px; border-radius: 20px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.15); width: 90%; max-width: 360px; text-align: center;
+    border: 1px solid var(--line);
+  }
+  .auth-card i { font-size: 2.8rem; color: var(--primary); margin-bottom: 12px; }
+  .auth-card h3 { margin: 0 0 8px; color: var(--primary); font-weight: 800; }
+
   @media print {
     .no-print, .nav-tabs, #passwordOverlay { display: none !important; }
     body { background: #fff; }
@@ -179,187 +175,198 @@
 </head>
 <body>
 
-<!-- Password Lock Screen -->
-<div id="passwordOverlay">
+<!-- Dashboard Password Modal (Hidden by Default) -->
+<div id="passwordOverlay" class="hidden">
     <div class="auth-card">
-        <i class="fas fa-lock"></i>
-        <h3>أداة تقييم DISC</h3>
-        <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">منطقة محمية، أدخل كلمة السر للبدء</p>
-        <input type="password" id="passInput" placeholder="أدخل كلمة المرور" onkeydown="if(event.key==='Enter') checkAuth()">
-        <button class="btn" onclick="checkAuth()" style="width: 100%; margin-top: 15px;">دخول</button>
+        <i class="fas fa-user-shield"></i>
+        <h3>لوحة التحكم المحمية</h3>
+        <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">أدخل كلمة المرور لاستعراض سجل نتائج DISC</p>
+        <input type="password" id="passInput" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter') checkAuth()">
+        <div style="display: flex; gap: 8px; margin-top: 15px;">
+          <button class="btn" onclick="checkAuth()" style="flex: 1;">دخول</button>
+          <button class="btn btn-ghost" onclick="closeAuthModal()" style="padding: 10px 15px;">إلغاء</button>
+        </div>
     </div>
 </div>
 
-<!-- Main Secured App Content -->
-<div id="mainContent" class="hidden">
-  <div class="wrap">
+<div class="wrap">
 
-    <div class="brand">
-      <div class="brand-name">الميثاق الذكي <span>| PRAXI Academy</span></div>
-      <button class="btn btn-ghost" onclick="lockApp()" style="padding: 6px 14px; font-size: 12px;"><i class="fas fa-sign-out-alt"></i> قفل</button>
-    </div>
-
-    <!-- Navigation Tabs -->
-    <div class="nav-tabs">
-      <button class="tab-btn active" id="tab-btn-quiz" onclick="switchTab('quiz')"><i class="fas fa-clipboard-list"></i> إجراء تقييم جديد</button>
-      <button class="tab-btn" id="tab-btn-dash" onclick="switchTab('dash')"><i class="fas fa-chart-pie"></i> لوحة النتائج المخزنة</button>
-    </div>
-
-    <!-- TAB 1: ASSESSMENT TOOL -->
-    <div id="tab-quiz">
-      <div class="card" id="stage-intro">
-        <h1>بيانات المشارك</h1>
-        <p class="sub">من فضلك سجل بياناتك للانتقال لأسئلة التقييم الـ 44.</p>
-
-        <div class="field" id="f-name">
-          <label>الاسم بالكامل</label>
-          <input type="text" id="in-name" placeholder="اكتب اسمك">
-          <div class="err">من فضلك اكتب الاسم</div>
-        </div>
-
-        <div class="field" id="f-job">
-          <label>الوظيفة</label>
-          <input type="text" id="in-job" placeholder="المسمى الوظيفي">
-          <div class="err">من فضلك اكتب الوظيفة</div>
-        </div>
-
-        <div class="field" id="f-email">
-          <label>البريد الإلكتروني</label>
-          <input type="email" id="in-email" placeholder="example@email.com">
-          <div class="err">من فضلك اكتب بريد إلكتروني صحيح</div>
-        </div>
-
-        <div class="field" id="f-whats">
-          <label>رقم الواتس</label>
-          <input type="tel" id="in-whats" placeholder="01xxxxxxxxx">
-          <div class="err">من فضلك اكتب رقم واتس صحيح</div>
-        </div>
-
-        <div class="btn-row">
-          <button class="btn" id="btn-start">بدء التقييم ←</button>
-        </div>
-      </div>
-
-      <div class="hidden" id="stage-quiz">
-        <div class="qhead">
-          <div class="progress-outer"><div class="progress-inner" id="progress-bar"></div></div>
-          <div class="progress-label">
-            <span id="progress-text">0 / 44 تمت الإجابة عليها</span>
-            <span>تقييم الأنماط السلوكية DISC</span>
-          </div>
-        </div>
-
-        <div id="questions-holder"></div>
-
-        <div class="quiz-footer">
-          <button class="btn btn-ghost no-print" id="btn-back-intro">رجوع</button>
-          <span class="status" id="status-text" style="font-size:12px;">جاوب على كل الأسئلة</span>
-          <button class="btn" id="btn-finish" disabled>عرض النتيجة</button>
-        </div>
-      </div>
-
-      <div class="hidden" id="stage-results">
-        <div class="card">
-          <div class="result-title">النمط السلوكي الغالب حسب DISC</div>
-          <div class="badge-final" id="badge-final"></div>
-          <div class="result-name" id="result-name"></div>
-
-          <div class="bars" id="bars-holder"></div>
-          <div class="desc-box" id="desc-box"></div>
-
-          <div class="chip-row">
-            <div class="chip" id="chip-job"></div>
-            <div class="chip" id="chip-email"></div>
-            <div class="chip" id="chip-whats"></div>
-          </div>
-
-          <div class="btn-row split no-print" style="margin-top:22px;">
-            <button class="btn btn-ghost" id="btn-restart">بدء تقييم جديد</button>
-            <button class="btn" onclick="window.print()"><i class="fas fa-print"></i> طباعة النتيجة PDF</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 2: DASHBOARD -->
-    <div id="tab-dash" class="hidden">
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
-          <div>
-            <h1>لوحة النتائج المخزنة</h1>
-            <p class="sub" style="margin:0;">قاعدة البيانات المحلية المسجلة من الأداة</p>
-          </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn btn-ghost" onclick="exportCSV()"><i class="fas fa-file-excel"></i> تصدير Excel CSV</button>
-            <button class="btn btn-ghost" onclick="exportJSON()"><i class="fas fa-download"></i> نسخة احتياطية</button>
-            <button class="btn btn-danger" onclick="clearData()"><i class="fas fa-trash"></i> مسح البيانات</button>
-          </div>
-        </div>
-
-        <div class="stat-row" id="stat-row"></div>
-
-        <div style="margin-bottom: 15px;">
-          <input type="text" id="in-search" placeholder="بحث بالاسم، الوظيفة، أو الإيميل..." oninput="renderDashboardTable()">
-        </div>
-
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>التاريخ</th>
-                <th>الاسم</th>
-                <th>الوظيفة</th>
-                <th>الإيميل</th>
-                <th>الواتس</th>
-                <th>D</th>
-                <th>I</th>
-                <th>S</th>
-                <th>C</th>
-                <th>النتيجة</th>
-              </tr>
-            </thead>
-            <tbody id="dash-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
+  <div class="brand">
+    <div class="brand-name">الميثاق الذكي <span>| PRAXI Academy</span></div>
   </div>
+
+  <!-- Navigation Tabs -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" id="tab-btn-quiz" onclick="switchTab('quiz')"><i class="fas fa-clipboard-list"></i> إجراء تقييم جديد (مفتوح)</button>
+    <button class="tab-btn" id="tab-btn-dash" onclick="switchTab('dash')"><i class="fas fa-lock"></i> لوحة النتائج (خاص بالإدارة)</button>
+  </div>
+
+  <!-- TAB 1: ASSESSMENT TOOL (OPEN TO ALL) -->
+  <div id="tab-quiz">
+    <div class="card" id="stage-intro">
+      <h1>بيانات المشارك</h1>
+      <p class="sub">سجل بياناتك للبدء مباشرة في تقييم الأنماط السلوكية (44 سؤالاً).</p>
+
+      <div class="field" id="f-name">
+        <label>الاسم بالكامل</label>
+        <input type="text" id="in-name" placeholder="اكتب اسمك">
+        <div class="err">من فضلك اكتب الاسم</div>
+      </div>
+
+      <div class="field" id="f-job">
+        <label>الوظيفة</label>
+        <input type="text" id="in-job" placeholder="المسمى الوظيفي">
+        <div class="err">من فضلك اكتب الوظيفة</div>
+      </div>
+
+      <div class="field" id="f-email">
+        <label>البريد الإلكتروني</label>
+        <input type="email" id="in-email" placeholder="example@email.com">
+        <div class="err">من فضلك اكتب بريد إلكتروني صحيح</div>
+      </div>
+
+      <div class="field" id="f-whats">
+        <label>رقم الواتس</label>
+        <input type="tel" id="in-whats" placeholder="01xxxxxxxxx">
+        <div class="err">من فضلك اكتب رقم واتس صحيح</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" id="btn-start">بدء التقييم ←</button>
+      </div>
+    </div>
+
+    <div class="hidden" id="stage-quiz">
+      <div class="qhead">
+        <div class="progress-outer"><div class="progress-inner" id="progress-bar"></div></div>
+        <div class="progress-label">
+          <span id="progress-text">0 / 44 تمت الإجابة عليها</span>
+          <span>تقييم الأنماط السلوكية DISC</span>
+        </div>
+      </div>
+
+      <div id="questions-holder"></div>
+
+      <div class="quiz-footer">
+        <button class="btn btn-ghost no-print" id="btn-back-intro">رجوع</button>
+        <span class="status" id="status-text" style="font-size:12px;">جاوب على كل الأسئلة</span>
+        <button class="btn" id="btn-finish" disabled>عرض النتيجة</button>
+      </div>
+    </div>
+
+    <div class="hidden" id="stage-results">
+      <div class="card">
+        <div class="result-title">النمط السلوكي الغالب حسب DISC</div>
+        <div class="badge-final" id="badge-final"></div>
+        <div class="result-name" id="result-name"></div>
+
+        <div class="bars" id="bars-holder"></div>
+        <div class="desc-box" id="desc-box"></div>
+
+        <div class="chip-row">
+          <div class="chip" id="chip-job"></div>
+          <div class="chip" id="chip-email"></div>
+          <div class="chip" id="chip-whats"></div>
+        </div>
+
+        <div class="btn-row split no-print" style="margin-top:22px;">
+          <button class="btn btn-ghost" id="btn-restart">بدء تقييم جديد</button>
+          <button class="btn" onclick="window.print()"><i class="fas fa-print"></i> طباعة النتيجة PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: DASHBOARD (PROTECTED BY PASSWORD) -->
+  <div id="tab-dash" class="hidden">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+        <div>
+          <h1>لوحة التحكم والنتائج المسجلة</h1>
+          <p class="sub" style="margin:0;">السجل الكامل للتقييمات المحفوظة</p>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-ghost" onclick="exportCSV()"><i class="fas fa-file-excel"></i> تصدير Excel CSV</button>
+          <button class="btn btn-ghost" onclick="exportJSON()"><i class="fas fa-download"></i> نسخة احتياطية</button>
+          <button class="btn btn-ghost" onclick="lockDash()"><i class="fas fa-lock"></i> قفل اللوحة</button>
+          <button class="btn btn-danger" onclick="clearData()"><i class="fas fa-trash"></i> مسح البيانات</button>
+        </div>
+      </div>
+
+      <div class="stat-row" id="stat-row"></div>
+
+      <div style="margin-bottom: 15px;">
+        <input type="text" id="in-search" placeholder="بحث بالاسم، الوظيفة، أو الإيميل..." oninput="renderDashboardTable()">
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>التاريخ</th>
+              <th>الاسم</th>
+              <th>الوظيفة</th>
+              <th>الإيميل</th>
+              <th>الواتس</th>
+              <th>D</th>
+              <th>I</th>
+              <th>S</th>
+              <th>C</th>
+              <th>النتيجة</th>
+            </tr>
+          </thead>
+          <tbody id="dash-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
   const AUTH_KEY = "Labeeb";
   const STORAGE_KEY = "disc_results_db_v1";
 
+  // Tab Switcher & Authentication Check
+  function switchTab(tab) {
+    if (tab === 'dash') {
+      const isAuthed = sessionStorage.getItem('disc_authed') === 'true';
+      if (!isAuthed) {
+        document.getElementById('passwordOverlay').classList.remove('hidden');
+        document.getElementById('passInput').focus();
+        return;
+      }
+      renderDashboardTable();
+    }
+    
+    document.getElementById('tab-quiz').classList.toggle('hidden', tab !== 'quiz');
+    document.getElementById('tab-dash').classList.toggle('hidden', tab !== 'dash');
+    document.getElementById('tab-btn-quiz').classList.toggle('active', tab === 'quiz');
+    document.getElementById('tab-btn-dash').classList.toggle('active', tab === 'dash');
+  }
+
   function checkAuth() {
     if (document.getElementById('passInput').value === AUTH_KEY) {
-      document.getElementById('passwordOverlay').style.display = 'none';
-      document.getElementById('mainContent').classList.remove('hidden');
       sessionStorage.setItem('disc_authed', 'true');
-      renderDashboardTable();
+      document.getElementById('passwordOverlay').classList.add('hidden');
+      document.getElementById('passInput').value = '';
+      switchTab('dash');
     } else {
       alert("كلمة المرور غير صحيحة!");
     }
   }
 
-  function lockApp() {
+  function closeAuthModal() {
+    document.getElementById('passwordOverlay').classList.add('hidden');
+    document.getElementById('passInput').value = '';
+  }
+
+  function lockDash() {
     sessionStorage.removeItem('disc_authed');
-    location.reload();
+    switchTab('quiz');
   }
 
-  if(sessionStorage.getItem('disc_authed') === 'true') {
-    document.getElementById('passwordOverlay').style.display = 'none';
-    document.getElementById('mainContent').classList.remove('hidden');
-  }
-
-  function switchTab(tab) {
-    document.getElementById('tab-quiz').classList.toggle('hidden', tab !== 'quiz');
-    document.getElementById('tab-dash').classList.toggle('hidden', tab !== 'dash');
-    document.getElementById('tab-btn-quiz').classList.toggle('active', tab === 'quiz');
-    document.getElementById('tab-btn-dash').classList.toggle('active', tab === 'dash');
-    if(tab === 'dash') renderDashboardTable();
-  }
-
+  // Database Handling
   function getDB() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
     catch(e) { return []; }
@@ -371,6 +378,7 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
   }
 
+  // Quiz Questions
   var QUESTIONS = [
     "أنا شخص قيادي ومهتم بتحقيق نتائج ملموسة", "بستمتع بالتعامل مع الناس ومقابلتهم",
     "تصرفاتي ثابتة ويسهل على الآخرين توقعها", "بحب الأعمال اللي فيها تواصل مباشر مع الناس",
