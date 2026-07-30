@@ -53,7 +53,6 @@
 
   .wrap { max-width: 1000px; margin: 0 auto; padding: 20px 18px 80px; }
 
-  /* Header & Navigation */
   .brand {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
@@ -200,7 +199,7 @@
       <button class="btn btn-ghost" onclick="lockApp()" style="padding: 6px 14px; font-size: 12px;"><i class="fas fa-sign-out-alt"></i> قفل</button>
     </div>
 
-    <!-- Top Navigation Tabs -->
+    <!-- Navigation Tabs -->
     <div class="nav-tabs">
       <button class="tab-btn active" id="tab-btn-quiz" onclick="switchTab('quiz')"><i class="fas fa-clipboard-list"></i> إجراء تقييم جديد</button>
       <button class="tab-btn" id="tab-btn-dash" onclick="switchTab('dash')"><i class="fas fa-chart-pie"></i> لوحة النتائج المخزنة</button>
@@ -208,7 +207,6 @@
 
     <!-- TAB 1: ASSESSMENT TOOL -->
     <div id="tab-quiz">
-      <!-- STAGE 1: INTRO FORM -->
       <div class="card" id="stage-intro">
         <h1>بيانات المشارك</h1>
         <p class="sub">من فضلك سجل بياناتك للانتقال لأسئلة التقييم الـ 44.</p>
@@ -242,7 +240,6 @@
         </div>
       </div>
 
-      <!-- STAGE 2: QUESTIONS -->
       <div class="hidden" id="stage-quiz">
         <div class="qhead">
           <div class="progress-outer"><div class="progress-inner" id="progress-bar"></div></div>
@@ -261,7 +258,6 @@
         </div>
       </div>
 
-      <!-- STAGE 3: RESULTS -->
       <div class="hidden" id="stage-results">
         <div class="card">
           <div class="result-title">النمط السلوكي الغالب حسب DISC</div>
@@ -285,7 +281,7 @@
       </div>
     </div>
 
-    <!-- TAB 2: ADMIN DASHBOARD -->
+    <!-- TAB 2: DASHBOARD -->
     <div id="tab-dash" class="hidden">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
@@ -335,7 +331,6 @@
   const AUTH_KEY = "Labeeb";
   const STORAGE_KEY = "disc_results_db_v1";
 
-  // Password Authentication
   function checkAuth() {
     if (document.getElementById('passInput').value === AUTH_KEY) {
       document.getElementById('passwordOverlay').style.display = 'none';
@@ -357,7 +352,6 @@
     document.getElementById('mainContent').classList.remove('hidden');
   }
 
-  // Navigation Tabs
   function switchTab(tab) {
     document.getElementById('tab-quiz').classList.toggle('hidden', tab !== 'quiz');
     document.getElementById('tab-dash').classList.toggle('hidden', tab !== 'dash');
@@ -366,7 +360,6 @@
     if(tab === 'dash') renderDashboardTable();
   }
 
-  // Local Storage Functions
   function getDB() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
     catch(e) { return []; }
@@ -378,7 +371,6 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
   }
 
-  // Questions Data
   var QUESTIONS = [
     "أنا شخص قيادي ومهتم بتحقيق نتائج ملموسة", "بستمتع بالتعامل مع الناس ومقابلتهم",
     "تصرفاتي ثابتة ويسهل على الآخرين توقعها", "بحب الأعمال اللي فيها تواصل مباشر مع الناس",
@@ -418,7 +410,6 @@
   var answers = {};
   var userInfo = {};
 
-  // Form Validation
   function validateField(fieldId, inputId, validatorFn){
     var field = document.getElementById(fieldId);
     var input = document.getElementById(inputId);
@@ -526,7 +517,6 @@
     document.getElementById('chip-email').textContent = userInfo.email;
     document.getElementById('chip-whats').textContent = userInfo.whats;
 
-    // Save Record to Local Storage DB
     saveToDB({
       date: new Date().toISOString(),
       name: userInfo.name,
@@ -548,7 +538,6 @@
     document.getElementById('stage-intro').classList.remove('hidden');
   });
 
-  // Render Dashboard Table
   function renderDashboardTable() {
     const db = getDB();
     const q = (document.getElementById('in-search') ? document.getElementById('in-search').value : '').toLowerCase();
@@ -570,7 +559,6 @@
       </tr>
     `).join('');
 
-    // Update Stats
     const counts = {D:0,I:0,S:0,C:0};
     db.forEach(r => r.topResult.split('').forEach(l => counts[l]=(counts[l]||0)+1));
     document.getElementById('stat-row').innerHTML = `
@@ -582,7 +570,6 @@
     `;
   }
 
-  // Export Data Functions
   function exportCSV() {
     const db = getDB();
     if(!db.length) return alert('لا توجد بيانات لتصديرها');
