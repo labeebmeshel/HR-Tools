@@ -50,6 +50,12 @@
 
         .page-frame { width: 100%; height: calc(100vh - 60px); border: none; display: none; }
         .page-frame.active { display: block; }
+
+        @media (max-width: 768px) {
+            .nav-bar { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; padding: 4px; }
+            .nav-btn { padding: 10px 12px; font-size: 0.85rem; }
+            .dropdown-content { position: fixed; right: 10px; left: 10px; width: auto; }
+        }
     </style>
 </head>
 <body>
