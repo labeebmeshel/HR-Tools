@@ -87,7 +87,7 @@
 
   .hidden { display: none !important; }
 
-  /* Quiz Style */
+  /* Quiz Style & Selection Fix */
   .qhead {
     position: sticky; top: 0; background: rgba(248, 250, 252, 0.95); backdrop-filter: blur(5px); z-index: 5;
     padding: 12px 0 16px; margin-bottom: 12px;
@@ -107,7 +107,6 @@
   }
   .qtext { font-size: 16px; font-weight: 700; color: var(--ink); margin: 2px 0 16px; text-align: right; }
   
-  /* Scale Buttons Logic Fix */
   .scale { display: flex; gap: 8px; }
   .scale .opt-btn {
     flex: 1; padding: 12px 4px; border-radius: 10px; border: 1.5px solid var(--line); background: #fff;
@@ -151,6 +150,15 @@
   tbody td { padding: 12px; border-bottom: 1px solid var(--line); text-align: right; }
   tbody tr:hover { background: #f8fafc; }
   .pill { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 22px; padding: 0 6px; border-radius: 6px; color: #fff; font-weight: 800; font-size: 12px; }
+
+  /* Mobile Optimization */
+  @media (max-width: 600px) {
+    .wrap { padding: 10px 10px 60px; }
+    .card { padding: 20px 15px; }
+    .scale { gap: 4px; }
+    .scale .opt-btn { padding: 10px 2px; font-size: 14px; }
+    .table-scroll { font-size: 11.5px; }
+  }
 
   /* Password Overlay */
   #passwordOverlay {
