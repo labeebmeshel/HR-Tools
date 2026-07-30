@@ -86,7 +86,6 @@
             margin-top: 20px;
         }
         
-        /* التعديل هنا ليدعم الإخفاء */
         .tool-card {
             background: var(--white);
             padding: 30px 15px;
@@ -97,7 +96,7 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid rgba(255,255,255,0.8);
             cursor: pointer;
-            display: block; /* القيمة الافتراضية */
+            display: block;
         }
 
         .tool-card.hidden {
@@ -137,7 +136,7 @@
             position: relative;
         }
 
-        /* --- تصميم لوحة التحكم --- */
+        /* --- لوحة التحكم --- */
         #adminPanel {
             display: none;
             position: fixed;
@@ -227,6 +226,13 @@
                     <span>قياس الأداء</span>
                     <p>Performance Feedback</p>
                 </div>
+
+                <!-- زر أداة تحليل الشخصية الجديد -->
+                <div class="tool-card" id="tool-disc" onclick="window.parent.loadPage(null, 'disc-frame', 6)">
+                    <i class="fas fa-user-gear"></i>
+                    <span>تحليل الشخصية</span>
+                    <p>DISC Assessment</p>
+                </div>
             </div>
         </div>
     </div>
@@ -255,6 +261,10 @@
             <span>قياس الأداء</span>
             <input type="checkbox" checked onchange="toggleTool('tool-feedback', this.checked)">
         </div>
+        <div class="admin-item">
+            <span>تحليل الشخصية</span>
+            <input type="checkbox" checked onchange="toggleTool('tool-disc', this.checked)">
+        </div>
         
         <button class="admin-close" onclick="closeAdmin()">إغلاق وحفظ</button>
     </div>
@@ -264,10 +274,8 @@
     </footer>
 
     <script>
-        // كلمة السر
         const ADMIN_PASS = "1234";
 
-        // وظيفة فتح لوحة التحكم
         function openAdmin() {
             let pass = prompt("أدخل كلمة المرور للدخول للوحة التحكم:");
             if (pass === ADMIN_PASS) {
@@ -284,42 +292,42 @@
             document.getElementById('overlay').style.display = 'none';
         }
 
-        // إخفاء وإظهار الأدوات
         function toggleTool(toolId, isVisible) {
             const tool = document.getElementById(toolId);
-            if (isVisible) {
-                tool.classList.remove('hidden');
-                localStorage.setItem(toolId, 'visible');
-            } else {
-                tool.classList.add('hidden');
-                localStorage.setItem(toolId, 'hidden');
+            if (tool) {
+                if (isVisible) {
+                    tool.classList.remove('hidden');
+                    localStorage.setItem(toolId, 'visible');
+                } else {
+                    tool.classList.add('hidden');
+                    localStorage.setItem(toolId, 'hidden');
+                }
             }
         }
 
-        // تحميل الإعدادات المحفوظة عند فتح الصفحة
         function loadSettings() {
-            const tools = ['tool-cv', 'tool-tax', 'tool-s1', 'tool-tafqit', 'tool-feedback'];
+            const tools = ['tool-cv', 'tool-tax', 'tool-s1', 'tool-tafqit', 'tool-feedback', 'tool-disc'];
             tools.forEach(id => {
                 const status = localStorage.getItem(id);
                 if (status === 'hidden') {
-                    document.getElementById(id).classList.add('hidden');
+                    const el = document.getElementById(id);
+                    if (el) el.classList.add('hidden');
                 }
             });
         }
 
-        // مزامنة الشيك بوكس مع الحالة الحالية
         function syncCheckboxes() {
-            const tools = ['tool-cv', 'tool-tax', 'tool-s1', 'tool-tafqit', 'tool-feedback'];
+            const tools = ['tool-cv', 'tool-tax', 'tool-s1', 'tool-tafqit', 'tool-feedback', 'tool-disc'];
             const checkboxes = document.querySelectorAll('#adminPanel input[type="checkbox"]');
             tools.forEach((id, index) => {
                 const status = localStorage.getItem(id);
-                checkboxes[index].checked = (status !== 'hidden');
+                if (checkboxes[index]) {
+                    checkboxes[index].checked = (status !== 'hidden');
+                }
             });
         }
 
-        // تشغيل التحميل عند البداية
         window.onload = loadSettings;
     </script>
-
 </body>
 </html>
