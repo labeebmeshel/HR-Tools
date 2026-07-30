@@ -12,7 +12,7 @@
         .nav-btn { flex: 1; padding: 15px; border: none; background: none; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem; border-radius: 8px; white-space: nowrap; text-align: center; }
         .nav-btn.active { background: white; color: var(--primary); }
 
-        /* ===== تنسيق القائمة المنسدلة (Dropdown) ===== */
+        /* ===== القائمة المنسدلة ===== */
         .dropdown { position: relative; flex: 1; display: flex; }
         .dropdown-content {
             display: none;
@@ -44,7 +44,6 @@
         .dropdown-content button:hover { background-color: #f1f5f9; color: var(--primary); }
         .dropdown-content button.active { background-color: #e8f1ff; color: var(--primary); }
         
-        /* إظهار القائمة عند تمرير الماوس فوق التابة الرئيسية */
         .dropdown:hover .dropdown-content { display: block; }
         .dropdown:hover .nav-btn { background: rgba(255,255,255,0.1); }
         .dropdown.active-parent .nav-btn { background: white; color: var(--primary); }
@@ -71,6 +70,7 @@
         <button class="nav-btn" onclick="loadPage(event, 's1-frame', 3)">س1 تأمينات</button>
         <button class="nav-btn" onclick="loadPage(event, 'tafqit-frame', 4)">أداة التفقيط</button>
         <button class="nav-btn" onclick="loadPage(event, 'feedback-frame', 5)">قياس الأداء</button>
+        <button class="nav-btn" onclick="loadPage(event, 'disc-frame', 6)">تحليل الشخصية</button>
     </div>
 
     <iframe id="home-frame" class="page-frame active" src="home.html"></iframe>
@@ -81,9 +81,9 @@
     <iframe id="s1-frame" class="page-frame" src="s1.html"></iframe>
     <iframe id="tafqit-frame" class="page-frame" src="tafqit.html"></iframe>
     <iframe id="feedback-frame" class="page-frame" src="feedback.html"></iframe>
+    <iframe id="disc-frame" class="page-frame" src="disc.html"></iframe>
 
     <script>
-        // دالة التنقل للأزرار الرئيسية العادية
         function loadPage(evt, frameId, btnIndex) {
             document.querySelectorAll('.page-frame').forEach(f => f.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -98,27 +98,21 @@
             }
         }
 
-        // دالة مخصصة للتنقل بين خيارات القائمة المنسدلة وتغيير عنوان التابة الرئيسية ديناميكياً
         function loadDropdownPage(evt, frameId, selectedName) {
-            evt.stopPropagation(); // منع إغلاق الـ Dropdown بشكل مفاجئ
+            evt.stopPropagation();
             
             document.querySelectorAll('.page-frame').forEach(f => f.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.sub-nav-btn').forEach(b => b.classList.remove('active'));
             
-            // تفعيل الـ Iframe المطلوب
             document.getElementById(frameId).classList.add('active');
-            
-            // تفعيل الخيار المختار داخل القائمة المنسدلة
             evt.currentTarget.classList.add('active');
             
-            // جعل تابة القائمة المنسدلة الرئيسية تأخذ الاستايل الأبيض (نشط) وتحديث اسمها بناء على المختار
             const dropdownParent = document.getElementById('taxDropdownParent');
             dropdownParent.classList.add('active-parent');
             dropdownParent.querySelector('.nav-btn').innerHTML = selectedName + " ▾";
         }
 
-        // اجعل الوظائف متاحة للـ Iframes
         window.loadPage = loadPage;
     </script>
 </body>
