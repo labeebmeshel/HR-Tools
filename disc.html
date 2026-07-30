@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRAXI | تقييم الأنماط السلوكية DISC</title>
+<style>
+  :root{
+    --primary: #0b4fb3;
+    --navy: #0b4fb3;
+    --navy-2: #1e3a8a;
+    --paper: #f8fafc;
+    --card: #FFFFFF;
+    --ink: #1e293b;
+    --muted: #64748b;
+    --gold: #C9A227;
+    --line: #e2e8f0;
+
+    --d: #dc2626;
+    --i: #d97706;
+    --s: #059669;
+    --c: #0284c7;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    color: var(--ink);
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    min-height: 100vh;
+    line-height: 1.7;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 28px 18px 90px; }
+
+  .brand {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 22px;
+  }
+  .brand-name {
+    font-weight: 800; letter-spacing: .5px; color: var(--primary);
+    font-size: 18px;
+  }
+  .brand-name span { color: var(--navy-2); }
+  .brand-tag { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.8);
+    border-radius: 20px;
+    padding: 32px 26px;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+  }
+
+  h1 { font-size: 22px; margin: 0 0 6px; color: var(--primary); font-weight: 800; }
+  .sub { color: var(--muted); font-size: 14.5px; margin: 0 0 24px; }
+
+  .field { margin-bottom: 18px; text-align: right; }
+  label { display: block; font-size: 13.5px; font-weight: 700; color: var(--navy-2); margin-bottom: 6px; }
+  input[type=text], input[type=email], input[type=tel] {
+    width: 100%; padding: 12px 14px; border-radius: 10px; border: 1.5px solid var(--line);
+    font-size: 15px; background: #FCFBF9; color: var(--ink);
+    font-family: inherit; transition: all 0.3s ease;
+  }
+  input:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(11, 79, 179, 0.1); }
+  .err { color: var(--d); font-size: 12.5px; margin-top: 5px; display: none; }
+  .field.invalid input { border-color: var(--d); }
+  .field.invalid .err { display: block; }
+
+  .btn {
+    appearance: none; border: none; cursor: pointer;
+    font-family: inherit; font-weight: 700; font-size: 15px;
+    padding: 13px 24px; border-radius: 10px;
+    background: var(--primary); color: #fff;
+    transition: transform .12s ease, background .15s ease, box-shadow .2s ease;
+    box-shadow: 0 4px 12px rgba(11, 79, 179, 0.2);
+  }
+  .btn:hover { background: var(--navy-2); }
+  .btn:active { transform: scale(.98); }
+  .btn:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
+  .btn-ghost {
+    background: transparent; color: var(--navy-2); border: 1.5px solid var(--line); box-shadow: none;
+  }
+  .btn-ghost:hover { background: #f1f5f9; }
+  .btn-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
+  .btn-row.split { justify-content: space-between; }
+
+  .hidden { display: none !important; }
+
+  /* Quiz */
+  .qhead {
+    position: sticky; top: 0; background: rgba(248, 250, 252, 0.95); backdrop-filter: blur(5px); z-index: 5;
+    padding: 12px 0 16px; margin-bottom: 12px;
+  }
+  .progress-outer {
+    height: 10px; border-radius: 99px; background: var(--line); overflow: hidden;
+  }
+  .progress-inner {
+    height: 100%; background: linear-gradient(90deg, var(--primary), var(--navy-2));
+    width: 0%; transition: width .25s ease;
+  }
+  .progress-label {
+    display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); margin-top: 8px; font-weight: 600;
+  }
+
+  .qcard {
+    border: 1px solid var(--line); border-radius: 16px;
+    padding: 20px 20px 18px; margin-bottom: 16px; background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  }
+  .qcard.answered { border-color: var(--primary); background: #f8fafc; }
+  .qnum {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--primary); color: #fff; font-size: 13px; font-weight: 800;
+    margin-inline-start: 8px;
+  }
+  .qtext { font-size: 16px; font-weight: 700; color: var(--ink); margin: 2px 0 16px; text-align: right; }
+  .scale { display: flex; gap: 8px; }
+  .scale button {
+    flex: 1; padding: 12px 4px; border-radius: 10px; border: 1.5px solid var(--line);
+    background: #fff; cursor: pointer; font-weight: 700; font-size: 15px; color: var(--navy-2);
+    transition: all .15s ease; font-family: inherit;
+  }
+  .scale button:hover { border-color: var(--primary); color: var(--primary); }
+  .scale button.sel {
+    background: var(--primary); border-color: var(--primary); color: #fff;
+    box-shadow: 0 4px 10px rgba(11, 79, 179, 0.3);
+  }
+  .scale-labels {
+    display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted);
+    margin-top: 8px; padding: 0 2px; font-weight: 600;
+  }
+
+  .quiz-footer {
+    position: sticky; bottom: 0; background: rgba(248, 250, 252, 0.95); backdrop-filter: blur(5px);
+    padding: 16px 0; margin-top: 10px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .quiz-footer .status { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+  /* Results */
+  .badge-final {
+    display: flex; align-items: baseline; justify-content: center; gap: 4px;
+    margin: 8px 0 4px;
+  }
+  .badge-final .letter {
+    font-size: 64px; font-weight: 900; line-height: 1;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .result-title { text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 2px; font-weight: 600; }
+  .result-name { text-align: center; font-size: 16px; color: var(--primary); margin-bottom: 22px; font-weight: 800; }
+
+  .bars { margin: 20px 0 10px; }
+  .bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .bar-letter {
+    width: 36px; height: 36px; border-radius: 10px; color: #fff; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; flex: none; font-size: 16px;
+  }
+  .bar-track { flex: 1; height: 18px; border-radius: 99px; background: #e2e8f0; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 99px; width: 0%; transition: width .6s ease; }
+  .bar-score { width: 34px; text-align: left; font-weight: 800; font-size: 14px; color: var(--primary); flex: none; }
+
+  .desc-box {
+    background: #f8fafc; border: 1px solid var(--line); border-radius: 14px;
+    padding: 18px; margin-top: 20px; font-size: 14.5px; color: var(--ink); text-align: right;
+  }
+
+  .chip-row { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; justify-content: center; }
+  .chip {
+    font-size: 12px; padding: 6px 14px; border-radius: 99px; background: #f1f5f9;
+    border: 1px solid var(--line); color: var(--muted); font-weight: 600;
+  }
+
+  footer.note { text-align: center; color: var(--muted); font-size: 12px; margin-top: 24px; font-weight: 600; }
+
+  @media print {
+    .no-print { display: none !important; }
+    body { background: #fff; }
+    .card { box-shadow: none; border: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand">
+    <div>
+      <div class="brand-name">الميثاق الذكي <span>| PRAXI Academy</span></div>
+      <div class="brand-tag">تقييم الأنماط السلوكية — DISC</div>
+    </div>
+  </div>
+
+  <!-- STAGE 1: DATA ENTRY -->
+  <div class="card" id="stage-intro">
+    <h1>قبل ما نبدأ</h1>
+    <p class="sub">من فضلك سجّل بياناتك، وبعدها هننتقل لأسئلة التقييم (44 سؤال، تجاوب عليهم من 1 لـ 5).</p>
+
+    <div class="field" id="f-name">
+      <label>الاسم</label>
+      <input type="text" id="in-name" placeholder="اكتب اسمك بالكامل">
+      <div class="err">من فضلك اكتب الاسم</div>
+    </div>
+
+    <div class="field" id="f-job">
+      <label>الوظيفة</label>
+      <input type="text" id="in-job" placeholder="المسمى الوظيفي الحالي">
+      <div class="err">من فضلك اكتب الوظيفة</div>
+    </div>
+
+    <div class="field" id="f-email">
+      <label>البريد الإلكتروني</label>
+      <input type="email" id="in-email" placeholder="example@email.com">
+      <div class="err">من فضلك اكتب بريد إلكتروني صحيح</div>
+    </div>
+
+    <div class="field" id="f-whats">
+      <label>رقم الواتس</label>
+      <input type="tel" id="in-whats" placeholder="01xxxxxxxxx">
+      <div class="err">من فضلك اكتب رقم واتس صحيح</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" id="btn-start">الانتقال للمرحلة الثانية ←</button>
+    </div>
+  </div>
+
+  <!-- STAGE 2: QUIZ -->
+  <div class="hidden" id="stage-quiz">
+    <div class="qhead">
+      <div class="progress-outer"><div class="progress-inner" id="progress-bar"></div></div>
+      <div class="progress-label">
+        <span id="progress-text">0 / 44 تمت الإجابة عليها</span>
+        <span>تقييم الأنماط السلوكية DISC</span>
+      </div>
+    </div>
+
+    <div id="questions-holder"></div>
+
+    <div class="quiz-footer">
+      <button class="btn btn-ghost no-print" id="btn-back-intro">رجوع</button>
+      <span class="status" id="status-text">جاوب على كل الأسئلة عشان تعرض النتيجة</span>
+      <button class="btn" id="btn-finish" disabled>عرض النتيجة</button>
+    </div>
+  </div>
+
+  <!-- STAGE 3: RESULTS -->
+  <div class="hidden" id="stage-results">
+    <div class="card">
+      <div class="result-title">النمط السلوكي الغالب حسب DISC</div>
+      <div class="badge-final" id="badge-final"></div>
+      <div class="result-name" id="result-name"></div>
+      <div style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:14px;" id="save-status"></div>
+
+      <div class="bars" id="bars-holder"></div>
+
+      <div class="desc-box" id="desc-box"></div>
+
+      <div class="chip-row">
+        <div class="chip" id="chip-job"></div>
+        <div class="chip" id="chip-email"></div>
+        <div class="chip" id="chip-whats"></div>
+      </div>
+
+      <div class="btn-row split no-print" style="margin-top:22px;">
+        <button class="btn btn-ghost" id="btn-restart">بدء تقييم جديد</button>
+        <button class="btn" id="btn-print">طباعة / حفظ النتيجة PDF</button>
+      </div>
+    </div>
+    <footer class="note">مشروع الميثاق الذكي برعاية أكاديمية براكسي PRAXI</footer>
+  </div>
+
+</div>
+
+<script>
+(function(){
+
+  // ضع رابط الـ Google Apps Script Web App الخاص بك هنا
+  var SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
+
+  function sendToBackend(payload){
+    if(!SCRIPT_URL || SCRIPT_URL.indexOf('PASTE_') === 0){
+      setSaveStatus('لم يتم حفظ النتيجة في قاعدة البيانات (الربط غير مفعّل بعد)', true);
+      return;
+    }
+    setSaveStatus('جاري حفظ النتيجة...', false);
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }).then(function(res){ return res.json(); })
+      .then(function(data){
+        if(data && data.ok){ setSaveStatus('تم حفظ النتيجة بنجاح ✓', false); }
+        else { setSaveStatus('تعذر حفظ النتيجة في قاعدة البيانات', true); }
+      })
+      .catch(function(err){
+        setSaveStatus('تعذر حفظ النتيجة (تأكد من الاتصال بالإنترنت)', true);
+      });
+  }
+
+  function setSaveStatus(text, isWarning){
+    var el = document.getElementById('save-status');
+    if(!el) return;
+    el.textContent = text;
+    el.style.color = isWarning ? 'var(--d)' : 'var(--muted)';
+  }
+
+  var QUESTIONS = [
+    "أنا شخص قيادي ومهتم بتحقيق نتائج ملموسة",
+    "بستمتع بالتعامل مع الناس ومقابلتهم",
+    "تصرفاتي ثابتة ويسهل على الآخرين توقعها",
+    "بحب الأعمال اللي فيها تواصل مباشر مع الناس",
+    "شخصيتي قوية ومؤثرة",
+    "الناس بتحبني وبتشوف فيا قائد",
+    "بفضّل الاستقرار في شغلانة واحدة بدل التنقل بين مهام كتير",
+    "عندي علاقات واسعة والناس بتحبني",
+    "بحب التحديات وبقبلها بسهولة",
+    "عندي مهارة في الكلام والإلقاء قدام الناس",
+    "صبور جدًا في الشغل اللي محتاج دقة وتفاصيل",
+    "مش بتضايق لو رئيسي بيراقب شغلي",
+    "بقرر بسرعة",
+    "بحفز الناس اللي حواليا",
+    "مش بحب التغيير الكتير في شغلي",
+    "بجيد في التعامل مع الناس والكلام معاهم",
+    "ممكن أكسر التعليمات لو الشغل يتطلب كده",
+    "بحقق إنتاج كبير وسريع من خلال تنظيم شغل الناس اللي حواليا",
+    "بخلص المهمة اللي في إيدي قبل ما أبدأ في تانية",
+    "العلاقات ورضا الناس أهم عندي من إنجاز المهام بسرعة",
+    "بحب أخد صلاحيات أكتر في شغلي",
+    "بترك انطباع كويس أول ما الناس تقابلني",
+    "ولائي عالي للجهة اللي بشتغل فيها وبدافع عنها",
+    "بطيع أوامر رؤسائي بسهولة",
+    "التغييرات الكبيرة مش بتضايقني",
+    "بحب أساعد غيري",
+    "مش بحب أستعجل في الشغل",
+    "بخاف من الغلط عشان محدش يزعل مني",
+    "بفضّل إني أدير الشغل وأوجه الناس",
+    "بفضّل إن الناس تشاركني في إدارة الشغل",
+    "هادئ وبقدر أهدي اللي حواليا",
+    "بقيّم شغلي وشغل غيري باستمرار",
+    "بحب الأنشطة الجماعية",
+    "بسمع لغيري باهتمام وحب",
+    "بحب إن التطور يكون تدريجي مش مفاجئ",
+    "بفكر بحرص عشان محافظش أخسر علاقاتي",
+    "بحل المشاكل حتى لو من غير مراعاة مشاعر التانيين",
+    "بخالف اللوائح بطريقة ذكية لو محتاج",
+    "حريص إني ألتزم بالأنظمة والقواعد",
+    "بتعامل بمرونة مع غيري",
+    "توجيهاتي لغيري واضحة ومباشرة",
+    "بقدر أحرك الناس من غير ما أدي أوامر واضحة",
+    "بفضّل الأنظمة الثابتة بدل الأوامر المباشرة",
+    "تنفيذ الأوامر مش بيضايقني"
+  ];
+
+  var CAT_ORDER = ['D','I','S','C'];
+  var CAT_NAME = {D:'القيادة (Dominance)', I:'التأثير (Influence)', S:'الثبات (Steadiness)', C:'الالتزام (Compliance)'};
+  var CAT_COLOR = {D:'var(--d)', I:'var(--i)', S:'var(--s)', C:'var(--c)'};
+  var CAT_DESC = {
+    D: "شخصية حاسمة وسريعة في اتخاذ القرار، بتحب التحدي والنتائج العملية، وبتفضل تاخد زمام المبادرة وتقود المواقف.",
+    I: "شخصية اجتماعية ومتفائلة، بتقدر تأثر في الناس بسهولة، وبتبني علاقات واسعة، وبتحب الأنشطة الجماعية والتواصل مع الآخرين.",
+    S: "شخصية هادئة وصبورة، بتحافظ على الاستقرار والعلاقات، وبتفضل التطور التدريجي بدل التغييرات المفاجئة، ومخلصة جدًا لفريقها.",
+    C: "شخصية دقيقة ومنظمة، بتحب الالتزام بالأنظمة والقواعد، وبتحرص على الجودة والتفاصيل قبل اتخاذ أي قرار."
+  };
+
+  function categoryOf(index){ return CAT_ORDER[index % 4]; }
+
+  var answers = {};
+  var userInfo = {};
+
+  var stageIntro = document.getElementById('stage-intro');
+  var stageQuiz = document.getElementById('stage-quiz');
+  var stageResults = document.getElementById('stage-results');
+  var questionsHolder = document.getElementById('questions-holder');
+
+  function validateField(fieldId, inputId, validatorFn){
+    var field = document.getElementById(fieldId);
+    var input = document.getElementById(inputId);
+    var ok = validatorFn(input.value.trim());
+    field.classList.toggle('invalid', !ok);
+    return ok;
+  }
+
+  document.getElementById('btn-start').addEventListener('click', function(){
+    var okName = validateField('f-name','in-name', function(v){ return v.length > 1; });
+    var okJob = validateField('f-job','in-job', function(v){ return v.length > 1; });
+    var okEmail = validateField('f-email','in-email', function(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); });
+    var okWhats = validateField('f-whats','in-whats', function(v){ return /^[0-9+\s]{8,}$/.test(v); });
+
+    if(!(okName && okJob && okEmail && okWhats)) return;
+
+    userInfo = {
+      name: document.getElementById('in-name').value.trim(),
+      job: document.getElementById('in-job').value.trim(),
+      email: document.getElementById('in-email').value.trim(),
+      whats: document.getElementById('in-whats').value.trim()
+    };
+
+    buildQuiz();
+    stageIntro.classList.add('hidden');
+    stageQuiz.classList.remove('hidden');
+    window.scrollTo(0,0);
+  });
+
+  document.getElementById('btn-back-intro').addEventListener('click', function(){
+    stageQuiz.classList.add('hidden');
+    stageIntro.classList.remove('hidden');
+    window.scrollTo(0,0);
+  });
+
+  function buildQuiz(){
+    questionsHolder.innerHTML = '';
+    QUESTIONS.forEach(function(text, idx){
+      var card = document.createElement('div');
+      card.className = 'qcard';
+      card.id = 'qcard-' + idx;
+
+      var qtext = document.createElement('div');
+      qtext.className = 'qtext';
+      qtext.innerHTML = '<span class="qnum">' + (idx+1) + '</span>' + text;
+      card.appendChild(qtext);
+
+      var scale = document.createElement('div');
+      scale.className = 'scale';
+      for(var v=1; v<=5; v++){
+        (function(val){
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = val;
+          b.addEventListener('click', function(){
+            answers[idx] = val;
+            var siblings = scale.querySelectorAll('button');
+            siblings.forEach(function(s){ s.classList.remove('sel'); });
+            b.classList.add('sel');
+            card.classList.add('answered');
+            updateProgress();
+          });
+          scale.appendChild(b);
+        })(v);
+      }
+      card.appendChild(scale);
+
+      var labels = document.createElement('div');
+      labels.className = 'scale-labels';
+      labels.innerHTML = '<span>1 - أقل حاجة تشبهني</span><span>5 - أكتر حاجة تشبهني</span>';
+      card.appendChild(labels);
+
+      questionsHolder.appendChild(card);
+    });
+    updateProgress();
+  }
+
+  function updateProgress(){
+    var answered = Object.keys(answers).length;
+    var pct = Math.round((answered/44)*100);
+    document.getElementById('progress-bar').style.width = pct + '%';
+    document.getElementById('progress-text').textContent = answered + ' / 44 تمت الإجابة عليها';
+    var finishBtn = document.getElementById('btn-finish');
+    var statusText = document.getElementById('status-text');
+    if(answered === 44){
+      finishBtn.disabled = false;
+      statusText.textContent = 'تمام، كل الأسئلة اتجاوبت';
+    } else {
+      finishBtn.disabled = true;
+      statusText.textContent = 'باقي ' + (44-answered) + ' سؤال عشان تعرض النتيجة';
+    }
+  }
+
+  document.getElementById('btn-finish').addEventListener('click', function(){
+    if(Object.keys(answers).length < 44) return;
+    computeResults();
+    stageQuiz.classList.add('hidden');
+    stageResults.classList.remove('hidden');
+    window.scrollTo(0,0);
+  });
+
+  function computeResults(){
+    var totals = {D:0,I:0,S:0,C:0};
+    QUESTIONS.forEach(function(_, idx){
+      var cat = categoryOf(idx);
+      totals[cat] += answers[idx];
+    });
+
+    var sorted = CAT_ORDER.slice().sort(function(a,b){ return totals[b]-totals[a]; });
+    var top2 = sorted.slice(0,2);
+
+    var badge = document.getElementById('badge-final');
+    badge.innerHTML = '';
+    top2.forEach(function(cat){
+      var span = document.createElement('span');
+      span.className = 'letter';
+      span.style.color = CAT_COLOR[cat];
+      span.textContent = cat;
+      badge.appendChild(span);
+    });
+    document.getElementById('result-name').textContent = userInfo.name + ' — ' + userInfo.job;
+
+    var barsHolder = document.getElementById('bars-holder');
+    barsHolder.innerHTML = '';
+    var max = 55;
+    sorted.forEach(function(cat){
+      var row = document.createElement('div');
+      row.className = 'bar-row';
+
+      var letter = document.createElement('div');
+      letter.className = 'bar-letter';
+      letter.style.background = CAT_COLOR[cat];
+      letter.textContent = cat;
+      row.appendChild(letter);
+
+      var track = document.createElement('div');
+      track.className = 'bar-track';
+      var fill = document.createElement('div');
+      fill.className = 'bar-fill';
+      fill.style.background = CAT_COLOR[cat];
+      track.appendChild(fill);
+      row.appendChild(track);
+
+      var score = document.createElement('div');
+      score.className = 'bar-score';
+      score.textContent = totals[cat];
+      row.appendChild(score);
+
+      barsHolder.appendChild(row);
+
+      setTimeout((function(f, val){
+        return function(){ f.style.width = Math.round((val/max)*100) + '%'; };
+      })(fill, totals[cat]), 60);
+    });
+
+    var descBox = document.getElementById('desc-box');
+    descBox.innerHTML = top2.map(function(cat){
+      return '<div style="margin-bottom:10px;"><b style="color:' + CAT_COLOR[cat] + '">' + cat + ' — ' + CAT_NAME[cat] + ':</b> ' + CAT_DESC[cat] + '</div>';
+    }).join('');
+
+    document.getElementById('chip-job').textContent = userInfo.job;
+    document.getElementById('chip-email').textContent = userInfo.email;
+    document.getElementById('chip-whats').textContent = userInfo.whats;
+
+    sendToBackend({
+      name: userInfo.name,
+      job: userInfo.job,
+      email: userInfo.email,
+      whats: userInfo.whats,
+      D: totals.D,
+      I: totals.I,
+      S: totals.S,
+      C: totals.C,
+      topResult: top2.join('')
+    });
+  }
+
+  document.getElementById('btn-restart').addEventListener('click', function(){
+    answers = {};
+    userInfo = {};
+    document.getElementById('in-name').value = '';
+    document.getElementById('in-job').value = '';
+    document.getElementById('in-email').value = '';
+    document.getElementById('in-whats').value = '';
+    stageResults.classList.add('hidden');
+    stageIntro.classList.remove('hidden');
+    window.scrollTo(0,0);
+  });
+
+  document.getElementById('btn-print').addEventListener('click', function(){
+    window.print();
+  });
+
+})();
+</script>
+</body>
+</html>
