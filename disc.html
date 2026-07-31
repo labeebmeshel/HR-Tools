@@ -3,8 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>الميثاق الذكي | أداة ولوحة نتائج تقييم DISC</title>
+<title>الميثاق الذكي | أداة ولوحة نتائج تقييم DISC التفاعلية</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<!-- Firebase SDKs (Compat Version for standalone browser compatibility) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
 <style>
   :root {
     --primary: #0b4fb3;
@@ -79,15 +84,13 @@
   .btn:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
   .btn-ghost { background: transparent; color: var(--navy-2); border: 1.5px solid var(--line); box-shadow: none; }
   .btn-ghost:hover { background: #f1f5f9; }
-  .btn-danger { background: var(--d); box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2); }
-  .btn-danger:hover { background: #b91c1c; }
 
   .btn-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
   .btn-row.split { justify-content: space-between; }
 
   .hidden { display: none !important; }
 
-  /* Quiz Style & Selection Fix */
+  /* Quiz Style */
   .qhead {
     position: sticky; top: 0; background: rgba(248, 250, 252, 0.95); backdrop-filter: blur(5px); z-index: 5;
     padding: 12px 0 16px; margin-bottom: 12px;
@@ -151,6 +154,11 @@
   tbody tr:hover { background: #f8fafc; }
   .pill { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 22px; padding: 0 6px; border-radius: 6px; color: #fff; font-weight: 800; font-size: 12px; }
 
+  /* Live Pulse Indicator */
+  .live-indicator { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #059669; font-weight: 700; }
+  .dot { width: 8px; height: 8px; background: #059669; border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.3); } 100% { opacity: 1; transform: scale(1); } }
+
   /* Mobile Optimization */
   @media (max-width: 600px) {
     .wrap { padding: 10px 10px 60px; }
@@ -163,15 +171,12 @@
   /* Password Overlay */
   #passwordOverlay {
     position: fixed; inset: 0;
-    background: rgba(11, 79, 179, 0.2);
-    backdrop-filter: blur(12px);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 10000;
+    background: rgba(11, 79, 179, 0.2); backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: center; z-index: 10000;
   }
   .auth-card {
     background: var(--card); padding: 35px 25px; border-radius: 20px;
-    box-shadow: 0 10px 35px rgba(0,0,0,0.15); width: 90%; max-width: 360px; text-align: center;
-    border: 1px solid var(--line);
+    box-shadow: 0 10px 35px rgba(0,0,0,0.15); width: 90%; max-width: 360px; text-align: center; border: 1px solid var(--line);
   }
   .auth-card i { font-size: 2.8rem; color: var(--primary); margin-bottom: 12px; }
   .auth-card h3 { margin: 0 0 8px; color: var(--primary); font-weight: 800; }
@@ -190,7 +195,7 @@
     <div class="auth-card">
         <i class="fas fa-user-shield"></i>
         <h3>لوحة التحكم المحمية</h3>
-        <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">أدخل كلمة المرور لاستعراض سجل نتائج DISC</p>
+        <p style="font-size: 12px; color: var(--muted); margin-bottom: 15px;">أدخل كلمة المرور لاستعراض سجل نتائج DISC السحابي</p>
         <input type="password" id="passInput" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter') checkAuth()">
         <div style="display: flex; gap: 8px; margin-top: 15px;">
           <button class="btn" onclick="checkAuth()" style="flex: 1;">دخول</button>
@@ -287,19 +292,17 @@
     </div>
   </div>
 
-  <!-- TAB 2: DASHBOARD -->
+  <!-- TAB 2: REALTIME DASHBOARD -->
   <div id="tab-dash" class="hidden">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
         <div>
-          <h1>لوحة التحكم والنتائج المسجلة</h1>
-          <p class="sub" style="margin:0;">السجل الكامل للتقييمات المحفوظة</p>
+          <h1>لوحة التحكم والنتائج المسجلة <span class="live-indicator"><span class="dot"></span> مباشر</span></h1>
+          <p class="sub" style="margin:0;">قاعدة بيانات سحابية تتحدث أوتوماتيكياً دون الحاجة لإنعاش الصفحة</p>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <button class="btn btn-ghost" onclick="exportCSV()"><i class="fas fa-file-excel"></i> تصدير Excel CSV</button>
-          <button class="btn btn-ghost" onclick="exportJSON()"><i class="fas fa-download"></i> نسخة احتياطية</button>
           <button class="btn btn-ghost" onclick="lockDash()"><i class="fas fa-lock"></i> قفل اللوحة</button>
-          <button class="btn btn-danger" onclick="clearData()"><i class="fas fa-trash"></i> مسح البيانات</button>
         </div>
       </div>
 
@@ -334,10 +337,33 @@
 </div>
 
 <script>
-  const AUTH_KEY = "Labeeb";
-  const STORAGE_KEY = "disc_results_db_v1";
+  // 1. Firebase Configuration (مشروعك الخاص)
+  const firebaseConfig = {
+    apiKey: "AIzaSyCVQ7OIVjfajk3MpFFB_DJpOo8tswCk6eM",
+    authDomain: "smart-charter-disc-7d1e5.firebaseapp.com",
+    databaseURL: "https://smart-charter-disc-7d1e5-default-rtdb.firebaseio.com",
+    projectId: "smart-charter-disc-7d1e5",
+    storageBucket: "smart-charter-disc-7d1e5.firebasestorage.app",
+    messagingSenderId: "260611412584",
+    appId: "1:260611412584:web:7ee244ebcfd08da796a1dd"
+  };
 
-  // Tab Switcher & Auth Logic
+  firebase.initializeApp(firebaseConfig);
+  const dbRef = firebase.database().ref('disc_results');
+
+  const AUTH_KEY = "Labeeb";
+  let globalDBData = [];
+
+  // 2. Realtime Database Listener (تحديث لحظي بدون Refresh)
+  dbRef.on('value', (snapshot) => {
+    globalDBData = [];
+    snapshot.forEach((childSnap) => {
+      globalDBData.unshift(childSnap.val());
+    });
+    renderDashboardTable();
+  });
+
+  // Tab Switcher & Password Check
   function switchTab(tab) {
     if (tab === 'dash') {
       const isAuthed = sessionStorage.getItem('disc_authed') === 'true';
@@ -374,18 +400,6 @@
   function lockDash() {
     sessionStorage.removeItem('disc_authed');
     switchTab('quiz');
-  }
-
-  // Local Data DB
-  function getDB() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
-    catch(e) { return []; }
-  }
-
-  function saveToDB(record) {
-    const db = getDB();
-    db.push(record);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
   }
 
   // 44 Questions Array
@@ -462,7 +476,6 @@
     document.getElementById('stage-intro').classList.remove('hidden');
   });
 
-  // Build Quiz DOM with Fixed Click Selection Event
   function buildQuiz(){
     var holder = document.getElementById('questions-holder');
     holder.innerHTML = '';
@@ -536,7 +549,6 @@
     window.scrollTo(0,0);
   });
 
-  // Calculate & Auto Save Results
   function computeResults(){
     var totals = {D:0,I:0,S:0,C:0};
     QUESTIONS.forEach(function(_, idx){ totals[categoryOf(idx)] += answers[idx]; });
@@ -563,8 +575,8 @@
     document.getElementById('chip-email').textContent = userInfo.email;
     document.getElementById('chip-whats').textContent = userInfo.whats;
 
-    // Save to local storage database
-    saveToDB({
+    // 3. Push Record to Firebase Cloud Realtime Database
+    dbRef.push({
       date: new Date().toISOString(),
       name: userInfo.name,
       job: userInfo.job,
@@ -585,12 +597,10 @@
     document.getElementById('stage-intro').classList.remove('hidden');
   });
 
-  // Render Dashboard Table Data
   function renderDashboardTable() {
-    const db = getDB();
     const q = (document.getElementById('in-search') ? document.getElementById('in-search').value : '').toLowerCase();
     const tbody = document.getElementById('dash-tbody');
-    const filtered = db.filter(r => (r.name + ' ' + r.job + ' ' + r.email).toLowerCase().includes(q));
+    const filtered = globalDBData.filter(r => (r.name + ' ' + r.job + ' ' + r.email).toLowerCase().includes(q));
 
     tbody.innerHTML = filtered.map(r => `
       <tr>
@@ -608,9 +618,9 @@
     `).join('');
 
     const counts = {D:0,I:0,S:0,C:0};
-    db.forEach(r => r.topResult.split('').forEach(l => counts[l]=(counts[l]||0)+1));
+    globalDBData.forEach(r => (r.topResult || '').split('').forEach(l => counts[l]=(counts[l]||0)+1));
     document.getElementById('stat-row').innerHTML = `
-      <div class="stat-card"><b>${db.length}</b><span>الإجمالي</span></div>
+      <div class="stat-card"><b>${globalDBData.length}</b><span>الإجمالي</span></div>
       <div class="stat-card"><b style="color:var(--d)">${counts.D||0}</b><span>Dominance (D)</span></div>
       <div class="stat-card"><b style="color:var(--i)">${counts.I||0}</b><span>Influence (I)</span></div>
       <div class="stat-card"><b style="color:var(--s)">${counts.S||0}</b><span>Steadiness (S)</span></div>
@@ -619,29 +629,14 @@
   }
 
   function exportCSV() {
-    const db = getDB();
-    if(!db.length) return alert('لا توجد بيانات لتصديرها');
+    if(!globalDBData.length) return alert('لا توجد بيانات لتصديرها');
     let csv = "\uFEFFالتاريخ,الاسم,الوظيفة,الإيميل,الواتس,D,I,S,C,النتيجة\n";
-    db.forEach(r => {
+    globalDBData.forEach(r => {
       csv += `"${new Date(r.date).toLocaleString()}","${r.name}","${r.job}","${r.email}","${r.whats}",${r.D},${r.I},${r.S},${r.C},"${r.topResult}"\n`;
     });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
     a.download = 'disc_results_db.csv'; a.click();
-  }
-
-  function exportJSON() {
-    const db = getDB();
-    const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = 'disc_backup.json'; a.click();
-  }
-
-  function clearData() {
-    if(confirm('هل أنت متأكد من مسح جميع النتائج المسجلة من الجهاز؟')) {
-      localStorage.removeItem(STORAGE_KEY);
-      renderDashboardTable();
-    }
   }
 </script>
 </body>
