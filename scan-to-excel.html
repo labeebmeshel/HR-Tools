@@ -1,477 +1,384 @@
- (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/scan-to-excel.html b/scan-to-excel.html
-index 578669b79e28986721d087bf7a8ebaa1edea25ad..a40a3841caf8442b02f18749ae1c5aca8a2fa7d3 100644
---- a/scan-to-excel.html
-+++ b/scan-to-excel.html
-@@ -106,276 +106,410 @@
- 
-         .table-responsive {
-             overflow-x: auto;
-             max-height: 400px;
-             border: 1px solid var(--border);
-             border-radius: 10px;
-         }
- 
-         table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: right; }
- 
-         th {
-             background: var(--primary);
-             color: white;
-             padding: 12px;
-             position: sticky;
-             top: 0;
-             white-space: nowrap;
-         }
- 
-         td { padding: 8px; border-bottom: 1px solid var(--border); }
-         td input { border: 1px solid transparent; background: transparent; padding: 6px; width: 100%; }
-         td input:focus { border-color: var(--primary); background: white; }
- 
-         .flag-warning { background-color: #fef3c7; border-right: 4px solid var(--warning); }
-         .status-bar { margin-top: 15px; font-size: 0.9rem; color: var(--text-light); font-weight: 600; }
-+        .progress-wrap {
-+            display: none;
-+            height: 10px;
-+            margin-top: 12px;
-+            overflow: hidden;
-+            background: #e2e8f0;
-+            border-radius: 999px;
-+        }
-+
-+        .progress-bar {
-+            width: 0%;
-+            height: 100%;
-+            background: linear-gradient(90deg, var(--primary), var(--success));
-+            transition: width 0.25s ease;
-+        }
-+
-+        .upload-area.is-dragover { background: #dbeafe; border-style: solid; }
-+        .hint-box {
-+            padding: 12px 14px;
-+            margin-top: 12px;
-+            border-radius: 10px;
-+            background: #eff6ff;
-+            color: var(--accent);
-+            font-size: 0.85rem;
-+            line-height: 1.7;
-+        }
-+
-         .hidden { display: none !important; }
-     </style>
- </head>
- <body>
- 
- <div class="container">
-     <div class="header-title">
-         <h1>استخراج بيانات الموظفين (HR Scan → Excel)</h1>
-         <p style="color: var(--text-light); margin: 0;">تحويل استمارات وصور المستندات إلى شيتات إكسيل منسقة تلقائياً</p>
-     </div>
- 
-     <!-- 1. القوالب والعناوين -->
-     <div class="card">
-         <div class="section-title"><i class="fas fa-layer-group"></i> ① اختيار وقالب ترتيب البيانات (Headers)</div>
-         <div class="template-controls">
-             <div style="flex: 1; min-width: 200px;">
-                 <select id="templateSelect" onchange="loadSelectedTemplate()">
-                     <option value="default">قالب بيانات الموظفين الأساسي</option>
-                 </select>
-             </div>
-             <button class="btn" onclick="saveNewTemplate()"><i class="fas fa-save"></i> حفظ كقالب جديد</button>
-         </div>
-         <div>
-             <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-light); display: block; margin-bottom: 6px;">
-                 الأعمدة المطلوبة (اكتب كل عمود في سطر مستقل بنفس الترتيب المطلوب في Excel):
-             </label>
-             <textarea id="headersList" rows="6" placeholder="أدخل العناوين هنا..."></textarea>
-         </div>
-     </div>
- 
-     <!-- 2. رفع المستندات -->
-     <div class="card">
-         <div class="section-title"><i class="fas fa-file-upload"></i> ② رفع المستندات (PDF Scan / JPG / PNG)</div>
--        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
-             <i class="fas fa-cloud-upload-alt"></i>
-             <div style="font-weight: 700;">اضغط هنا لرفع المستندات الممسوحة ضوئياً</div>
-             <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 5px;">يدعم صور الاستمارات ورخص القيادة والـ PDF Scan</div>
-             <input type="file" id="fileInput" multiple accept="image/*,.pdf" class="hidden" onchange="handleFiles(this.files)">
-         </div>
-+        <div class="progress-wrap" id="progressWrap"><div class="progress-bar" id="progressBar"></div></div>
-         <div id="statusBar" class="status-bar"></div>
-+        <div class="hint-box">
-+            للحصول على أفضل نتيجة: ارفع صورة واضحة ومباشرة، وتأكد أن أسماء الحقول موجودة بجانب القيم مثل: الاسم، الرقم القومي، التليفون.
-+        </div>
-     </div>
- 
-     <!-- 3. شاشة المراجعة -->
-     <div class="card" id="reviewCard">
-         <div class="section-title" style="justify-content: space-between;">
-             <span><i class="fas fa-table"></i> ③ شاشة مراجعة البيانات المستخرجة</span>
-             <button class="btn btn-success" id="exportBtn" onclick="exportToExcel()" disabled>
-                 <i class="fas fa-file-excel"></i> 📥 تحميل Excel
-             </button>
-         </div>
-         <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 0;">
-             تنبيه: يمكنك تعديل القيم داخل الخلايا مباشرة قبل التصدير.
-         </p>
-         <div class="table-responsive">
-             <table id="reviewTable">
-                 <thead>
-                     <tr id="tableHeaders">
-                         <th>#</th>
-                         <th>اسم الملف</th>
-                     </tr>
-                 </thead>
-                 <tbody id="tableBody">
-                     <tr>
-                         <td colspan="3" style="text-align: center; color: var(--text-light); padding: 20px;">
-                             لم يتم رفع أي مستندات بعد.
-                         </td>
-                     </tr>
-                 </tbody>
-             </table>
-         </div>
-     </div>
- </div>
- 
- <script>
-     const DEFAULT_HEADERS = [
-         "الاسم العربي", "الاسم بالإنجليزي", "عمود فارغ", "الدرجة العلمية", "التقدير",
-         "الجامعة", "الكلية", "تاريخ التخرج", "الرقم القومي", "رقم التليفون",
-         "الديانة", "الحالة الاجتماعية", "النوع", "الموقف من التجنيد", "تاريخ حالة التجنيد",
-         "السطر الأول من العنوان", "مركز / قسم", "المحافظة", "الرقم التأميني", "محل الميلاد"
-     ];
- 
-     let extractedDataRows = [];
- 
-+    const FIELD_ALIASES = [
-+        { test: h => h.includes("الاسم") && h.includes("انجليزي"), keys: ["الاسم بالانجليزي", "الاسم بالإنجليزي", "english name", "name"] },
-+        { test: h => h.includes("الاسم"), keys: ["الاسم العربي", "الاسم", "اسم الموظف", "name"] },
-+        { test: h => h.includes("الدرجه العلميه"), keys: ["الدرجة العلمية", "المؤهل", "المؤهل الدراسي", "qualification"] },
-+        { test: h => h.includes("التقدير"), keys: ["التقدير", "grade"] },
-+        { test: h => h.includes("الجامعه"), keys: ["الجامعة", "university"] },
-+        { test: h => h.includes("الكليه"), keys: ["الكلية", "faculty", "college"] },
-+        { test: h => h.includes("تاريخ التخرج"), keys: ["تاريخ التخرج", "سنة التخرج", "graduation date"] },
-+        { test: h => h.includes("الرقم القومي"), keys: ["الرقم القومي", "الرقم القومى", "رقم قومي", "رقم قومى", "national id"] },
-+        { test: h => h.includes("تليفون") || h.includes("تلفون") || h.includes("موبايل"), keys: ["رقم التليفون", "التليفون", "تليفون", "تلفون", "موبايل", "الهاتف", "phone", "mobile"] },
-+        { test: h => h.includes("الديانه"), keys: ["الديانة", "religion"] },
-+        { test: h => h.includes("الحاله الاجتماعيه"), keys: ["الحالة الاجتماعية", "الحاله الاجتماعيه", "social status"] },
-+        { test: h => h.includes("النوع"), keys: ["النوع", "الجنس", "gender", "sex"] },
-+        { test: h => h.includes("التجنيد"), keys: ["الموقف من التجنيد", "تاريخ حالة التجنيد", "التجنيد", "military"] },
-+        { test: h => h.includes("العنوان"), keys: ["العنوان", "السطر الأول من العنوان", "address"] },
-+        { test: h => h.includes("مركز") || h.includes("قسم"), keys: ["مركز", "قسم", "مركز / قسم"] },
-+        { test: h => h.includes("المحافظه"), keys: ["المحافظة", "governorate"] },
-+        { test: h => h.includes("التاميني"), keys: ["الرقم التأميني", "الرقم التأمينى", "insurance"] },
-+        { test: h => h.includes("محل الميلاد"), keys: ["محل الميلاد", "مكان الميلاد", "birth place"] }
-+    ];
-+
-     window.onload = function() {
-         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-         loadTemplatesList();
-         document.getElementById('headersList').value = DEFAULT_HEADERS.join('\n');
-+        setupUploadDnD();
-     };
- 
-+    function setupUploadDnD() {
-+        const uploadArea = document.getElementById('uploadArea');
-+        const fileInput = document.getElementById('fileInput');
-+        ['dragenter', 'dragover'].forEach(eventName => {
-+            uploadArea.addEventListener(eventName, event => {
-+                event.preventDefault();
-+                uploadArea.classList.add('is-dragover');
-+            });
-+        });
-+        ['dragleave', 'drop'].forEach(eventName => {
-+            uploadArea.addEventListener(eventName, event => {
-+                event.preventDefault();
-+                uploadArea.classList.remove('is-dragover');
-+            });
-+        });
-+        uploadArea.addEventListener('drop', event => handleFiles(event.dataTransfer.files));
-+        fileInput.addEventListener('click', event => event.stopPropagation());
-+    }
-+
-+    function getCurrentHeaders() {
-+        return document.getElementById('headersList').value.split('\n').map(h => h.trim()).filter(Boolean);
-+    }
-+
-+    function setProgress(percent, message) {
-+        document.getElementById('progressWrap').style.display = 'block';
-+        document.getElementById('progressBar').style.width = `${Math.max(0, Math.min(100, percent))}%`;
-+        if (message) document.getElementById('statusBar').textContent = message;
-+    }
-+
-     function loadTemplatesList() {
-         const templates = JSON.parse(localStorage.getItem('hr_scan_templates') || '{}');
-         const select = document.getElementById('templateSelect');
-         select.innerHTML = '<option value="default">قالب بيانات الموظفين الأساسي</option>';
-         for (let name in templates) {
-             const opt = document.createElement('option');
-             opt.value = name;
-             opt.textContent = name;
-             select.appendChild(opt);
-         }
-     }
- 
-     function loadSelectedTemplate() {
-         const val = document.getElementById('templateSelect').value;
-         if (val === 'default') {
-             document.getElementById('headersList').value = DEFAULT_HEADERS.join('\n');
-         } else {
-             const templates = JSON.parse(localStorage.getItem('hr_scan_templates') || '{}');
-             if (templates[val]) {
-                 document.getElementById('headersList').value = templates[val].join('\n');
-             }
-         }
-     }
- 
-     function saveNewTemplate() {
-         const name = prompt("أدخل اسماً للقالب الجديد:");
-         if (!name) return;
--        const headers = document.getElementById('headersList').value.split('\n').map(h => h.trim()).filter(h => h);
-+        const headers = getCurrentHeaders();
-         const templates = JSON.parse(localStorage.getItem('hr_scan_templates') || '{}');
-         templates[name] = headers;
-         localStorage.setItem('hr_scan_templates', JSON.stringify(templates));
-         loadTemplatesList();
-         document.getElementById('templateSelect').value = name;
-     }
- 
--    // المعالجة الرئيسية للـ PDF + الصور بـ OCR المزدوج
-     async function handleFiles(files) {
-         if (!files.length) return;
--        const statusBar = document.getElementById('statusBar');
--        extractedDataRows = [];
--        statusBar.textContent = "جاري تحميل وقراءة المستندات...";
-+        const currentHeaders = getCurrentHeaders();
-+        if (!currentHeaders.length) {
-+            setProgress(0, "من فضلك أضف عموداً واحداً على الأقل قبل رفع الملفات.");
-+            return;
-+        }
- 
--        const currentHeaders = document.getElementById('headersList').value.split('\n').map(h => h.trim()).filter(h => h);
-+        extractedDataRows = [];
-         renderTableHeaders(currentHeaders);
-+        renderTableBody(currentHeaders);
-+        document.getElementById('exportBtn').disabled = true;
-+        setProgress(2, "جاري تجهيز محرك القراءة OCR...");
-+
-+        let worker;
-+        try {
-+            worker = await Tesseract.createWorker('ara+eng', 1, {
-+                logger: m => {
-+                    if (m.status === 'recognizing text') setProgress(10 + (m.progress * 70), "جاري قراءة النصوص من المستندات...");
-+                }
-+            });
- 
--        const worker = await Tesseract.createWorker('ara+eng');
-+            for (let i = 0; i < files.length; i++) {
-+                const file = files[i];
-+                const baseProgress = (i / files.length) * 100;
-+                setProgress(baseProgress, `جاري معالجة الملف (${i + 1} من ${files.length}): ${file.name}...`);
- 
--        for (let i = 0; i < files.length; i++) {
--            const file = files[i];
--            statusBar.textContent = `جاري معالجة الملف (${i + 1} من ${files.length}): ${file.name}...`;
-+                let text = "";
-+                if (file.type === "application/pdf" || file.name.toLowerCase().endsWith('.pdf')) {
-+                    text = await readPdfWithOcr(file, worker);
-+                } else {
-+                    const ret = await worker.recognize(await fileToImage(file));
-+                    text = ret.data.text;
-+                }
- 
--            let text = "";
--            if (file.type === "application/pdf") {
--                text = await readPdfWithOcr(file, worker);
--            } else {
--                const ret = await worker.recognize(file);
--                text = ret.data.text;
-+                const rowData = extractFieldsFromText(text, currentHeaders, file.name);
-+                extractedDataRows.push(rowData);
-+                renderTableBody(currentHeaders);
-             }
- 
--            const rowData = extractFieldsFromText(text, currentHeaders, file.name);
--            extractedDataRows.push(rowData);
-+            setProgress(100, "تم استخراج البيانات بنجاح! راجع الخلايا المظللة قبل التصدير.");
-+            document.getElementById('exportBtn').disabled = extractedDataRows.length === 0;
-+        } catch (error) {
-+            console.error(error);
-+            setProgress(0, `حدث خطأ أثناء القراءة: ${error.message || error}`);
-+        } finally {
-+            if (worker) await worker.terminate();
-         }
-+    }
- 
--        await worker.terminate();
--        statusBar.textContent = "تم استخراج البيانات بنجاح! يمكنك المراجعة والتعديل قبل التصدير.";
--        renderTableBody(currentHeaders);
--        document.getElementById('exportBtn').disabled = false;
-+    async function fileToImage(file) {
-+        return new Promise((resolve, reject) => {
-+            const img = new Image();
-+            img.onload = () => resolve(preprocessImage(img));
-+            img.onerror = () => reject(new Error('تعذر تحميل الصورة'));
-+            img.src = URL.createObjectURL(file);
-+        });
-+    }
-+
-+    function preprocessImage(source) {
-+        const canvas = document.createElement('canvas');
-+        const scale = Math.min(3, Math.max(1, 1800 / Math.max(source.width || source.videoWidth, source.height || source.videoHeight)));
-+        canvas.width = Math.round((source.width || source.videoWidth) * scale);
-+        canvas.height = Math.round((source.height || source.videoHeight) * scale);
-+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
-+        ctx.filter = 'grayscale(1) contrast(1.35) brightness(1.05)';
-+        ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
-+        return canvas;
-     }
- 
--    // تحويل الـ PDF الممسوح ضوئياً إلى Canvas وصور وقراءته بواسطة OCR
-     async function readPdfWithOcr(file, worker) {
-         const arrayBuffer = await file.arrayBuffer();
-         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-         let fullPdfText = "";
- 
-         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-             const page = await pdf.getPage(pageNum);
--            
--            // محاولة القراءة المباشرة أولاً
-             const textContent = await page.getTextContent();
-             let pageText = textContent.items.map(item => item.str).join(' ');
- 
--            // لو الصفحة عبارة عن صورة Scan ممسوحة، يحولها لـ Canvas ويقرأها OCR
--            if (pageText.trim().length < 15) {
--                const viewport = page.getViewport({ scale: 2.0 });
-+            if (pageText.trim().length < 25) {
-+                const viewport = page.getViewport({ scale: 2.5 });
-                 const canvas = document.createElement('canvas');
--                const context = canvas.getContext('2d');
-+                const context = canvas.getContext('2d', { willReadFrequently: true });
-                 canvas.height = viewport.height;
-                 canvas.width = viewport.width;
- 
--                await page.render({ canvasContext: context, viewport: viewport }).promise;
--                const ret = await worker.recognize(canvas);
-+                await page.render({ canvasContext: context, viewport }).promise;
-+                const ret = await worker.recognize(preprocessImage(canvas));
-                 pageText = ret.data.text;
-             }
- 
-             fullPdfText += pageText + "\n";
-         }
- 
-         return fullPdfText;
-     }
- 
--    // محرك استخراج البيانات المتقدم والمريح للبحث عن الحقول
-+    function normalizeText(text) {
-+        return text
-+            .replace(/[إأآا]/g, 'ا')
-+            .replace(/ى/g, 'ي')
-+            .replace(/ة/g, 'ه')
-+            .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
-+            .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
-+            .replace(/[|؛]/g, ':')
-+            .replace(/\s+/g, ' ')
-+            .trim();
-+    }
-+
-+    function escapeRegex(value) {
-+        return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-+    }
-+
-+    function getAliases(header) {
-+        const normalizedHeader = normalizeText(header).toLowerCase();
-+        const match = FIELD_ALIASES.find(rule => rule.test(normalizedHeader));
-+        return [...new Set([header, normalizedHeader, ...(match ? match.keys : [])].map(normalizeText))];
-+    }
-+
-+    function findValueByAliases(normalizedText, aliases) {
-+        for (const alias of aliases) {
-+            const pattern = new RegExp(`(?:^|\\s)${escapeRegex(alias)}\\s*[:\\-=،]?\\s*([^:\\n\\r]{2,80}?)(?=\\s+(?:${aliases.map(escapeRegex).join('|')})\\s*[:\\-=،]|$)`, 'i');
-+            const match = normalizedText.match(pattern);
-+            if (match && match[1]) return match[1].trim().replace(/[،,:\-=]+$/, '').trim();
-+        }
-+        return "";
-+    }
-+
-     function extractFieldsFromText(rawText, headers, fileName) {
-         const row = { _fileName: fileName, _flags: {} };
--        
-+        const normalizedText = normalizeText(rawText);
-+
-         headers.forEach(header => {
--            if (header === "عمود فارغ" || header === "فارغ") {
-+            if (["عمود فارغ", "فارغ"].includes(header)) {
-                 row[header] = "";
-                 return;
-             }
- 
--            // كلمات دلالية أوسع للبحث
--            let searchKey = header;
--            if (header.includes("الاسم العربي") || header.includes("الاسم")) searchKey = "الاسم";
--            else if (header.includes("الرقم القومي")) searchKey = "(الرقم القومي|الرقم القومى|قومي|قومى)";
--            else if (header.includes("الديانة")) searchKey = "الديانة";
--            else if (header.includes("الحالة الاجتماعية")) searchKey = "(الحالة الاجتماعية|الحالة الاجتماعية)";
--            else if (header.includes("تليفون") || header.includes("الموبايل")) searchKey = "(تليفون|موبايل|الهاتف)";
--
--            const regex = new RegExp(`${searchKey}\\s*[:\\-=]?\\s*([^\\n\\r]+)`, 'i');
--            const match = rawText.match(regex);
--            
--            if (match && match[1]) {
--                row[header] = match[1].trim();
--            } else {
--                row[header] = ""; 
-+            const aliases = getAliases(header);
-+            row[header] = findValueByAliases(normalizedText, aliases);
-+
-+            if (header.includes("الرقم القومي")) {
-+                const nationalIdMatch = normalizedText.match(/\b[23]\d{13}\b/);
-+                const cleanNationalId = (row[header] || nationalIdMatch?.[0] || '').replace(/\D/g, '');
-+                row[header] = cleanNationalId;
-+                if (cleanNationalId.length !== 14) row._flags[header] = "⚠️ مراجعة الرقم القومي";
-             }
- 
--            // التحقق الذكي من الرقم القومي
--            if (header.includes("الرقم القومي") && row[header]) {
--                const cleanNationalId = row[header].replace(/\D/g, '');
--                if (cleanNationalId.length === 14) {
--                    row[header] = cleanNationalId;
--                } else {
--                    row._flags[header] = "⚠️ مراجعة الرقم القومي";
--                }
-+            if ((header.includes("تليفون") || header.includes("تلفون") || header.includes("موبايل")) && !row[header]) {
-+                row[header] = normalizedText.match(/\b01[0125]\d{8}\b/)?.[0] || "";
-             }
-+
-+            if (!row[header] && !row._flags[header]) row._flags[header] = "⚠️ لم يتم العثور على قيمة واضحة";
-         });
- 
-         return row;
-     }
- 
-     function renderTableHeaders(headers) {
-         const tr = document.getElementById('tableHeaders');
-         tr.innerHTML = '<th>#</th><th>اسم الملف</th>';
-         headers.forEach(h => {
-             const th = document.createElement('th');
-             th.textContent = h;
-             tr.appendChild(th);
-         });
-     }
- 
-     function renderTableBody(headers) {
-         const tbody = document.getElementById('tableBody');
-         tbody.innerHTML = '';
- 
-         extractedDataRows.forEach((row, idx) => {
-             const tr = document.createElement('tr');
-             tr.innerHTML = `<td>${idx + 1}</td><td><b>${row._fileName}</b></td>`;
- 
-             headers.forEach(header => {
-                 const td = document.createElement('td');
- 
-EOF
-)
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Scan → Excel | الميثاق الذكي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #0b4fb3;
+            --accent: #1e3a8a;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --warning: #d97706;
+            --success: #059669;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; }
+        .header-title { text-align: center; color: var(--primary); margin-bottom: 25px; }
+        .header-title h1 { font-size: 2rem; margin: 0 0 8px; font-weight: 800; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .template-controls { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+
+        select, input[type="text"], textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        select:focus, input:focus, textarea:focus { border-color: var(--primary); }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover { background: var(--accent); }
+        .btn-success { background: var(--success); }
+        .btn-success:hover { background: #047857; }
+
+        .upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: 14px;
+            padding: 30px;
+            text-align: center;
+            background: #f1f5f9;
+            cursor: pointer;
+        }
+
+        .upload-area:hover { background: #e2e8f0; }
+        .upload-area i { font-size: 2.5rem; color: var(--primary); margin-bottom: 10px; }
+
+        .table-responsive {
+            overflow-x: auto;
+            max-height: 400px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: right; }
+
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 12px;
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
+        }
+
+        td { padding: 8px; border-bottom: 1px solid var(--border); }
+        td input { border: 1px solid transparent; background: transparent; padding: 6px; width: 100%; font-weight: 600; }
+        td input:focus { border-color: var(--primary); background: white; }
+
+        .flag-warning { background-color: #fef3c7; border-right: 4px solid var(--warning); }
+        .status-bar { margin-top: 15px; font-size: 0.95rem; color: var(--primary); font-weight: 700; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-title">
+        <h1>استخراج بيانات الموظفين (HR Scan → Excel)</h1>
+        <p style="color: var(--text-light); margin: 0;">تحويل استمارات وصور المستندات إلى شيتات إكسيل منسقة تلقائياً</p>
+    </div>
+
+    <!-- 1. القوالب والعناوين -->
+    <div class="card">
+        <div class="section-title"><i class="fas fa-layer-group"></i> ① ترتيب وترتيب البيانات (Headers)</div>
+        <div class="template-controls">
+            <div style="flex: 1; min-width: 200px;">
+                <select id="templateSelect" onchange="loadSelectedTemplate()">
+                    <option value="default">قالب بيانات الموظفين الأساسي</option>
+                </select>
+            </div>
+            <button class="btn" onclick="saveNewTemplate()"><i class="fas fa-save"></i> حفظ كقالب جديد</button>
+        </div>
+        <div>
+            <textarea id="headersList" rows="5"></textarea>
+        </div>
+    </div>
+
+    <!-- 2. رفع المستندات -->
+    <div class="card">
+        <div class="section-title"><i class="fas fa-file-upload"></i> ② رفع المستندات (PDF / Images)</div>
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <div style="font-weight: 700;">اضغط هنا لرفع الصور أو الـ PDF الممسوح ضوئياً</div>
+            <input type="file" id="fileInput" multiple accept="image/*,.pdf" class="hidden" onchange="handleFiles(this.files)">
+        </div>
+        <div id="statusBar" class="status-bar"></div>
+    </div>
+
+    <!-- 3. شاشة المراجعة -->
+    <div class="card" id="reviewCard">
+        <div class="section-title" style="justify-content: space-between;">
+            <span><i class="fas fa-table"></i> ③ شاشة مراجعة البيانات المستخرجة</span>
+            <button class="btn btn-success" id="exportBtn" onclick="exportToExcel()" disabled>
+                <i class="fas fa-file-excel"></i> 📥 تحميل Excel
+            </button>
+        </div>
+        <div class="table-responsive">
+            <table id="reviewTable">
+                <thead>
+                    <tr id="tableHeaders">
+                        <th>#</th>
+                        <th>اسم الملف</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: var(--text-light); padding: 20px;">
+                            لم يتم رفع أي مستندات بعد.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const DEFAULT_HEADERS = [
+        "الاسم العربي", "الاسم بالإنجليزي", "عمود فارغ", "الدرجة العلمية", "التقدير",
+        "الجامعة", "الكلية", "تاريخ التخرج", "الرقم القومي", "رقم التليفون",
+        "الديانة", "الحالة الاجتماعية", "النوع", "الموقف من التجنيد", "تاريخ حالة التجنيد",
+        "السطر الأول من العنوان", "مركز / قسم", "المحافظة", "الرقم التأميني", "محل الميلاد"
+    ];
+
+    let extractedDataRows = [];
+
+    window.onload = function() {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        document.getElementById('headersList').value = DEFAULT_HEADERS.join('\n');
+    };
+
+    async function handleFiles(files) {
+        if (!files.length) return;
+        const statusBar = document.getElementById('statusBar');
+        extractedDataRows = [];
+        statusBar.textContent = "⏳ جاري بدء تجهيز محرك القراءة...";
+
+        const currentHeaders = document.getElementById('headersList').value.split('\n').map(h => h.trim()).filter(h => h);
+        renderTableHeaders(currentHeaders);
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            statusBar.textContent = `⚙️ جاري تحليل الملف (${i + 1} من ${files.length}): ${file.name}...`;
+
+            let rawText = "";
+            try {
+                if (file.type === "application/pdf") {
+                    rawText = await extractTextFromPdf(file);
+                } else {
+                    rawText = await extractTextFromImage(file);
+                }
+            } catch (err) {
+                console.error("Error processing file:", err);
+            }
+
+            const rowData = parseExtractedText(rawText, currentHeaders, file.name);
+            extractedDataRows.push(rowData);
+        }
+
+        statusBar.textContent = "✅ تم استخراج البيانات! يمكنك مراجعة وتعديل الخانات بالجدول قبل التحميل.";
+        renderTableBody(currentHeaders);
+        document.getElementById('exportBtn').disabled = false;
+    }
+
+    // استخراج النص من الصورة عبر Tesseract
+    async function extractTextFromImage(file) {
+        const result = await Tesseract.recognize(file, 'ara+eng', {
+            logger: m => {
+                if(m.status === 'recognizing text') {
+                    document.getElementById('statusBar').textContent = `⚙️ جاري التعرف على النصوص: ${Math.round(m.progress * 100)}%`;
+                }
+            }
+        });
+        return result.data.text;
+    }
+
+    // استخراج النص من PDF (مباشر أو تحويل لصور إذا كان Scan)
+    async function extractTextFromPdf(file) {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let pdfText = "";
+
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const textContent = await page.getTextContent();
+            let pageText = textContent.items.map(item => item.str).join(' ');
+
+            // إذا كانت الصفحة صورة Scan ممسوحة ضوئياً
+            if (pageText.trim().length < 10) {
+                const viewport = page.getViewport({ scale: 2.0 });
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                await page.render({ canvasContext: context, viewport: viewport }).promise;
+                
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                pageText = await extractTextFromImage(blob);
+            }
+
+            pdfText += pageText + "\n";
+        }
+
+        return pdfText;
+    }
+
+    // تحليل النص المستخرج وتوزيعه على الأعمدة بمرونة عالية
+    function parseExtractedText(text, headers, fileName) {
+        const row = { _fileName: fileName, _flags: {} };
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+
+        headers.forEach(header => {
+            if (header.includes("فارغ")) {
+                row[header] = "";
+                return;
+            }
+
+            let foundVal = "";
+
+            // البحث عن الكلمات المفتاحية
+            lines.forEach(line => {
+                if (header.includes("الاسم") && (line.includes("الاسم") || line.includes("اسم"))) {
+                    foundVal = line.replace(/.*(الاسم|اسم)[:\s\-=]*/, '').trim();
+                } else if (header.includes("الرقم القومي") && (line.includes("القومي") || line.includes("القومى") || line.match(/\d{14}/))) {
+                    const match = line.match(/\d{14}/);
+                    foundVal = match ? match[0] : line.replace(/\D/g, '');
+                } else if (header.includes("الديانة") && line.includes("الديانة")) {
+                    foundVal = line.replace(/.*الديانة[:\s\-=]*/, '').trim();
+                } else if (header.includes("الحالة الاجتماعية") && line.includes("الحالة")) {
+                    foundVal = line.replace(/.*الحالة[:\s\-=]*/, '').trim();
+                } else if (header.includes("تليفون") && (line.includes("تليفون") || line.includes("موبايل") || line.includes("هاتف"))) {
+                    foundVal = line.replace(/\D/g, '');
+                }
+            });
+
+            row[header] = foundVal;
+
+            // تنبيه الرقم القومي
+            if (header.includes("الرقم القومي") && row[header].length !== 14) {
+                row._flags[header] = "⚠️ مراجعة الرقم القومي";
+            }
+        });
+
+        return row;
+    }
+
+    function renderTableHeaders(headers) {
+        const tr = document.getElementById('tableHeaders');
+        tr.innerHTML = '<th>#</th><th>اسم الملف</th>';
+        headers.forEach(h => {
+            const th = document.createElement('th');
+            th.textContent = h;
+            tr.appendChild(th);
+        });
+    }
+
+    function renderTableBody(headers) {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        extractedDataRows.forEach((row, idx) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${idx + 1}</td><td><b>${row._fileName}</b></td>`;
+
+            headers.forEach(header => {
+                const td = document.createElement('td');
+                const val = row[header] || '';
+                
+                if (row._flags[header]) {
+                    td.className = 'flag-warning';
+                }
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = val;
+                input.oninput = function() {
+                    extractedDataRows[idx][header] = this.value;
+                };
+
+                td.appendChild(input);
+                tr.appendChild(td);
+            });
+
+            tbody.appendChild(tr);
+        });
+    }
+
+    function exportToExcel() {
+        const headers = document.getElementById('headersList').value.split('\n').map(h => h.trim()).filter(h => h);
+        const exportData = extractedDataRows.map(row => {
+            const cleanRow = {};
+            headers.forEach(h => { cleanRow[h] = row[h] || ''; });
+            return cleanRow;
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData, { header: headers });
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "بيانات الموظفين");
+
+        XLSX.writeFile(workbook, "HR_Scan_Database.xlsx");
+    }
+</script>
+
+</body>
+</html>
