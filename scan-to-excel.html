@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Scan → Excel | الميثاق الذكي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- External Libraries (Client-side execution) -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #0b4fb3;
+            --accent: #1e3a8a;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --warning: #d97706;
+            --success: #059669;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .header-title {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 25px;
+        }
+
+        .header-title h1 {
+            font-size: 2rem;
+            margin: 0 0 8px;
+            font-weight: 800;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Template Controls */
+        .template-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        select, input[type="text"], textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover { background: var(--accent); }
+        .btn-success { background: var(--success); }
+        .btn-success:hover { background: #047857; }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: 14px;
+            padding: 30px;
+            text-align: center;
+            background: #f1f5f9;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .upload-area:hover { background: #e2e8f0; }
+        .upload-area i { font-size: 2.5rem; color: var(--primary); margin-bottom: 10px; }
+
+        /* Review Table */
+        .table-responsive {
+            overflow-x: auto;
+            max-height: 400px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            text-align: right;
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 12px;
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td input {
+            border: 1px solid transparent;
+            background: transparent;
+            padding: 6px;
+        }
+
+        td input:focus {
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .flag-warning {
+            background-color: #fef3c7;
+            border-right: 4px solid var(--warning);
+        }
+
+        .status-bar {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-title">
+        <h1>استخراج بيانات الموظفين (HR Scan → Excel)</h1>
+        <p style="color: var(--text-light); margin: 0;">تحويل استمارات وصور المستندات إلى شيتات إكسيل منسقة تلقائياً</p>
+    </div>
+
+    <!-- 1. إدارة القوالب وترتيب الأعمدة -->
+    <div class="card">
+        <div class="section-title"><i class="fas fa-layer-group"></i> ① اختيار وقالب ترتيب البيانات (Headers)</div>
+        <div class="template-controls">
+            <div style="flex: 1; min-width: 200px;">
+                <select id="templateSelect" onchange="loadSelectedTemplate()">
+                    <option value="default">قالب بيانات الموظفين الأساسي</option>
+                </select>
+            </div>
+            <button class="btn" onclick="saveNewTemplate()"><i class="fas fa-save"></i> حفظ كقالب جديد</button>
+        </div>
+        <div>
+            <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-light); display: block; margin-bottom: 6px;">
+                الأعمدة المطلوبة (اكتب كل عمود في سطر مستقل بنفس الترتيب المطلوب في Excel):
+            </label>
+            <textarea id="headersList" rows="6" placeholder="أدخل العناوين هنا..."></textarea>
+        </div>
+    </div>
+
+    <!-- 2. رفع الملفات -->
+    <div class="card">
+        <div class="section-title"><i class="fas fa-file-upload"></i> ② رفع المستندات (PDF / JPG / PNG)</div>
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <div style="font-weight: 700;">اضغط هنا لرفع المستندات الممسوحة ضوئياً</div>
+            <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 5px;">يدعم صور الاستمارات ورخص القيادة والـ PDF</div>
+            <input type="file" id="fileInput" multiple accept="image/*,.pdf" class="hidden" onchange="handleFiles(this.files)">
+        </div>
+        <div id="statusBar" class="status-bar"></div>
+    </div>
+
+    <!-- 3. شاشة المراجعة والتعديل قبل التصدير -->
+    <div class="card id="reviewCard">
+        <div class="section-title" style="justify-content: space-between;">
+            <span><i class="fas fa-table"></i> ③ شاشة مراجعة البيانات المستخرجة</span>
+            <button class="btn btn-success" id="exportBtn" onclick="exportToExcel()" disabled>
+                <i class="fas fa-file-excel"></i> 📥 تحميل Excel
+            </button>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 0;">
+            تنبيه: يمكنك تعديل القيم داخل الخلايا مباشرة قبل التصدير. الخلايا ذات اللون الأصفر تحتوي على تنبيه لمراجعة الدقة.
+        </p>
+        <div class="table-responsive">
+            <table id="reviewTable">
+                <thead>
+                    <tr id="tableHeaders">
+                        <th>#</th>
+                        <th>اسم الملف</th>
+                        <th>حالة القراءة</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: var(--text-light); padding: 20px;">
+                            لم يتم رفع أي مستندات بعد.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. الترتيب الافتراضي المعتمد للـ Headers
+    const DEFAULT_HEADERS = [
+        "الاسم العربي", "الاسم بالإنجليزي", "عمود فارغ", "الدرجة العلمية", "التقدير",
+        "الجامعة", "الكلية", "تاريخ التخرج", "الرقم القومي", "رقم التليفون",
+        "الديانة", "الحالة الاجتماعية", "النوع", "الموقف من التجنيد", "تاريخ حالة التجنيد",
+        "السطر الأول من العنوان", "مركز / قسم", "المحافظة", "الرقم التأميني", "محل الميلاد"
+    ];
+
+    let extractedDataRows = [];
+
+    // 2. تحميل القوالب وتوليدها
+    window.onload = function() {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        loadTemplatesList();
+        document.getElementById('headersList').value = DEFAULT_HEADERS.join('\n');
+    };
+
+    function loadTemplatesList() {
+        const templates = JSON.parse(localStorage.getItem('hr_scan_templates') || '{}');
+        const select = document.getElementById('templateSelect');
+        select.innerHTML = '<option value="default">قالب بيانات الموظفين الأساسي</option>';
+        for (let name in templates) {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            select.appendChild(opt);
+        }
+    }
+
+    function loadSelectedTemplate() {
+        const val = document.getElementById('templateSelect').value;
+        if (val === 'default') {
+            document.getElementById('headersList').value = DEFAULT_HEADERS.join('\n');
+        } else {
+            const templates = JSON.parse(localStorage.getItem('hr_scan_templates') || '{}');
+            if (templates[val]) {
+                document.getElementById('headersList').value = templates[val].join('\n');
+            }
+        }
+    }
+
+    function saveNewTemplate() {
+        const name = prompt("أدخل اسماً للقالب الجديد (مثلاً: بيانات المتقدمين):");
+        if (!name) return;
+        const headers = document.getElementById('headersList').value.split('\n').map(h => h.trim()).filter(h => h);
+        const templates = JSON.parse(localStorage.getItem('hr_scan_templates') || '{}');
+        templates[name] = headers;
+        localStorage.setItem('hr_scan_templates', JSON.stringify(templates));
+        loadTemplatesList();
+        document.getElementById('templateSelect').value = name;
+    }
+
+    // 3. معالجة الملفات والـ OCR
+    async function handleFiles(files) {
+        if (!files.length) return;
+        const statusBar = document.getElementById('statusBar');
+        extractedDataRows = [];
+        statusBar.textContent = "جاري تحميل وقراءة المستندات...";
+
+        const currentHeaders = document.getElementById('headersList').value.split('\n').map(h => h.trim()).filter(h => h);
+        renderTableHeaders(currentHeaders);
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            statusBar.textContent = `جاري معالجة الملف (${i + 1} من ${files.length}): ${file.name}...`;
+
+            let text = "";
+            if (file.type === "application/pdf") {
+                text = await readPdfText(file);
+            } else {
+                text = await readImageOCR(file);
+            }
+
+            const rowData = extractFieldsFromText(text, currentHeaders, file.name);
+            extractedDataRows.push(rowData);
+        }
+
+        statusBar.textContent = "تم استخراج البيانات بنجاح! يمكنك المراجعة والتعديل قبل التصدير.";
+        renderTableBody(currentHeaders);
+        document.getElementById('exportBtn').disabled = false;
+    }
+
+    async function readImageOCR(file) {
+        const worker = await Tesseract.createWorker('ara+eng');
+        const ret = await worker.recognize(file);
+        await worker.terminate();
+        return ret.data.text;
+    }
+
+    async function readPdfText(file) {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let fullText = "";
+        
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            const pageText = content.items.map(item => item.str).join(' ');
+            fullText += pageText + "\n";
+        }
+        return fullText;
+    }
+
+    // 4. المحرك الذكي لاستخراج الحقول (Field Extraction Engine)
+    function extractFieldsFromText(rawText, headers, fileName) {
+        const row = { _fileName: fileName, _flags: {} };
+        
+        headers.forEach(header => {
+            if (header === "عمود فارغ" || header === "فارغ") {
+                row[header] = "";
+                return;
+            }
+
+            // البحث عن النمط الكلمة: القيمة
+            const regex = new RegExp(`${header}\\s*[:\\-=]?\\s*([^\\n]+)`, 'i');
+            const match = rawText.match(regex);
+            
+            if (match && match[1]) {
+                row[header] = match[1].trim();
+            } else {
+                row[header] = ""; 
+            }
+
+            // فحص صحة الرقم القومي (تنبيه مراجعة إذا لم يكن 14 رقم)
+            if (header.includes("الرقم القومي") && row[header]) {
+                const cleanNationalId = row[header].replace(/\D/g, '');
+                if (cleanNationalId.length !== 14) {
+                    row._flags[header] = "⚠️ الرقم القومي يحتاج مراجعة (ليس 14 رقم)";
+                }
+            }
+        });
+
+        return row;
+    }
+
+    // 5. رسم جدول المراجعة والتعديل
+    function renderTableHeaders(headers) {
+        const tr = document.getElementById('tableHeaders');
+        tr.innerHTML = '<th>#</th><th>اسم الملف</th>';
+        headers.forEach(h => {
+            const th = document.createElement('th');
+            th.textContent = h;
+            tr.appendChild(th);
+        });
+    }
+
+    function renderTableBody(headers) {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        extractedDataRows.forEach((row, idx) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${idx + 1}</td><td><b>${row._fileName}</b></td>`;
+
+            headers.forEach(header => {
+                const td = document.createElement('td');
+                const val = row[header] || '';
+                
+                if (row._flags[header]) {
+                    td.className = 'flag-warning';
+                    td.title = row._flags[header];
+                }
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = val;
+                input.oninput = function() {
+                    extractedDataRows[idx][header] = this.value;
+                };
+
+                td.appendChild(input);
+                tr.appendChild(td);
+            });
+
+            tbody.appendChild(tr);
+        });
+    }
+
+    // 6. تصدير البيانات إلى Excel
+    function exportToExcel() {
+        const headers = document.getElementById('headersList').value.split('\n').map(h => h.trim()).filter(h => h);
+        const exportData = extractedDataRows.map(row => {
+            const cleanRow = {};
+            headers.forEach(h => {
+                cleanRow[h] = row[h] || '';
+            });
+            return cleanRow;
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData, { header: headers });
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "بيانات الموظفين");
+
+        XLSX.writeFile(workbook, "HR_Scan_Database.xlsx");
+    }
+</script>
+
+</body>
+</html>
