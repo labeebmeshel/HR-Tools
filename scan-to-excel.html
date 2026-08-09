@@ -6,7 +6,7 @@
     <title>HR Scan → Excel | الميثاق الذكي</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- External Libraries (Client-side execution) -->
+    <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
@@ -34,22 +34,9 @@
             min-height: 100vh;
         }
 
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        .header-title {
-            text-align: center;
-            color: var(--primary);
-            margin-bottom: 25px;
-        }
-
-        .header-title h1 {
-            font-size: 2rem;
-            margin: 0 0 8px;
-            font-weight: 800;
-        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .header-title { text-align: center; color: var(--primary); margin-bottom: 25px; }
+        .header-title h1 { font-size: 2rem; margin: 0 0 8px; font-weight: 800; }
 
         .card {
             background: var(--card-bg);
@@ -71,13 +58,7 @@
             gap: 10px;
         }
 
-        /* Template Controls */
-        .template-controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
+        .template-controls { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
 
         select, input[type="text"], textarea {
             width: 100%;
@@ -90,9 +71,7 @@
             transition: border-color 0.2s;
         }
 
-        select:focus, input:focus, textarea:focus {
-            border-color: var(--primary);
-        }
+        select:focus, input:focus, textarea:focus { border-color: var(--primary); }
 
         .btn {
             background: var(--primary);
@@ -112,7 +91,6 @@
         .btn-success { background: var(--success); }
         .btn-success:hover { background: #047857; }
 
-        /* Upload Area */
         .upload-area {
             border: 2px dashed var(--primary);
             border-radius: 14px;
@@ -126,7 +104,6 @@
         .upload-area:hover { background: #e2e8f0; }
         .upload-area i { font-size: 2.5rem; color: var(--primary); margin-bottom: 10px; }
 
-        /* Review Table */
         .table-responsive {
             overflow-x: auto;
             max-height: 400px;
@@ -134,12 +111,7 @@
             border-radius: 10px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-            text-align: right;
-        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: right; }
 
         th {
             background: var(--primary);
@@ -150,34 +122,12 @@
             white-space: nowrap;
         }
 
-        td {
-            padding: 8px;
-            border-bottom: 1px solid var(--border);
-        }
+        td { padding: 8px; border-bottom: 1px solid var(--border); }
+        td input { border: 1px solid transparent; background: transparent; padding: 6px; width: 100%; }
+        td input:focus { border-color: var(--primary); background: white; }
 
-        td input {
-            border: 1px solid transparent;
-            background: transparent;
-            padding: 6px;
-        }
-
-        td input:focus {
-            border-color: var(--primary);
-            background: white;
-        }
-
-        .flag-warning {
-            background-color: #fef3c7;
-            border-right: 4px solid var(--warning);
-        }
-
-        .status-bar {
-            margin-top: 15px;
-            font-size: 0.9rem;
-            color: var(--text-light);
-            font-weight: 600;
-        }
-
+        .flag-warning { background-color: #fef3c7; border-right: 4px solid var(--warning); }
+        .status-bar { margin-top: 15px; font-size: 0.9rem; color: var(--text-light); font-weight: 600; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -189,7 +139,7 @@
         <p style="color: var(--text-light); margin: 0;">تحويل استمارات وصور المستندات إلى شيتات إكسيل منسقة تلقائياً</p>
     </div>
 
-    <!-- 1. إدارة القوالب وترتيب الأعمدة -->
+    <!-- 1. القوالب والعناوين -->
     <div class="card">
         <div class="section-title"><i class="fas fa-layer-group"></i> ① اختيار وقالب ترتيب البيانات (Headers)</div>
         <div class="template-controls">
@@ -208,20 +158,20 @@
         </div>
     </div>
 
-    <!-- 2. رفع الملفات -->
+    <!-- 2. رفع المستندات -->
     <div class="card">
-        <div class="section-title"><i class="fas fa-file-upload"></i> ② رفع المستندات (PDF / JPG / PNG)</div>
+        <div class="section-title"><i class="fas fa-file-upload"></i> ② رفع المستندات (PDF Scan / JPG / PNG)</div>
         <div class="upload-area" onclick="document.getElementById('fileInput').click()">
             <i class="fas fa-cloud-upload-alt"></i>
             <div style="font-weight: 700;">اضغط هنا لرفع المستندات الممسوحة ضوئياً</div>
-            <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 5px;">يدعم صور الاستمارات ورخص القيادة والـ PDF</div>
+            <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 5px;">يدعم صور الاستمارات ورخص القيادة والـ PDF Scan</div>
             <input type="file" id="fileInput" multiple accept="image/*,.pdf" class="hidden" onchange="handleFiles(this.files)">
         </div>
         <div id="statusBar" class="status-bar"></div>
     </div>
 
-    <!-- 3. شاشة المراجعة والتعديل قبل التصدير -->
-    <div class="card id="reviewCard">
+    <!-- 3. شاشة المراجعة -->
+    <div class="card" id="reviewCard">
         <div class="section-title" style="justify-content: space-between;">
             <span><i class="fas fa-table"></i> ③ شاشة مراجعة البيانات المستخرجة</span>
             <button class="btn btn-success" id="exportBtn" onclick="exportToExcel()" disabled>
@@ -229,7 +179,7 @@
             </button>
         </div>
         <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 0;">
-            تنبيه: يمكنك تعديل القيم داخل الخلايا مباشرة قبل التصدير. الخلايا ذات اللون الأصفر تحتوي على تنبيه لمراجعة الدقة.
+            تنبيه: يمكنك تعديل القيم داخل الخلايا مباشرة قبل التصدير.
         </p>
         <div class="table-responsive">
             <table id="reviewTable">
@@ -237,7 +187,6 @@
                     <tr id="tableHeaders">
                         <th>#</th>
                         <th>اسم الملف</th>
-                        <th>حالة القراءة</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -253,7 +202,6 @@
 </div>
 
 <script>
-    // 1. الترتيب الافتراضي المعتمد للـ Headers
     const DEFAULT_HEADERS = [
         "الاسم العربي", "الاسم بالإنجليزي", "عمود فارغ", "الدرجة العلمية", "التقدير",
         "الجامعة", "الكلية", "تاريخ التخرج", "الرقم القومي", "رقم التليفون",
@@ -263,7 +211,6 @@
 
     let extractedDataRows = [];
 
-    // 2. تحميل القوالب وتوليدها
     window.onload = function() {
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
         loadTemplatesList();
@@ -295,7 +242,7 @@
     }
 
     function saveNewTemplate() {
-        const name = prompt("أدخل اسماً للقالب الجديد (مثلاً: بيانات المتقدمين):");
+        const name = prompt("أدخل اسماً للقالب الجديد:");
         if (!name) return;
         const headers = document.getElementById('headersList').value.split('\n').map(h => h.trim()).filter(h => h);
         const templates = JSON.parse(localStorage.getItem('hr_scan_templates') || '{}');
@@ -305,7 +252,7 @@
         document.getElementById('templateSelect').value = name;
     }
 
-    // 3. معالجة الملفات والـ OCR
+    // المعالجة الرئيسية للـ PDF + الصور بـ OCR المزدوج
     async function handleFiles(files) {
         if (!files.length) return;
         const statusBar = document.getElementById('statusBar');
@@ -315,48 +262,63 @@
         const currentHeaders = document.getElementById('headersList').value.split('\n').map(h => h.trim()).filter(h => h);
         renderTableHeaders(currentHeaders);
 
+        const worker = await Tesseract.createWorker('ara+eng');
+
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             statusBar.textContent = `جاري معالجة الملف (${i + 1} من ${files.length}): ${file.name}...`;
 
             let text = "";
             if (file.type === "application/pdf") {
-                text = await readPdfText(file);
+                text = await readPdfWithOcr(file, worker);
             } else {
-                text = await readImageOCR(file);
+                const ret = await worker.recognize(file);
+                text = ret.data.text;
             }
 
             const rowData = extractFieldsFromText(text, currentHeaders, file.name);
             extractedDataRows.push(rowData);
         }
 
+        await worker.terminate();
         statusBar.textContent = "تم استخراج البيانات بنجاح! يمكنك المراجعة والتعديل قبل التصدير.";
         renderTableBody(currentHeaders);
         document.getElementById('exportBtn').disabled = false;
     }
 
-    async function readImageOCR(file) {
-        const worker = await Tesseract.createWorker('ara+eng');
-        const ret = await worker.recognize(file);
-        await worker.terminate();
-        return ret.data.text;
-    }
-
-    async function readPdfText(file) {
+    // تحويل الـ PDF الممسوح ضوئياً إلى Canvas وصور وقراءته بواسطة OCR
+    async function readPdfWithOcr(file, worker) {
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        let fullText = "";
-        
-        for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const content = await page.getTextContent();
-            const pageText = content.items.map(item => item.str).join(' ');
-            fullText += pageText + "\n";
+        let fullPdfText = "";
+
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            
+            // محاولة القراءة المباشرة أولاً
+            const textContent = await page.getTextContent();
+            let pageText = textContent.items.map(item => item.str).join(' ');
+
+            // لو الصفحة عبارة عن صورة Scan ممسوحة، يحولها لـ Canvas ويقرأها OCR
+            if (pageText.trim().length < 15) {
+                const viewport = page.getViewport({ scale: 2.0 });
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                await page.render({ canvasContext: context, viewport: viewport }).promise;
+                const ret = await worker.recognize(canvas);
+                pageText = ret.data.text;
+            }
+
+            fullPdfText += pageText + "\n";
         }
-        return fullText;
+
+        return fullPdfText;
     }
 
-    // 4. المحرك الذكي لاستخراج الحقول (Field Extraction Engine)
+    // محرك استخراج البيانات المتقدم والمريح للبحث عن الحقول
     function extractFieldsFromText(rawText, headers, fileName) {
         const row = { _fileName: fileName, _flags: {} };
         
@@ -366,8 +328,15 @@
                 return;
             }
 
-            // البحث عن النمط الكلمة: القيمة
-            const regex = new RegExp(`${header}\\s*[:\\-=]?\\s*([^\\n]+)`, 'i');
+            // كلمات دلالية أوسع للبحث
+            let searchKey = header;
+            if (header.includes("الاسم العربي") || header.includes("الاسم")) searchKey = "الاسم";
+            else if (header.includes("الرقم القومي")) searchKey = "(الرقم القومي|الرقم القومى|قومي|قومى)";
+            else if (header.includes("الديانة")) searchKey = "الديانة";
+            else if (header.includes("الحالة الاجتماعية")) searchKey = "(الحالة الاجتماعية|الحالة الاجتماعية)";
+            else if (header.includes("تليفون") || header.includes("الموبايل")) searchKey = "(تليفون|موبايل|الهاتف)";
+
+            const regex = new RegExp(`${searchKey}\\s*[:\\-=]?\\s*([^\\n\\r]+)`, 'i');
             const match = rawText.match(regex);
             
             if (match && match[1]) {
@@ -376,11 +345,13 @@
                 row[header] = ""; 
             }
 
-            // فحص صحة الرقم القومي (تنبيه مراجعة إذا لم يكن 14 رقم)
+            // التحقق الذكي من الرقم القومي
             if (header.includes("الرقم القومي") && row[header]) {
                 const cleanNationalId = row[header].replace(/\D/g, '');
-                if (cleanNationalId.length !== 14) {
-                    row._flags[header] = "⚠️ الرقم القومي يحتاج مراجعة (ليس 14 رقم)";
+                if (cleanNationalId.length === 14) {
+                    row[header] = cleanNationalId;
+                } else {
+                    row._flags[header] = "⚠️ مراجعة الرقم القومي";
                 }
             }
         });
@@ -388,7 +359,6 @@
         return row;
     }
 
-    // 5. رسم جدول المراجعة والتعديل
     function renderTableHeaders(headers) {
         const tr = document.getElementById('tableHeaders');
         tr.innerHTML = '<th>#</th><th>اسم الملف</th>';
@@ -431,7 +401,6 @@
         });
     }
 
-    // 6. تصدير البيانات إلى Excel
     function exportToExcel() {
         const headers = document.getElementById('headersList').value.split('\n').map(h => h.trim()).filter(h => h);
         const exportData = extractedDataRows.map(row => {
