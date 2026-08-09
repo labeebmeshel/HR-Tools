@@ -232,6 +232,12 @@
                     <span>تحليل الشخصية</span>
                     <p>DISC Assessment & Dashboard</p>
                 </div>
+
+                <div class="tool-card" id="tool-scan" onclick="window.parent.loadPage(null, 'scan-frame', 7)">
+                    <i class="fas fa-file-excel"></i>
+                    <span>استخراج البيانات</span>
+                    <p>HR Scan → Excel</p>
+                </div>
             </div>
         </div>
     </div>
@@ -263,6 +269,10 @@
         <div class="admin-item">
             <span>تحليل الشخصية</span>
             <input type="checkbox" checked onchange="toggleTool('tool-disc', this.checked)">
+        </div>
+        <div class="admin-item">
+            <span>استخراج البيانات (OCR)</span>
+            <input type="checkbox" checked onchange="toggleTool('tool-scan', this.checked)">
         </div>
         
         <button class="admin-close" onclick="closeAdmin()">إغلاق وحفظ</button>
@@ -305,7 +315,7 @@
         }
 
         function loadSettings() {
-            const tools = ['tool-cv', 'tool-tax', 'tool-s1', 'tool-tafqit', 'tool-feedback', 'tool-disc'];
+            const tools = ['tool-cv', 'tool-tax', 'tool-s1', 'tool-tafqit', 'tool-feedback', 'tool-disc', 'tool-scan'];
             tools.forEach(id => {
                 const status = localStorage.getItem(id);
                 if (status === 'hidden') {
@@ -316,7 +326,7 @@
         }
 
         function syncCheckboxes() {
-            const tools = ['tool-cv', 'tool-tax', 'tool-s1', 'tool-tafqit', 'tool-feedback', 'tool-disc'];
+            const tools = ['tool-cv', 'tool-tax', 'tool-s1', 'tool-tafqit', 'tool-feedback', 'tool-disc', 'tool-scan'];
             const checkboxes = document.querySelectorAll('#adminPanel input[type="checkbox"]');
             tools.forEach((id, index) => {
                 const status = localStorage.getItem(id);
