@@ -1,354 +1,314 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الرئيسية - الميثاق الذكي</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root { 
-            --primary: #0b4fb3; 
-            --accent: #1e3a8a; 
-            --white: #ffffff; 
-            --text-dark: #1e293b;
-            --text-light: #64748b;
-        }
-        
-        body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            margin: 0; 
-            display: flex; 
-            flex-direction: column;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            text-align: center;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الرئيسية — الميثاق الذكي · PRAXI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root{
+    --ink:#0b2a5c;
+    --blue:#0b4fb3;
+    --blue-mid:#1a6dd4;
+    --blue-light:#dbeafe;
+    --gold:#c9982a;
+    --gold-light:#fef3c7;
+    --surface:#ffffff;
+    --bg:#f4f7fc;
+    --muted:#64748b;
+    --border:#e2e8f0;
+    --radius:16px;
+    --shadow:0 4px 20px rgba(11,42,92,0.08);
+    --shadow-lg:0 10px 40px rgba(11,42,92,0.14);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Cairo',sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
 
-        .hero-container {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+  /* ── HERO ── */
+  .hero{
+    background: linear-gradient(145deg, #0b2a5c 0%, #0b4fb3 55%, #1a6dd4 100%);
+    padding: 52px 32px 44px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:'';
+    position:absolute; inset:0;
+    background-image:
+      radial-gradient(circle at 15% 50%, rgba(255,255,255,0.06) 0%, transparent 40%),
+      radial-gradient(circle at 85% 20%, rgba(201,152,42,0.12) 0%, transparent 40%);
+    pointer-events:none;
+  }
+  .hero-badge{
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.22);
+    color:#fcd34d; font-size:12px; font-weight:700; letter-spacing:1px;
+    padding:6px 16px; border-radius:100px; margin-bottom:18px;
+    text-transform:uppercase;
+  }
+  .hero h1{
+    color:#fff; font-size:clamp(2rem,5vw,3rem); font-weight:900;
+    line-height:1.15; margin-bottom:6px;
+  }
+  .hero h1 span{ color:#fcd34d; }
+  .hero p{
+    color:rgba(255,255,255,0.75); font-size:clamp(0.95rem,2vw,1.15rem);
+    margin-bottom:28px; font-weight:500;
+  }
+  .social-row{
+    display:flex; justify-content:center; gap:14px; margin-bottom:0;
+  }
+  .social-row a{
+    width:44px; height:44px; background:rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.22); border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:1.2rem; text-decoration:none;
+    transition:background .2s, transform .2s;
+  }
+  .social-row a:hover{ background:rgba(255,255,255,0.25); transform:translateY(-2px); }
 
-        .hero-section { 
-            max-width: 1000px; 
-            width: 100%;
-        }
+  /* ── TOOLS SECTION ── */
+  .tools-section{ flex:1; padding:36px 28px 16px; max-width:1080px; margin:0 auto; width:100%; }
 
-        h1 { 
-            color: var(--primary); 
-            font-size: clamp(2rem, 5vw, 3.2rem); 
-            margin: 0;
-            font-weight: 800;
-            line-height: 1.2;
-        }
+  .section-header{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:24px; flex-wrap:wrap; gap:10px;
+  }
+  .section-header h2{
+    font-size:1.1rem; font-weight:700; color:var(--ink);
+    display:flex; align-items:center; gap:8px;
+  }
+  .section-header h2::before{
+    content:''; display:block; width:4px; height:20px;
+    background:var(--gold); border-radius:2px; flex-shrink:0;
+  }
 
-        .main-title-sub {
-            color: var(--primary);
-            font-size: clamp(1.8rem, 4.5vw, 2.8rem);
-            font-weight: 800;
-            margin-bottom: 10px;
-            display: block;
-        }
+  .tools-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(190px,1fr));
+    gap:16px;
+  }
 
-        .subtitle { 
-            font-size: clamp(1rem, 2.5vw, 1.3rem); 
-            color: var(--accent); 
-            margin-bottom: 20px; 
-            font-weight: 600;
-        }
+  .tool-card{
+    background:var(--surface); border:1.5px solid var(--border);
+    border-radius:var(--radius); padding:28px 18px 22px;
+    cursor:pointer; text-align:center; text-decoration:none;
+    color:var(--ink); display:flex; flex-direction:column; align-items:center; gap:10px;
+    transition:transform .25s, box-shadow .25s, border-color .25s;
+    box-shadow:var(--shadow); position:relative; overflow:hidden;
+  }
+  .tool-card::before{
+    content:''; position:absolute; top:0; right:0; left:0; height:3px;
+    background:var(--blue); opacity:0; transition:opacity .25s;
+  }
+  .tool-card:hover{ transform:translateY(-6px); box-shadow:var(--shadow-lg); border-color:var(--blue); }
+  .tool-card:hover::before{ opacity:1; }
+  .tool-card.hidden{ display:none; }
 
-        .social-links {
-            margin-bottom: 40px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
+  .tool-card .tc-icon{
+    width:54px; height:54px; border-radius:14px;
+    background:var(--blue-light); display:flex; align-items:center; justify-content:center;
+    font-size:1.5rem; color:var(--blue); transition:background .25s;
+  }
+  .tool-card:hover .tc-icon{ background:var(--blue); color:#fff; }
+  .tool-card.gold-accent .tc-icon{ background:var(--gold-light); color:var(--gold); }
+  .tool-card.gold-accent:hover .tc-icon{ background:var(--gold); color:#fff; }
+  .tool-card.gold-accent::before{ background:var(--gold); }
+  .tool-card.gold-accent:hover{ border-color:var(--gold); }
 
-        .social-links a {
-            color: var(--primary);
-            font-size: 1.8rem;
-            transition: transform 0.3s ease;
-            text-decoration: none;
-        }
+  .tool-card .tc-name{ font-size:1rem; font-weight:700; color:var(--ink); }
+  .tool-card .tc-sub{ font-size:0.74rem; color:var(--muted); font-weight:500; direction:ltr; }
+  .tool-card .tc-badge{
+    position:absolute; top:10px; left:10px;
+    background:var(--gold); color:#fff;
+    font-size:9px; font-weight:700; letter-spacing:.5px;
+    padding:2px 7px; border-radius:100px; text-transform:uppercase;
+  }
 
-        .social-links a:hover {
-            transform: scale(1.2);
-            color: var(--accent);
-        }
-        
-        .tools-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
-            gap: 20px; 
-            margin-top: 20px;
-        }
-        
-        .tool-card {
-            background: var(--white);
-            padding: 25px 15px;
-            border-radius: 20px;
-            text-decoration: none;
-            color: var(--primary);
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(255,255,255,0.8);
-            cursor: pointer;
-            display: block;
-        }
+  /* ── FOOTER ── */
+  footer{
+    padding:18px 24px; text-align:center;
+    color:var(--muted); font-size:0.82rem;
+    border-top:1px solid var(--border);
+    background:var(--surface);
+  }
+  .secret-trigger{ cursor:default; }
 
-        .tool-card.hidden {
-            display: none;
-        }
-        
-        .tool-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 35px -10px rgba(11, 79, 179, 0.2);
-            border-color: var(--primary);
-        }
-        
-        .tool-card i { 
-            font-size: 2.2rem; 
-            margin-bottom: 12px; 
-            display: block;
-            color: var(--primary);
-        }
+  /* ── ADMIN PANEL ── */
+  #overlay{
+    display:none; position:fixed; inset:0;
+    background:rgba(11,42,92,0.55); z-index:999; backdrop-filter:blur(4px);
+  }
+  #adminPanel{
+    display:none; position:fixed; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    background:#fff; padding:30px; border-radius:20px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.25);
+    z-index:1000; width:340px; direction:rtl;
+  }
+  #adminPanel h3{ color:var(--blue); margin:0 0 20px; font-size:1.05rem; }
+  .admin-item{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:10px 0; border-bottom:1px solid var(--border); font-size:0.9rem; font-weight:600;
+  }
+  .admin-item input[type="checkbox"]{ accent-color:var(--blue); width:17px; height:17px; cursor:pointer; }
+  .admin-close{
+    background:linear-gradient(135deg, var(--blue), var(--blue-mid));
+    color:#fff; border:none; padding:12px; width:100%; border-radius:10px;
+    cursor:pointer; font-family:'Cairo',sans-serif; font-weight:700; font-size:0.95rem; margin-top:16px;
+  }
 
-        .tool-card span { 
-            font-size: 1.05rem; 
-            font-weight: 700;
-        }
-
-        .tool-card p {
-            font-size: 0.8rem;
-            color: var(--text-light);
-            margin-top: 6px;
-            margin-bottom: 0;
-        }
-
-        footer {
-            padding: 20px;
-            color: var(--text-light);
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(0,0,0,0.05);
-            background: rgba(255,255,255,0.3);
-            position: relative;
-        }
-
-        /* --- لوحة التحكم --- */
-        #adminPanel {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.3);
-            z-index: 1000;
-            width: 320px;
-            text-align: right;
-            direction: rtl;
-        }
-        .admin-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #eee;
-        }
-        .admin-close {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px;
-            width: 100%;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 15px;
-        }
-        #overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-        }
-        .secret-trigger {
-            cursor: default;
-            opacity: 0.5;
-        }
-    </style>
+  @media(max-width:600px){
+    .hero{ padding:36px 20px 32px; }
+    .tools-section{ padding:24px 16px 16px; }
+    .tools-grid{ grid-template-columns:repeat(2,1fr); gap:12px; }
+    .tool-card{ padding:22px 12px 18px; }
+  }
+</style>
 </head>
 <body>
 
-    <div class="hero-container">
-        <div class="hero-section">
-            <h1>المصدر الأول</h1>
-            <span class="main-title-sub">لأدوات الموارد البشرية في مصر</span>
-            <p class="subtitle">مشروع الميثاق الذكي برعاية أكاديمية براكسي PRAXI</p>
-            
-            <div class="social-links">
-                <a href="https://web.facebook.com/praxiacademy/" target="_blank"><i class="fab fa-facebook"></i></a>
-                <a href="https://www.linkedin.com/company/praxiacademy/" target="_blank"><i class="fab fa-linkedin"></i></a>
-            </div>
+<div class="hero">
+  <div class="hero-badge">🏆 PRAXI Academy · الميثاق الذكي</div>
+  <h1>المصدر الأول<br><span>لأدوات الموارد البشرية</span> في مصر</h1>
+  <p>منصة متكاملة لأدوات HR المصرية — ضرائب · تأمينات · تقييم · تطوير</p>
+  <div class="social-row">
+    <a href="https://web.facebook.com/praxiacademy/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+    <a href="https://www.linkedin.com/company/praxiacademy/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+  </div>
+</div>
 
-            <div class="tools-grid" id="toolsGrid">
-                <div class="tool-card" id="tool-cv" onclick="window.parent.loadPage(null, 'cv-frame', 1)">
-                    <i class="fas fa-id-card"></i>
-                    <span>السيرة الذاتية</span>
-                    <p>Professional Resume</p>
-                </div>
-                
-                <div class="tool-card" id="tool-tax" onclick="window.parent.loadPage(null, 'tax-frame', 2)">
-                    <i class="fas fa-calculator"></i>
-                    <span>حاسبة الضرائب</span>
-                    <p>Gross & Net Tax</p>
-                </div>
-                
-                <div class="tool-card" id="tool-s1" onclick="window.parent.loadPage(null, 's1-frame', 3)">
-                    <i class="fas fa-file-contract"></i>
-                    <span>س1 تأمينات</span>
-                    <p>أجر الاشتراك التأميني</p>
-                </div>
+<div class="tools-section">
+  <div class="section-header">
+    <h2>الأدوات المتاحة</h2>
+  </div>
+  <div class="tools-grid" id="toolsGrid">
 
-                <div class="tool-card" id="tool-forms" onclick="window.parent.loadPage(null, 'forms-print-frame', 4)">
-                    <i class="fas fa-print"></i>
-                    <span>طباعة النماذج</span>
-                    <p>HR Forms & Contracts</p>
-                </div>
-
-                <div class="tool-card" id="tool-tafqit" onclick="window.parent.loadPage(null, 'tafqit-frame', 5)">
-                    <i class="fas fa-spell-check"></i>
-                    <span>أداة التفقيط</span>
-                    <p>Number to Words</p>
-                </div>
-
-                <div class="tool-card" id="tool-feedback" onclick="window.parent.loadPage(null, 'feedback-frame', 6)">
-                    <i class="fas fa-chart-line"></i>
-                    <span>قياس الأداء</span>
-                    <p>Performance Feedback</p>
-                </div>
-
-                <div class="tool-card" id="tool-disc" onclick="window.parent.loadPage(null, 'disc-frame', 7)">
-                    <i class="fas fa-user-gear"></i>
-                    <span>تحليل الشخصية</span>
-                    <p>DISC Assessment & Dashboard</p>
-                </div>
-
-                <div class="tool-card" id="tool-scan" onclick="window.parent.loadPage(null, 'scan-frame', 8)">
-                    <i class="fas fa-file-excel"></i>
-                    <span>استخراج البيانات</span>
-                    <p>HR Scan → Excel</p>
-                </div>
-            </div>
-        </div>
+    <div class="tool-card" id="tool-cv" onclick="window.parent.loadPage(null,'cv-frame',1)">
+      <div class="tc-icon"><i class="fas fa-id-card"></i></div>
+      <div class="tc-name">السيرة الذاتية</div>
+      <div class="tc-sub">Professional Resume</div>
     </div>
 
-    <div id="overlay"></div>
-    <div id="adminPanel">
-        <h3 style="color: var(--primary); margin-top: 0;">لوحة تحكم الأدوات</h3>
-        
-        <div class="admin-item">
-            <span>السيرة الذاتية</span>
-            <input type="checkbox" checked onchange="toggleTool('tool-cv', this.checked)">
-        </div>
-        <div class="admin-item">
-            <span>حاسبة الضرائب</span>
-            <input type="checkbox" checked onchange="toggleTool('tool-tax', this.checked)">
-        </div>
-        <div class="admin-item">
-            <span>س1 تأمينات</span>
-            <input type="checkbox" checked onchange="toggleTool('tool-s1', this.checked)">
-        </div>
-        <div class="admin-item">
-            <span>طباعة النماذج</span>
-            <input type="checkbox" checked onchange="toggleTool('tool-forms', this.checked)">
-        </div>
-        <div class="admin-item">
-            <span>أداة التفقيط</span>
-            <input type="checkbox" checked onchange="toggleTool('tool-tafqit', this.checked)">
-        </div>
-        <div class="admin-item">
-            <span>قياس الأداء</span>
-            <input type="checkbox" checked onchange="toggleTool('tool-feedback', this.checked)">
-        </div>
-        <div class="admin-item">
-            <span>تحليل الشخصية</span>
-            <input type="checkbox" checked onchange="toggleTool('tool-disc', this.checked)">
-        </div>
-        <div class="admin-item">
-            <span>استخراج البيانات (OCR)</span>
-            <input type="checkbox" checked onchange="toggleTool('tool-scan', this.checked)">
-        </div>
-        
-        <button class="admin-close" onclick="closeAdmin()">إغلاق وحفظ</button>
+    <div class="tool-card" id="tool-tax" onclick="window.parent.loadPage(null,'tax-frame',2)">
+      <div class="tc-icon"><i class="fas fa-calculator"></i></div>
+      <div class="tc-name">حاسبة الضرائب</div>
+      <div class="tc-sub">Gross ← Net Tax</div>
     </div>
 
-    <footer>
-        جميع الحقوق محفوظة &copy; 2026 - <span class="secret-trigger" onclick="openAdmin()">أكاديمية براكسي</span>
-    </footer>
+    <div class="tool-card gold-accent" id="tool-tax-rev" onclick="window.parent.loadDropdownPage(null,'tax-reverse-frame','حاسبة الضرائب الفردية (صافي ← إجمالي)')">
+      <div class="tc-badge">جديد</div>
+      <div class="tc-icon"><i class="fas fa-arrows-rotate"></i></div>
+      <div class="tc-name">عكس الضريبة — فردي</div>
+      <div class="tc-sub">Net → Gross · Individual</div>
+    </div>
 
-    <script>
-        const ADMIN_PASS = "1234";
+    <div class="tool-card gold-accent" id="tool-tax-bulk" onclick="window.parent.loadDropdownPage(null,'tax-reverse-bulk-frame','حاسبة الضرائب الجماعية (صافي ← إجمالي)')">
+      <div class="tc-badge">جديد</div>
+      <div class="tc-icon"><i class="fas fa-users-gear"></i></div>
+      <div class="tc-name">عكس الضريبة — جماعي</div>
+      <div class="tc-sub">Net → Gross · Bulk Excel</div>
+    </div>
 
-        function openAdmin() {
-            let pass = prompt("أدخل كلمة المرور للدخول للوحة التحكم:");
-            if (pass === ADMIN_PASS) {
-                document.getElementById('adminPanel').style.display = 'block';
-                document.getElementById('overlay').style.display = 'block';
-                syncCheckboxes();
-            } else {
-                alert("كلمة مرور خاطئة!");
-            }
-        }
+    <div class="tool-card" id="tool-s1" onclick="window.parent.loadPage(null,'s1-frame',3)">
+      <div class="tc-icon"><i class="fas fa-file-contract"></i></div>
+      <div class="tc-name">س1 تأمينات</div>
+      <div class="tc-sub">أجر الاشتراك التأميني</div>
+    </div>
 
-        function closeAdmin() {
-            document.getElementById('adminPanel').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
-        }
+    <div class="tool-card" id="tool-tafqit" onclick="window.parent.loadPage(null,'tafqit-frame',4)">
+      <div class="tc-icon"><i class="fas fa-spell-check"></i></div>
+      <div class="tc-name">أداة التفقيط</div>
+      <div class="tc-sub">Number to Words</div>
+    </div>
 
-        function toggleTool(toolId, isVisible) {
-            const tool = document.getElementById(toolId);
-            if (tool) {
-                if (isVisible) {
-                    tool.classList.remove('hidden');
-                    localStorage.setItem(toolId, 'visible');
-                } else {
-                    tool.classList.add('hidden');
-                    localStorage.setItem(toolId, 'hidden');
-                }
-            }
-        }
+    <div class="tool-card" id="tool-feedback" onclick="window.parent.loadPage(null,'feedback-frame',5)">
+      <div class="tc-icon"><i class="fas fa-chart-line"></i></div>
+      <div class="tc-name">قياس الأداء</div>
+      <div class="tc-sub">Performance Feedback</div>
+    </div>
 
-        function loadSettings() {
-            const tools = ['tool-cv', 'tool-tax', 'tool-s1', 'tool-forms', 'tool-tafqit', 'tool-feedback', 'tool-disc', 'tool-scan'];
-            tools.forEach(id => {
-                const status = localStorage.getItem(id);
-                if (status === 'hidden') {
-                    const el = document.getElementById(id);
-                    if (el) el.classList.add('hidden');
-                }
-            });
-        }
+    <div class="tool-card" id="tool-disc" onclick="window.parent.loadPage(null,'disc-frame',6)">
+      <div class="tc-icon"><i class="fas fa-user-gear"></i></div>
+      <div class="tc-name">تحليل الشخصية</div>
+      <div class="tc-sub">DISC Assessment</div>
+    </div>
 
-        function syncCheckboxes() {
-            const tools = ['tool-cv', 'tool-tax', 'tool-s1', 'tool-forms', 'tool-tafqit', 'tool-feedback', 'tool-disc', 'tool-scan'];
-            const checkboxes = document.querySelectorAll('#adminPanel input[type="checkbox"]');
-            tools.forEach((id, index) => {
-                const status = localStorage.getItem(id);
-                if (checkboxes[index]) {
-                    checkboxes[index].checked = (status !== 'hidden');
-                }
-            });
-        }
+    <div class="tool-card" id="tool-scan" onclick="window.parent.loadPage(null,'scan-frame',7)">
+      <div class="tc-icon"><i class="fas fa-file-excel"></i></div>
+      <div class="tc-name">استخراج البيانات</div>
+      <div class="tc-sub">HR Scan → Excel</div>
+    </div>
 
-        window.onload = loadSettings;
-    </script>
+  </div>
+</div>
+
+<div id="overlay" onclick="closeAdmin()"></div>
+<div id="adminPanel">
+  <h3><i class="fas fa-sliders" style="margin-left:8px;color:var(--gold)"></i>لوحة تحكم الأدوات</h3>
+  <div class="admin-item"><span>السيرة الذاتية</span><input type="checkbox" checked onchange="toggleTool('tool-cv',this.checked)"></div>
+  <div class="admin-item"><span>حاسبة الضرائب (إجمالي→صافي)</span><input type="checkbox" checked onchange="toggleTool('tool-tax',this.checked)"></div>
+  <div class="admin-item"><span>عكس الضريبة — فردي</span><input type="checkbox" checked onchange="toggleTool('tool-tax-rev',this.checked)"></div>
+  <div class="admin-item"><span>عكس الضريبة — جماعي</span><input type="checkbox" checked onchange="toggleTool('tool-tax-bulk',this.checked)"></div>
+  <div class="admin-item"><span>س1 تأمينات</span><input type="checkbox" checked onchange="toggleTool('tool-s1',this.checked)"></div>
+  <div class="admin-item"><span>أداة التفقيط</span><input type="checkbox" checked onchange="toggleTool('tool-tafqit',this.checked)"></div>
+  <div class="admin-item"><span>قياس الأداء</span><input type="checkbox" checked onchange="toggleTool('tool-feedback',this.checked)"></div>
+  <div class="admin-item"><span>تحليل الشخصية</span><input type="checkbox" checked onchange="toggleTool('tool-disc',this.checked)"></div>
+  <div class="admin-item"><span>استخراج البيانات (OCR)</span><input type="checkbox" checked onchange="toggleTool('tool-scan',this.checked)"></div>
+  <button class="admin-close" onclick="closeAdmin()">حفظ وإغلاق</button>
+</div>
+
+<footer>
+  <span>جميع الحقوق محفوظة &copy; 2026 — </span>
+  <span class="secret-trigger" onclick="openAdmin()">أكاديمية براكسي PRAXI</span>
+</footer>
+
+<script>
+const ADMIN_PASS = "1234";
+const ALL_TOOLS = ['tool-cv','tool-tax','tool-tax-rev','tool-tax-bulk','tool-s1','tool-tafqit','tool-feedback','tool-disc','tool-scan'];
+
+function openAdmin(){
+  let pass = prompt("أدخل كلمة المرور:");
+  if(pass === ADMIN_PASS){
+    document.getElementById('adminPanel').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+    syncCheckboxes();
+  } else { alert("كلمة مرور خاطئة!"); }
+}
+function closeAdmin(){
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('overlay').style.display = 'none';
+}
+function toggleTool(id, visible){
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(visible){ el.classList.remove('hidden'); localStorage.setItem(id,'visible'); }
+  else { el.classList.add('hidden'); localStorage.setItem(id,'hidden'); }
+}
+function loadSettings(){
+  ALL_TOOLS.forEach(id => {
+    if(localStorage.getItem(id) === 'hidden'){
+      const el = document.getElementById(id);
+      if(el) el.classList.add('hidden');
+    }
+  });
+}
+function syncCheckboxes(){
+  const cbs = document.querySelectorAll('#adminPanel input[type="checkbox"]');
+  ALL_TOOLS.forEach((id,i) => {
+    if(cbs[i]) cbs[i].checked = (localStorage.getItem(id) !== 'hidden');
+  });
+}
+window.onload = loadSettings;
+</script>
 </body>
 </html>
