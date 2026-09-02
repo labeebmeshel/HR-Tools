@@ -88,7 +88,7 @@
         
         .tool-card {
             background: var(--white);
-            padding: 30px 15px;
+            padding: 25px 15px;
             border-radius: 20px;
             text-decoration: none;
             color: var(--primary);
@@ -110,21 +110,22 @@
         }
         
         .tool-card i { 
-            font-size: 2.5rem; 
-            margin-bottom: 15px; 
+            font-size: 2.2rem; 
+            margin-bottom: 12px; 
             display: block;
             color: var(--primary);
         }
 
         .tool-card span { 
-            font-size: 1.1rem; 
+            font-size: 1.05rem; 
             font-weight: 700;
         }
 
         .tool-card p {
             font-size: 0.8rem;
             color: var(--text-light);
-            margin-top: 8px;
+            margin-top: 6px;
+            margin-bottom: 0;
         }
 
         footer {
@@ -148,7 +149,7 @@
             border-radius: 20px;
             box-shadow: 0 0 50px rgba(0,0,0,0.3);
             z-index: 1000;
-            width: 300px;
+            width: 320px;
             text-align: right;
             direction: rtl;
         }
@@ -156,8 +157,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
             border-bottom: 1px solid #eee;
         }
         .admin-close {
@@ -169,6 +170,7 @@
             border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
+            margin-top: 15px;
         }
         #overlay {
             display: none;
@@ -215,25 +217,31 @@
                     <p>أجر الاشتراك التأميني</p>
                 </div>
 
-                <div class="tool-card" id="tool-tafqit" onclick="window.parent.loadPage(null, 'tafqit-frame', 4)">
+                <div class="tool-card" id="tool-forms" onclick="window.parent.loadPage(null, 'forms-print-frame', 4)">
+                    <i class="fas fa-print"></i>
+                    <span>طباعة النماذج</span>
+                    <p>HR Forms & Contracts</p>
+                </div>
+
+                <div class="tool-card" id="tool-tafqit" onclick="window.parent.loadPage(null, 'tafqit-frame', 5)">
                     <i class="fas fa-spell-check"></i>
                     <span>أداة التفقيط</span>
                     <p>Number to Words</p>
                 </div>
 
-                <div class="tool-card" id="tool-feedback" onclick="window.parent.loadPage(null, 'feedback-frame', 5)">
+                <div class="tool-card" id="tool-feedback" onclick="window.parent.loadPage(null, 'feedback-frame', 6)">
                     <i class="fas fa-chart-line"></i>
                     <span>قياس الأداء</span>
                     <p>Performance Feedback</p>
                 </div>
 
-                <div class="tool-card" id="tool-disc" onclick="window.parent.loadPage(null, 'disc-frame', 6)">
+                <div class="tool-card" id="tool-disc" onclick="window.parent.loadPage(null, 'disc-frame', 7)">
                     <i class="fas fa-user-gear"></i>
                     <span>تحليل الشخصية</span>
                     <p>DISC Assessment & Dashboard</p>
                 </div>
 
-                <div class="tool-card" id="tool-scan" onclick="window.parent.loadPage(null, 'scan-frame', 7)">
+                <div class="tool-card" id="tool-scan" onclick="window.parent.loadPage(null, 'scan-frame', 8)">
                     <i class="fas fa-file-excel"></i>
                     <span>استخراج البيانات</span>
                     <p>HR Scan → Excel</p>
@@ -257,6 +265,10 @@
         <div class="admin-item">
             <span>س1 تأمينات</span>
             <input type="checkbox" checked onchange="toggleTool('tool-s1', this.checked)">
+        </div>
+        <div class="admin-item">
+            <span>طباعة النماذج</span>
+            <input type="checkbox" checked onchange="toggleTool('tool-forms', this.checked)">
         </div>
         <div class="admin-item">
             <span>أداة التفقيط</span>
@@ -315,7 +327,7 @@
         }
 
         function loadSettings() {
-            const tools = ['tool-cv', 'tool-tax', 'tool-s1', 'tool-tafqit', 'tool-feedback', 'tool-disc', 'tool-scan'];
+            const tools = ['tool-cv', 'tool-tax', 'tool-s1', 'tool-forms', 'tool-tafqit', 'tool-feedback', 'tool-disc', 'tool-scan'];
             tools.forEach(id => {
                 const status = localStorage.getItem(id);
                 if (status === 'hidden') {
@@ -326,7 +338,7 @@
         }
 
         function syncCheckboxes() {
-            const tools = ['tool-cv', 'tool-tax', 'tool-s1', 'tool-tafqit', 'tool-feedback', 'tool-disc', 'tool-scan'];
+            const tools = ['tool-cv', 'tool-tax', 'tool-s1', 'tool-forms', 'tool-tafqit', 'tool-feedback', 'tool-disc', 'tool-scan'];
             const checkboxes = document.querySelectorAll('#adminPanel input[type="checkbox"]');
             tools.forEach((id, index) => {
                 const status = localStorage.getItem(id);
