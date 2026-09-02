@@ -61,8 +61,8 @@
 <body>
 
     <div class="nav-bar" id="mainNav">
-        <button class="nav-btn active" onclick="loadPage(event, 'home-frame', 0)">الرئيسية</button>
-        <button class="nav-btn" onclick="loadPage(event, 'cv-frame', 1)">السيرة الذاتية</button>
+        <button class="nav-btn active" onclick="loadPage(event, 'home-frame', this)">الرئيسية</button>
+        <button class="nav-btn" onclick="loadPage(event, 'cv-frame', this)">السيرة الذاتية</button>
         
         <div class="dropdown" id="taxDropdownParent">
             <button class="nav-btn">حاسبات الضرائب والرواتب ▾</button>
@@ -73,12 +73,12 @@
             </div>
         </div>
 
-        <button class="nav-btn" onclick="loadPage(event, 's1-frame', 3)">س1 تأمينات</button>
-        <button class="nav-btn" onclick="loadPage(event, 'forms-print-frame', 4)">طباعة النماذج</button>
-        <button class="nav-btn" onclick="loadPage(event, 'tafqit-frame', 5)">أداة التفقيط</button>
-        <button class="nav-btn" onclick="loadPage(event, 'feedback-frame', 6)">قياس الأداء</button>
-        <button class="nav-btn" onclick="loadPage(event, 'disc-frame', 7)">تحليل الشخصية</button>
-        <button class="nav-btn" onclick="loadPage(event, 'scan-frame', 8)">HR Scan → Excel</button>
+        <button class="nav-btn" onclick="loadPage(event, 's1-frame', this)">س1 تأمينات</button>
+        <button class="nav-btn" onclick="loadPage(event, 'forms-print-frame', this)">طباعة النماذج</button>
+        <button class="nav-btn" onclick="loadPage(event, 'tafqit-frame', this)">أداة التفقيط</button>
+        <button class="nav-btn" onclick="loadPage(event, 'feedback-frame', this)">قياس الأداء</button>
+        <button class="nav-btn" onclick="loadPage(event, 'disc-frame', this)">تحليل الشخصية</button>
+        <button class="nav-btn" onclick="loadPage(event, 'scan-frame', this)">HR Scan → Excel</button>
     </div>
 
     <iframe id="home-frame" class="page-frame active" src="home.html"></iframe>
@@ -87,24 +87,33 @@
     <iframe id="tax-reverse-frame" class="page-frame" src="tax-reverse.html"></iframe>
     <iframe id="tax-reverse-bulk-frame" class="page-frame" src="tax-reverse-bulk.html"></iframe>
     <iframe id="s1-frame" class="page-frame" src="s1.html"></iframe>
-    <iframe id="forms-print-frame" class="page-frame" src="hr-forms/index.html"></iframe>
+    <iframe id="forms-print-frame" class="page-frame" src="./hr-forms/index.html"></iframe>
     <iframe id="tafqit-frame" class="page-frame" src="tafqit.html"></iframe>
     <iframe id="feedback-frame" class="page-frame" src="feedback.html"></iframe>
     <iframe id="disc-frame" class="page-frame" src="disc.html"></iframe>
     <iframe id="scan-frame" class="page-frame" src="scan-to-excel.html"></iframe>
 
     <script>
-        function loadPage(evt, frameId, btnIndex) {
+        function loadPage(evt, frameId, btnElement) {
+            // 1. إخفاء جميع الإطارات
             document.querySelectorAll('.page-frame').forEach(f => f.classList.remove('active'));
+            
+            // 2. إلغاء التحديد من كافة الأزرار
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.sub-nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('taxDropdownParent').classList.remove('active-parent');
             
-            document.getElementById(frameId).classList.add('active');
-            
-            const buttons = document.querySelectorAll('#mainNav > .nav-btn');
-            if (buttons[btnIndex]) {
-                buttons[btnIndex].classList.add('active');
+            // 3. إظهار الإطار المطلوب وتحديد الزر المفتوح بدقة
+            const targetFrame = document.getElementById(frameId);
+            if (targetFrame) {
+                targetFrame.classList.add('active');
+            }
+
+            if (btnElement) {
+                btnElement.classList.add('active');
+            } else if (typeof btnElement === 'number') {
+                const btns = document.querySelectorAll('#mainNav > .nav-btn');
+                if (btns[btnElement]) btns[btnElement].classList.add('active');
             }
         }
 
@@ -115,8 +124,12 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.sub-nav-btn').forEach(b => b.classList.remove('active'));
             
-            document.getElementById(frameId).classList.add('active');
-            if(evt) evt.currentTarget.classList.add('active');
+            const targetFrame = document.getElementById(frameId);
+            if (targetFrame) {
+                targetFrame.classList.add('active');
+            }
+
+            if(evt && evt.currentTarget) evt.currentTarget.classList.add('active');
             
             const dropdownParent = document.getElementById('taxDropdownParent');
             dropdownParent.classList.add('active-parent');
