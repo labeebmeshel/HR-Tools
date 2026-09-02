@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Forms & Insurance System - نظام إدارة ونماذج شئون العاملين والتأمينات</title>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Style CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- SheetJS CDN for Excel Processing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header class="main-header no-print">
+        <div class="header-container">
+            <div class="logo-area">
+                <i class="fas fa-file-invoice-dollar logo-icon"></i>
+                <div>
+                    <h1>HR Forms & Insurance System</h1>
+                    <p class="subtitle">نظام إدارة وطباعة نماذج شئون العاملين والتأمينات الاجتماعية</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <span class="badge-security"><i class="fas fa-shield-alt"></i> بياناتك مأمنة ومحفوظة محلياً (Local Client-Side)</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Application Container -->
+    <main class="app-container no-print">
+        
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="tab-dashboard"><i class="fas fa-tachometer-alt"></i> لوحة التحكم</button>
+            <button class="tab-btn" data-tab="tab-database"><i class="fas fa-users"></i> قاعدة بيانات الموظفين</button>
+            <button class="tab-btn" data-tab="tab-company"><i class="fas fa-building"></i> بيانات المنشأة الثابتة</button>
+            <button class="tab-btn" data-tab="tab-form-preview"><i class="fas fa-file-contract"></i> معاينة واستمارة س1</button>
+        </nav>
+
+        <!-- Tab 1: Dashboard -->
+        <section id="tab-dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-user-check stat-icon"></i>
+                    <div>
+                        <h3 id="stat-total-emp">0</h3>
+                        <p>إجمالي الموظفين</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-check-circle stat-icon text-success"></i>
+                    <div>
+                        <h3 id="stat-valid-emp">0</h3>
+                        <p>بيانات مكتملة (100%)</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-exclamation-triangle stat-icon text-warning"></i>
+                    <div>
+                        <h3 id="stat-missing-emp">0</h3>
+                        <p>بيانات غير مكتملة</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-panel">
+                <h2>إجراءات سريعة</h2>
+                <div class="buttons-grid">
+                    <button class="btn btn-primary" onclick="openAddEmployeeModal()"><i class="fas fa-user-plus"></i> إضافة موظف جديد</button>
+                    <button class="btn btn-success" onclick="downloadExcelTemplate()"><i class="fas fa-download"></i> تحميل Template Excel (س1)</button>
+                    <button class="btn btn-info" onclick="document.getElementById('excelFileInput').click()"><i class="fas fa-file-upload"></i> رفع ملف Excel</button>
+                    <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display:none;" onchange="handleExcelUpload(event)">
+                    <button class="btn btn-warning" onclick="exportDatabaseToExcel()"><i class="fas fa-file-excel"></i> تصدير القاعدة إلى Excel</button>
+                    <button class="btn btn-secondary" onclick="backupDatabase()"><i class="fas fa-database"></i> نسخ احتياطي (Backup)</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('restoreFileInput').click()"><i class="fas fa-history"></i> استرجاع (Restore)</button>
+                    <input type="file" id="restoreFileInput" accept=".json" style="display:none;" onchange="restoreDatabase(event)">
+                    <button class="btn btn-print" onclick="printAllS1Forms()"><i class="fas fa-print"></i> طباعة نماذج س1 لجميع الموظفين</button>
+                </div>
+            </div>
+
+            <!-- Preview uploaded Excel area -->
+            <div id="excel-preview-section" class="card" style="display: none; margin-top: 20px;">
+                <h3><i class="fas fa-file-excel"></i> معاينة الملف المرفوع (<span id="excel-count">0</span> موظف)</h3>
+                <div class="table-responsive">
+                    <table class="data-table" id="excel-preview-table">
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div style="margin-top: 15px; text-align: left;">
+                    <button class="btn btn-success" onclick="confirmExcelImport()"><i class="fas fa-save"></i> اعتماد وحفظ الموظفين بالقاعدة</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 2: Database -->
+        <section id="tab-database" class="tab-content">
+            <div class="card">
+                <div class="table-controls">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="بحث باسم الموظف، الرقم القومي، أو التأميني..." onkeyup="filterEmployees()">
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table" id="employeeTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>الاسم الكامل</th>
+                                <th>الرقم القومي</th>
+                                <th>الرقم التأميني</th>
+                                <th>المهنة</th>
+                                <th>بدء الاشتراك</th>
+                                <th>جودة البيانات</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeeTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 3: Company Setup -->
+        <section id="tab-company" class="tab-content">
+            <div class="card">
+                <h2><i class="fas fa-building"></i> بيانات المنشأة والمقر الرئيسي الثابتة</h2>
+                <p class="subtitle">هذه البيانات تُحفظ محلياً وتُطبق تلقائياً على كافة الاستمارات المطبوعة</p>
+                <form id="companyForm" onsubmit="saveCompanyData(event)">
+                    <div class="form-grid">
+                        <div class="form-group"><label>اسم المنشأة</label><input type="text" id="comp_name"></div>
+                        <div class="form-group"><label>رقم المنشأة التأميني</label><input type="text" id="comp_id"></div>
+                        <div class="form-group"><label>قطاع المنشأة</label>
+                            <select id="comp_sector">
+                                <option value="نمطي">نمطي</option>
+                                <option value="سيارة">سيارة</option>
+                                <option value="مركب صيد">مركب صيد</option>
+                                <option value="مخابز بلدية">مخابز بلدية</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>المحافظة</label><input type="text" id="comp_gov"></div>
+                        <div class="form-group"><label>القسم / المركز</label><input type="text" id="comp_sec"></div>
+                        <div class="form-group"><label>القرية / الحي</label><input type="text" id="comp_village"></div>
+                        <div class="form-group"><label>الشارع</label><input type="text" id="comp_street"></div>
+                        <div class="form-group"><label>رقم العقار</label><input type="text" id="comp_building"></div>
+                        <div class="form-group"><label>رقم الهاتف</label><input type="text" id="comp_phone"></div>
+                        <div class="form-group"><label>اسم صاحب العمل / المدير المسئول</label><input type="text" id="comp_manager"></div>
+                        <div class="form-group"><label>اسم مقدم الطلب</label><input type="text" id="comp_applicant"></div>
+                        <div class="form-group"><label>صفة مقدم الطلب</label><input type="text" id="comp_applicant_title" value="مفوض"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="margin-top: 15px;"><i class="fas fa-save"></i> حفظ بيانات المنشأة</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Tab 4: Form Preview -->
+        <section id="tab-form-preview" class="tab-content">
+            <div class="form-actions-bar no-print">
+                <button class="btn btn-print" onclick="window.print()"><i class="fas fa-print"></i> طباعة النموذج الحالي (A4)</button>
+                <span class="info-text"><i class="fas fa-info-circle"></i> يمكنك تعديل أي حقل مباشرة على الورقة التفاعلية بالأسفل قبل الطباعة</span>
+            </div>
+            <div id="s1-form-render-target">
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Printable Container for Printing All Bulk Forms -->
+    <div id="bulk-print-container" class="print-only"></div>
+
+    <!-- Employee Edit/Add Modal -->
+    <div id="employeeModal" class="modal no-print">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">بيانات الموظف</h2>
+            <form id="employeeForm" onsubmit="saveEmployeeForm(event)">
+                <input type="hidden" id="emp_index">
+                <div class="form-grid" id="modalFormFields">
+                </div>
+                <div style="margin-top: 20px; text-align: left;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
+                    <button type="submit" class="btn btn-primary">حفظ الموظف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer no-print">
+        <p>HR Tools | Developed by <strong>Labeeb Meshel</strong> &copy; 2026</p>
+        <a href="https://linktr.ee/labeebmeshel" target="_blank" rel="noopener noreferrer">https://linktr.ee/labeebmeshel</a>
+    </footer>
+
+    <!-- App Logic Scripts -->
+    <script src="js/database.js"></script>
+    <script src="js/excel.js"></script>
+    <script src="js/s1-form.js"></script>
+    <script src="js/print.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
