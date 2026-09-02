@@ -8,12 +8,12 @@
         :root { --primary: #0b4fb3; --white: #ffffff; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f1f5f9; overflow: hidden; }
         
-        .nav-bar { display: flex; background: var(--primary); padding: 5px; position: sticky; top: 0; z-index: 1000; overflow-x: visible; }
-        .nav-btn { flex: 1; padding: 15px; border: none; background: none; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem; border-radius: 8px; white-space: nowrap; text-align: center; }
+        .nav-bar { display: flex; background: var(--primary); padding: 5px; position: sticky; top: 0; z-index: 1000; overflow-x: auto; white-space: nowrap; }
+        .nav-btn { flex: 1; padding: 12px 15px; border: none; background: none; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 0.95rem; border-radius: 8px; text-align: center; }
         .nav-btn.active { background: white; color: var(--primary); }
 
         /* ===== القائمة المنسدلة ===== */
-        .dropdown { position: relative; flex: 1; display: flex; }
+        .dropdown { position: relative; display: flex; }
         .dropdown-content {
             display: none;
             position: absolute;
@@ -52,7 +52,7 @@
         .page-frame.active { display: block; }
 
         @media (max-width: 768px) {
-            .nav-bar { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; padding: 4px; }
+            .nav-bar { padding: 4px; -webkit-overflow-scrolling: touch; }
             .nav-btn { padding: 10px 12px; font-size: 0.85rem; }
             .dropdown-content { position: fixed; right: 10px; left: 10px; width: auto; }
         }
@@ -65,7 +65,7 @@
         <button class="nav-btn" onclick="loadPage(event, 'cv-frame', 1)">السيرة الذاتية</button>
         
         <div class="dropdown" id="taxDropdownParent">
-            <button class="nav-btn" style="width: 100%;">حاسبات الضرائب والرواتب ▾</button>
+            <button class="nav-btn">حاسبات الضرائب والرواتب ▾</button>
             <div class="dropdown-content">
                 <button class="sub-nav-btn" onclick="loadDropdownPage(event, 'tax-frame', 'حاسبة الضرائب (إجمالي ← صافي)')">حاسبة الضرائب (إجمالي ← صافي)</button>
                 <button class="sub-nav-btn" onclick="loadDropdownPage(event, 'tax-reverse-frame', 'حاسبة الضرائب الفردية (صافي ← إجمالي)')">حاسبة الضرائب الفردية (صافي ← إجمالي)</button>
@@ -74,10 +74,11 @@
         </div>
 
         <button class="nav-btn" onclick="loadPage(event, 's1-frame', 3)">س1 تأمينات</button>
-        <button class="nav-btn" onclick="loadPage(event, 'tafqit-frame', 4)">أداة التفقيط</button>
-        <button class="nav-btn" onclick="loadPage(event, 'feedback-frame', 5)">قياس الأداء</button>
-        <button class="nav-btn" onclick="loadPage(event, 'disc-frame', 6)">تحليل الشخصية</button>
-        <button class="nav-btn" onclick="loadPage(event, 'scan-frame', 7)">HR Scan → Excel</button>
+        <button class="nav-btn" onclick="loadPage(event, 'forms-print-frame', 4)">طباعة النماذج</button>
+        <button class="nav-btn" onclick="loadPage(event, 'tafqit-frame', 5)">أداة التفقيط</button>
+        <button class="nav-btn" onclick="loadPage(event, 'feedback-frame', 6)">قياس الأداء</button>
+        <button class="nav-btn" onclick="loadPage(event, 'disc-frame', 7)">تحليل الشخصية</button>
+        <button class="nav-btn" onclick="loadPage(event, 'scan-frame', 8)">HR Scan → Excel</button>
     </div>
 
     <iframe id="home-frame" class="page-frame active" src="home.html"></iframe>
@@ -86,6 +87,7 @@
     <iframe id="tax-reverse-frame" class="page-frame" src="tax-reverse.html"></iframe>
     <iframe id="tax-reverse-bulk-frame" class="page-frame" src="tax-reverse-bulk.html"></iframe>
     <iframe id="s1-frame" class="page-frame" src="s1.html"></iframe>
+    <iframe id="forms-print-frame" class="page-frame" src="forms-print.html"></iframe>
     <iframe id="tafqit-frame" class="page-frame" src="tafqit.html"></iframe>
     <iframe id="feedback-frame" class="page-frame" src="feedback.html"></iframe>
     <iframe id="disc-frame" class="page-frame" src="disc.html"></iframe>
@@ -100,21 +102,21 @@
             
             document.getElementById(frameId).classList.add('active');
             
-            const buttons = document.querySelectorAll('.nav-btn');
+            const buttons = document.querySelectorAll('#mainNav > .nav-btn');
             if (buttons[btnIndex]) {
                 buttons[btnIndex].classList.add('active');
             }
         }
 
         function loadDropdownPage(evt, frameId, selectedName) {
-            evt.stopPropagation();
+            if(evt) evt.stopPropagation();
             
             document.querySelectorAll('.page-frame').forEach(f => f.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.sub-nav-btn').forEach(b => b.classList.remove('active'));
             
             document.getElementById(frameId).classList.add('active');
-            evt.currentTarget.classList.add('active');
+            if(evt) evt.currentTarget.classList.add('active');
             
             const dropdownParent = document.getElementById('taxDropdownParent');
             dropdownParent.classList.add('active-parent');
@@ -122,6 +124,7 @@
         }
 
         window.loadPage = loadPage;
+        window.loadDropdownPage = loadDropdownPage;
     </script>
 </body>
 </html>
