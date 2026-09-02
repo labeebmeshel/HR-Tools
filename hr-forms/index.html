@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HR Forms & Insurance System - نظام إدارة ونماذج شئون العاملين والتأمينات</title>
+    <title>HR Forms & Insurance System - استمارة 1 تأمينات رسمية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -21,8 +21,9 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-light); color: var(--text-color); direction: rtl; text-align: right; line-height: 1.5; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-light); color: var(--text-color); direction: rtl; text-align: right; line-height: 1.4; }
 
+        /* Application UI Header & Layout */
         .main-header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 20px 40px; }
         .header-container { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; flex-wrap: wrap; gap: 15px; }
         .logo-area { display: flex; align-items: center; gap: 15px; }
@@ -73,14 +74,16 @@
         .main-footer { text-align: center; padding: 25px; border-top: 1px solid var(--border-color); margin-top: 40px; color: var(--secondary); font-size: 0.9rem; }
         .main-footer a { color: var(--primary); text-decoration: none; }
 
-        /* S1 OFFICIAL FORM STYLING MATCHING ATTACHMENT EXACTLY */
+        /* =========================================================
+           EXACT PDF MATCHING STYLES FOR S1 FORM (استمارة 1 تأمينات)
+           ========================================================= */
         .s1-page {
             width: 210mm;
             min-height: 297mm;
             padding: 10mm 12mm;
             margin: 15px auto;
             background: white;
-            border: 2px solid #000;
+            border: 1px solid #000;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #000;
@@ -90,21 +93,62 @@
         }
 
         .s1-page * { box-sizing: border-box; }
-        .s1-header-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
-        .s1-header-table td { vertical-align: top; }
-        .s1-title-box { text-align: center; font-weight: bold; font-size: 16px; }
+        .s1-header-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+        .s1-header-table td { vertical-align: top; padding: 2px; }
+        
+        .s1-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+        .s1-table td, .s1-table th { border: 1px solid #000; padding: 3px 5px; text-align: right; vertical-align: middle; font-size: 11px; }
+        
+        .s1-section-header { 
+            background-color: #e2e8f0; 
+            font-weight: bold; 
+            text-align: center; 
+            padding: 3px; 
+            border: 1px solid #000; 
+            margin-top: 2px;
+            font-size: 12px;
+        }
 
-        .s1-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
-        .s1-table td, .s1-table th { border: 1.5px solid #000; padding: 4px 6px; text-align: right; vertical-align: middle; }
-        .s1-section-header { background-color: #e2e8f0; font-weight: bold; text-align: center; padding: 3px; border: 1.5px solid #000; margin-top: 2px; }
+        .char-box-container { display: inline-flex; direction: ltr; vertical-align: middle; }
+        .char-box { 
+            width: 15px; 
+            height: 17px; 
+            border: 1px solid #000; 
+            text-align: center; 
+            font-size: 10px; 
+            font-weight: bold; 
+            line-height: 15px; 
+            margin-right: -1px; 
+            background: #fff; 
+        }
 
-        .char-box-container { display: inline-flex; direction: ltr; }
-        .char-box { width: 16px; height: 18px; border: 1.5px solid #000; text-align: center; font-size: 11px; font-weight: bold; line-height: 16px; margin-right: -1px; background: #fff; }
-
-        .editable-field { background: #fef08a; border: none; border-bottom: 1px dotted #000; font-family: inherit; font-size: inherit; font-weight: bold; color: #0b4fb3; width: 100%; padding: 1px 3px; outline: none; }
+        .editable-field { 
+            background: #fef08a; 
+            border: none; 
+            border-bottom: 1px dotted #000; 
+            font-family: inherit; 
+            font-size: inherit; 
+            font-weight: bold; 
+            color: #0b4fb3; 
+            padding: 1px 3px; 
+            outline: none; 
+        }
         .editable-field:focus { background: #fef08a; border-bottom: 2px solid var(--primary); }
 
-        .checkbox-custom { display: inline-block; width: 13px; height: 13px; border: 1.5px solid #000; text-align: center; line-height: 10px; font-size: 10px; font-weight: bold; cursor: pointer; user-select: none; }
+        .checkbox-custom { 
+            display: inline-block; 
+            width: 13px; 
+            height: 13px; 
+            border: 1px solid #000; 
+            text-align: center; 
+            line-height: 11px; 
+            font-size: 10px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            user-select: none;
+            background: #fff;
+            vertical-align: middle;
+        }
 
         @media print {
             .no-print { display: none !important; }
@@ -116,9 +160,9 @@
                 border: none;
                 box-shadow: none;
                 page-break-after: always;
-                padding: 6mm 8mm;
+                padding: 5mm 8mm;
             }
-            .editable-field { background: transparent !important; border-bottom: none !important; }
+            .editable-field { background: transparent !important; border-bottom: none !important; color: #000 !important; }
             @page { size: A4 portrait; margin: 0; }
         }
     </style>
@@ -303,8 +347,8 @@
         const DB_COMP_KEY = 'HR_PLATFORM_COMPANY_V1';
 
         const initialTestEmployees = [
-            { name: "مينا عادل لبيب", nationalId: "29505051234567", insuranceNo: "553211", job: "مهندس برمجيات", jobCode: "101", startDate: "2026-01-01", salaryIns: "14000", salaryTotal: "16000", qualification: "بكالوريوس هندسة", nationality: "مصري", compName: "أكاديمية براكسي للتدريب", compId: "12345678", phone: "01000000002", applicantName: "أحمد محمود", applicantTitle: "مفوض", sector: "نمطي", durationType: "نمطي", gov: "القاهرة", sec: "مصر الجديدة" },
-            { name: "صلاح محمد أحمد", nationalId: "29801011234568", insuranceNo: "442433", job: "أخصائي موارد بشرية", jobCode: "102", startDate: "2025-11-17", salaryIns: "11500", salaryTotal: "13000", qualification: "بكالوريوس", nationality: "مصري", compName: "أكاديمية براكسي للتدريب", compId: "12345678", phone: "01000000001", applicantName: "أحمد محمود", applicantTitle: "مفوض", sector: "نمطي", durationType: "نمطي", gov: "القاهرة", sec: "مصر الجديدة" }
+            { name: "مينا عادل لبيب", nationalId: "29505051234567", insuranceNo: "553211", job: "مهندس برمجيات", jobCode: "101", startDate: "2026-01-01", salaryIns: "14000", salaryTotal: "16000", qualification: "بكالوريوس هندسة", nationality: "مصري", compName: "أكاديمية براكسي للتدريب", compId: "12345678", phone: "01000000002", applicantName: "أحمد محمود", applicantTitle: "مفوض", sector: "نمطي", durationType: "نمطي", gov: "القاهرة", sec: "مصر الجديدة", building: "15", street: "شارع النهضة", village: "الميرغني" },
+            { name: "صلاح محمد أحمد", nationalId: "29801011234568", insuranceNo: "442433", job: "أخصائي موارد بشرية", jobCode: "102", startDate: "2025-11-17", salaryIns: "11500", salaryTotal: "13000", qualification: "بكالوريوس", nationality: "مصري", compName: "أكاديمية براكسي للتدريب", compId: "12345678", phone: "01000000001", applicantName: "أحمد محمود", applicantTitle: "مفوض", sector: "نمطي", durationType: "نمطي", gov: "القاهرة", sec: "مصر الجديدة", building: "10", street: "شارع الثورة", village: "الكوربة" }
         ];
 
         function getStoredEmployees() {
@@ -342,42 +386,46 @@
             localStorage.setItem(DB_COMP_KEY, JSON.stringify(companyObj));
         }
 
+        /* Unified Excel Sheet Template Headers Match S1 Insurance Form Data */
         const S1_EXCEL_HEADERS = [
-            "منطقة", "مكتب", "اسم مقدم الطلب", "صفة مقدم الطلب", "الرقم التأميني لمقدم الطلب", "رقم التليفون", "الرقم القومي لمقدم الطلب",
-            "اسم المؤمن عليه", "الرقم التأميني للمؤمن عليه", "الرقم القومي للمؤمن عليه", "الجنسية", "المؤهل", "المهنة", "كود المهنة",
-            "تاريخ بدء الاشتراك", "القطاع", "نوع المدة", "أجر الاشتراك", "الأجر الشامل", "استيفاء الكشف الطبي",
-            "اسم المنشأة", "رقم المنشأة"
+            "اسم المؤمن عليه", "الرقم القومي للمؤمن عليه", "الرقم التأميني للمؤمن عليه", "الجنسية", "المؤهل", "المهنة", "كود المهنة",
+            "تاريخ بدء الاشتراك", "أجر الاشتراك", "الأجر الشامل", "منطقة", "مكتب", "اسم مقدم الطلب", "صفة مقدم الطلب",
+            "الرقم القومي لمقدم الطلب", "الرقم التأميني لمقدم الطلب", "رقم التليفون", "اسم المنشأة", "رقم المنشأة", "قطاع المنشأة",
+            "عقار رقم", "شارع", "قرية", "قسم / مركز", "محافظة"
         ];
 
         function downloadExcelTemplate() {
             const sampleRow = {
-                "منطقة": "القاهرة",
-                "مكتب": "مصر الجديدة",
-                "اسم مقدم الطلب": "أحمد محمود",
-                "صفة مقدم الطلب": "مفوض",
-                "الرقم التأميني لمقدم الطلب": "553211",
-                "رقم التليفون": "01000000002",
-                "الرقم القومي لمقدم الطلب": "29505051234567",
                 "اسم المؤمن عليه": "مينا عادل لبيب",
-                "الرقم التأميني للمؤمن عليه": "553211",
                 "الرقم القومي للمؤمن عليه": "29505051234567",
+                "الرقم التأميني للمؤمن عليه": "553211",
                 "الجنسية": "مصري",
                 "المؤهل": "بكالوريوس هندسة",
                 "المهنة": "مهندس برمجيات",
                 "كود المهنة": "101",
                 "تاريخ بدء الاشتراك": "2026-01-01",
-                "القطاع": "نمطي",
-                "نوع المدة": "نمطي",
                 "أجر الاشتراك": "14000",
                 "الأجر الشامل": "16000",
-                "استيفاء الكشف الطبي": "نعم",
+                "منطقة": "القاهرة",
+                "مكتب": "مصر الجديدة",
+                "اسم مقدم الطلب": "أحمد محمود",
+                "صفة مقدم الطلب": "مفوض",
+                "الرقم القومي لمقدم الطلب": "29505051234567",
+                "الرقم التأميني لمقدم الطلب": "553211",
+                "رقم التليفون": "01000000002",
                 "اسم المنشأة": "أكاديمية براكسي للتدريب",
-                "رقم المنشأة": "12345678"
+                "رقم المنشأة": "12345678",
+                "قطاع المنشأة": "نمطي",
+                "عقار رقم": "15",
+                "شارع": "شارع النهضة",
+                "قرية": "الميرغني",
+                "قسم / مركز": "مصر الجديدة",
+                "محافظة": "القاهرة"
             };
 
             const ws = XLSX.utils.json_to_sheet([sampleRow], { header: S1_EXCEL_HEADERS });
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "شيت_س1_الموحد");
+            XLSX.utils.book_append_sheet(wb, ws, "شيت_استمارة_1_الموحد");
             XLSX.writeFile(wb, "S1_Employees_Unified_Template.xlsx");
         }
 
@@ -395,25 +443,27 @@
                 const rawJson = XLSX.utils.sheet_to_json(sheet);
 
                 uploadedExcelTempData = rawJson.map(row => ({
-                    gov: row["منطقة"] || "القاهرة",
-                    sec: row["مكتب"] || "مصر الجديدة",
-                    applicantName: row["اسم مقدم الطلب"] || "أحمد محمود",
-                    applicantTitle: row["صفة مقدم الطلب"] || "مفوض",
-                    phone: String(row["رقم التليفون"] || ""),
                     name: row["اسم المؤمن عليه"] || "",
-                    insuranceNo: String(row["الرقم التأميني للمؤمن عليه"] || row["الرقم التأميني"] || ""),
                     nationalId: String(row["الرقم القومي للمؤمن عليه"] || row["الرقم القومي"] || ""),
+                    insuranceNo: String(row["الرقم التأميني للمؤمن عليه"] || row["الرقم التأميني"] || ""),
                     nationality: row["الجنسية"] || "مصري",
                     qualification: row["المؤهل"] || "",
                     job: row["المهنة"] || "",
                     jobCode: row["كود المهنة"] || "101",
                     startDate: row["تاريخ بدء الاشتراك"] || "",
-                    sector: row["القطاع"] || "نمطي",
-                    durationType: row["نوع المدة"] || "نمطي",
                     salaryIns: row["أجر الاشتراك"] || "0",
                     salaryTotal: row["الأجر الشامل"] || "0",
+                    gov: row["منطقة"] || row["محافظة"] || "القاهرة",
+                    sec: row["مكتب"] || row["قسم / مركز"] || "مصر الجديدة",
+                    applicantName: row["اسم مقدم الطلب"] || "أحمد محمود",
+                    applicantTitle: row["صفة مقدم الطلب"] || "مفوض",
+                    phone: String(row["رقم التليفون"] || ""),
                     compName: row["اسم المنشأة"] || "أكاديمية براكسي للتدريب",
-                    compId: String(row["رقم المنشأة"] || "12345678")
+                    compId: String(row["رقم المنشأة"] || "12345678"),
+                    sector: row["قطاع المنشأة"] || "نمطي",
+                    building: row["عقار رقم"] || "",
+                    street: row["شارع"] || "",
+                    village: row["قرية"] || ""
                 }));
 
                 renderExcelPreviewTable(uploadedExcelTempData);
@@ -467,6 +517,7 @@
             return html;
         }
 
+        /* 100% MATCHING PDF TEMPLATE GENERATOR FUNCTION */
         function generateS1FormHTML(emp, comp) {
             const day = emp.startDate ? emp.startDate.split('-')[2] || emp.startDate.split('/')[2] || '' : '';
             const month = emp.startDate ? emp.startDate.split('-')[1] || emp.startDate.split('/')[1] || '' : '';
@@ -480,30 +531,28 @@
                             <i class="fas fa-building fa-2x"></i>
                         </td>
                         <td style="width: 50%; text-align: center;">
-                            <div class="s1-title-box">
-                                نموذج رقم ( 1 )<br>
-                                طلب إشتراك مؤمن عليه
-                            </div>
+                            <div style="font-weight: bold; font-size: 15px;">نموذج رقم ( 1 )</div>
+                            <div style="font-weight: bold; font-size: 16px; margin-top: 2px;">طلب إشتراك مؤمن عليه</div>
                         </td>
-                        <td style="width: 25%; text-align: left; font-size: 11px;">
+                        <td style="width: 25%; text-align: right; font-size: 11px;">
                             <strong>الهيئة القومية للتأمين الاجتماعي</strong><br>
-                            منطقة: <input type="text" class="editable-field" style="width: 90px;" value="${emp.gov || comp.gov || 'القاهرة'}"><br>
-                            مكتب: <input type="text" class="editable-field" style="width: 90px;" value="${emp.sec || comp.sec || 'مصر الجديدة'}">
+                            منطقة: <input type="text" class="editable-field" style="width: 80px;" value="${emp.gov || comp.gov || 'القاهرة'}"><br>
+                            مكتب: <input type="text" class="editable-field" style="width: 80px;" value="${emp.sec || comp.sec || 'مصر الجديدة'}">
                         </td>
                     </tr>
                 </table>
 
-                <div style="border: 1.5px solid #000; padding: 4px; margin-bottom: 4px; display: flex; justify-content: space-around; align-items: center;">
+                <div style="border: 1px solid #000; padding: 4px; margin-bottom: 4px; display: flex; justify-content: space-around; align-items: center; font-size: 11px;">
                     <strong>الفئة :</strong>
                     <span><span class="checkbox-custom">✔</span> 1. عاملين لدى الغير</span>
-                    <span><span class="checkbox-custom"></span> 2. أصحاب أعمال</span>
+                    <span><span class="checkbox-custom"></span> 2. أصحاب أعمال لهم منشآت</span>
                     <span><span class="checkbox-custom"></span> 3. العاملين بالمخابز</span>
                 </div>
 
                 <div class="s1-section-header">بيانات مقدم الطلب</div>
                 <table class="s1-table">
                     <tr>
-                        <td style="width: 45%;">مقدم الطلب: <input type="text" class="editable-field" style="width: 160px;" value="${emp.applicantName || comp.applicant || 'أحمد محمود'}"></td>
+                        <td style="width: 45%;">مقدم الطلب: <input type="text" class="editable-field" style="width: 150px;" value="${emp.applicantName || comp.applicant || 'أحمد محمود'}"></td>
                         <td style="width: 20%;">صفته: <input type="text" class="editable-field" style="width: 70px;" value="${emp.applicantTitle || comp.applicantTitle || 'مفوض'}"></td>
                         <td style="width: 35%;">الرقم التأميني: ${renderCharBoxes(emp.insuranceNo || '553211', 9)}</td>
                     </tr>
@@ -516,15 +565,15 @@
                 <div class="s1-section-header">بيانات المؤمن عليه</div>
                 <table class="s1-table">
                     <tr>
-                        <td style="width: 65%;">أسم المؤمن عليه: <input type="text" class="editable-field" style="width: 220px;" value="${emp.name || ''}"></td>
-                        <td style="width: 35%;">الرقم التأميني: ${renderCharBoxes(emp.insuranceNo || '553211', 9)}</td>
+                        <td style="width: 60%;">أسم المؤمن عليه: <input type="text" class="editable-field" style="width: 200px;" value="${emp.name || ''}"></td>
+                        <td style="width: 40%;">الرقم التأميني: ${renderCharBoxes(emp.insuranceNo || '553211', 9)}</td>
                     </tr>
                     <tr>
                         <td colspan="2">الرقم القومي: ${renderCharBoxes(emp.nationalId || '29505051234567', 14)}</td>
                     </tr>
                     <tr>
-                        <td style="width: 65%;">المؤهل: <input type="text" class="editable-field" value="${emp.qualification || ''}"></td>
-                        <td style="width: 35%;">الجنسية: <input type="text" class="editable-field" style="width: 90px;" value="${emp.nationality || 'مصري'}"></td>
+                        <td style="width: 60%;">المؤهل: <input type="text" class="editable-field" style="width: 180px;" value="${emp.qualification || ''}"></td>
+                        <td style="width: 40%;">الجنسية: <input type="text" class="editable-field" style="width: 100px;" value="${emp.nationality || 'مصري'}"></td>
                     </tr>
                     <tr>
                         <td>المهنة: <input type="text" class="editable-field" style="width: 180px;" value="${emp.job || ''}"></td>
@@ -532,11 +581,16 @@
                     </tr>
                     <tr>
                         <td>تاريخ بدء الإشتراك: ${renderCharBoxes(day || '01', 2)} / ${renderCharBoxes(month || '01', 2)} / ${renderCharBoxes(year || '2026', 4)}</td>
-                        <td>القطاع: <input type="text" class="editable-field" style="width: 60px;" value="${emp.sector || 'نمطي'}"> نوع المدة: <input type="text" class="editable-field" style="width: 60px;" value="${emp.durationType || 'نمطي'}"></td>
+                        <td>القطاع: <input type="text" class="editable-field" style="width: 50px;" value="${emp.sector || 'نمطي'}"> نوع المدة: <input type="text" class="editable-field" style="width: 50px;" value="${emp.durationType || 'نمطي'}"></td>
                     </tr>
                     <tr>
-                        <td>أجر الإشتراك: <input type="text" class="editable-field" style="width: 70px;" value="${emp.salaryIns || '14000'}"> جم</td>
-                        <td>الأجر الشامل: <input type="text" class="editable-field" style="width: 70px;" value="${emp.salaryTotal || '16000'}"> جم</td>
+                        <td>أجر / دخل الإشتراك: <input type="text" class="editable-field" style="width: 70px;" value="${emp.salaryIns || '14000'}"> جنيه</td>
+                        <td>الأجر الشامل: <input type="text" class="editable-field" style="width: 70px;" value="${emp.salaryTotal || '16000'}"> جنيه</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            بيانات العجز إن وجدت : تاريخ بداية العجز: ____/____/________ نسبة العجز ____ %
+                        </td>
                     </tr>
                     <tr>
                         <td colspan="2">
@@ -547,43 +601,79 @@
                     </tr>
                 </table>
 
-                <div class="s1-section-header">بيانات المنشأة ومحل الإقامة</div>
+                <div class="s1-section-header">بيانات المنشأة</div>
                 <table class="s1-table">
                     <tr>
-                        <td style="width: 65%;">أسم المنشأة: <input type="text" class="editable-field" value="${comp.name || emp.compName || 'أكاديمية براكسي للتدريب'}"></td>
-                        <td style="width: 35%;">رقم المنشأة: ${renderCharBoxes(comp.compId || emp.compId || '12345678', 9)}</td>
+                        <td colspan="2">
+                            قطاع المنشأة: 
+                            <span class="checkbox-custom">✔</span> نمطي 
+                            <span class="checkbox-custom"></span> سيارة 
+                            <span class="checkbox-custom"></span> مركب صيد 
+                            <span class="checkbox-custom"></span> مخابز بلدية
+                        </td>
                     </tr>
-                </table>
-
-                <div class="s1-section-header">التوقيعات ومطابقة التوقيع</div>
-                <table class="s1-table" style="text-align: center; margin-top: 8px;">
                     <tr>
-                        <td style="width: 50%; height: 45px; vertical-align: bottom;">توقيع المؤمن عليه: ...................................</td>
-                        <td style="width: 50%; height: 45px; vertical-align: bottom;">توقيع صاحب العمل / المدير المسئول: ...................................</td>
+                        <td style="width: 60%;">أسم المنشأة: <input type="text" class="editable-field" style="width: 200px;" value="${comp.name || emp.compName || 'أكاديمية براكسي للتدريب'}"></td>
+                        <td style="width: 40%;">رقم المنشأة: ${renderCharBoxes(comp.compId || emp.compId || '12345678', 9)}</td>
                     </tr>
                 </table>
-            </div>
 
-            <div class="s1-page">
-                <div class="s1-section-header" style="font-size: 14px;">إرشــــــــادات وتوجيهات استخدام النموذج (صفحة 2)</div>
-                <div style="padding: 10px; font-size: 11px; line-height: 1.8;">
-                    <p>1. على صاحب العمل أن يرسل هذا النموذج مع طلب اشتراكه في الهيئة خلال أسبوعين على الأكثر من تاريخ التحاق العامل بالعمل لديه.</p>
-                    <p>2. التوقيع على هذا النموذج يفيد الاطلاع والموافقة على كافة البيانات الواردة به.</p>
-                    <p>3. يستخدم هذا النموذج كطلب اشتراك في تأمين إصابات العمل وجميع التغطيات التأمينية وفقاً للقانون.</p>
-                    <p>4. يقتصر استثناء الأجر على الفئات التي يتقاضى فيها المؤمن عليه أجرًا من صاحب العمل وفق الضوابط.</p>
+                <div class="s1-section-header">بيانات محل إقامة المؤمن عليه</div>
+                <table class="s1-table">
+                    <tr>
+                        <td>عقار رقم: <input type="text" class="editable-field" style="width: 40px;" value="${emp.building || comp.building || '15'}"></td>
+                        <td>شارع: <input type="text" class="editable-field" style="width: 100px;" value="${emp.street || comp.street || 'شارع النهضة'}"></td>
+                        <td>قرية: <input type="text" class="editable-field" style="width: 80px;" value="${emp.village || comp.village || 'الميرغني'}"></td>
+                        <td>قسم / مركز: <input type="text" class="editable-field" style="width: 80px;" value="${emp.sec || comp.sec || 'مصر الجديدة'}"></td>
+                        <td>محافظة: <input type="text" class="editable-field" style="width: 70px;" value="${emp.gov || comp.gov || 'القاهرة'}"></td>
+                    </tr>
+                </table>
+
+                <div class="s1-section-header">التوقيع ومطابقة التوقيع</div>
+                <table class="s1-table" style="text-align: center;">
+                    <tr>
+                        <td style="width: 50%; height: 40px; vertical-align: top;">
+                            توقيع المؤمن عليه: ...........................................<br>
+                            تحريراً في: ____/____/________
+                        </td>
+                        <td style="width: 50%; height: 40px; vertical-align: top;">
+                            توقيع صاحب العمل / المدير المسئول:<br>
+                            ( ................................................................ )
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="font-size: 10px;">
+                            توقيع الموظف المختص بالمطابقة : ............................................. | تاريخ المطابقة: ____/____/________
+                        </td>
+                    </tr>
+                </table>
+                <div style="font-size: 9px; text-align: center; margin-top: 3px;">
+                    ملحوظة:- على صاحب العمل والعامل الإطلاع على التوجيهات الموضحة خلف النموذج مع التوقيع على الإقرار. (أنظر خلفه)
                 </div>
             </div>
 
             <div class="s1-page">
-                <div class="s1-section-header" style="font-size: 14px;">إقـــــــــرار صاحب العمل والعامل (صفحة 3)</div>
-                <div style="padding: 15px; font-size: 11px; line-height: 2;">
-                    <p><strong>أقر أنا صاحب العمل / المدير المسئول:</strong> بصلة المنشأة بالعامل المذكور والتزامنا بكافة القوانين واللوائح التأمينية المنظمة، وعرضه على الجهة الطبية المختصة لاستيفاء تقرير اللياقة الطبية.</p>
-                    <br><br>
-                    <p style="text-align: left;">توقيع (صاحب العمل): ( ........................................... )</p>
-                    <hr style="margin: 20px 0;">
-                    <p><strong>أقر أنا العامل / المؤمن عليه:</strong> بأن البيانات المدونة بهذه الاستمارة صحيحة تماماً وتقع تحت مسؤولياني القانونية.</p>
-                    <br><br>
-                    <p style="text-align: left;">توقيع (المؤمن عليه): ( ........................................... )</p>
+                <div class="s1-section-header" style="font-size: 13px;">إرشــــــــادات (خلف النموذج)</div>
+                <div style="padding: 10px; font-size: 11px; line-height: 1.8;">
+                    <p>1. على صاحب العمل أن يرسل هذا النموذج مع طلب اشتراكه في الهيئة لأول مرة وخلال أسبوعين على الأكثر من تاريخ التحاق أي عامل جديد بالعمل لديه سواء كان التحاقًا نهائيًا أو تحت الاختبار.</p>
+                    <p>2. التوقيع على هذا النموذج بما يفيد الاطلاع والموافقة على جميع البيانات الواردة به ولا يجوز لمن وقع عليه أن يعترض في تلك البيانات أمام الهيئة ولو أن يلجأ إلى مكتب علاقات العمل المختص أو القضاء.</p>
+                    <p>3. يستخدم هذا النموذج كطلب اشتراك في تأمين إصابات العمل فقط بالنسبة للفئات التالية:</p>
+                    <p style="padding-right: 15px;">(أ) من تجاوز سن الشيخوخة أو أوقف انتفاعه بتأمين الشيخوخة والعجز والوفاة.</p>
+                    <p style="padding-right: 15px;">(ب) العاملون الذين يخضعون لأحكام قانون العمل ممن تقل أعمارهم عن 18 سنة.</p>
+                    <p style="padding-right: 15px;">(ج) العاملون المتدرجون والتلاميذ الصناعيون والطلاب المشتغلون في مشروعات التشغيل الصيفي والخدمة العامة.</p>
+                    <p style="padding-right: 15px;">(د) يقتصر استثناء الأجر على الفئات التي يتقاضى فيها المؤمن عليه أجرًا من صاحب العمل.</p>
+                </div>
+
+                <div class="s1-section-header" style="font-size: 13px; margin-top: 20px;">إقـــــــــرار</div>
+                <div style="padding: 10px; font-size: 11px; line-height: 1.8;">
+                    <p><strong>أسم المنشأة :</strong> ${comp.name || 'أكاديمية براكسي للتدريب'} &nbsp;&nbsp;&nbsp;&nbsp; <strong>رقمها التأميني :</strong> ${comp.compId || '12345678'}</p>
+                    <p><strong>العنوان :</strong> ${comp.building || '15'} ${comp.street || 'شارع النهضة'} - ${comp.sec || 'مصر الجديدة'} - ${comp.gov || 'القاهرة'}</p>
+                    <br>
+                    <p>أقر أنا الموقع على هذا النموذج بالإلتزام بعرض المؤمن عليه على اللجنة الطبية المختصة بالهيئة المعنية بالتأمين الصحي أو الجهة الطبية المختصة لإجراء الفحص الطبي الأولي وإثبات حالته الصحية وقت توقيع الكشف الطبى مع الإلتزام بموافاة مكتب الهيئة التابع له المنشأة بتقرير اللياقة الطبية خلال أسبوعين على الأكثر من تاريخ التحاقه بالعمل.</p>
+                    <p style="text-align: left; margin-top: 15px;">توقيع (صاحب العمل / المدير المسئول): ( ........................................... )</p>
+                    <hr style="margin: 15px 0;">
+                    <p>أقر أنا : ( <strong>${emp.name || '...........................................'}</strong> ) العامل بالمنشأة عاليه بأن أثبت حالتي الصحية أمام اللجنة الطبية المختصة وموافاة مكتب الهيئة بالتقرير الطبي عن حالتي الصحية خلال أسبوعين من تاريخ التحاقي بالعمل.</p>
+                    <p style="text-align: left; margin-top: 15px;">توقيع المؤمن عليه: ( ........................................... )</p>
                 </div>
             </div>
             `;
