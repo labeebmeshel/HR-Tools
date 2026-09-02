@@ -6,10 +6,129 @@
     <title>HR Forms & Insurance System - نظام إدارة ونماذج شئون العاملين والتأمينات</title>
     <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Style CSS -->
-    <link rel="stylesheet" href="css/style.css">
     <!-- SheetJS CDN for Excel Processing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #0b4fb3;
+            --primary-dark: #1e3a8a;
+            --secondary: #64748b;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #cbd5e1;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-light); color: var(--text-color); direction: rtl; text-align: right; line-height: 1.5; }
+
+        /* Header & Footer */
+        .main-header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 20px 40px; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; flex-wrap: wrap; gap: 15px; }
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        .logo-icon { font-size: 2.2rem; }
+        .subtitle { font-size: 0.9rem; opacity: 0.85; }
+        .badge-security { background: rgba(255,255,255,0.15); padding: 8px 15px; border-radius: 20px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.3); }
+
+        /* Navigation */
+        .app-container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
+        .nav-tabs { display: flex; gap: 10px; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; overflow-x: auto; }
+        .tab-btn { padding: 12px 24px; background: none; border: none; font-size: 1rem; font-weight: bold; color: var(--secondary); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s; white-space: nowrap; }
+        .tab-btn.active, .tab-btn:hover { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Dashboard UI Components */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .stat-icon { font-size: 2.5rem; color: var(--primary); }
+        .actions-panel { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .buttons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 15px; }
+
+        .btn { padding: 12px 18px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; font-size: 0.95rem; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-info { background: #0284c7; color: white; }
+        .btn-secondary { background: var(--secondary); color: white; }
+        .btn-print { background: #4f46e5; color: white; }
+
+        /* Database Table */
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .table-controls { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 20px; }
+        .search-box { flex: 1; display: flex; align-items: center; background: #f1f5f9; padding: 8px 15px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .search-box input { border: none; background: transparent; width: 100%; margin-right: 10px; outline: none; font-size: 0.95rem; }
+        .table-responsive { overflow-x: auto; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95rem; }
+        .data-table th, .data-table td { padding: 12px 15px; border-bottom: 1px solid var(--border-color); text-align: right; }
+        .data-table th { background: #f1f5f9; color: var(--primary-dark); font-weight: bold; }
+
+        /* Form Controls & Modals */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 0.85rem; font-weight: bold; color: var(--secondary); }
+        .form-group input, .form-group select { padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 90%; max-width: 900px; max-height: 90vh; overflow-y: auto; padding: 30px; border-radius: 12px; position: relative; }
+        .close-modal { position: absolute; left: 20px; top: 15px; font-size: 1.8rem; cursor: pointer; }
+
+        .main-footer { text-align: center; padding: 25px; border-top: 1px solid var(--border-color); margin-top: 40px; color: var(--secondary); font-size: 0.9rem; }
+        .main-footer a { color: var(--primary); text-decoration: none; }
+
+        /* S1 FORM PRINT LAYOUT */
+        .s1-page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 12mm 15mm;
+            margin: 15px auto;
+            background: white;
+            border: 1px solid #333;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #000;
+            position: relative;
+            font-size: 11px;
+            line-height: 1.3;
+        }
+
+        .s1-page * { box-sizing: border-box; }
+        .s1-header-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+        .s1-header-table td { vertical-align: middle; }
+        .s1-title-box { text-align: center; font-weight: bold; font-size: 15px; }
+
+        .s1-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+        .s1-table td, .s1-table th { border: 1px solid #000; padding: 3px 5px; text-align: right; vertical-align: middle; }
+        .s1-section-header { background-color: #e5e7eb; font-weight: bold; text-align: center; padding: 4px; border: 1px solid #000; }
+
+        .char-box-container { display: inline-flex; direction: ltr; }
+        .char-box { width: 15px; height: 18px; border: 1px solid #000; text-align: center; font-size: 11px; font-weight: bold; line-height: 16px; margin-right: -1px; background: #fff; }
+
+        .editable-field { background: #fef08a; border: none; border-bottom: 1px dotted #000; font-family: inherit; font-size: inherit; font-weight: bold; color: #0b4fb3; width: 100%; padding: 1px 3px; outline: none; }
+        .editable-field:focus { background: #fef08a; border-bottom: 2px solid var(--primary); }
+
+        .checkbox-custom { display: inline-block; width: 13px; height: 13px; border: 1px solid #000; text-align: center; line-height: 11px; font-size: 10px; font-weight: bold; cursor: pointer; user-select: none; }
+
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body, .app-container { background: white; margin: 0; padding: 0; }
+            .s1-page {
+                width: 100%;
+                margin: 0;
+                border: none;
+                box-shadow: none;
+                page-break-after: always;
+                padding: 8mm 10mm;
+            }
+            .editable-field { background: transparent !important; border-bottom: none !important; }
+            @page { size: A4 portrait; margin: 0; }
+        }
+    </style>
 </head>
 <body>
 
@@ -161,9 +280,9 @@
 
         <!-- Tab 4: Form Preview -->
         <section id="tab-form-preview" class="tab-content">
-            <div class="form-actions-bar no-print">
+            <div class="form-actions-bar no-print" style="margin-bottom: 15px;">
                 <button class="btn btn-print" onclick="window.print()"><i class="fas fa-print"></i> طباعة النموذج الحالي (A4)</button>
-                <span class="info-text"><i class="fas fa-info-circle"></i> يمكنك تعديل أي حقل مباشرة على الورقة التفاعلية بالأسفل قبل الطباعة</span>
+                <span class="info-text" style="margin-right: 15px; color: var(--secondary);"><i class="fas fa-info-circle"></i> يمكنك تعديل أي حقل مباشرة على الورقة التفاعلية بالأسفل قبل الطباعة</span>
             </div>
             <div id="s1-form-render-target">
             </div>
