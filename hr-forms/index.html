@@ -4,16 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HR Forms & Insurance System - نظام إدارة ونماذج شئون العاملين والتأمينات</title>
-    <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Style CSS (مسار مباشر) -->
-    <link rel="stylesheet" href="style.css">
-    <!-- SheetJS CDN for Excel Processing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #0b4fb3;
+            --primary-dark: #1e3a8a;
+            --secondary: #64748b;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #cbd5e1;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-light); color: var(--text-color); direction: rtl; text-align: right; line-height: 1.5; }
+
+        .main-header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 20px 40px; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; flex-wrap: wrap; gap: 15px; }
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        .logo-icon { font-size: 2.2rem; }
+        .subtitle { font-size: 0.9rem; opacity: 0.85; }
+        .badge-security { background: rgba(255,255,255,0.15); padding: 8px 15px; border-radius: 20px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.3); }
+
+        .app-container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
+        .nav-tabs { display: flex; gap: 10px; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; overflow-x: auto; }
+        .tab-btn { padding: 12px 24px; background: none; border: none; font-size: 1rem; font-weight: bold; color: var(--secondary); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s; white-space: nowrap; }
+        .tab-btn.active, .tab-btn:hover { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .stat-icon { font-size: 2.5rem; color: var(--primary); }
+        .actions-panel { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .buttons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 15px; }
+
+        .btn { padding: 12px 18px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; font-size: 0.95rem; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-info { background: #0284c7; color: white; }
+        .btn-secondary { background: var(--secondary); color: white; }
+        .btn-print { background: #4f46e5; color: white; }
+
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .table-controls { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 20px; }
+        .search-box { flex: 1; display: flex; align-items: center; background: #f1f5f9; padding: 8px 15px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .search-box input { border: none; background: transparent; width: 100%; margin-right: 10px; outline: none; font-size: 0.95rem; }
+        .table-responsive { overflow-x: auto; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95rem; }
+        .data-table th, .data-table td { padding: 12px 15px; border-bottom: 1px solid var(--border-color); text-align: right; }
+        .data-table th { background: #f1f5f9; color: var(--primary-dark); font-weight: bold; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 0.85rem; font-weight: bold; color: var(--secondary); }
+        .form-group input, .form-group select { padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 90%; max-width: 900px; max-height: 90vh; overflow-y: auto; padding: 30px; border-radius: 12px; position: relative; }
+        .close-modal { position: absolute; left: 20px; top: 15px; font-size: 1.8rem; cursor: pointer; }
+
+        .main-footer { text-align: center; padding: 25px; border-top: 1px solid var(--border-color); margin-top: 40px; color: var(--secondary); font-size: 0.9rem; }
+        .main-footer a { color: var(--primary); text-decoration: none; }
+
+        /* S1 OFFICIAL FORM STYLING MATCHING ATTACHMENT EXACTLY */
+        .s1-page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 10mm 12mm;
+            margin: 15px auto;
+            background: white;
+            border: 2px solid #000;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #000;
+            position: relative;
+            font-size: 11px;
+            line-height: 1.2;
+        }
+
+        .s1-page * { box-sizing: border-box; }
+        .s1-header-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
+        .s1-header-table td { vertical-align: top; }
+        .s1-title-box { text-align: center; font-weight: bold; font-size: 16px; }
+
+        .s1-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
+        .s1-table td, .s1-table th { border: 1.5px solid #000; padding: 4px 6px; text-align: right; vertical-align: middle; }
+        .s1-section-header { background-color: #e2e8f0; font-weight: bold; text-align: center; padding: 3px; border: 1.5px solid #000; margin-top: 2px; }
+
+        .char-box-container { display: inline-flex; direction: ltr; }
+        .char-box { width: 16px; height: 18px; border: 1.5px solid #000; text-align: center; font-size: 11px; font-weight: bold; line-height: 16px; margin-right: -1px; background: #fff; }
+
+        .editable-field { background: #fef08a; border: none; border-bottom: 1px dotted #000; font-family: inherit; font-size: inherit; font-weight: bold; color: #0b4fb3; width: 100%; padding: 1px 3px; outline: none; }
+        .editable-field:focus { background: #fef08a; border-bottom: 2px solid var(--primary); }
+
+        .checkbox-custom { display: inline-block; width: 13px; height: 13px; border: 1.5px solid #000; text-align: center; line-height: 10px; font-size: 10px; font-weight: bold; cursor: pointer; user-select: none; }
+
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body, .app-container { background: white; margin: 0; padding: 0; }
+            .s1-page {
+                width: 100%;
+                margin: 0;
+                border: none;
+                box-shadow: none;
+                page-break-after: always;
+                padding: 6mm 8mm;
+            }
+            .editable-field { background: transparent !important; border-bottom: none !important; }
+            @page { size: A4 portrait; margin: 0; }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Header Section -->
     <header class="main-header no-print">
         <div class="header-container">
             <div class="logo-area">
@@ -29,10 +140,8 @@
         </div>
     </header>
 
-    <!-- Main Application Container -->
     <main class="app-container no-print">
         
-        <!-- Navigation Tabs -->
         <nav class="nav-tabs">
             <button class="tab-btn active" data-tab="tab-dashboard"><i class="fas fa-tachometer-alt"></i> لوحة التحكم</button>
             <button class="tab-btn" data-tab="tab-database"><i class="fas fa-users"></i> قاعدة بيانات الموظفين</button>
@@ -40,7 +149,6 @@
             <button class="tab-btn" data-tab="tab-form-preview"><i class="fas fa-file-contract"></i> معاينة واستمارة س1</button>
         </nav>
 
-        <!-- Tab 1: Dashboard -->
         <section id="tab-dashboard" class="tab-content active">
             <div class="stats-grid">
                 <div class="stat-card">
@@ -70,8 +178,8 @@
                 <h2>إجراءات سريعة</h2>
                 <div class="buttons-grid">
                     <button class="btn btn-primary" onclick="openAddEmployeeModal()"><i class="fas fa-user-plus"></i> إضافة موظف جديد</button>
-                    <button class="btn btn-success" onclick="downloadExcelTemplate()"><i class="fas fa-download"></i> تحميل Template Excel (س1)</button>
-                    <button class="btn btn-info" onclick="document.getElementById('excelFileInput').click()"><i class="fas fa-file-upload"></i> رفع ملف Excel</button>
+                    <button class="btn btn-success" onclick="downloadExcelTemplate()"><i class="fas fa-download"></i> تحميل شيت Excel الموحد (س1)</button>
+                    <button class="btn btn-info" onclick="document.getElementById('excelFileInput').click()"><i class="fas fa-file-upload"></i> رفع ملف Excel البيانات</button>
                     <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display:none;" onchange="handleExcelUpload(event)">
                     <button class="btn btn-warning" onclick="exportDatabaseToExcel()"><i class="fas fa-file-excel"></i> تصدير القاعدة إلى Excel</button>
                     <button class="btn btn-secondary" onclick="backupDatabase()"><i class="fas fa-database"></i> نسخ احتياطي (Backup)</button>
@@ -81,7 +189,6 @@
                 </div>
             </div>
 
-            <!-- Preview uploaded Excel area -->
             <div id="excel-preview-section" class="card" style="display: none; margin-top: 20px;">
                 <h3><i class="fas fa-file-excel"></i> معاينة الملف المرفوع (<span id="excel-count">0</span> موظف)</h3>
                 <div class="table-responsive">
@@ -96,7 +203,6 @@
             </div>
         </section>
 
-        <!-- Tab 2: Database -->
         <section id="tab-database" class="tab-content">
             <div class="card">
                 <div class="table-controls">
@@ -127,7 +233,6 @@
             </div>
         </section>
 
-        <!-- Tab 3: Company Setup -->
         <section id="tab-company" class="tab-content">
             <div class="card">
                 <h2><i class="fas fa-building"></i> بيانات المنشأة والمقر الرئيسي الثابتة</h2>
@@ -159,7 +264,6 @@
             </div>
         </section>
 
-        <!-- Tab 4: Form Preview -->
         <section id="tab-form-preview" class="tab-content">
             <div class="form-actions-bar no-print" style="margin-bottom: 15px;">
                 <button class="btn btn-print" onclick="window.print()"><i class="fas fa-print"></i> طباعة النموذج الحالي (A4)</button>
@@ -171,10 +275,8 @@
 
     </main>
 
-    <!-- Printable Container for Printing All Bulk Forms -->
     <div id="bulk-print-container" class="print-only"></div>
 
-    <!-- Employee Edit/Add Modal -->
     <div id="employeeModal" class="modal no-print">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
@@ -191,17 +293,541 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="main-footer no-print">
         <p>HR Tools | Developed by <strong>Labeeb Meshel</strong> &copy; 2026</p>
         <a href="https://linktr.ee/labeebmeshel" target="_blank" rel="noopener noreferrer">https://linktr.ee/labeebmeshel</a>
     </footer>
 
-    <!-- App Logic Scripts (مسارات مباشرة بدون مجلدات فرعية) -->
-    <script src="database.js"></script>
-    <script src="excel.js"></script>
-    <script src="s1-form.js"></script>
-    <script src="print.js"></script>
-    <script src="app.js"></script>
+    <script>
+        const DB_EMP_KEY = 'HR_PLATFORM_EMPLOYEES_V1';
+        const DB_COMP_KEY = 'HR_PLATFORM_COMPANY_V1';
+
+        const initialTestEmployees = [
+            { name: "مينا عادل لبيب", nationalId: "29505051234567", insuranceNo: "553211", job: "مهندس برمجيات", jobCode: "101", startDate: "2026-01-01", salaryIns: "14000", salaryTotal: "16000", qualification: "بكالوريوس هندسة", nationality: "مصري", compName: "أكاديمية براكسي للتدريب", compId: "12345678", phone: "01000000002", applicantName: "أحمد محمود", applicantTitle: "مفوض", sector: "نمطي", durationType: "نمطي", gov: "القاهرة", sec: "مصر الجديدة" },
+            { name: "صلاح محمد أحمد", nationalId: "29801011234568", insuranceNo: "442433", job: "أخصائي موارد بشرية", jobCode: "102", startDate: "2025-11-17", salaryIns: "11500", salaryTotal: "13000", qualification: "بكالوريوس", nationality: "مصري", compName: "أكاديمية براكسي للتدريب", compId: "12345678", phone: "01000000001", applicantName: "أحمد محمود", applicantTitle: "مفوض", sector: "نمطي", durationType: "نمطي", gov: "القاهرة", sec: "مصر الجديدة" }
+        ];
+
+        function getStoredEmployees() {
+            const data = localStorage.getItem(DB_EMP_KEY);
+            if (!data) {
+                localStorage.setItem(DB_EMP_KEY, JSON.stringify(initialTestEmployees));
+                return initialTestEmployees;
+            }
+            return JSON.parse(data);
+        }
+
+        function saveEmployeesData(employees) {
+            localStorage.setItem(DB_EMP_KEY, JSON.stringify(employees));
+        }
+
+        function getStoredCompany() {
+            const data = localStorage.getItem(DB_COMP_KEY);
+            return data ? JSON.parse(data) : {
+                name: "أكاديمية براكسي للتدريب",
+                compId: "12345678",
+                sector: "نمطي",
+                gov: "القاهرة",
+                sec: "مصر الجديدة",
+                village: "الميرغني",
+                street: "شارع النهضة",
+                building: "15",
+                phone: "0225555555",
+                manager: "د. لبيب ميشيل",
+                applicant: "أحمد محمود",
+                applicantTitle: "مفوض"
+            };
+        }
+
+        function saveCompanyDataLocal(companyObj) {
+            localStorage.setItem(DB_COMP_KEY, JSON.stringify(companyObj));
+        }
+
+        const S1_EXCEL_HEADERS = [
+            "منطقة", "مكتب", "اسم مقدم الطلب", "صفة مقدم الطلب", "الرقم التأميني لمقدم الطلب", "رقم التليفون", "الرقم القومي لمقدم الطلب",
+            "اسم المؤمن عليه", "الرقم التأميني للمؤمن عليه", "الرقم القومي للمؤمن عليه", "الجنسية", "المؤهل", "المهنة", "كود المهنة",
+            "تاريخ بدء الاشتراك", "القطاع", "نوع المدة", "أجر الاشتراك", "الأجر الشامل", "استيفاء الكشف الطبي",
+            "اسم المنشأة", "رقم المنشأة"
+        ];
+
+        function downloadExcelTemplate() {
+            const sampleRow = {
+                "منطقة": "القاهرة",
+                "مكتب": "مصر الجديدة",
+                "اسم مقدم الطلب": "أحمد محمود",
+                "صفة مقدم الطلب": "مفوض",
+                "الرقم التأميني لمقدم الطلب": "553211",
+                "رقم التليفون": "01000000002",
+                "الرقم القومي لمقدم الطلب": "29505051234567",
+                "اسم المؤمن عليه": "مينا عادل لبيب",
+                "الرقم التأميني للمؤمن عليه": "553211",
+                "الرقم القومي للمؤمن عليه": "29505051234567",
+                "الجنسية": "مصري",
+                "المؤهل": "بكالوريوس هندسة",
+                "المهنة": "مهندس برمجيات",
+                "كود المهنة": "101",
+                "تاريخ بدء الاشتراك": "2026-01-01",
+                "القطاع": "نمطي",
+                "نوع المدة": "نمطي",
+                "أجر الاشتراك": "14000",
+                "الأجر الشامل": "16000",
+                "استيفاء الكشف الطبي": "نعم",
+                "اسم المنشأة": "أكاديمية براكسي للتدريب",
+                "رقم المنشأة": "12345678"
+            };
+
+            const ws = XLSX.utils.json_to_sheet([sampleRow], { header: S1_EXCEL_HEADERS });
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "شيت_س1_الموحد");
+            XLSX.writeFile(wb, "S1_Employees_Unified_Template.xlsx");
+        }
+
+        let uploadedExcelTempData = [];
+
+        function handleExcelUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const data = new Uint8Array(evt.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rawJson = XLSX.utils.sheet_to_json(sheet);
+
+                uploadedExcelTempData = rawJson.map(row => ({
+                    gov: row["منطقة"] || "القاهرة",
+                    sec: row["مكتب"] || "مصر الجديدة",
+                    applicantName: row["اسم مقدم الطلب"] || "أحمد محمود",
+                    applicantTitle: row["صفة مقدم الطلب"] || "مفوض",
+                    phone: String(row["رقم التليفون"] || ""),
+                    name: row["اسم المؤمن عليه"] || "",
+                    insuranceNo: String(row["الرقم التأميني للمؤمن عليه"] || row["الرقم التأميني"] || ""),
+                    nationalId: String(row["الرقم القومي للمؤمن عليه"] || row["الرقم القومي"] || ""),
+                    nationality: row["الجنسية"] || "مصري",
+                    qualification: row["المؤهل"] || "",
+                    job: row["المهنة"] || "",
+                    jobCode: row["كود المهنة"] || "101",
+                    startDate: row["تاريخ بدء الاشتراك"] || "",
+                    sector: row["القطاع"] || "نمطي",
+                    durationType: row["نوع المدة"] || "نمطي",
+                    salaryIns: row["أجر الاشتراك"] || "0",
+                    salaryTotal: row["الأجر الشامل"] || "0",
+                    compName: row["اسم المنشأة"] || "أكاديمية براكسي للتدريب",
+                    compId: String(row["رقم المنشأة"] || "12345678")
+                }));
+
+                renderExcelPreviewTable(uploadedExcelTempData);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function renderExcelPreviewTable(data) {
+            const section = document.getElementById('excel-preview-section');
+            const tbody = document.querySelector('#excel-preview-table tbody');
+            const thead = document.querySelector('#excel-preview-table thead');
+            const countSpan = document.getElementById('excel-count');
+
+            countSpan.innerText = data.length;
+            thead.innerHTML = `<tr><th>#</th><th>الاسم</th><th>الرقم القومي</th><th>الرقم التأميني</th><th>المهنة</th></tr>`;
+            tbody.innerHTML = '';
+
+            data.forEach((emp, i) => {
+                tbody.innerHTML += `<tr><td>${i+1}</td><td>${emp.name}</td><td>${emp.nationalId}</td><td>${emp.insuranceNo}</td><td>${emp.job}</td></tr>`;
+            });
+
+            section.style.display = 'block';
+        }
+
+        function confirmExcelImport() {
+            if (uploadedExcelTempData.length === 0) return;
+            const currentList = getStoredEmployees();
+            const updatedList = [...currentList, ...uploadedExcelTempData];
+            saveEmployeesData(updatedList);
+            alert(`تم بنجاح استيراد ${uploadedExcelTempData.length} موظف إلى قاعدة البيانات!`);
+            document.getElementById('excel-preview-section').style.display = 'none';
+            refreshUI();
+        }
+
+        function exportDatabaseToExcel() {
+            const employees = getStoredEmployees();
+            const ws = XLSX.utils.json_to_sheet(employees);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Database_Export");
+            XLSX.writeFile(wb, "HR_Employees_Database.xlsx");
+        }
+
+        function renderCharBoxes(str, length) {
+            const padded = (str || '').toString().padStart(length, ' ');
+            let html = '<div class="char-box-container">';
+            for (let i = 0; i < length; i++) {
+                const char = padded[i] !== undefined ? padded[i] : '';
+                html += `<div class="char-box">${char}</div>`;
+            }
+            html += '</div>';
+            return html;
+        }
+
+        function generateS1FormHTML(emp, comp) {
+            const day = emp.startDate ? emp.startDate.split('-')[2] || emp.startDate.split('/')[2] || '' : '';
+            const month = emp.startDate ? emp.startDate.split('-')[1] || emp.startDate.split('/')[1] || '' : '';
+            const year = emp.startDate ? emp.startDate.split('-')[0] || emp.startDate.split('/')[0] || '' : '';
+
+            return `
+            <div class="s1-page">
+                <table class="s1-header-table">
+                    <tr>
+                        <td style="width: 25%;">
+                            <i class="fas fa-building fa-2x"></i>
+                        </td>
+                        <td style="width: 50%; text-align: center;">
+                            <div class="s1-title-box">
+                                نموذج رقم ( 1 )<br>
+                                طلب إشتراك مؤمن عليه
+                            </div>
+                        </td>
+                        <td style="width: 25%; text-align: left; font-size: 11px;">
+                            <strong>الهيئة القومية للتأمين الاجتماعي</strong><br>
+                            منطقة: <input type="text" class="editable-field" style="width: 90px;" value="${emp.gov || comp.gov || 'القاهرة'}"><br>
+                            مكتب: <input type="text" class="editable-field" style="width: 90px;" value="${emp.sec || comp.sec || 'مصر الجديدة'}">
+                        </td>
+                    </tr>
+                </table>
+
+                <div style="border: 1.5px solid #000; padding: 4px; margin-bottom: 4px; display: flex; justify-content: space-around; align-items: center;">
+                    <strong>الفئة :</strong>
+                    <span><span class="checkbox-custom">✔</span> 1. عاملين لدى الغير</span>
+                    <span><span class="checkbox-custom"></span> 2. أصحاب أعمال</span>
+                    <span><span class="checkbox-custom"></span> 3. العاملين بالمخابز</span>
+                </div>
+
+                <div class="s1-section-header">بيانات مقدم الطلب</div>
+                <table class="s1-table">
+                    <tr>
+                        <td style="width: 45%;">مقدم الطلب: <input type="text" class="editable-field" style="width: 160px;" value="${emp.applicantName || comp.applicant || 'أحمد محمود'}"></td>
+                        <td style="width: 20%;">صفته: <input type="text" class="editable-field" style="width: 70px;" value="${emp.applicantTitle || comp.applicantTitle || 'مفوض'}"></td>
+                        <td style="width: 35%;">الرقم التأميني: ${renderCharBoxes(emp.insuranceNo || '553211', 9)}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">الرقم القومي: ${renderCharBoxes(emp.nationalId || '29505051234567', 14)}</td>
+                        <td>رقم التليفون: <input type="text" class="editable-field" style="width: 110px;" value="${emp.phone || comp.phone || '01000000002'}"></td>
+                    </tr>
+                </table>
+
+                <div class="s1-section-header">بيانات المؤمن عليه</div>
+                <table class="s1-table">
+                    <tr>
+                        <td style="width: 65%;">أسم المؤمن عليه: <input type="text" class="editable-field" style="width: 220px;" value="${emp.name || ''}"></td>
+                        <td style="width: 35%;">الرقم التأميني: ${renderCharBoxes(emp.insuranceNo || '553211', 9)}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">الرقم القومي: ${renderCharBoxes(emp.nationalId || '29505051234567', 14)}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 65%;">المؤهل: <input type="text" class="editable-field" value="${emp.qualification || ''}"></td>
+                        <td style="width: 35%;">الجنسية: <input type="text" class="editable-field" style="width: 90px;" value="${emp.nationality || 'مصري'}"></td>
+                    </tr>
+                    <tr>
+                        <td>المهنة: <input type="text" class="editable-field" style="width: 180px;" value="${emp.job || ''}"></td>
+                        <td>كود المهنة: <input type="text" class="editable-field" style="width: 60px;" value="${emp.jobCode || '101'}"></td>
+                    </tr>
+                    <tr>
+                        <td>تاريخ بدء الإشتراك: ${renderCharBoxes(day || '01', 2)} / ${renderCharBoxes(month || '01', 2)} / ${renderCharBoxes(year || '2026', 4)}</td>
+                        <td>القطاع: <input type="text" class="editable-field" style="width: 60px;" value="${emp.sector || 'نمطي'}"> نوع المدة: <input type="text" class="editable-field" style="width: 60px;" value="${emp.durationType || 'نمطي'}"></td>
+                    </tr>
+                    <tr>
+                        <td>أجر الإشتراك: <input type="text" class="editable-field" style="width: 70px;" value="${emp.salaryIns || '14000'}"> جم</td>
+                        <td>الأجر الشامل: <input type="text" class="editable-field" style="width: 70px;" value="${emp.salaryTotal || '16000'}"> جم</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            إستيفاء الكشف الطبي الإبتدائي: 
+                            <span class="checkbox-custom">✔</span> نعم 
+                            <span class="checkbox-custom"></span> لا
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="s1-section-header">بيانات المنشأة ومحل الإقامة</div>
+                <table class="s1-table">
+                    <tr>
+                        <td style="width: 65%;">أسم المنشأة: <input type="text" class="editable-field" value="${comp.name || emp.compName || 'أكاديمية براكسي للتدريب'}"></td>
+                        <td style="width: 35%;">رقم المنشأة: ${renderCharBoxes(comp.compId || emp.compId || '12345678', 9)}</td>
+                    </tr>
+                </table>
+
+                <div class="s1-section-header">التوقيعات ومطابقة التوقيع</div>
+                <table class="s1-table" style="text-align: center; margin-top: 8px;">
+                    <tr>
+                        <td style="width: 50%; height: 45px; vertical-align: bottom;">توقيع المؤمن عليه: ...................................</td>
+                        <td style="width: 50%; height: 45px; vertical-align: bottom;">توقيع صاحب العمل / المدير المسئول: ...................................</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="s1-page">
+                <div class="s1-section-header" style="font-size: 14px;">إرشــــــــادات وتوجيهات استخدام النموذج (صفحة 2)</div>
+                <div style="padding: 10px; font-size: 11px; line-height: 1.8;">
+                    <p>1. على صاحب العمل أن يرسل هذا النموذج مع طلب اشتراكه في الهيئة خلال أسبوعين على الأكثر من تاريخ التحاق العامل بالعمل لديه.</p>
+                    <p>2. التوقيع على هذا النموذج يفيد الاطلاع والموافقة على كافة البيانات الواردة به.</p>
+                    <p>3. يستخدم هذا النموذج كطلب اشتراك في تأمين إصابات العمل وجميع التغطيات التأمينية وفقاً للقانون.</p>
+                    <p>4. يقتصر استثناء الأجر على الفئات التي يتقاضى فيها المؤمن عليه أجرًا من صاحب العمل وفق الضوابط.</p>
+                </div>
+            </div>
+
+            <div class="s1-page">
+                <div class="s1-section-header" style="font-size: 14px;">إقـــــــــرار صاحب العمل والعامل (صفحة 3)</div>
+                <div style="padding: 15px; font-size: 11px; line-height: 2;">
+                    <p><strong>أقر أنا صاحب العمل / المدير المسئول:</strong> بصلة المنشأة بالعامل المذكور والتزامنا بكافة القوانين واللوائح التأمينية المنظمة، وعرضه على الجهة الطبية المختصة لاستيفاء تقرير اللياقة الطبية.</p>
+                    <br><br>
+                    <p style="text-align: left;">توقيع (صاحب العمل): ( ........................................... )</p>
+                    <hr style="margin: 20px 0;">
+                    <p><strong>أقر أنا العامل / المؤمن عليه:</strong> بأن البيانات المدونة بهذه الاستمارة صحيحة تماماً وتقع تحت مسؤولياني القانونية.</p>
+                    <br><br>
+                    <p style="text-align: left;">توقيع (المؤمن عليه): ( ........................................... )</p>
+                </div>
+            </div>
+            `;
+        }
+
+        function printAllS1Forms() {
+            const employees = getStoredEmployees();
+            const company = getStoredCompany();
+
+            if (employees.length === 0) {
+                alert("لا يوجد موظفين في قاعدة البيانات للطباعة!");
+                return;
+            }
+
+            const container = document.getElementById('bulk-print-container');
+            container.innerHTML = '';
+
+            employees.forEach(emp => {
+                container.innerHTML += generateS1FormHTML(emp, company);
+            });
+
+            window.print();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initTabs();
+            refreshUI();
+        });
+
+        function initTabs() {
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                    btn.classList.add('active');
+                    const target = btn.getAttribute('data-tab');
+                    document.getElementById(target).classList.add('active');
+                });
+            });
+        }
+
+        function refreshUI() {
+            const employees = getStoredEmployees();
+            const company = getStoredCompany();
+
+            document.getElementById('stat-total-emp').innerText = employees.length;
+            document.getElementById('stat-valid-emp').innerText = employees.filter(e => e.nationalId && e.insuranceNo).length;
+            document.getElementById('stat-missing-emp').innerText = employees.filter(e => !e.nationalId || !e.insuranceNo).length;
+
+            document.getElementById('comp_name').value = company.name || '';
+            document.getElementById('comp_id').value = company.compId || '';
+            document.getElementById('comp_gov').value = company.gov || '';
+            document.getElementById('comp_sec').value = company.sec || '';
+            document.getElementById('comp_village').value = company.village || '';
+            document.getElementById('comp_street').value = company.street || '';
+            document.getElementById('comp_building').value = company.building || '';
+            document.getElementById('comp_phone').value = company.phone || '';
+            document.getElementById('comp_manager').value = company.manager || '';
+            document.getElementById('comp_applicant').value = company.applicant || '';
+
+            renderEmployeesTable(employees);
+
+            if (employees.length > 0) {
+                renderSingleS1(0);
+            }
+        }
+
+        function renderEmployeesTable(list) {
+            const tbody = document.getElementById('employeeTableBody');
+            tbody.innerHTML = '';
+
+            list.forEach((emp, index) => {
+                const isComplete = emp.nationalId && emp.insuranceNo;
+                const qualityBadge = isComplete 
+                    ? `<span style="color: green; font-weight: bold;"><i class="fas fa-check-circle"></i> 100%</span>`
+                    : `<span style="color: orange; font-weight: bold;"><i class="fas fa-exclamation-triangle"></i> ناقص</span>`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><strong>${emp.name}</strong></td>
+                        <td>${emp.nationalId}</td>
+                        <td>${emp.insuranceNo}</td>
+                        <td>${emp.job}</td>
+                        <td>${emp.startDate}</td>
+                        <td>${qualityBadge}</td>
+                        <td>
+                            <button class="btn btn-primary" style="padding: 4px 8px; font-size: 0.8rem;" onclick="generateS1ForEmployee(${index})"><i class="fas fa-file-contract"></i> إنشاء س1</button>
+                            <button class="btn btn-warning" style="padding: 4px 8px; font-size: 0.8rem;" onclick="openEditEmployeeModal(${index})"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.8rem; background: var(--danger); color: white;" onclick="deleteEmployee(${index})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function generateS1ForEmployee(index) {
+            renderSingleS1(index);
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector('[data-tab="tab-form-preview"]').classList.add('active');
+            document.getElementById('tab-form-preview').classList.add('active');
+        }
+
+        function renderSingleS1(index) {
+            const employees = getStoredEmployees();
+            const company = getStoredCompany();
+            const target = document.getElementById('s1-form-render-target');
+            target.innerHTML = generateS1FormHTML(employees[index], company);
+        }
+
+        function filterEmployees() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const employees = getStoredEmployees();
+            const filtered = employees.filter(e => 
+                (e.name && e.name.toLowerCase().includes(query)) ||
+                (e.nationalId && e.nationalId.includes(query)) ||
+                (e.insuranceNo && e.insuranceNo.includes(query))
+            );
+            renderEmployeesTable(filtered);
+        }
+
+        function saveCompanyData(e) {
+            e.preventDefault();
+            const companyObj = {
+                name: document.getElementById('comp_name').value,
+                compId: document.getElementById('comp_id').value,
+                sector: document.getElementById('comp_sector').value,
+                gov: document.getElementById('comp_gov').value,
+                sec: document.getElementById('comp_sec').value,
+                village: document.getElementById('comp_village').value,
+                street: document.getElementById('comp_street').value,
+                building: document.getElementById('comp_building').value,
+                phone: document.getElementById('comp_phone').value,
+                manager: document.getElementById('comp_manager').value,
+                applicant: document.getElementById('comp_applicant').value,
+                applicantTitle: document.getElementById('comp_applicant_title').value
+            };
+            saveCompanyDataLocal(companyObj);
+            alert("تم حفظ بيانات المنشأة الثابتة بنجاح!");
+            refreshUI();
+        }
+
+        function deleteEmployee(index) {
+            if (confirm("هل أنت تأكد من حذف هذا الموظف من قاعدة البيانات؟")) {
+                const employees = getStoredEmployees();
+                employees.splice(index, 1);
+                saveEmployeesData(employees);
+                refreshUI();
+            }
+        }
+
+        function backupDatabase() {
+            const data = {
+                employees: getStoredEmployees(),
+                company: getStoredCompany()
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `HR_Platform_Backup_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+        }
+
+        function restoreDatabase(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const data = JSON.parse(evt.target.result);
+                    if (data.employees) saveEmployeesData(data.employees);
+                    if (data.company) saveCompanyDataLocal(data.company);
+                    alert("تم استرجاع النسخة الاحتياطية بنجاح!");
+                    refreshUI();
+                } catch (err) {
+                    alert("ملف غير صالح!");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function openAddEmployeeModal() {
+            document.getElementById('modalTitle').innerText = "إضافة موظف جديد";
+            document.getElementById('emp_index').value = "-1";
+            renderModalForm({});
+            document.getElementById('employeeModal').style.display = 'flex';
+        }
+
+        function openEditEmployeeModal(index) {
+            const employees = getStoredEmployees();
+            document.getElementById('modalTitle').innerText = "تعديل بيانات الموظف";
+            document.getElementById('emp_index').value = index;
+            renderModalForm(employees[index]);
+            document.getElementById('employeeModal').style.display = 'flex';
+        }
+
+        function renderModalForm(emp) {
+            const container = document.getElementById('modalFormFields');
+            container.innerHTML = `
+                <div class="form-group"><label>الاسم الكامل</label><input type="text" id="m_name" value="${emp.name || ''}"></div>
+                <div class="form-group"><label>الرقم القومي</label><input type="text" id="m_nationalId" value="${emp.nationalId || ''}"></div>
+                <div class="form-group"><label>الرقم التأميني</label><input type="text" id="m_insuranceNo" value="${emp.insuranceNo || ''}"></div>
+                <div class="form-group"><label>المهنة</label><input type="text" id="m_job" value="${emp.job || ''}"></div>
+                <div class="form-group"><label>تاريخ بدء الاشتراك</label><input type="date" id="m_startDate" value="${emp.startDate || ''}"></div>
+                <div class="form-group"><label>أجر الاشتراك التأميني</label><input type="number" id="m_salaryIns" value="${emp.salaryIns || ''}"></div>
+                <div class="form-group"><label>الأجر الشامل</label><input type="number" id="m_salaryTotal" value="${emp.salaryTotal || ''}"></div>
+                <div class="form-group"><label>المؤهل</label><input type="text" id="m_qualification" value="${emp.qualification || ''}"></div>
+            `;
+        }
+
+        function closeModal() {
+            document.getElementById('employeeModal').style.display = 'none';
+        }
+
+        function saveEmployeeForm(e) {
+            e.preventDefault();
+            const index = parseInt(document.getElementById('emp_index').value);
+            const employees = getStoredEmployees();
+
+            const empObj = {
+                name: document.getElementById('m_name').value,
+                nationalId: document.getElementById('m_nationalId').value,
+                insuranceNo: document.getElementById('m_insuranceNo').value,
+                job: document.getElementById('m_job').value,
+                startDate: document.getElementById('m_startDate').value,
+                salaryIns: document.getElementById('m_salaryIns').value,
+                salaryTotal: document.getElementById('m_salaryTotal').value,
+                qualification: document.getElementById('m_qualification').value,
+                nationality: "مصري"
+            };
+
+            if (index === -1) {
+                employees.push(empObj);
+            } else {
+                employees[index] = { ...employees[index], ...empObj };
+            }
+
+            saveEmployeesData(employees);
+            closeModal();
+            refreshUI();
+        }
+    </script>
 </body>
 </html>
