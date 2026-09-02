@@ -225,25 +225,32 @@
       <div class="tc-sub">أجر الاشتراك التأميني</div>
     </div>
 
-    <div class="tool-card" id="tool-tafqit" onclick="window.parent.loadPage(null,'tafqit-frame',4)">
+    <div class="tool-card gold-accent" id="tool-forms" onclick="window.parent.loadPage(null,'forms-print-frame',4)">
+      <div class="tc-badge">جديد</div>
+      <div class="tc-icon"><i class="fas fa-print"></i></div>
+      <div class="tc-name">طباعة النماذج</div>
+      <div class="tc-sub">HR Forms & Contracts</div>
+    </div>
+
+    <div class="tool-card" id="tool-tafqit" onclick="window.parent.loadPage(null,'tafqit-frame',5)">
       <div class="tc-icon"><i class="fas fa-spell-check"></i></div>
       <div class="tc-name">أداة التفقيط</div>
       <div class="tc-sub">Number to Words</div>
     </div>
 
-    <div class="tool-card" id="tool-feedback" onclick="window.parent.loadPage(null,'feedback-frame',5)">
+    <div class="tool-card" id="tool-feedback" onclick="window.parent.loadPage(null,'feedback-frame',6)">
       <div class="tc-icon"><i class="fas fa-chart-line"></i></div>
       <div class="tc-name">قياس الأداء</div>
       <div class="tc-sub">Performance Feedback</div>
     </div>
 
-    <div class="tool-card" id="tool-disc" onclick="window.parent.loadPage(null,'disc-frame',6)">
+    <div class="tool-card" id="tool-disc" onclick="window.parent.loadPage(null,'disc-frame',7)">
       <div class="tc-icon"><i class="fas fa-user-gear"></i></div>
       <div class="tc-name">تحليل الشخصية</div>
       <div class="tc-sub">DISC Assessment</div>
     </div>
 
-    <div class="tool-card" id="tool-scan" onclick="window.parent.loadPage(null,'scan-frame',7)">
+    <div class="tool-card" id="tool-scan" onclick="window.parent.loadPage(null,'scan-frame',8)">
       <div class="tc-icon"><i class="fas fa-file-excel"></i></div>
       <div class="tc-name">استخراج البيانات</div>
       <div class="tc-sub">HR Scan → Excel</div>
@@ -260,6 +267,7 @@
   <div class="admin-item"><span>عكس الضريبة — فردي</span><input type="checkbox" checked onchange="toggleTool('tool-tax-rev',this.checked)"></div>
   <div class="admin-item"><span>عكس الضريبة — جماعي</span><input type="checkbox" checked onchange="toggleTool('tool-tax-bulk',this.checked)"></div>
   <div class="admin-item"><span>س1 تأمينات</span><input type="checkbox" checked onchange="toggleTool('tool-s1',this.checked)"></div>
+  <div class="admin-item"><span>طباعة النماذج</span><input type="checkbox" checked onchange="toggleTool('tool-forms',this.checked)"></div>
   <div class="admin-item"><span>أداة التفقيط</span><input type="checkbox" checked onchange="toggleTool('tool-tafqit',this.checked)"></div>
   <div class="admin-item"><span>قياس الأداء</span><input type="checkbox" checked onchange="toggleTool('tool-feedback',this.checked)"></div>
   <div class="admin-item"><span>تحليل الشخصية</span><input type="checkbox" checked onchange="toggleTool('tool-disc',this.checked)"></div>
@@ -274,7 +282,7 @@
 
 <script>
 const ADMIN_PASS = "1234";
-const ALL_TOOLS = ['tool-cv','tool-tax','tool-tax-rev','tool-tax-bulk','tool-s1','tool-tafqit','tool-feedback','tool-disc','tool-scan'];
+const ALL_TOOLS = ['tool-cv','tool-tax','tool-tax-rev','tool-tax-bulk','tool-s1','tool-forms','tool-tafqit','tool-feedback','tool-disc','tool-scan'];
 
 function openAdmin(){
   let pass = prompt("أدخل كلمة المرور:");
