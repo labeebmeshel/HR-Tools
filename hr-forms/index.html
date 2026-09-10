@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منظومة إدارة وطباعة النماذج الرسمية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- مكتبة SheetJS لقراءة وتصنيع ملفات Excel (.xlsx) الحقيقية -->
+    <!-- مكتبة Excel لقراءة وتصنيع ملفات .xlsx -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <style>
@@ -26,7 +26,7 @@
 
         .app-layout { display: flex; gap: 15px; min-height: 95vh; }
 
-        /* القائمة الجانبية اليمنى المشابهة لـ ضريبة كسب العمل */
+        /* القائمة الجانبية المنسدلة */
         .side-menu {
             width: 260px; background: var(--primary-dark); color: #fff;
             border-radius: 12px; padding: 15px 10px; flex-shrink: 0;
@@ -51,9 +51,9 @@
         }
         .submenu-btn:hover, .submenu-btn.active { color: #fcd34d; background: rgba(255,255,255,0.05); }
 
-        /* مساحة العمل الرئيسية */
         .workspace { flex: 1; overflow-y: auto; }
 
+        /* شريط التسلسل والفلترة الثلاثي */
         .top-filter-bar {
             background: #fff; padding: 12px 18px; border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 15px;
@@ -87,22 +87,24 @@
         .data-table th, .data-table td { padding: 8px 10px; border: 1px solid var(--border); text-align: right; }
         .data-table th { background: #f1f5f9; color: var(--primary-dark); font-weight: bold; }
 
-        /* طباعة أوراق A4 القياسية والرسمية */
+        /* ورقة A4 للطباعة */
         .a4-page {
             background: #ffffff; width: 210mm; min-height: 297mm; padding: 15mm 20mm;
-            margin: 0 auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); border: 1px solid var(--border);
+            margin: 0 auto 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); border: 1px solid var(--border);
             position: relative; box-sizing: border-box; font-size: 13px; line-height: 1.6;
+            page-break-after: always;
         }
 
         .official-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
         .official-table td, .official-table th { border: 1px solid #000; padding: 6px; text-align: center; }
 
+        /* قواعد الطباعة الصارمة المصلحة */
         @media print {
             @page { size: A4 portrait; margin: 0; }
             html, body { background: #fff !important; padding: 0 !important; margin: 0 !important; width: 210mm !important; }
-            .side-menu, .top-filter-bar, .no-print, .btn { display: none !important; }
-            .app-layout { display: block !important; }
-            .view-panel { display: block !important; }
+            body * { visibility: hidden !important; }
+            #printArea, #printArea * { visibility: visible !important; }
+            #printArea { position: absolute !important; left: 0 !important; top: 0 !important; width: 210mm !important; }
             .a4-page { width: 210mm !important; min-height: 297mm !important; padding: 15mm 20mm !important; box-shadow: none !important; border: none !important; margin: 0 !important; }
         }
     </style>
@@ -120,7 +122,7 @@
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <ul class="submenu active" id="formsPrintSubmenu">
-                        <li><button class="submenu-btn active" onclick="showView('print-view', this)"><i class="fas fa-desktop"></i> مركز الطباعة الشامل</button></li>
+                        <li><button class="submenu-btn active" onclick="showView('print-view', this)"><i class="fas fa-desktop"></i> مركز الطباعة المعاينة</button></li>
                         <li><button class="submenu-btn" onclick="quickPrintTemplate('JOB_ACK', this)"><i class="fas fa-file-signature"></i> إقرار استلام عمل</button></li>
                         <li><button class="submenu-btn" onclick="quickPrintTemplate('WAGE_SCALE', this)"><i class="fas fa-chart-line"></i> صحيفة تدرج الأجور</button></li>
                         <li><button class="submenu-btn" onclick="quickPrintTemplate('OFFICIAL_HOLIDAYS', this)"><i class="fas fa-calendar-check"></i> صحيفة الإجازات الرسمية</button></li>
@@ -145,30 +147,39 @@
         <!-- مساحة العمل والصفحات -->
         <main class="workspace">
             
-            <!-- شريط التصفية والفلترة للشركة والفرع -->
+            <!-- شريط التسلسل والفلترة المترابط: User -> Company -> Branch -->
             <div class="top-filter-bar no-print">
-                <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                     <i class="fas fa-filter fa-lg" style="color: var(--primary);"></i>
                     <div>
-                        <strong>الشركة والفرع النشط حالياً:</strong>
-                        <div style="display: flex; gap: 10px; margin-top: 4px;">
-                            <select id="globalComp" class="form-control" style="width: 220px;" onchange="onGlobalCompanyChange()"></select>
-                            <select id="globalBranch" class="form-control" style="width: 200px;" onchange="renderEmployees()"></select>
-                        </div>
+                        <small style="font-weight: bold; color: #64748b;">1. اختر اليوزر:</small>
+                        <select id="filterUserSelect" class="form-control" style="width: 170px;" onchange="onUserFilterChange()"></select>
+                    </div>
+                    <div>
+                        <small style="font-weight: bold; color: #64748b;">2. اختر الشركة:</small>
+                        <select id="filterCompSelect" class="form-control" style="width: 200px;" onchange="onCompanyFilterChange()"></select>
+                    </div>
+                    <div>
+                        <small style="font-weight: bold; color: #64748b;">3. اختر الفرع:</small>
+                        <select id="filterBranchSelect" class="form-control" style="width: 170px;" onchange="renderEmployees()"></select>
                     </div>
                 </div>
             </div>
 
-            <!-- 1. شاشة الشركات والفروع -->
+            <!-- 1. شاشة إدارة الشركات والفروع وتسكينها تحت اليوزر -->
             <section id="companies-view" class="view-panel">
                 <div class="grid-2">
                     <div class="card">
-                        <h3><i class="fas fa-building"></i> إضافة / تعديل بيانات شركة</h3>
+                        <h3><i class="fas fa-building"></i> إضافة / تعديل شركة تحت مستخدم</h3>
                         <br>
                         <form onsubmit="saveCompany(event)">
                             <input type="hidden" id="cId">
+                            <label>تسكين الشركة تحت المستخدم (User): *</label>
+                            <select id="cUserSelect" class="form-control" required></select>
+                            
                             <label>أسم الشركة *</label>
                             <input type="text" id="cName" class="form-control" required placeholder="شركة النور لتوريدات الخضار والفاكهة">
+                            
                             <div class="grid-2">
                                 <div>
                                     <label>رقم السجل التجاري</label>
@@ -208,9 +219,9 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                             <h3><i class="fas fa-code-branch"></i> إدارة الفروع وتسكينها</h3>
                             <div>
-                                <button class="btn btn-primary" onclick="downloadCompaniesTemplate()"><i class="fas fa-file-excel"></i> قالب الشركات والفروع</button>
+                                <button class="btn btn-primary" onclick="downloadCompaniesTemplate()"><i class="fas fa-file-excel"></i> قالب الشركات</button>
                                 <label class="btn btn-success" style="cursor: pointer; margin: 0;">
-                                    <i class="fas fa-upload"></i> رفع ملف الشركات
+                                    <i class="fas fa-upload"></i> رفع الشركات
                                     <input type="file" accept=".xlsx, .xls" onchange="importCompaniesExcel(event)" style="display: none;">
                                 </label>
                             </div>
@@ -238,13 +249,14 @@
                 </div>
             </section>
 
-            <!-- 2. شاشة الموظفين وقاعدة البيانات -->
+            <!-- 2. شاشة الموظفين والطباعة الجماعية -->
             <section id="employees-view" class="view-panel">
                 <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
                         <h2><i class="fas fa-users"></i> قاعدة بيانات الموظفين</h2>
                         <div style="display: flex; gap: 8px;">
-                            <button class="btn btn-primary" onclick="downloadEmployeesTemplate()"><i class="fas fa-file-excel"></i> تنزيل قالب الموظفين (.xlsx)</button>
+                            <button class="btn btn-warning" onclick="executeBulkPrint()"><i class="fas fa-print"></i> طباعة النماذج المحددة للموظفين المحددين</button>
+                            <button class="btn btn-primary" onclick="downloadEmployeesTemplate()"><i class="fas fa-file-excel"></i> قالب الموظفين (.xlsx)</button>
                             <label class="btn btn-success" style="cursor: pointer; margin: 0;">
                                 <i class="fas fa-upload"></i> رفع Excel الموظفين
                                 <input type="file" accept=".xlsx, .xls" onchange="importEmployeesExcel(event)" style="display: none;">
@@ -252,10 +264,24 @@
                         </div>
                     </div>
 
+                    <!-- اختيار النماذج المتعددة المطلوبة للطباعة الجماعية -->
+                    <div style="background: #f1f5f9; padding: 10px 15px; border-radius: 8px; margin-bottom: 12px;">
+                        <strong style="display: block; margin-bottom: 6px; color: var(--primary-dark);">اختر النماذج المراد طباعتها للموظفين المحددين بالجدول:</strong>
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap; font-size: 0.85rem;">
+                            <label><input type="checkbox" class="bulk-tmpl-check" value="JOB_ACK" checked> إقرار استلام عمل</label>
+                            <label><input type="checkbox" class="bulk-tmpl-check" value="WAGE_SCALE"> صحيفة تدرج الأجور</label>
+                            <label><input type="checkbox" class="bulk-tmpl-check" value="OFFICIAL_HOLIDAYS"> صحيفة الإجازات الرسمية</label>
+                            <label><input type="checkbox" class="bulk-tmpl-check" value="SICK_LEAVES"> صحيفة الإجازات المرضية</label>
+                            <label><input type="checkbox" class="bulk-tmpl-check" value="PENALTIES_LOG"> صحيفة الجزاءات</label>
+                            <label><input type="checkbox" class="bulk-tmpl-check" value="SOCIAL_STATUS"> صحيفة الحالة الاجتماعية</label>
+                        </div>
+                    </div>
+
                     <div style="overflow-x: auto;">
                         <table class="data-table">
                             <thead>
                                 <tr>
+                                    <th><input type="checkbox" id="selectAllEmpCheck" onchange="toggleSelectAllEmp(this)"></th>
                                     <th>كود الموظف</th>
                                     <th>الأسم</th>
                                     <th>الرقم القومي</th>
@@ -263,7 +289,7 @@
                                     <th>الشركة والفرع</th>
                                     <th>الوظيفة بالتأمينات</th>
                                     <th>الأجر الشامل</th>
-                                    <th>طباعة نموذج موجه</th>
+                                    <th>طباعة نموذج فردي</th>
                                 </tr>
                             </thead>
                             <tbody id="empTableBody"></tbody>
@@ -272,7 +298,7 @@
                 </div>
             </section>
 
-            <!-- 3. شاشة المعاينة والطباعة الشاملة -->
+            <!-- 3. شاشة المعاينة والطباعة الفردية والجماعية -->
             <section id="print-view" class="view-panel active">
                 <div class="card no-print">
                     <div class="grid-3">
@@ -292,12 +318,12 @@
                             </select>
                         </div>
                         <div style="display: flex; align-items: flex-end;">
-                            <button class="btn btn-primary" onclick="window.print()" style="height: 36px; width: 100%;"><i class="fas fa-print"></i> طباعة النموذج الآن (A4)</button>
+                            <button class="btn btn-primary" onclick="window.print()" style="height: 36px; width: 100%;"><i class="fas fa-print"></i> طباعة المعاينة الآن (A4)</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- مساحة المعاينة الرسمية للنموذج -->
+                <!-- مساحة الطباعة المنفصلة التراكمية -->
                 <div id="printArea"></div>
             </section>
 
@@ -305,10 +331,14 @@
     </div>
 
     <script>
-        // قاعدة البيانات المحلية المدمجة
+        // المحافظة الحية على البيانات مع المزامنة
         let DB = {
+            users: JSON.parse(localStorage.getItem('HR_USERS')) || [
+                { id: 'admin', name: 'مدير النظام (Admin)' },
+                { id: 'user_praxi', name: 'يوزر الشركات (PRAXI)' }
+            ],
             companies: JSON.parse(localStorage.getItem('HR_COMPANIES')) || [
-                { id: 'C1', name: 'شركة النور لتوريدات الخضار والفاكهة', reg: '100293', tax: '987-654-321', ins: '1740500', owner: 'أ. د/ لبيب ميشيل', deputy: 'أ/ نورا سيد الملا', addr: 'القاهرة - مدينة نصر' }
+                { id: 'C1', userId: 'admin', name: 'شركة النور لتوريدات الخضار والفاكهة', reg: '100293', tax: '987-654-321', ins: '1740500', owner: 'أ. د/ لبيب ميشيل', deputy: 'أ/ نورا سيد الملا', addr: 'القاهرة - مدينة نصر' }
             ],
             branches: JSON.parse(localStorage.getItem('HR_BRANCHES')) || [
                 { id: 'B1', compId: 'C1', name: 'الفرع الرئيسي - العبور', ins: '1740500', addr: 'العبور - المنطقة الصناعية' }
@@ -324,6 +354,7 @@
         };
 
         function saveDB() {
+            localStorage.setItem('HR_USERS', JSON.stringify(DB.users));
             localStorage.setItem('HR_COMPANIES', JSON.stringify(DB.companies));
             localStorage.setItem('HR_BRANCHES', JSON.stringify(DB.branches));
             localStorage.setItem('HR_EMPLOYEES', JSON.stringify(DB.employees));
@@ -346,28 +377,50 @@
             if(viewId === 'print-view') populatePrintDropdowns();
         }
 
-        function populateDropdowns() {
-            const gComp = document.getElementById('globalComp');
-            const bComp = document.getElementById('bCompId');
-            gComp.innerHTML = '<option value="ALL">جميع الشركات</option>';
-            bComp.innerHTML = '<option value="">-- اختر الشركة --</option>';
+        // تهيئة وحشو فلاتر التسلسل (User -> Company -> Branch)
+        function initFilterSequence() {
+            const uSelect = document.getElementById('filterUserSelect');
+            const cUserSelect = document.getElementById('cUserSelect');
+            
+            uSelect.innerHTML = '<option value="ALL">جميع اليوزرات</option>';
+            cUserSelect.innerHTML = '<option value="">-- اختر اليوزر --</option>';
 
-            DB.companies.forEach(c => {
-                gComp.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                bComp.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            DB.users.forEach(u => {
+                uSelect.innerHTML += `<option value="${u.id}">${u.name}</option>`;
+                cUserSelect.innerHTML += `<option value="${u.id}">${u.name}</option>`;
             });
 
-            onGlobalCompanyChange();
+            onUserFilterChange();
         }
 
-        function onGlobalCompanyChange() {
-            const compId = document.getElementById('globalComp').value;
-            const gBranch = document.getElementById('globalBranch');
-            gBranch.innerHTML = '<option value="ALL">جميع الفروع</option>';
+        function onUserFilterChange() {
+            const uId = document.getElementById('filterUserSelect').value;
+            const cSelect = document.getElementById('filterCompSelect');
+            const bCompSelect = document.getElementById('bCompId');
 
-            const filtered = compId === 'ALL' ? DB.branches : DB.branches.filter(b => b.compId === compId);
-            filtered.forEach(b => {
-                gBranch.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+            cSelect.innerHTML = '<option value="ALL">جميع الشركات</option>';
+            bCompSelect.innerHTML = '<option value="">-- اختر الشركة --</option>';
+
+            const filteredCompanies = uId === 'ALL' ? DB.companies : DB.companies.filter(c => c.userId === uId);
+
+            filteredCompanies.forEach(c => {
+                cSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                bCompSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            });
+
+            onCompanyFilterChange();
+        }
+
+        function onCompanyFilterChange() {
+            const cId = document.getElementById('filterCompSelect').value;
+            const bSelect = document.getElementById('filterBranchSelect');
+
+            bSelect.innerHTML = '<option value="ALL">جميع الفروع</option>';
+
+            const filteredBranches = cId === 'ALL' ? DB.branches : DB.branches.filter(b => b.compId === cId);
+
+            filteredBranches.forEach(b => {
+                bSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
             });
 
             renderEmployees();
@@ -378,13 +431,16 @@
             const tbody = document.getElementById('empTableBody');
             tbody.innerHTML = '';
 
-            const cId = document.getElementById('globalComp').value;
-            const bId = document.getElementById('globalBranch').value;
+            const uId = document.getElementById('filterUserSelect').value;
+            const cId = document.getElementById('filterCompSelect').value;
+            const bId = document.getElementById('filterBranchSelect').value;
 
             const list = DB.employees.filter(e => {
+                const comp = DB.companies.find(c => c.id === e.compId);
+                const matchU = uId === 'ALL' || (comp && comp.userId === uId);
                 const matchC = cId === 'ALL' || e.compId === cId;
                 const matchB = bId === 'ALL' || e.branchId === bId;
-                return matchC && matchB;
+                return matchU && matchC && matchB;
             });
 
             list.forEach(e => {
@@ -393,6 +449,7 @@
 
                 tbody.innerHTML += `
                     <tr>
+                        <td><input type="checkbox" class="emp-select-check" value="${e.id}"></td>
                         <td><strong>${e.code || e.id}</strong></td>
                         <td>${e.name}</td>
                         <td><code>${e.natId}</code></td>
@@ -402,11 +459,15 @@
                         <td>${e.grossSalary} ج.م</td>
                         <td>
                             <button class="btn btn-primary" style="padding: 3px 8px; font-size: 0.75rem;" onclick="quickPrintForEmp('${e.id}')">
-                                <i class="fas fa-print"></i> طباعة النموذج
+                                <i class="fas fa-print"></i> طباعة فردية
                             </button>
                         </td>
                     </tr>`;
             });
+        }
+
+        function toggleSelectAllEmp(masterCheck) {
+            document.querySelectorAll('.emp-select-check').forEach(c => c.checked = masterCheck.checked);
         }
 
         function saveCompany(e) {
@@ -414,6 +475,7 @@
             const id = document.getElementById('cId').value || 'C' + Date.now();
             const compObj = {
                 id,
+                userId: document.getElementById('cUserSelect').value,
                 name: document.getElementById('cName').value,
                 reg: document.getElementById('cReg').value,
                 tax: document.getElementById('cTax').value,
@@ -428,8 +490,8 @@
             else DB.companies.push(compObj);
 
             saveDB();
-            populateDropdowns();
-            alert('تم حفظ بيانات الشركة بنجاح!');
+            initFilterSequence();
+            alert('تم حفظ بيانات الشركة وتسكينها تحت المستخدم بنجاح!');
             e.target.reset();
         }
 
@@ -445,12 +507,11 @@
 
             DB.branches.push(branchObj);
             saveDB();
-            populateDropdowns();
+            initFilterSequence();
             alert('تم إضافة الفرع وتسكينه بنجاح!');
             e.target.reset();
         }
 
-        // 1. تنزيل قالب الشركات والفروع (.xlsx)
         function downloadCompaniesTemplate() {
             const data = [{
                 "أسم الشركة": "شركة النور لتوريدات الخضار والفاكهة",
@@ -471,7 +532,6 @@
             XLSX.writeFile(wb, "Companies_Branches_Template.xlsx");
         }
 
-        // رفع ملف الشركات والفروع (.xlsx)
         function importCompaniesExcel(evt) {
             const file = evt.target.files[0];
             if (!file) return;
@@ -481,12 +541,14 @@
                 const data = new Uint8Array(e.target.result);
                 const wb = XLSX.read(data, { type: 'array' });
                 const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+                const currentUId = document.getElementById('filterUserSelect').value || 'admin';
 
                 rows.forEach(r => {
                     let comp = DB.companies.find(c => c.name === r["أسم الشركة"]);
                     if (!comp) {
                         comp = {
                             id: 'C' + Date.now() + Math.floor(Math.random()*10),
+                            userId: currentUId,
                             name: r["أسم الشركة"] || '',
                             reg: String(r["رقم السجل التجاري"] || ''),
                             tax: String(r["رقم البطاقة الضريبية"] || ''),
@@ -510,13 +572,12 @@
                 });
 
                 saveDB();
-                populateDropdowns();
-                alert(`تم رفع وتثبيت بيانات ${rows.length} سجل شركات وفروع بنجاح!`);
+                initFilterSequence();
+                alert(`تم تثبيت ${rows.length} شركة وفرع بنجاح!`);
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // 2. تنزيل قالب الموظفين الكامل (.xlsx)
         function downloadEmployeesTemplate() {
             const data = [{
                 "أسم الشركة": "شركة النور لتوريدات الخضار والفاكهة",
@@ -544,7 +605,6 @@
             XLSX.writeFile(wb, "Employees_Full_Template.xlsx");
         }
 
-        // رفع ملف الموظفين الشامل (.xlsx)
         function importEmployeesExcel(evt) {
             const file = evt.target.files[0];
             if (!file) return;
@@ -583,7 +643,7 @@
 
                 saveDB();
                 renderEmployees();
-                alert(`تم رفع وتثبيت ${rows.length} موظف بنجاح في قاعدة البيانات!`);
+                alert(`تم استيراد ${rows.length} موظف بنجاح!`);
             };
             reader.readAsArrayBuffer(file);
         }
@@ -593,13 +653,16 @@
             if(!select) return;
             select.innerHTML = '';
 
-            const cId = document.getElementById('globalComp').value;
-            const bId = document.getElementById('globalBranch').value;
+            const uId = document.getElementById('filterUserSelect').value;
+            const cId = document.getElementById('filterCompSelect').value;
+            const bId = document.getElementById('filterBranchSelect').value;
 
             const list = DB.employees.filter(e => {
+                const comp = DB.companies.find(c => c.id === e.compId);
+                const matchU = uId === 'ALL' || (comp && comp.userId === uId);
                 const matchC = cId === 'ALL' || e.compId === cId;
                 const matchB = bId === 'ALL' || e.branchId === bId;
-                return matchC && matchB;
+                return matchU && matchC && matchB;
             });
 
             list.forEach(e => {
@@ -620,24 +683,56 @@
             renderPrintPreview();
         }
 
-        // محرك توليد النماذج المضافة
+        // طباعة جماعية متعددة للموظفين المحددين بالـ Checkboxes والنماذج المحددة
+        function executeBulkPrint() {
+            const selectedEmpIds = Array.from(document.querySelectorAll('.emp-select-check:checked')).map(c => c.value);
+            const selectedTmplKeys = Array.from(document.querySelectorAll('.bulk-tmpl-check:checked')).map(c => c.value);
+
+            if (selectedEmpIds.length === 0) {
+                alert('يرجى تحديد موظف واحد على الأقل من الجدول للطباعة الجماعية!');
+                return;
+            }
+            if (selectedTmplKeys.length === 0) {
+                alert('يرجى اختيار نموذج واحد على الأقل من مربعات الاختيار بال الأعلى!');
+                return;
+            }
+
+            showView('print-view');
+            const printArea = document.getElementById('printArea');
+            printArea.innerHTML = '';
+
+            selectedEmpIds.forEach(empId => {
+                selectedTmplKeys.forEach(tmplKey => {
+                    printArea.innerHTML += buildFormHTML(empId, tmplKey);
+                });
+            });
+
+            setTimeout(() => { window.print(); }, 300);
+        }
+
         function renderPrintPreview() {
             const empId = document.getElementById('pEmp').value;
             const tmplKey = document.getElementById('pTmpl').value;
             const printArea = document.getElementById('printArea');
 
-            const emp = DB.employees.find(e => e.id === empId);
-            if (!emp) {
-                printArea.innerHTML = '<div class="a4-page"><p style="text-align:center;">يرجى اختيار موظف للطباعة</p></div>';
+            if (!empId) {
+                printArea.innerHTML = '<div class="a4-page"><p style="text-align:center;">يرجى اختيار موظف لمشاهدة المعاينة</p></div>';
                 return;
             }
+
+            printArea.innerHTML = buildFormHTML(empId, tmplKey);
+        }
+
+        // منشئ الهيكل الإلكتروني للنماذج الرسمية
+        function buildFormHTML(empId, tmplKey) {
+            const emp = DB.employees.find(e => e.id === empId);
+            if (!emp) return '';
 
             const comp = DB.companies.find(c => c.id === emp.compId) || { name: 'شركة النور لتوريدات الخضار والفاكهة' };
             const branch = DB.branches.find(b => b.id === emp.branchId) || { name: 'المركز الرئيسي' };
 
             let html = '';
 
-            // 1. إقرار استلام عمل
             if (tmplKey === 'JOB_ACK') {
                 html = `
                     <div class="a4-page">
@@ -646,7 +741,7 @@
                         </div>
                         <div style="font-size: 1.15rem; line-height: 2; text-align: justify;" contenteditable="true">
                             أقر وأتعهد أنا <strong>${emp.name}</strong> ، بأني قد إستلمت العمل بشركة <strong>${comp.name}</strong>، بوظيفة <strong>${emp.job}</strong> إعتباراً من <strong>${emp.insDate || 'تاريخ الاستلام'}</strong> .<br><br>
-                            كما أنني أقر بأني لا أعمل حالياً بأية وظيفة سواء كانت حكومية أو خاصة ولا أتقاضى أجراً من أي جهة غير الأجر الذي سوف يصرف لي من الشركة المذكورة كما أنني أقر بأنني لن اقوم بتوصيل بطريقة مباشرة أو غير مباشرة إلى أي جهة أو شركة سواء كانت منافسة أو غير منافسة أي محتوى أو مستندات رسمية أو اية معلومات أكون قد حصلت عليها في نطاق عملي بدون إذن رسمي، كما أنه لا يجوز لي الحصور على صورة من أية مستندات أستلمتها عن طريق عملي بالشركة المذكورة.<br><br>
+                            كما أنني أقر بأني لا أعمل حالياً بأية وظيفة سواء كانت حكومية أو خاصة ولا أتقاضى أجراً من أي جهة غير الأجر الذي سوف يصرف لي من الشركة المذكورة كما أنني أقر بأنني لن اقوم بتوصيل بطريقة مباشرة أو غير مباشرة إلى أي جهة أو شركة سواء كانت منافسة أو غير منافسة أي محتوى أو مستندات رسمية أو اية معلومات أكون قدحصلت عليها في نطاق عملي بدون إذن رسمي، كما أنه لا يجوز لي الحصور على صورة من أية مستندات أستلمتها عن طريق عملي بالشركة المذكورة.<br><br>
                             أقر وأتعهد أنا الموقع أدناه بالإلتزام بالقيام بواجباتي في الشركة والمحافظة على ممتلكاتها وأسرارها وعدم السماح بالتضارب في المصالح معها.<br><br>
                             كما أقر بأني إتطلعت على لائحة العمل الداخلية وسياسات العمل وأتعهد بالإلتزام بهذه اللوائح إلتزاماُ تاماُ والعمل بموجبها.
                         </div>
@@ -657,8 +752,6 @@
                         </div>
                     </div>`;
             }
-
-            // 2. صحيفة تدرج الأجور
             else if (tmplKey === 'WAGE_SCALE') {
                 html = `
                     <div class="a4-page">
@@ -676,13 +769,11 @@
                                 <tr><th>م</th><th>الأجر قبل الزيادة</th><th>الأجر بعد الزيادة</th><th>مقدار الزيادة</th><th>تاريخ الزيادة</th><th>سبب الزيادة</th></tr>
                             </thead>
                             <tbody>
-                                ${[1,2,3,4,5,6,7,8,9,10].map(i => `<tr><td>${i}</td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')}
+                                ${[1,2,3,4,5,6,7,8,9,10,11,12].map(i => `<tr><td>${i}</td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')}
                             </tbody>
                         </table>
                     </div>`;
             }
-
-            // 3. صحيفة الإجازات الرسمية
             else if (tmplKey === 'OFFICIAL_HOLIDAYS') {
                 html = `
                     <div class="a4-page">
@@ -715,8 +806,6 @@
                         <div style="margin-top: 30px; text-align: left;">توقيع العامل: ................................</div>
                     </div>`;
             }
-
-            // 4. صحيفة الإجازات المرضية
             else if (tmplKey === 'SICK_LEAVES') {
                 html = `
                     <div class="a4-page">
@@ -734,13 +823,11 @@
                                 <tr><th>من</th><th>إلي</th></tr>
                             </thead>
                             <tbody>
-                                ${[1,2,3,4,5,6,7,8].map(i => `<tr><td>${i}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')}
+                                ${[1,2,3,4,5,6].map(i => `<tr><td>${i}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')}
                             </tbody>
                         </table>
                     </div>`;
             }
-
-            // 5. صحيفة الجزاءات
             else if (tmplKey === 'PENALTIES_LOG') {
                 html = `
                     <div class="a4-page">
@@ -757,13 +844,11 @@
                                 <tr><th>م</th><th>تاريخ الجزاء</th><th>سبب الجزاء</th><th>مقدار الجزاء</th><th>قيمة الجزاء</th><th>توقيع العامل بالعلم</th></tr>
                             </thead>
                             <tbody>
-                                ${[1,2,3,4,5,6,7,8].map(i => `<tr><td>${i}</td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')}
+                                ${[1,2,3,4,5,6,7,8,9,10].map(i => `<tr><td>${i}</td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')}
                             </tbody>
                         </table>
                     </div>`;
             }
-
-            // 6. صحيفة الحالة الاجتماعية
             else if (tmplKey === 'SOCIAL_STATUS') {
                 html = `
                     <div class="a4-page">
@@ -783,7 +868,7 @@
                                 <tr><th>مسلسل</th><th>الإسم</th><th>تاريخ الميلاد</th><th>صلة القرابة</th><th>ملاحظات</th></tr>
                             </thead>
                             <tbody>
-                                ${[1,2,3,4].map(i => `<tr><td>${i}</td><td></td><td></td><td></td><td></td></tr>`).join('')}
+                                ${[1,2,3,4,5].map(i => `<tr><td>${i}</td><td></td><td></td><td></td><td></td></tr>`).join('')}
                             </tbody>
                         </table>
                         <p style="margin-top: 20px; font-size: 11px;">البيانات المذكورة عاليه صحيحة وتحت مسئوليتي وأتعهد بإخطار صاحب العمل وكل تغيير يطرأ عليها خلال ثلاثة أيام من تاريخ التغيير.</p>
@@ -791,11 +876,11 @@
                     </div>`;
             }
 
-            printArea.innerHTML = html;
+            return html;
         }
 
         window.onload = function() {
-            populateDropdowns();
+            initFilterSequence();
             renderEmployees();
         };
     </script>
