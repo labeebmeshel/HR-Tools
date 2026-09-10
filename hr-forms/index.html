@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منظومة إدارة وطباعة النماذج الرسمية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- مكتبة Excel لقراءة وتصنيع ملفات .xlsx -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <style>
@@ -26,7 +25,6 @@
 
         .app-layout { display: flex; gap: 15px; min-height: 95vh; }
 
-        /* القائمة الجانبية */
         .side-menu {
             width: 260px; background: var(--primary-dark); color: #fff;
             border-radius: 12px; padding: 15px 10px; flex-shrink: 0;
@@ -53,7 +51,6 @@
 
         .workspace { flex: 1; overflow-y: auto; }
 
-        /* شريط التصفية المترابط */
         .top-filter-bar {
             background: #fff; padding: 12px 18px; border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 15px;
@@ -88,7 +85,7 @@
         .data-table th, .data-table td { padding: 8px 10px; border: 1px solid var(--border); text-align: right; }
         .data-table th { background: #f1f5f9; color: var(--primary-dark); font-weight: bold; }
 
-        /* ورقة A4 للطباعة المقاسة */
+        /* A4 Page Output */
         .a4-page {
             background: #ffffff; width: 210mm; min-height: 297mm; padding: 15mm 20mm;
             margin: 0 auto 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); border: 1px solid var(--border);
@@ -99,15 +96,14 @@
         .official-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
         .official-table td, .official-table th { border: 1px solid #000; padding: 6px; text-align: center; }
 
-        /* محاذاة الهيدر واللوجو */
         .doc-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
         .doc-header.logo-right { flex-direction: row-reverse; }
         .doc-header.logo-center { flex-direction: column; text-align: center; }
 
         .doc-footer { border-top: 1px solid #000; padding-top: 8px; font-size: 10px; text-align: center; margin-top: 20px; }
 
-        .signatures-grid { display: flex; justify-content: space-between; margin-top: 35px; gap: 15px; flex-wrap: wrap; }
-        .sig-box { text-align: center; flex: 1; min-width: 120px; }
+        .signatures-grid { display: flex; justify-content: space-between; margin-top: 30px; gap: 15px; flex-wrap: wrap; }
+        .sig-box { text-align: center; flex: 1; min-width: 110px; }
 
         @media print {
             @page { size: A4 portrait; margin: 0; }
@@ -124,7 +120,7 @@
     <div class="app-layout">
         <!-- القائمة الجانبية -->
         <aside class="side-menu no-print">
-            <div class="menu-title"><i class="fas fa-file-invoice"></i> إدارة النماذج والطباعة</div>
+            <div class="menu-title"><i class="fas fa-file-invoice"></i> إدارة الطباعة والنماذج</div>
             <ul style="padding: 0;">
                 <li class="nav-item">
                     <button class="nav-btn" onclick="toggleSubmenu('formsPrintSubmenu')">
@@ -132,7 +128,7 @@
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <ul class="submenu active" id="formsPrintSubmenu">
-                        <li><button class="submenu-btn active" onclick="showView('print-view', this)"><i class="fas fa-desktop"></i> مركز الطباعة الشامل</button></li>
+                        <li><button class="submenu-btn active" onclick="showView('print-view', this)"><i class="fas fa-desktop"></i> مركز الطباعة المعاينة</button></li>
                         <li><button class="submenu-btn" onclick="quickPrintTemplate('JOB_ACK', this)"><i class="fas fa-file-signature"></i> إقرار استلام عمل</button></li>
                         <li><button class="submenu-btn" onclick="quickPrintTemplate('WAGE_SCALE', this)"><i class="fas fa-chart-line"></i> صحيفة تدرج الأجور</button></li>
                         <li><button class="submenu-btn" onclick="quickPrintTemplate('OFFICIAL_HOLIDAYS', this)"><i class="fas fa-calendar-check"></i> صحيفة الإجازات الرسمية</button></li>
@@ -142,8 +138,8 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <button class="nav-btn" onclick="showView('design-view', this)">
-                        <span><i class="fas fa-paint-brush"></i> تصميم الهيدر والتوقيعات</span>
+                    <button class="nav-btn" onclick="showView('form-customization-view', this)">
+                        <span><i class="fas fa-sliders-h"></i> تخصيص وتكويد النماذج</span>
                     </button>
                 </li>
                 <li class="nav-item">
@@ -162,77 +158,76 @@
         <!-- مساحة العمل -->
         <main class="workspace">
             
-            <!-- شريط الفلترة التسلسلي: اليوزر -> الشركة -> الفرع -->
+            <!-- شريط الفلترة وتحديد الصلاحيات المترابط -->
             <div class="top-filter-bar no-print">
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                     <i class="fas fa-user-shield fa-lg" style="color: var(--primary);"></i>
                     <div>
-                        <small style="font-weight: bold; color: #64748b;">1. يوزر النظام (User):</small>
+                        <small style="font-weight: bold; color: #64748b;">حساب المستخدم النشط:</small>
                         <select id="filterUserSelect" class="form-control" style="width: 170px;" onchange="onUserFilterChange()"></select>
                     </div>
                     <div>
-                        <small style="font-weight: bold; color: #64748b;">2. الشركة التابعة:</small>
+                        <small style="font-weight: bold; color: #64748b;">الشركة المتاحة:</small>
                         <select id="filterCompSelect" class="form-control" style="width: 200px;" onchange="onCompanyFilterChange()"></select>
                     </div>
                     <div>
-                        <small style="font-weight: bold; color: #64748b;">3. الفرع:</small>
+                        <small style="font-weight: bold; color: #64748b;">الفرع:</small>
                         <select id="filterBranchSelect" class="form-control" style="width: 170px;" onchange="renderEmployees()"></select>
                     </div>
                 </div>
             </div>
 
-            <!-- 1. شاشة تخصيص الهيدر، الفوتر، اللوجو والتوقيعات -->
-            <section id="design-view" class="view-panel">
+            <!-- 1. شاشة تخصيص وتكويد النماذج وإدارة التوقيعات لكل نموذج -->
+            <section id="form-customization-view" class="view-panel">
                 <div class="grid-2">
                     <div class="card">
-                        <h3><i class="fas fa-heading"></i> إعدادات الترويسة (Header) والتذييل (Footer)</h3>
+                        <h3><i class="fas fa-code"></i> تكويد النماذج للشركة وتحديد الهيدر والفوتر</h3>
                         <br>
-                        <form onsubmit="saveDesignConfig(event)">
-                            <label>نص الهيدر العلوي (اسم المنشأة/الشركة):</label>
-                            <input type="text" id="cfgHeaderText" class="form-control" placeholder="شركة النور لتوريدات الخضار والفاكهة - ش.م.م">
-                            
-                            <label>شعار الشركة (اللوجو):</label>
-                            <input type="file" id="cfgLogoFile" accept="image/*" class="form-control" onchange="previewLogoUpload(event)">
-                            
-                            <div class="grid-2">
-                                <div>
-                                    <label>موقع اللوجو بالنموذج:</label>
-                                    <select id="cfgLogoPosition" class="form-control">
-                                        <option value="left">يسار الهيدر</option>
-                                        <option value="right">يمين الهيدر</option>
-                                        <option value="center">منتصف الهيدر</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label>ارتفاع اللوجو (بالميليمتر):</label>
-                                    <input type="number" id="cfgLogoHeight" class="form-control" value="20" min="10" max="50">
-                                </div>
-                            </div>
+                        <label>اختر النموذج المراد تكويده وتخصيصه:</label>
+                        <select id="custTmplSelect" class="form-control" onchange="loadFormCustomizationSettings()">
+                            <option value="JOB_ACK">إقرار استلام عمل</option>
+                            <option value="WAGE_SCALE">صحيفة تدرج الأجور</option>
+                            <option value="OFFICIAL_HOLIDAYS">صحيفة الإجازات الرسمية</option>
+                            <option value="SICK_LEAVES">صحيفة الإجازات المرضية</option>
+                            <option value="PENALTIES_LOG">صحيفة الجزاءات</option>
+                            <option value="SOCIAL_STATUS">صحيفة الحالة الاجتماعية</option>
+                        </select>
 
-                            <label>نص الفوتر السفلي (عنوان الشركة/التليفون/السجل):</label>
-                            <input type="text" id="cfgFooterText" class="form-control" placeholder="العبور - المنطقة الصناعية | تليفون: 01012345678 | س.ت: 100293">
+                        <br>
+                        <label>الكود المرجعي للنموذج بهذه الشركة (Form Code):</label>
+                        <input type="text" id="custFormCode" class="form-control" placeholder="مثال: C1-ACK-01">
 
-                            <br>
-                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-save"></i> حفظ تصميم الهيدر واللوجو</button>
-                        </form>
+                        <br>
+                        <div style="background: #f8fafc; padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
+                            <strong style="display: block; margin-bottom: 8px;">إعدادات العرض الافتراضية لهذا النموذج:</strong>
+                            <label style="display: block; margin-bottom: 6px;">
+                                <input type="checkbox" id="custShowHeader" checked> إظهار الترويسة العلوية (Header)
+                            </label>
+                            <label style="display: block;">
+                                <input type="checkbox" id="custShowFooter" checked> إظهار التذييل السفلي (Footer)
+                            </label>
+                        </div>
+
+                        <br>
+                        <button type="button" class="btn btn-primary" style="width: 100%;" onclick="saveFormCustomization()"><i class="fas fa-save"></i> تثبيت وحفظ إعدادات النموذج للشركة</button>
                     </div>
 
                     <div class="card">
-                        <h3><i class="fas fa-signature"></i> التحكم بديناميكية التوقيعات والاعتمادات</h3>
+                        <h3><i class="fas fa-signature"></i> التوقيعات المعتمدة الخاصة بهذا النموذج</h3>
                         <br>
-                        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 10px;">قم بإضافة مسميات الأشخاص المسئولين عن التوقيع بأسفل كل نموذج:</p>
+                        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 10px;">يمكنك إضافة أو تثبيت مسميات التوقيعات التي ستظهر بأسفل هذا النموذج بالذات:</p>
                         
-                        <div id="signaturesList"></div>
+                        <div id="tmplSignaturesList"></div>
                         <br>
                         <div style="display: flex; gap: 8px;">
-                            <input type="text" id="newSigTitle" class="form-control" placeholder="مثال: مدير الموارد البشرية">
-                            <button class="btn btn-success" type="button" onclick="addSignatureTitle()"><i class="fas fa-plus"></i> إضافة</button>
+                            <input type="text" id="newTmplSigTitle" class="form-control" placeholder="مثال: رئيس قسم الموارد البشرية">
+                            <button class="btn btn-success" type="button" onclick="addTmplSignature()"><i class="fas fa-plus"></i> إضافة توقيع</button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- 2. شاشة الشركات والفروع والتسكين تحت اليوزر -->
+            <!-- 2. شاشة الشركات والفروع والتسكين -->
             <section id="companies-view" class="view-panel">
                 <div class="grid-2">
                     <div class="card">
@@ -264,16 +259,6 @@
                                 <div>
                                     <label>صاحب العمل *</label>
                                     <input type="text" id="cOwner" class="form-control" required placeholder="أ. د/ لبيب ميشيل">
-                                </div>
-                            </div>
-                            <div class="grid-2">
-                                <div>
-                                    <label>نائب صاحب العمل</label>
-                                    <input type="text" id="cDeputy" class="form-control">
-                                </div>
-                                <div>
-                                    <label>العنوان التفصيلي</label>
-                                    <input type="text" id="cAddr" class="form-control">
                                 </div>
                             </div>
                             <br>
@@ -315,11 +300,11 @@
                 </div>
             </section>
 
-            <!-- 3. شاشة الموظفين والطباعة الجماعية -->
+            <!-- 3. شاشة الموظفين وقاعدة البيانات -->
             <section id="employees-view" class="view-panel">
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
-                        <h2><i class="fas fa-users"></i> قاعدة بيانات الموظفين</h2>
+                        <h2><i class="fas fa-users"></i> قاعدة بيانات الموظفين المتاحين</h2>
                         <div style="display: flex; gap: 8px;">
                             <button class="btn btn-warning" onclick="executeBulkPrint()"><i class="fas fa-print"></i> طباعة النماذج المحددة</button>
                             <button class="btn btn-primary" onclick="downloadEmployeesTemplate()"><i class="fas fa-file-excel"></i> قالب الموظفين (.xlsx)</button>
@@ -363,7 +348,7 @@
                 </div>
             </section>
 
-            <!-- 4. شاشة المعاينة والطباعة الشاملة -->
+            <!-- 4. شاشة المعاينة والطباعة المباشرة -->
             <section id="print-view" class="view-panel active">
                 <div class="card no-print">
                     <div class="grid-3">
@@ -372,7 +357,7 @@
                             <select id="pEmp" class="form-control" onchange="renderPrintPreview()"></select>
                         </div>
                         <div>
-                            <label>اختر النموذج المطلوبة طباعته:</label>
+                            <label>اختر النموذج:</label>
                             <select id="pTmpl" class="form-control" onchange="renderPrintPreview()">
                                 <option value="JOB_ACK">إقرار استلام عمل</option>
                                 <option value="WAGE_SCALE">صحيفة تدرج الأجور</option>
@@ -395,14 +380,14 @@
     </div>
 
     <script>
-        // مزامنة يوزرات الجدول بالصورة (Orbis و admin)
+        // مزامنة مستخدمي الجدول المرفق بالصورة
         let DB = {
             users: JSON.parse(localStorage.getItem('HR_USERS')) || [
-                { id: 'admin', name: 'admin (مدير النظام)' },
-                { id: 'Orbis', name: 'Orbis (مستخدم)' }
+                { id: 'admin', name: 'admin (مدير النظام)', role: 'admin' },
+                { id: 'Orbis', name: 'Orbis (مستخدم شركة)', role: 'user' }
             ],
             companies: JSON.parse(localStorage.getItem('HR_COMPANIES')) || [
-                { id: 'C1', userId: 'admin', name: 'شركة النور لتوريدات الخضار والفاكهة', reg: '100293', tax: '987-654-321', ins: '1740500', owner: 'أ. د/ لبيب ميشيل', deputy: 'أ/ نورا سيد الملا', addr: 'القاهرة - مدينة نصر' }
+                { id: 'C1', userId: 'Orbis', name: 'شركة النور لتوريدات الخضار والفاكهة', reg: '100293', tax: '987-654-321', ins: '1740500', owner: 'أ. د/ لبيب ميشيل', deputy: 'أ/ نورا سيد الملا', addr: 'القاهرة - مدينة نصر' }
             ],
             branches: JSON.parse(localStorage.getItem('HR_BRANCHES')) || [
                 { id: 'B1', compId: 'C1', name: 'الفرع الرئيسي - العبور', ins: '1740500', addr: 'العبور - المنطقة الصناعية' }
@@ -415,13 +400,13 @@
                     nationality: 'مصري', qualification: 'مؤهل متوسط', insDate: '2021-09-30', insuredSalary: '3000', grossSalary: '6000'
                 }
             ],
-            design: JSON.parse(localStorage.getItem('HR_DESIGN')) || {
-                headerText: 'شركة النور لتوريدات الخضار والفاكهة',
-                footerText: 'العبور - المنطقة الصناعية | تليفون: 01012345678 | سجل تجاري: 100293',
-                logoDataUrl: '',
-                logoPosition: 'left',
-                logoHeight: 20,
-                signatures: ['رئيس القسم', 'مدير إداري', 'المقر بما فيه']
+            formSettings: JSON.parse(localStorage.getItem('HR_FORM_SETTINGS')) || {
+                'JOB_ACK': { code: 'ACK-01', showHeader: true, showFooter: true, signatures: ['المقر بما فيه', 'رئيس القسم', 'مدير الموارد البشرية'] },
+                'WAGE_SCALE': { code: 'WAGE-02', showHeader: true, showFooter: true, signatures: ['إعداد الماهيات', 'مراجعة الأجور', 'يعتمد مدير الموقع'] },
+                'OFFICIAL_HOLIDAYS': { code: 'HOLI-03', showHeader: true, showFooter: true, signatures: ['توقيع العامل بالحصول عليها', 'شؤون العاملين'] },
+                'SICK_LEAVES': { code: 'SICK-04', showHeader: true, showFooter: true, signatures: ['توقيع العامل', 'توقيع الطبيب/الهيئة', 'مدير الإدارة'] },
+                'PENALTIES_LOG': { code: 'PEN-05', showHeader: true, showFooter: true, signatures: ['توقيع العامل بالعلم', 'مدير الشؤون القانونية', 'يعتمد'] },
+                'SOCIAL_STATUS': { code: 'SOC-06', showHeader: true, showFooter: true, signatures: ['توقيع العامل', 'مسؤول ملفات الخدمة'] }
             }
         };
 
@@ -430,7 +415,7 @@
             localStorage.setItem('HR_COMPANIES', JSON.stringify(DB.companies));
             localStorage.setItem('HR_BRANCHES', JSON.stringify(DB.branches));
             localStorage.setItem('HR_EMPLOYEES', JSON.stringify(DB.employees));
-            localStorage.setItem('HR_DESIGN', JSON.stringify(DB.design));
+            localStorage.setItem('HR_FORM_SETTINGS', JSON.stringify(DB.formSettings));
         }
 
         function toggleSubmenu(id) {
@@ -448,14 +433,15 @@
 
             if(viewId === 'employees-view') renderEmployees();
             if(viewId === 'print-view') populatePrintDropdowns();
-            if(viewId === 'design-view') renderDesignForm();
+            if(viewId === 'form-customization-view') loadFormCustomizationSettings();
         }
 
+        // تطبيق عزل الصلاحيات للشركات بحسب اليوزر
         function initFilterSequence() {
             const uSelect = document.getElementById('filterUserSelect');
             const cUserSelect = document.getElementById('cUserSelect');
             
-            uSelect.innerHTML = '<option value="ALL">جميع المستخدمين</option>';
+            uSelect.innerHTML = '';
             cUserSelect.innerHTML = '<option value="">-- اختر المستخدم --</option>';
 
             DB.users.forEach(u => {
@@ -468,18 +454,27 @@
 
         function onUserFilterChange() {
             const uId = document.getElementById('filterUserSelect').value;
+            const currentUser = DB.users.find(u => u.id === uId);
             const cSelect = document.getElementById('filterCompSelect');
             const bCompSelect = document.getElementById('bCompId');
 
-            cSelect.innerHTML = '<option value="ALL">جميع الشركات</option>';
+            cSelect.innerHTML = '';
             bCompSelect.innerHTML = '<option value="">-- اختر الشركة --</option>';
 
-            const filteredCompanies = uId === 'ALL' ? DB.companies : DB.companies.filter(c => c.userId === uId);
+            // عزل الصلاحيات: إذا كان اليوزر ليس الأدمن، تظهر شركته فقط
+            let filteredCompanies = DB.companies;
+            if (currentUser && currentUser.role !== 'admin') {
+                filteredCompanies = DB.companies.filter(c => c.userId === uId);
+            }
 
-            filteredCompanies.forEach(c => {
-                cSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                bCompSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-            });
+            if (filteredCompanies.length === 0) {
+                cSelect.innerHTML = '<option value="">-- لا توجد شركات متاحة لليوزر --</option>';
+            } else {
+                filteredCompanies.forEach(c => {
+                    cSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                    bCompSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                });
+            }
 
             onCompanyFilterChange();
         }
@@ -490,8 +485,7 @@
 
             bSelect.innerHTML = '<option value="ALL">جميع الفروع</option>';
 
-            const filteredBranches = cId === 'ALL' ? DB.branches : DB.branches.filter(b => b.compId === cId);
-
+            const filteredBranches = DB.branches.filter(b => b.compId === cId);
             filteredBranches.forEach(b => {
                 bSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
             });
@@ -504,16 +498,13 @@
             const tbody = document.getElementById('empTableBody');
             tbody.innerHTML = '';
 
-            const uId = document.getElementById('filterUserSelect').value;
             const cId = document.getElementById('filterCompSelect').value;
             const bId = document.getElementById('filterBranchSelect').value;
 
             const list = DB.employees.filter(e => {
-                const comp = DB.companies.find(c => c.id === e.compId);
-                const matchU = uId === 'ALL' || (comp && comp.userId === uId);
-                const matchC = cId === 'ALL' || e.compId === cId;
+                const matchC = e.compId === cId;
                 const matchB = bId === 'ALL' || e.branchId === bId;
-                return matchU && matchC && matchB;
+                return matchC && matchB;
             });
 
             list.forEach(e => {
@@ -543,62 +534,62 @@
             document.querySelectorAll('.emp-select-check').forEach(c => c.checked = masterCheck.checked);
         }
 
-        // إعدادات التصميم والتوقيعات
-        function renderDesignForm() {
-            document.getElementById('cfgHeaderText').value = DB.design.headerText || '';
-            document.getElementById('cfgFooterText').value = DB.design.footerText || '';
-            document.getElementById('cfgLogoPosition').value = DB.design.logoPosition || 'left';
-            document.getElementById('cfgLogoHeight').value = DB.design.logoHeight || 20;
-            renderSignaturesList();
+        // إدارات تخصيص النماذج والتوقيعات لكل نموذج
+        function loadFormCustomizationSettings() {
+            const tmplKey = document.getElementById('custTmplSelect').value;
+            const cfg = DB.formSettings[tmplKey] || { code: '', showHeader: true, showFooter: true, signatures: [] };
+
+            document.getElementById('custFormCode').value = cfg.code || '';
+            document.getElementById('custShowHeader').checked = cfg.showHeader !== false;
+            document.getElementById('custShowFooter').checked = cfg.showFooter !== false;
+
+            renderTmplSignaturesList();
         }
 
-        function previewLogoUpload(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                    DB.design.logoDataUrl = evt.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
+        function saveFormCustomization() {
+            const tmplKey = document.getElementById('custTmplSelect').value;
+            if (!DB.formSettings[tmplKey]) DB.formSettings[tmplKey] = {};
 
-        function saveDesignConfig(e) {
-            e.preventDefault();
-            DB.design.headerText = document.getElementById('cfgHeaderText').value;
-            DB.design.footerText = document.getElementById('cfgFooterText').value;
-            DB.design.logoPosition = document.getElementById('cfgLogoPosition').value;
-            DB.design.logoHeight = document.getElementById('cfgLogoHeight').value;
+            DB.formSettings[tmplKey].code = document.getElementById('custFormCode').value;
+            DB.formSettings[tmplKey].showHeader = document.getElementById('custShowHeader').checked;
+            DB.formSettings[tmplKey].showFooter = document.getElementById('custShowFooter').checked;
+
             saveDB();
-            alert('تم حفظ إعدادات الهيدر واللوجو بنجاح!');
+            alert('تم حفظ وتثبيت إعدادات وتكويد النموذج بنجاح!');
         }
 
-        function renderSignaturesList() {
-            const container = document.getElementById('signaturesList');
+        function renderTmplSignaturesList() {
+            const tmplKey = document.getElementById('custTmplSelect').value;
+            const cfg = DB.formSettings[tmplKey] || { signatures: [] };
+            const container = document.getElementById('tmplSignaturesList');
             container.innerHTML = '';
-            DB.design.signatures.forEach((sig, index) => {
+
+            (cfg.signatures || []).forEach((sig, idx) => {
                 container.innerHTML += `
                     <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 5px;">
-                        <span><strong>توقيع ${index + 1}:</strong> ${sig}</span>
-                        <button class="btn btn-danger" style="padding: 2px 6px;" onclick="removeSignatureTitle(${index})"><i class="fas fa-trash"></i></button>
+                        <span><strong>توقيع ${idx + 1}:</strong> ${sig}</span>
+                        <button class="btn btn-danger" style="padding: 2px 6px;" onclick="removeTmplSignature(${idx})"><i class="fas fa-trash"></i></button>
                     </div>`;
             });
         }
 
-        function addSignatureTitle() {
-            const input = document.getElementById('newSigTitle');
+        function addTmplSignature() {
+            const tmplKey = document.getElementById('custTmplSelect').value;
+            const input = document.getElementById('newTmplSigTitle');
             if (input.value.trim()) {
-                DB.design.signatures.push(input.value.trim());
+                if (!DB.formSettings[tmplKey].signatures) DB.formSettings[tmplKey].signatures = [];
+                DB.formSettings[tmplKey].signatures.push(input.value.trim());
                 saveDB();
-                renderSignaturesList();
+                renderTmplSignaturesList();
                 input.value = '';
             }
         }
 
-        function removeSignatureTitle(index) {
-            DB.design.signatures.splice(index, 1);
+        function removeTmplSignature(idx) {
+            const tmplKey = document.getElementById('custTmplSelect').value;
+            DB.formSettings[tmplKey].signatures.splice(idx, 1);
             saveDB();
-            renderSignaturesList();
+            renderTmplSignaturesList();
         }
 
         function saveCompany(e) {
@@ -611,9 +602,7 @@
                 reg: document.getElementById('cReg').value,
                 tax: document.getElementById('cTax').value,
                 ins: document.getElementById('cIns').value,
-                owner: document.getElementById('cOwner').value,
-                deputy: document.getElementById('cDeputy').value,
-                addr: document.getElementById('cAddr').value
+                owner: document.getElementById('cOwner').value
             };
 
             const idx = DB.companies.findIndex(c => c.id === id);
@@ -622,7 +611,7 @@
 
             saveDB();
             initFilterSequence();
-            alert('تم حفظ الشركة وتسكينها تحت المستخدم!');
+            alert('تم حفظ وتسكين الشركة بنجاح!');
             e.target.reset();
         }
 
@@ -643,157 +632,18 @@
             e.target.reset();
         }
 
-        function downloadCompaniesTemplate() {
-            const data = [{
-                "أسم الشركة": "شركة النور لتوريدات الخضار والفاكهة",
-                "رقم السجل التجاري": "100293",
-                "رقم البطاقة الضريبية": "987-654-321",
-                "الرقم التأميني للشركة": "1740500",
-                "صاحب العمل": "أ. د/ لبيب ميشيل",
-                "نائب صاحب العمل": "أ/ نورا سيد الملا",
-                "عنوان الشركة": "القاهرة - مدينة نصر",
-                "اسم الفرع": "الفرع الرئيسي - العبور",
-                "الرقم التأميني للفرع": "1740500",
-                "عنوان الفرع": "العبور - المنطقة الصناعية"
-            }];
-
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "الشركات والفروع");
-            XLSX.writeFile(wb, "Companies_Branches_Template.xlsx");
-        }
-
-        function importCompaniesExcel(evt) {
-            const file = evt.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const data = new Uint8Array(e.target.result);
-                const wb = XLSX.read(data, { type: 'array' });
-                const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-                const currentUId = document.getElementById('filterUserSelect').value || 'admin';
-
-                rows.forEach(r => {
-                    let comp = DB.companies.find(c => c.name === r["أسم الشركة"]);
-                    if (!comp) {
-                        comp = {
-                            id: 'C' + Date.now() + Math.floor(Math.random()*10),
-                            userId: currentUId,
-                            name: r["أسم الشركة"] || '',
-                            reg: String(r["رقم السجل التجاري"] || ''),
-                            tax: String(r["رقم البطاقة الضريبية"] || ''),
-                            ins: String(r["الرقم التأميني للشركة"] || ''),
-                            owner: r["صاحب العمل"] || '',
-                            deputy: r["نائب صاحب العمل"] || '',
-                            addr: r["عنوان الشركة"] || ''
-                        };
-                        DB.companies.push(comp);
-                    }
-
-                    if (r["اسم الفرع"]) {
-                        DB.branches.push({
-                            id: 'B' + Date.now() + Math.floor(Math.random()*10),
-                            compId: comp.id,
-                            name: r["اسم الفرع"],
-                            ins: String(r["الرقم التأميني للفرع"] || comp.ins),
-                            addr: r["عنوان الفرع"] || comp.addr
-                        });
-                    }
-                });
-
-                saveDB();
-                initFilterSequence();
-                alert(`تم استيراد ${rows.length} شركة وفرع بنجاح!`);
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function downloadEmployeesTemplate() {
-            const data = [{
-                "أسم الشركة": "شركة النور لتوريدات الخضار والفاكهة",
-                "أسم الفرع": "الفرع الرئيسي - العبور",
-                "كود الموظف": "1001",
-                "الأسم": "أحمد حسن عبدالرحمن بخيت",
-                "الرقم القومي": "29205121509876",
-                "الرقم التأميني": "43919482",
-                "الوظيفة بالتأمينات": "مسؤول حركة وتوريدات",
-                "كود الوظيفة": "JOB-301",
-                "الشارع": "شارع الجيش",
-                "قسم / مركز": "العبور",
-                "محافظة": "القليوبية",
-                "رقم التليفون": "01012345678",
-                "الجنسية": "مصري",
-                "المؤهل": "مؤهل متوسط",
-                "تاريخ التأمين": "2021-09-30",
-                "الأجر التأمينى": "3000",
-                "الأجر الشامل": "6000"
-            }];
-
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "بيانات الموظفين");
-            XLSX.writeFile(wb, "Employees_Full_Template.xlsx");
-        }
-
-        function importEmployeesExcel(evt) {
-            const file = evt.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const data = new Uint8Array(e.target.result);
-                const wb = XLSX.read(data, { type: 'array' });
-                const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-
-                rows.forEach(r => {
-                    let comp = DB.companies.find(c => c.name === r["أسم الشركة"]) || DB.companies[0];
-                    let branch = DB.branches.find(b => b.name === r["أسم الفرع"]) || DB.branches[0];
-
-                    DB.employees.push({
-                        id: 'E' + Date.now() + Math.floor(Math.random()*10),
-                        code: String(r["كود الموظف"] || ''),
-                        compId: comp ? comp.id : 'C1',
-                        branchId: branch ? branch.id : 'B1',
-                        name: r["الأسم"] || '',
-                        natId: String(r["الرقم القومي"] || ''),
-                        insNo: String(r["الرقم التأميني"] || ''),
-                        job: r["الوظيفة بالتأمينات"] || '',
-                        jobCode: String(r["كود الوظيفة"] || ''),
-                        street: r["الشارع"] || '',
-                        section: r["قسم / مركز"] || '',
-                        governorate: r["محافظة"] || '',
-                        phone: String(r["رقم التليفون"] || ''),
-                        nationality: r["الجنسية"] || 'مصري',
-                        qualification: r["المؤهل"] || '',
-                        insDate: r["تاريخ التأمين"] || '',
-                        insuredSalary: String(r["الأجر التأمينى"] || ''),
-                        grossSalary: String(r["الأجر الشامل"] || '')
-                    });
-                });
-
-                saveDB();
-                renderEmployees();
-                alert(`تم استيراد ${rows.length} موظف بنجاح!`);
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
         function populatePrintDropdowns() {
             const select = document.getElementById('pEmp');
             if(!select) return;
             select.innerHTML = '';
 
-            const uId = document.getElementById('filterUserSelect').value;
             const cId = document.getElementById('filterCompSelect').value;
             const bId = document.getElementById('filterBranchSelect').value;
 
             const list = DB.employees.filter(e => {
-                const comp = DB.companies.find(c => c.id === e.compId);
-                const matchU = uId === 'ALL' || (comp && comp.userId === uId);
-                const matchC = cId === 'ALL' || e.compId === cId;
+                const matchC = e.compId === cId;
                 const matchB = bId === 'ALL' || e.branchId === bId;
-                return matchU && matchC && matchB;
+                return matchC && matchB;
             });
 
             list.forEach(e => {
@@ -853,33 +703,30 @@
             printArea.innerHTML = buildFormHTML(empId, tmplKey);
         }
 
-        // بناء الهيكل مع الهيدر والتوقيعات والفوتر
+        // توليد بناء النماذج الرسمية طبقاً للاشتراطات والإعدادات المحفوظة
         function buildFormHTML(empId, tmplKey) {
             const emp = DB.employees.find(e => e.id === empId);
             if (!emp) return '';
 
             const comp = DB.companies.find(c => c.id === emp.compId) || { name: 'شركة النور لتوريدات الخضار والفاكهة' };
             const branch = DB.branches.find(b => b.id === emp.branchId) || { name: 'المركز الرئيسي' };
+            const cfg = DB.formSettings[tmplKey] || { code: 'N/A', showHeader: true, showFooter: true, signatures: ['التوقيع'] };
 
-            const logoImg = DB.design.logoDataUrl ? `<img src="${DB.design.logoDataUrl}" style="height: ${DB.design.logoHeight || 20}mm;">` : '';
-            const headerTitle = DB.design.headerText || comp.name;
-
-            const headerHTML = `
-                <div class="doc-header logo-${DB.design.logoPosition || 'left'}">
+            const headerHTML = cfg.showHeader ? `
+                <div class="doc-header">
                     <div>
-                        <h2 style="font-size: 1.3rem; margin: 0;">${headerTitle}</h2>
-                        <small style="color: #475569;">فرع: ${branch.name}</small>
+                        <h2 style="font-size: 1.3rem; margin: 0;">${comp.name}</h2>
+                        <small style="color: #475569;">الفرع: ${branch.name} | كود النموذج: <strong>${cfg.code}</strong></small>
                     </div>
-                    ${logoImg}
-                </div>`;
+                </div>` : '';
 
-            const footerHTML = `
+            const footerHTML = cfg.showFooter ? `
                 <div class="doc-footer">
-                    ${DB.design.footerText || 'منظومة إدارة وطباعة النماذج الرسمية'}
-                </div>`;
+                    السجل التجاري: ${comp.reg || '-'} | البطاقة الضريبية: ${comp.tax || '-'} | العنوان: ${branch.addr || '-'}
+                </div>` : '';
 
             let sigsHTML = '<div class="signatures-grid">';
-            DB.design.signatures.forEach(sig => {
+            (cfg.signatures || ['التوقيع']).forEach(sig => {
                 sigsHTML += `
                     <div class="sig-box">
                         <p><strong>${sig}</strong></p>
@@ -1027,7 +874,7 @@
         window.onload = function() {
             initFilterSequence();
             renderEmployees();
-            renderDesignForm();
+            loadFormCustomizationSettings();
         };
     </script>
 </body>
