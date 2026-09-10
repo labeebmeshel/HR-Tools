@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Labeeb Meshel - HR Platform System</title>
+    <title>Labeeb Meshel - Multi-User HR Platform System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -114,7 +114,7 @@
         </div>
     </div>
 
-    <!-- القائمة الجانبية (Sidebar) -->
+    <!-- القائمة الجانبية -->
     <aside class="sidebar">
         <div class="sidebar-header">
             <img id="sidebarLogo" src="https://via.placeholder.com/60" class="company-logo-img" alt="لوجو الشركة">
@@ -221,13 +221,13 @@
         <iframe id="disc-frame" class="page-frame" src="disc.html"></iframe>
         <iframe id="scan-frame" class="page-frame" src="scan-to-excel.html"></iframe>
 
-        <!-- شاشة بروفايل الشركة الخاص بالمستخدم اللحظي -->
+        <!-- شاشة بروفايل الشركة واليوزر -->
         <div id="profile-view-frame" class="page-frame inner-view">
             <h2><i class="fas fa-building-user"></i> إدارة بروفايل الشركة والحساب الشخصي</h2>
             <br>
             <div class="grid-2">
                 <div class="card-panel">
-                    <h3><i class="fas fa-building"></i> تعديل بيانات الشركة الخاصة بالحساب</h3>
+                    <h3><i class="fas fa-building"></i> تعديل بيانات الشركة التابع لها حسابك</h3>
                     <form onsubmit="saveCompanyProfile(event)">
                         <label>اسم الشركة:</label>
                         <input type="text" id="profCompName" class="form-input" required>
@@ -239,7 +239,7 @@
                         <input type="text" id="profCompLogo" class="form-input" required>
                         <label>اسم المسؤول / الأدمن:</label>
                         <input type="text" id="profCompAdmin" class="form-input" required>
-                        <button type="submit" class="btn-action" style="margin-top: 10px;">حفظ التغييرات</button>
+                        <button type="submit" class="btn-action" style="margin-top: 10px;">حفظ التغييرات للشركة بالكامل</button>
                     </form>
                 </div>
 
@@ -256,19 +256,19 @@
             </div>
         </div>
 
-        <!-- الداشبورد المتقدمة للأدمن -->
+        <!-- الداشبورد الشاملة للأدمن -->
         <div id="admin-dashboard-frame" class="page-frame inner-view">
             <h2><i class="fas fa-user-shield"></i> لوحة تحكم مدير النظام الشاملة</h2>
             <br>
             
             <div class="grid-3">
                 <div class="stat-card-view">
-                    <h4>إجمالي الشركات والحسابات</h4>
+                    <h4>إجمالي المستخدمين</h4>
                     <h2 id="statUsersCount">0</h2>
                 </div>
                 <div class="stat-card-view" style="border-color: #10b981;">
-                    <h4>إجمالي السجلات (Logs)</h4>
-                    <h2 id="statLogsCount">0</h2>
+                    <h4>إجمالي الشركات المسجلة</h4>
+                    <h2 id="statCompCount">0</h2>
                 </div>
                 <div class="stat-card-view" style="border-color: #f59e0b;">
                     <h4>حساب الأدمن الحالي</h4>
@@ -279,7 +279,7 @@
             <br>
             <div class="grid-2">
                 <div class="card-panel">
-                    <h3><i class="fas fa-user-plus"></i> إضافة مستخدم جديد وبيانات شركته</h3>
+                    <h3><i class="fas fa-user-plus"></i> إضافة مستخدم جديد وتعيين شركته</h3>
                     <form onsubmit="addNewUser(event)">
                         <div class="grid-2">
                             <div>
@@ -300,38 +300,47 @@
                                 </select>
                             </div>
                             <div>
-                                <label>اسم الشركة:</label>
-                                <input type="text" id="newCompName" class="form-input" placeholder="شركة ..." required>
+                                <label>اختر شركة مسجلة أو أضف جديدة:</label>
+                                <select id="companySelectMode" class="form-input" onchange="toggleCompanyInputMode(this.value)">
+                                    <option value="NEW">-- إضافة شركة جديدة --</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="grid-2">
-                            <div>
-                                <label>مجال الشركة:</label>
-                                <input type="text" id="newCompField" class="form-input" placeholder="الموارد البشرية..." required>
+
+                        <!-- الحقول التي تظهر في حالة إضافة شركة جديدة -->
+                        <div id="newCompanyFields">
+                            <div class="grid-2">
+                                <div>
+                                    <label>اسم الشركة الجديدة:</label>
+                                    <input type="text" id="newCompName" class="form-input" placeholder="شركة ...">
+                                </div>
+                                <div>
+                                    <label>مجال الشركة:</label>
+                                    <input type="text" id="newCompField" class="form-input" placeholder="الموارد البشرية...">
+                                </div>
                             </div>
-                            <div>
-                                <label>رقم الهاتف:</label>
-                                <input type="text" id="newCompPhone" class="form-input" placeholder="01xxxxxxxxx">
+                            <div class="grid-2">
+                                <div>
+                                    <label>رقم الهاتف:</label>
+                                    <input type="text" id="newCompPhone" class="form-input" placeholder="01xxxxxxxxx">
+                                </div>
+                                <div>
+                                    <label>اسم مسؤول الشركة:</label>
+                                    <input type="text" id="newCompAdmin" class="form-input" placeholder="أ. ...">
+                                </div>
                             </div>
+                            <label>رابط اللوجو (URL):</label>
+                            <input type="text" id="newCompLogo" class="form-input" value="https://via.placeholder.com/60">
                         </div>
-                        <div class="grid-2">
-                            <div>
-                                <label>اسم مسؤول الشركة:</label>
-                                <input type="text" id="newCompAdmin" class="form-input" placeholder="أ. ..." required>
-                            </div>
-                            <div>
-                                <label>رابط اللوجو (URL):</label>
-                                <input type="text" id="newCompLogo" class="form-input" value="https://via.placeholder.com/60">
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-action" style="background: #10b981; margin-top: 10px;">إنشاء الحساب والشركة</button>
+
+                        <button type="submit" class="btn-action" style="background: #10b981; margin-top: 10px;">إنشاء الحساب المربوط</button>
                     </form>
 
-                    <h3 style="margin-top: 25px;"><i class="fas fa-users"></i> قائمة المستخدمين والشركات المسجلة</h3>
+                    <h3 style="margin-top: 25px;"><i class="fas fa-users"></i> مستخدمو النظام والشركات التابعين لها</h3>
                     <div style="max-height: 300px; overflow-y: auto;">
                         <table class="data-table">
                             <thead>
-                                <tr><th>المستخدم</th><th>الشركة</th><th>الهاتف</th><th>كلمة السر</th><th>الصلاحية</th><th>حذف</th></tr>
+                                <tr><th>المستخدم</th><th>الشركة التابع لها</th><th>كلمة السر</th><th>الصلاحية</th><th>حذف</th></tr>
                             </thead>
                             <tbody id="usersTableBody"></tbody>
                         </table>
@@ -368,22 +377,27 @@
             measurementId: "G-7PBDNQ52E9"
         };
 
+        const DEFAULT_COMPANIES = {
+            "comp_praxi": {
+                name: "أكاديمية براكسي (PRAXI)",
+                field: "استشارات الموارد البشرية",
+                phone: "01000000000",
+                adminName: "د. لبيب ميشيل",
+                logo: "https://via.placeholder.com/60/0b4fb3/ffffff?text=PRAXI"
+            }
+        };
+
         const DEFAULT_USERS = {
             "admin": {
                 username: "admin",
                 pass: "YWRtaW4xMjM=",
                 role: "admin",
-                company: {
-                    name: "أكاديمية براكسي (PRAXI)",
-                    field: "استشارات الموارد البشرية",
-                    phone: "01000000000",
-                    adminName: "د. لبيب ميشيل",
-                    logo: "https://via.placeholder.com/60/0b4fb3/ffffff?text=PRAXI"
-                }
+                companyId: "comp_praxi"
             }
         };
 
         let dbUsers = DEFAULT_USERS;
+        let dbCompanies = DEFAULT_COMPANIES;
         let dbLogs = [];
 
         try {
@@ -401,13 +415,17 @@
                 }
             });
 
+            db.ref('system_companies').on('value', (snapshot) => {
+                const val = snapshot.val();
+                dbCompanies = val || DEFAULT_COMPANIES;
+                updateCompanyDropdowns();
+                const loggedUser = sessionStorage.getItem('LOGGED_USER');
+                if(loggedUser) updateCompanyUI(loggedUser);
+            });
+
             db.ref('system_users').on('value', (snapshot) => {
                 const val = snapshot.val();
-                if (val !== null) {
-                    dbUsers = val;
-                } else {
-                    db.ref('system_users').set(DEFAULT_USERS);
-                }
+                dbUsers = val || DEFAULT_USERS;
                 const loggedUser = sessionStorage.getItem('LOGGED_USER');
                 if(loggedUser) updateCompanyUI(loggedUser);
                 renderAdminDashboard();
@@ -482,11 +500,11 @@
             renderAdminDashboard();
         }
 
-        // تحديث بيانات شركة المستخدم الحالي المسجل
+        // تحديث واجهة الشركة الخاصة باليوزر المسجل بناءً على الـ companyId
         function updateCompanyUI(username) {
             const userObj = dbUsers[username];
-            if (userObj && userObj.company) {
-                const comp = userObj.company;
+            if (userObj && userObj.companyId && dbCompanies[userObj.companyId]) {
+                const comp = dbCompanies[userObj.companyId];
                 document.getElementById('sidebarCompName').innerText = comp.name || 'اسم الشركة';
                 document.getElementById('sidebarCompField').innerText = comp.field || 'المجال';
                 document.getElementById('sidebarLogo').src = comp.logo || 'https://via.placeholder.com/60';
@@ -499,12 +517,12 @@
             }
         }
 
-        // حفظ تعديل بروفايل الشركة الخاص بالمستخدم الحالي
         function saveCompanyProfile(e) {
             e.preventDefault();
             const loggedUser = sessionStorage.getItem('LOGGED_USER');
+            const userObj = dbUsers[loggedUser];
             
-            if (dbUsers[loggedUser]) {
+            if (userObj && userObj.companyId) {
                 const updatedComp = {
                     name: document.getElementById('profCompName').value,
                     field: document.getElementById('profCompField').value,
@@ -513,10 +531,10 @@
                     adminName: document.getElementById('profCompAdmin').value
                 };
 
-                firebase.database().ref(`system_users/${loggedUser}/company`).set(updatedComp)
+                firebase.database().ref(`system_companies/${userObj.companyId}`).set(updatedComp)
                     .then(() => {
-                        addLog('تعديل بيانات بروفايل الشركة الخاصة بالحساب');
-                        alert('تم تحديث بيانات شركتك بنجاح!');
+                        addLog('تعديل بيانات بروفايل الشركة');
+                        alert('تم تحديث بيانات الشركة بنجاح لكافة المستخدمين التابعين لها!');
                     });
             }
         }
@@ -529,7 +547,7 @@
             if (dbUsers[loggedUser]) {
                 firebase.database().ref(`system_users/${loggedUser}/pass`).set(btoa(newPass))
                     .then(() => {
-                        addLog('تغيير كلمة المرور الشخصية للحساب');
+                        addLog('تغيير كلمة المرور للحساب الشخصي');
                         alert('تم تحديث كلمة المرور بنجاح!');
                         document.getElementById('profNewPass').value = '';
                     });
@@ -564,36 +582,70 @@
             loadPage(evt, frameId, btnElement);
         }
 
-        // إضافة مستخدم جديد ببيانات شركته الكاملة عن طريق الأدمن
+        function updateCompanyDropdowns() {
+            const select = document.getElementById('companySelectMode');
+            if(!select) return;
+            select.innerHTML = '<option value="NEW">-- إضافة شركة جديدة --</option>';
+            Object.keys(dbCompanies).forEach(compId => {
+                select.innerHTML += `<option value="${compId}">${dbCompanies[compId].name}</option>`;
+            });
+        }
+
+        function toggleCompanyInputMode(val) {
+            const fieldsDiv = document.getElementById('newCompanyFields');
+            if(val === 'NEW') {
+                fieldsDiv.style.display = 'block';
+            } else {
+                fieldsDiv.style.display = 'none';
+            }
+        }
+
+        // إضافة مستخدم جديد (ربطه بشركة سابقة أو بإنشاء شركة جديدة)
         function addNewUser(e) {
             e.preventDefault();
             const u = document.getElementById('newUsername').value.trim();
             const p = document.getElementById('newPassword').value.trim();
             const r = document.getElementById('newRole').value;
+            const compMode = document.getElementById('companySelectMode').value;
 
-            const newUserObj = {
-                username: u,
-                pass: btoa(p),
-                role: r,
-                company: {
+            if (compMode === 'NEW') {
+                const compId = 'comp_' + Date.now();
+                const newCompObj = {
                     name: document.getElementById('newCompName').value,
                     field: document.getElementById('newCompField').value,
                     phone: document.getElementById('newCompPhone').value,
                     adminName: document.getElementById('newCompAdmin').value,
                     logo: document.getElementById('newCompLogo').value
-                }
+                };
+
+                firebase.database().ref(`system_companies/${compId}`).set(newCompObj).then(() => {
+                    saveUserRecord(u, p, r, compId, newCompObj.name);
+                });
+            } else {
+                const existingCompName = dbCompanies[compMode] ? dbCompanies[compMode].name : '';
+                saveUserRecord(u, p, r, compMode, existingCompName);
+            }
+            e.target.reset();
+            toggleCompanyInputMode('NEW');
+        }
+
+        function saveUserRecord(u, p, r, compId, compName) {
+            const newUserObj = {
+                username: u,
+                pass: btoa(p),
+                role: r,
+                companyId: compId
             };
 
             firebase.database().ref(`system_users/${u}`).set(newUserObj)
                 .then(() => {
-                    addLog(`إضافة مستخدم وشركة جديدة: ${u} - (${newUserObj.company.name})`);
-                    alert('تم إضافة الحساب والشركة بنجاح إلى قاعدة البيانات!');
-                    e.target.reset();
+                    addLog(`إضافة مستخدم جديد: ${u} إلى شركة (${compName})`);
+                    alert(`تم ربط الحساب ${u} بالشركة بنجاح!`);
                 });
         }
 
         function deleteUser(username) {
-            if (confirm(`هل تريد حذف حساب المستخدم ${username} وشركته؟`)) {
+            if (confirm(`هل تريد حذف حساب المستخدم ${username}؟`)) {
                 firebase.database().ref(`system_users/${username}`).remove()
                     .then(() => {
                         addLog(`حذف حساب المستخدم: ${username}`);
@@ -609,8 +661,10 @@
 
         function renderAdminDashboard() {
             const usersArray = Object.values(dbUsers);
+            const compArray = Object.values(dbCompanies);
+
             document.getElementById('statUsersCount').innerText = usersArray.length;
-            document.getElementById('statLogsCount').innerText = dbLogs.length;
+            document.getElementById('statCompCount').innerText = compArray.length;
             document.getElementById('statAdminUser').innerText = sessionStorage.getItem('LOGGED_USER') || '-';
 
             const tbodyUsers = document.getElementById('usersTableBody');
@@ -618,12 +672,11 @@
             usersArray.forEach((u) => {
                 let rawPass = u.pass;
                 try { rawPass = atob(u.pass); } catch(e){}
-                const comp = u.company || {};
+                const comp = dbCompanies[u.companyId] || {};
                 tbodyUsers.innerHTML += `
                     <tr>
                         <td><strong>${u.username}</strong></td>
-                        <td>${comp.name || '-'}</td>
-                        <td>${comp.phone || '-'}</td>
+                        <td>${comp.name || 'غير محدد'}</td>
                         <td><code style="background:#e2e8f0; padding:2px 6px; border-radius:4px;">${rawPass}</code></td>
                         <td>${u.role}</td>
                         <td><button onclick="deleteUser('${u.username}')" style="background:var(--danger); color:white; border:none; border-radius:4px; padding:2px 6px; cursor:pointer;"><i class="fas fa-trash"></i></button></td>
