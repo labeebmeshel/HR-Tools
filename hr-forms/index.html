@@ -1,9 +1,216 @@
-<li class="nav-item">
-    <button class="nav-link" onclick="toggleSubmenu('formsPrintSubmenu')">
-        <i class="fas fa-print"></i> طباعة النماذج ▾
-    </button>
-    <ul class="submenu" id="formsPrintSubmenu">
-        <li><button class="submenu-btn" onclick="loadDropdownPage(event, 'forms-print-frame', 'مركز الطباعة الشامل', this)">مركز الطباعة الشامل</button></li>
-        <li><button class="submenu-btn" onclick="loadDropdownPage(event, 'forms-print-frame', 'إقرار استلام عمل', this)">إقرار استلام عمل</button></li>
-    </ul>
-</li>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Forms Management & Printing System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/print.css">
+    <!-- مكتبة SheetJS لقراءة وتصدير ملفات Excel (.xlsx) حقيقية -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fas fa-file-invoice"></i> منظومة النماذج والطباعة
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <button class="nav-link active" onclick="HR_App.switchTab('dashboard-view', this)">
+                        <i class="fas fa-chart-line"></i> الرئيسية والبيانات
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" onclick="HR_App.switchTab('companies-view', this)">
+                        <i class="fas fa-building"></i> إدارة الشركات والفروع
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" onclick="HR_App.switchTab('employees-view', this)">
+                        <i class="fas fa-users"></i> قاعدة بيانات الموظفين
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" onclick="HR_App.toggleSubmenu('formsPrintSubmenu')">
+                        <i class="fas fa-print"></i> طباعة النماذج ▾
+                    </button>
+                    <ul class="submenu" id="formsPrintSubmenu">
+                        <li><button class="submenu-btn active" onclick="HR_App.switchTab('print-center-view', this)">مركز الطباعة الشامل</button></li>
+                    </ul>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            
+            <!-- Global Company Selector Bar -->
+            <div class="company-selector-bar no-print" style="background: #fff; padding: 15px 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; border-right: 5px solid #0b4fb3;">
+                <div style="display: flex; align-items: center; gap: 15px; flex-grow: 1;">
+                    <i class="fas fa-building-user fa-2x" style="color: #0b4fb3;"></i>
+                    <div>
+                        <strong style="display: block; font-size: 0.9rem; color: #64748b;">الشركة والفرع النشط للعمل والطباعة:</strong>
+                        <div style="display: flex; gap: 10px; margin-top: 5px;">
+                            <select id="globalCompanySelect" class="form-control" style="width: 250px;" onchange="HR_Companies.onGlobalCompanyChange(this.value)">
+                                <option value="">-- اختر الشركة --</option>
+                            </select>
+                            <select id="globalBranchSelect" class="form-control" style="width: 200px;" onchange="HR_Companies.onGlobalBranchChange(this.value)">
+                                <option value="ALL">جميع الفروع</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard View -->
+            <section id="dashboard-view" class="view-panel active">
+                <h2 class="section-title"><i class="fas fa-gauge-high"></i> لوحة الإحصائيات المباشرة</h2>
+                <div class="grid-3">
+                    <div class="stats-card">
+                        <h4>إجمالي الموظفين المسجلين</h4>
+                        <div class="value" id="statEmpCount">0</div>
+                    </div>
+                    <div class="stats-card" style="border-color: #10b981;">
+                        <h4>عدد الشركات</h4>
+                        <div class="value" id="statCompCount">0</div>
+                    </div>
+                    <div class="stats-card" style="border-color: #f59e0b;">
+                        <h4>عدد الفروع المتاحة</h4>
+                        <div class="value" id="statBranchCount">0</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Companies & Branches View -->
+            <section id="companies-view" class="view-panel">
+                <h2 class="section-title"><i class="fas fa-building"></i> إدارة الشركات والفروع</h2>
+                <div class="grid-2">
+                    <div style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <h3 id="compFormTitle" style="margin-bottom: 15px; color: #0b2a5c;">إضافة / تعديل شركة</h3>
+                        <form onsubmit="HR_Companies.saveCompany(event)">
+                            <input type="hidden" id="compId">
+                            <div class="form-group">
+                                <label class="form-label">أسم الشركة *</label>
+                                <input type="text" id="compName" class="form-control" required placeholder="مثال: شركة النور لتوريدات الخضار والفاكهة">
+                            </div>
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <label class="form-label">رقم السجل التجاري</label>
+                                    <input type="text" id="compRegNo" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">رقم البطاقة الضريبية</label>
+                                    <input type="text" id="compTaxNo" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">صاحب العمل / المدير المسؤول</label>
+                                <input type="text" id="compOwner" class="form-control">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">حفظ الشركة</button>
+                        </form>
+                    </div>
+
+                    <div style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <h3 style="margin-bottom: 15px; color: #0b2a5c;">إضافة / تعديل فرع</h3>
+                        <form onsubmit="HR_Companies.saveBranch(event)">
+                            <input type="hidden" id="branchId">
+                            <div class="form-group">
+                                <label class="form-label">اختر الشركة التابع لها الفرع *</label>
+                                <select id="branchCompanySelect" class="form-control" required></select>
+                            </div>
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <label class="form-label">اسم الفرع *</label>
+                                    <input type="text" id="branchName" class="form-control" required placeholder="مثال: فرع العبور">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">الرقم التأميني للفرع</label>
+                                    <input type="text" id="branchInsuranceNo" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان الفرع</label>
+                                <input type="text" id="branchAddress" class="form-control">
+                            </div>
+                            <button type="submit" class="btn btn-success" style="width: 100%;">حفظ الفرع وتسكينه</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Employees Database View -->
+            <section id="employees-view" class="view-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 class="section-title"><i class="fas fa-users"></i> قاعدة بيانات الموظفين</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="HR_Excel.downloadTemplate()">
+                            <i class="fas fa-file-excel"></i> تنزيل قالب Excel (.xlsx)
+                        </button>
+                        <label class="btn btn-success" style="cursor: pointer; margin: 0;">
+                            <i class="fas fa-upload"></i> رفع ملف Excel
+                            <input type="file" accept=".xlsx, .xls" onchange="HR_Excel.importExcel(event)" style="display: none;">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>الكود</th>
+                                <th>اسم الموظف</th>
+                                <th>الرقم القومي</th>
+                                <th>الرقم التأميني</th>
+                                <th>الشركة والفرع</th>
+                                <th>الوظيفة بالتأمينات</th>
+                                <th>الأجر الشامل</th>
+                                <th>طباعة نموذج سريع</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeesTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Print Center View -->
+            <section id="print-center-view" class="view-panel">
+                <h2 class="section-title no-print"><i class="fas fa-print"></i> مركز المعاينة والطباعة الفورية</h2>
+                
+                <div class="grid-3 no-print" style="margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px;">
+                    <div>
+                        <label class="form-label">اختر الموظف:</label>
+                        <select id="printEmployeeSelect" class="form-control" onchange="HR_Print.onSelectChange()"></select>
+                    </div>
+                    <div>
+                        <label class="form-label">اختر النموذج:</label>
+                        <select id="printTemplateSelect" class="form-control" onchange="HR_Print.onSelectChange()"></select>
+                    </div>
+                    <div style="display: flex; align-items: flex-end;">
+                        <button class="btn btn-primary" onclick="HR_Print.executePrint()" style="height: 42px; width: 100%;">
+                            <i class="fas fa-print"></i> طباعة النموذج الآن (A4)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Print Box Area -->
+                <div id="printPreviewBox"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/database.js"></script>
+    <script src="js/companies.js"></script>
+    <script src="js/employees.js"></script>
+    <script src="js/excel.js"></script>
+    <script src="js/print.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
