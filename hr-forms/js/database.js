@@ -12,16 +12,26 @@ const HR_Database = {
     init() {
         if (!localStorage.getItem(DB_KEYS.COMPANIES)) {
             const initialCompanies = [
-                { id: 'COMP-01', name: 'أكاديمية براكسي (PRAXI Academy)', code: 'PRAXI', regNo: '100293' }
+                {
+                    id: 'COMP-01',
+                    name: 'أكاديمية براكسي (PRAXI Academy)',
+                    regNo: '100293',
+                    taxNo: '987-654-321',
+                    insuranceNo: '77889900',
+                    owner: 'أ. د/ لبيب ميشيل',
+                    deputy: 'أ/ نورا سيد الملا',
+                    branches: 'الفرع الرئيسي, فرع مدينة نصر, فرع الإسكندرية',
+                    address: 'القاهرة - مدينة نصر - الشارع الرئيسي'
+                }
             ];
             localStorage.setItem(DB_KEYS.COMPANIES, JSON.stringify(initialCompanies));
         }
 
         if (!localStorage.getItem(DB_KEYS.EMPLOYEES)) {
             const initialEmployees = [
-                { id: 'EMP-001', companyId: 'COMP-01', name: 'أحمد محمد علي', nationalId: '29501011201234', insuranceNo: '123456789', jobTitle: 'أخصائي موارد بشرية', hireDate: '2022-01-15', phone: '01012345678', status: 'Active' },
-                { id: 'EMP-002', companyId: 'COMP-01', name: 'محمود حسن مصطفى', nationalId: '29205121509876', insuranceNo: '987654321', jobTitle: 'محاسب أجور', hireDate: '2023-03-01', phone: '01198765432', status: 'Active' },
-                { id: 'EMP-003', companyId: 'COMP-01', name: 'لبيب ميشيل فؤاد', nationalId: '28809201405566', insuranceNo: '556677889', jobTitle: 'استشاري HR', hireDate: '2021-06-10', phone: '01255667788', status: 'Active' }
+                { id: 'EMP-001', companyId: 'COMP-01', branch: 'فرع مدينة نصر', name: 'أحمد محمد علي', nationalId: '29501011201234', insuranceNo: '123456789', jobTitle: 'أخصائي موارد بشرية', hireDate: '2022-01-15', phone: '01012345678', status: 'Active' },
+                { id: 'EMP-002', companyId: 'COMP-01', branch: 'الفرع الرئيسي', name: 'محمود حسن مصطفى', nationalId: '29205121509876', insuranceNo: '987654321', jobTitle: 'محاسب أجور', hireDate: '2023-03-01', phone: '01198765432', status: 'Active' },
+                { id: 'EMP-003', companyId: 'COMP-01', branch: 'فرع الإسكندرية', name: 'لبيب ميشيل فؤاد', nationalId: '28809201405566', insuranceNo: '556677889', jobTitle: 'استشاري HR', hireDate: '2021-06-10', phone: '01255667788', status: 'Active' }
             ];
             localStorage.setItem(DB_KEYS.EMPLOYEES, JSON.stringify(initialEmployees));
         }
