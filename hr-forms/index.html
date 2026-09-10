@@ -3,214 +3,441 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HR Forms Management & Printing System</title>
+    <title>منظومة إدارة وطباعة النماذج</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/print.css">
-    <!-- مكتبة SheetJS لقراءة وتصدير ملفات Excel (.xlsx) حقيقية -->
+    <!-- مكتبة Excel الرسمية المدمجة -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #0b4fb3;
+            --primary-dark: #0b2a5c;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+
+        .top-bar {
+            background: #fff; padding: 15px 20px; border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-right: 5px solid var(--primary);
+        }
+
+        .view-panel { display: none; }
+        .view-panel.active { display: block; }
+
+        .btn {
+            padding: 8px 16px; border: none; border-radius: 6px;
+            font-weight: bold; cursor: pointer; font-size: 0.88rem;
+            display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-danger { background: var(--danger); color: #fff; }
+
+        .form-control {
+            width: 100%; padding: 8px 12px; border: 1px solid var(--border);
+            border-radius: 6px; outline: none; margin-top: 4px; font-size: 0.9rem;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+
+        .card { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 10px; }
+        .data-table th, .data-table td { padding: 10px; border-bottom: 1px solid var(--border); text-align: right; }
+        .data-table th { background: #f1f5f9; color: var(--primary-dark); }
+
+        /* تنسيق معاينة وطباعة A4 بدون أوراق بيضاء */
+        .print-box {
+            background: #ffffff; width: 210mm; min-height: 297mm;
+            padding: 20mm; margin: 0 auto; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0; position: relative;
+        }
+
+        .word-editor {
+            background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px;
+            padding: 20px; min-height: 280px; font-size: 1.1rem; line-height: 1.8; outline: none;
+        }
+
+        @media print {
+            @page { size: A4 portrait; margin: 0; }
+            html, body { background: #fff !important; padding: 0 !important; margin: 0 !important; }
+            .no-print, .top-bar, .btn { display: none !important; }
+            .print-box { width: 210mm !important; min-height: 297mm !important; padding: 20mm !important; box-shadow: none !important; border: none !important; }
+        }
+    </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <i class="fas fa-file-invoice"></i> منظومة النماذج والطباعة
-            </div>
-            <ul class="nav-menu">
-                <li class="nav-item">
-                    <button class="nav-link active" onclick="HR_App.switchTab('dashboard-view', this)">
-                        <i class="fas fa-chart-line"></i> الرئيسية والبيانات
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" onclick="HR_App.switchTab('companies-view', this)">
-                        <i class="fas fa-building"></i> إدارة الشركات والفروع
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" onclick="HR_App.switchTab('employees-view', this)">
-                        <i class="fas fa-users"></i> قاعدة بيانات الموظفين
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" onclick="HR_App.toggleSubmenu('formsPrintSubmenu')">
-                        <i class="fas fa-print"></i> طباعة النماذج ▾
-                    </button>
-                    <ul class="submenu" id="formsPrintSubmenu">
-                        <li><button class="submenu-btn active" onclick="HR_App.switchTab('print-center-view', this)">مركز الطباعة الشامل</button></li>
-                    </ul>
-                </li>
-            </ul>
-        </aside>
-
-        <!-- Main Workspace -->
-        <main class="main-content">
-            
-            <!-- Global Company Selector Bar -->
-            <div class="company-selector-bar no-print" style="background: #fff; padding: 15px 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; border-right: 5px solid #0b4fb3;">
-                <div style="display: flex; align-items: center; gap: 15px; flex-grow: 1;">
-                    <i class="fas fa-building-user fa-2x" style="color: #0b4fb3;"></i>
-                    <div>
-                        <strong style="display: block; font-size: 0.9rem; color: #64748b;">الشركة والفرع النشط للعمل والطباعة:</strong>
-                        <div style="display: flex; gap: 10px; margin-top: 5px;">
-                            <select id="globalCompanySelect" class="form-control" style="width: 250px;" onchange="HR_Companies.onGlobalCompanyChange(this.value)">
-                                <option value="">-- اختر الشركة --</option>
-                            </select>
-                            <select id="globalBranchSelect" class="form-control" style="width: 200px;" onchange="HR_Companies.onGlobalBranchChange(this.value)">
-                                <option value="ALL">جميع الفروع</option>
-                            </select>
-                        </div>
-                    </div>
+    <!-- شريط الشركة والفرع العضوي -->
+    <div class="top-bar no-print">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <i class="fas fa-building fa-2x" style="color: var(--primary);"></i>
+            <div>
+                <strong>تصفية الموظفين حسب الشركة والفرع:</strong>
+                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                    <select id="globalComp" class="form-control" style="width: 220px;" onchange="filterData()"></select>
+                    <select id="globalBranch" class="form-control" style="width: 180px;" onchange="filterData()"></select>
                 </div>
             </div>
-
-            <!-- Dashboard View -->
-            <section id="dashboard-view" class="view-panel active">
-                <h2 class="section-title"><i class="fas fa-gauge-high"></i> لوحة الإحصائيات المباشرة</h2>
-                <div class="grid-3">
-                    <div class="stats-card">
-                        <h4>إجمالي الموظفين المسجلين</h4>
-                        <div class="value" id="statEmpCount">0</div>
-                    </div>
-                    <div class="stats-card" style="border-color: #10b981;">
-                        <h4>عدد الشركات</h4>
-                        <div class="value" id="statCompCount">0</div>
-                    </div>
-                    <div class="stats-card" style="border-color: #f59e0b;">
-                        <h4>عدد الفروع المتاحة</h4>
-                        <div class="value" id="statBranchCount">0</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Companies & Branches View -->
-            <section id="companies-view" class="view-panel">
-                <h2 class="section-title"><i class="fas fa-building"></i> إدارة الشركات والفروع</h2>
-                <div class="grid-2">
-                    <div style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                        <h3 id="compFormTitle" style="margin-bottom: 15px; color: #0b2a5c;">إضافة / تعديل شركة</h3>
-                        <form onsubmit="HR_Companies.saveCompany(event)">
-                            <input type="hidden" id="compId">
-                            <div class="form-group">
-                                <label class="form-label">أسم الشركة *</label>
-                                <input type="text" id="compName" class="form-control" required placeholder="مثال: شركة النور لتوريدات الخضار والفاكهة">
-                            </div>
-                            <div class="grid-2">
-                                <div class="form-group">
-                                    <label class="form-label">رقم السجل التجاري</label>
-                                    <input type="text" id="compRegNo" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">رقم البطاقة الضريبية</label>
-                                    <input type="text" id="compTaxNo" class="form-control">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">صاحب العمل / المدير المسؤول</label>
-                                <input type="text" id="compOwner" class="form-control">
-                            </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%;">حفظ الشركة</button>
-                        </form>
-                    </div>
-
-                    <div style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                        <h3 style="margin-bottom: 15px; color: #0b2a5c;">إضافة / تعديل فرع</h3>
-                        <form onsubmit="HR_Companies.saveBranch(event)">
-                            <input type="hidden" id="branchId">
-                            <div class="form-group">
-                                <label class="form-label">اختر الشركة التابع لها الفرع *</label>
-                                <select id="branchCompanySelect" class="form-control" required></select>
-                            </div>
-                            <div class="grid-2">
-                                <div class="form-group">
-                                    <label class="form-label">اسم الفرع *</label>
-                                    <input type="text" id="branchName" class="form-control" required placeholder="مثال: فرع العبور">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">الرقم التأميني للفرع</label>
-                                    <input type="text" id="branchInsuranceNo" class="form-control">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">عنوان الفرع</label>
-                                <input type="text" id="branchAddress" class="form-control">
-                            </div>
-                            <button type="submit" class="btn btn-success" style="width: 100%;">حفظ الفرع وتسكينه</button>
-                        </form>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Employees Database View -->
-            <section id="employees-view" class="view-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 class="section-title"><i class="fas fa-users"></i> قاعدة بيانات الموظفين</h2>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-primary" onclick="HR_Excel.downloadTemplate()">
-                            <i class="fas fa-file-excel"></i> تنزيل قالب Excel (.xlsx)
-                        </button>
-                        <label class="btn btn-success" style="cursor: pointer; margin: 0;">
-                            <i class="fas fa-upload"></i> رفع ملف Excel
-                            <input type="file" accept=".xlsx, .xls" onchange="HR_Excel.importExcel(event)" style="display: none;">
-                        </label>
-                    </div>
-                </div>
-
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>الكود</th>
-                                <th>اسم الموظف</th>
-                                <th>الرقم القومي</th>
-                                <th>الرقم التأميني</th>
-                                <th>الشركة والفرع</th>
-                                <th>الوظيفة بالتأمينات</th>
-                                <th>الأجر الشامل</th>
-                                <th>طباعة نموذج سريع</th>
-                            </tr>
-                        </thead>
-                        <tbody id="employeesTableBody"></tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- Print Center View -->
-            <section id="print-center-view" class="view-panel">
-                <h2 class="section-title no-print"><i class="fas fa-print"></i> مركز المعاينة والطباعة الفورية</h2>
-                
-                <div class="grid-3 no-print" style="margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px;">
-                    <div>
-                        <label class="form-label">اختر الموظف:</label>
-                        <select id="printEmployeeSelect" class="form-control" onchange="HR_Print.onSelectChange()"></select>
-                    </div>
-                    <div>
-                        <label class="form-label">اختر النموذج:</label>
-                        <select id="printTemplateSelect" class="form-control" onchange="HR_Print.onSelectChange()"></select>
-                    </div>
-                    <div style="display: flex; align-items: flex-end;">
-                        <button class="btn btn-primary" onclick="HR_Print.executePrint()" style="height: 42px; width: 100%;">
-                            <i class="fas fa-print"></i> طباعة النموذج الآن (A4)
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Print Box Area -->
-                <div id="printPreviewBox"></div>
-            </section>
-
-        </main>
+        </div>
+        <div>
+            <button class="btn btn-primary" onclick="showView('companies-view')"><i class="fas fa-plus"></i> إدارة الشركات والفروع</button>
+            <button class="btn btn-success" onclick="showView('employees-view')"><i class="fas fa-users"></i> الموظفين</button>
+            <button class="btn btn-primary" style="background: var(--primary-dark);" onclick="showView('print-view')"><i class="fas fa-print"></i> مركز الطباعة</button>
+        </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="js/database.js"></script>
-    <script src="js/companies.js"></script>
-    <script src="js/employees.js"></script>
-    <script src="js/excel.js"></script>
-    <script src="js/print.js"></script>
-    <script src="js/app.js"></script>
+    <!-- شاشة إدارة الشركات والفروع -->
+    <section id="companies-view" class="view-panel">
+        <div class="grid-2">
+            <div class="card">
+                <h3><i class="fas fa-building"></i> إضافة / تعديل شركة</h3>
+                <br>
+                <form onsubmit="saveCompany(event)">
+                    <input type="hidden" id="cId">
+                    <label>اسم الشركة:</label>
+                    <input type="text" id="cName" class="form-control" required placeholder="شركة النور لتوريدات الخضار والفاكهة">
+                    <label>السجل التجاري:</label>
+                    <input type="text" id="cReg" class="form-control">
+                    <label>البطاقة الضريبية:</label>
+                    <input type="text" id="cTax" class="form-control">
+                    <label>صاحب العمل / المدير:</label>
+                    <input type="text" id="cOwner" class="form-control">
+                    <br>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">حفظ الشركة</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-code-branch"></i> إضافة / تعديل فرع</h3>
+                <br>
+                <form onsubmit="saveBranch(event)">
+                    <label>الشركة التابع لها:</label>
+                    <select id="bCompId" class="form-control" required></select>
+                    <label>اسم الفرع:</label>
+                    <input type="text" id="bName" class="form-control" required placeholder="فرع العبور">
+                    <label>الرقم التأميني للفرع:</label>
+                    <input type="text" id="bIns" class="form-control">
+                    <label>العنوان:</label>
+                    <input type="text" id="bAddr" class="form-control">
+                    <br>
+                    <button type="submit" class="btn btn-success" style="width: 100%;">حفظ الفرع وتسكينه</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- شاشة الموظفين وقاعدة البيانات -->
+    <section id="employees-view" class="view-panel active">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2><i class="fas fa-users"></i> قاعدة بيانات الموظفين</h2>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" onclick="downloadExcelTemplate()"><i class="fas fa-file-excel"></i> تنزيل قالب Excel</button>
+                    <label class="btn btn-success" style="cursor: pointer;">
+                        <i class="fas fa-upload"></i> رفع Excel
+                        <input type="file" accept=".xlsx, .xls" onchange="importExcel(event)" style="display: none;">
+                    </label>
+                </div>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>كود الموظف</th>
+                        <th>الاسم</th>
+                        <th>الرقم القومي</th>
+                        <th>الرقم التأميني</th>
+                        <th>الشركة والفرع</th>
+                        <th>الوظيفة بالتأمينات</th>
+                        <th>الأجر الشامل</th>
+                        <th>طباعة نموذج سريع</th>
+                    </tr>
+                </thead>
+                <tbody id="empTableBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- شاشة الطباعة والمعاينة -->
+    <section id="print-view" class="view-panel">
+        <div class="card no-print">
+            <div class="grid-3">
+                <div>
+                    <label>اختر الموظف:</label>
+                    <select id="pEmp" class="form-control" onchange="renderPrintPreview()"></select>
+                </div>
+                <div>
+                    <label>اختر النموذج:</label>
+                    <select id="pTmpl" class="form-control" onchange="renderPrintPreview()">
+                        <option value="JOB_ACK">إقرار استلام عمل</option>
+                    </select>
+                </div>
+                <div style="display: flex; align-items: flex-end;">
+                    <button class="btn btn-primary" onclick="window.print()" style="height: 38px; width: 100%;"><i class="fas fa-print"></i> طباعة النموذج الآن (A4)</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="printArea"></div>
+    </section>
+
+    <script>
+        // قاعدة البيانات المدمجة بدون ملفات خارجية
+        let DB = {
+            companies: JSON.parse(localStorage.getItem('HR_COMPANIES')) || [
+                { id: 'C1', name: 'شركة النور لتوريدات الخضار والفاكهة', reg: '100293', tax: '987-654-321', owner: 'أ. د/ لبيب ميشيل' }
+            ],
+            branches: JSON.parse(localStorage.getItem('HR_BRANCHES')) || [
+                { id: 'B1', compId: 'C1', name: 'الفرع الرئيسي - العبور', ins: '77889900', addr: 'العبور' }
+            ],
+            employees: JSON.parse(localStorage.getItem('HR_EMPLOYEES')) || [
+                {
+                    id: 'E1', code: '1001', compId: 'C1', branchId: 'B1', name: 'أحمد محمد علي',
+                    natId: '29501011201234', insNo: '123456789', job: 'مسؤول مشتريات',
+                    insDate: '2022-01-15', salary: '7000'
+                }
+            ]
+        };
+
+        function saveDB() {
+            localStorage.setItem('HR_COMPANIES', JSON.stringify(DB.companies));
+            localStorage.setItem('HR_BRANCHES', JSON.stringify(DB.branches));
+            localStorage.setItem('HR_EMPLOYEES', JSON.stringify(DB.employees));
+        }
+
+        function showView(viewId) {
+            document.querySelectorAll('.view-panel').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            if(viewId === 'employees-view') renderEmployees();
+            if(viewId === 'print-view') populatePrintDropdowns();
+        }
+
+        function populateDropdowns() {
+            const gComp = document.getElementById('globalComp');
+            const bComp = document.getElementById('bCompId');
+            gComp.innerHTML = '<option value="ALL">جميع الشركات</option>';
+            bComp.innerHTML = '<option value="">-- اختر الشركة --</option>';
+
+            DB.companies.forEach(c => {
+                gComp.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                bComp.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            });
+
+            filterBranches();
+        }
+
+        function filterBranches() {
+            const compId = document.getElementById('globalComp').value;
+            const gBranch = document.getElementById('globalBranch');
+            gBranch.innerHTML = '<option value="ALL">جميع الفروع</option>';
+
+            const filtered = compId === 'ALL' ? DB.branches : DB.branches.filter(b => b.compId === compId);
+            filtered.forEach(b => {
+                gBranch.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+            });
+            renderEmployees();
+        }
+
+        function filterData() {
+            filterBranches();
+        }
+
+        function renderEmployees() {
+            const tbody = document.getElementById('empTableBody');
+            tbody.innerHTML = '';
+
+            const cId = document.getElementById('globalComp').value;
+            const bId = document.getElementById('globalBranch').value;
+
+            const list = DB.employees.filter(e => {
+                const matchC = cId === 'ALL' || e.compId === cId;
+                const matchB = bId === 'ALL' || e.branchId === bId;
+                return matchC && matchB;
+            });
+
+            list.forEach(e => {
+                const comp = DB.companies.find(c => c.id === e.compId) || { name: '-' };
+                const branch = DB.branches.find(b => b.id === e.branchId) || { name: '-' };
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${e.code || e.id}</strong></td>
+                        <td>${e.name}</td>
+                        <td><code>${e.natId}</code></td>
+                        <td><code>${e.insNo}</code></td>
+                        <td>${comp.name} (${branch.name})</td>
+                        <td>${e.job}</td>
+                        <td>${e.salary} ج.م</td>
+                        <td>
+                            <button class="btn btn-primary" style="padding: 4px 8px; font-size: 0.75rem;" onclick="quickPrint('${e.id}')">
+                                <i class="fas fa-print"></i> إقرار استلام عمل
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function saveCompany(e) {
+            e.preventDefault();
+            const id = document.getElementById('cId').value || 'C' + Date.now();
+            const compObj = {
+                id,
+                name: document.getElementById('cName').value,
+                reg: document.getElementById('cReg').value,
+                tax: document.getElementById('cTax').value,
+                owner: document.getElementById('cOwner').value
+            };
+
+            const idx = DB.companies.findIndex(c => c.id === id);
+            if (idx > -1) DB.companies[idx] = compObj;
+            else DB.companies.push(compObj);
+
+            saveDB();
+            populateDropdowns();
+            alert('تم حفظ الشركة بنجاح!');
+            e.target.reset();
+        }
+
+        function saveBranch(e) {
+            e.preventDefault();
+            const id = document.getElementById('branchId') ? document.getElementById('branchId').value : 'B' + Date.now();
+            const branchObj = {
+                id,
+                compId: document.getElementById('bCompId').value,
+                name: document.getElementById('bName').value,
+                ins: document.getElementById('bIns').value,
+                addr: document.getElementById('bAddr').value
+            };
+
+            DB.branches.push(branchObj);
+            saveDB();
+            populateDropdowns();
+            alert('تم حفظ الفرع بنجاح!');
+            e.target.reset();
+        }
+
+        function downloadExcelTemplate() {
+            const data = [{
+                "أسم الشركة": "شركة النور لتوريدات الخضار والفاكهة",
+                "أسم الفرع": "الفرع الرئيسي - العبور",
+                "كود الموظف": "1002",
+                "الأسم": "محمود حسن علي",
+                "الرقم التأميني": "987654321",
+                "الوظيفة بالتأمينات": "سائق مبيعات",
+                "الرقم القومي": "29205121509876",
+                "تاريخ التأمين": "2023-03-01",
+                "الأجر الشامل": "6000"
+            }];
+
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "الموظفين");
+            XLSX.writeFile(wb, "Employees_Template.xlsx");
+        }
+
+        function importExcel(evt) {
+            const file = evt.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = new Uint8Array(e.target.result);
+                const wb = XLSX.read(data, { type: 'array' });
+                const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+
+                rows.forEach(r => {
+                    let comp = DB.companies.find(c => c.name === r["أسم الشركة"]) || DB.companies[0];
+                    let branch = DB.branches.find(b => b.name === r["أسم الفرع"]) || DB.branches[0];
+
+                    DB.employees.push({
+                        id: 'E' + Date.now() + Math.floor(Math.random()*10),
+                        code: String(r["كود الموظف"] || ''),
+                        compId: comp ? comp.id : 'C1',
+                        branchId: branch ? branch.id : 'B1',
+                        name: r["الأسم"] || '',
+                        insNo: String(r["الرقم التأميني"] || ''),
+                        job: r["الوظيفة بالتأمينات"] || '',
+                        natId: String(r["الرقم القومي"] || ''),
+                        insDate: r["تاريخ التأمين"] || '',
+                        salary: String(r["الأجر الشامل"] || '')
+                    });
+                });
+
+                saveDB();
+                renderEmployees();
+                alert(`تم استيراد ${rows.length} موظف بنجاح!`);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function populatePrintDropdowns() {
+            const select = document.getElementById('pEmp');
+            select.innerHTML = '';
+            DB.employees.forEach(e => {
+                select.innerHTML += `<option value="${e.id}">${e.name} (${e.natId})</option>`;
+            });
+            renderPrintPreview();
+        }
+
+        function quickPrint(empId) {
+            showView('print-view');
+            document.getElementById('pEmp').value = empId;
+            renderPrintPreview();
+        }
+
+        function renderPrintPreview() {
+            const empId = document.getElementById('pEmp').value;
+            const emp = DB.employees.find(e => e.id === empId);
+            const printArea = document.getElementById('printArea');
+
+            if (!emp) {
+                printArea.innerHTML = '';
+                return;
+            }
+
+            const comp = DB.companies.find(c => c.id === emp.compId) || { name: 'شركة النور لتوريدات الخضار والفاكهة' };
+
+            printArea.innerHTML = `
+                <div class="no-print" style="margin-bottom: 15px; background: #e0f2fe; padding: 10px 15px; border-radius: 6px; font-size: 0.85rem;">
+                    <i class="fas fa-edit"></i> <strong>محرر وورد التفاعلي:</strong> يمكنك الضغط والتعديل المباشر على نص الإقرار أدناه قبل إعطاء أمر الطباعة.
+                </div>
+
+                <div class="print-box">
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <h2 style="font-size: 1.8rem; font-weight: bold; text-decoration: underline;">إقرار إستلام عمل</h2>
+                    </div>
+
+                    <div class="word-editor" contenteditable="true">
+                        أقر وأتعهد أنا <strong>${emp.name}</strong> ، بأني قد إستلمت العمل بشركة <strong>${comp.name}</strong>، بوظيفة <strong>${emp.job}</strong> إعتباراً من <strong>${emp.insDate || 'تاريخ الاستلام'}</strong> .<br><br>
+                        كما أنني أقر بأني لا أعمل حالياً بأية وظيفة سواء كانت حكومية أو خاصة ولا أتقاضى أجراً من أي جهة غير الأجر الذي سوف يصرف لي من الشركة المذكورة كما أنني أقر بأنني لن اقوم بتوصيل بطريقة مباشرة أو غير مباشرة إلى أي جهة أو شركة سواء كانت منافسة أو غير منافسة أي محتوى أو مستندات رسمية أو اية معلومات أكون قد حصلت عليها في نطاق عملي بدون إذن رسمي، كما أنه لا يجوز لي الحصور على صورة من أية مستندات أستلمتها عن طريق عملي بالشركة المذكورة.<br><br>
+                        أقر وأتعهد أنا الموقع أدناه بالإلتزام بالقيام بواجباتي في الشركة والمحافظة على ممتلكاتها وأسرارها وعدم السماح بالتضارب في المصالح معها.<br><br>
+                        كما أقر بأني إتطلعت على لائحة العمل الداخلية وسياسات العمل وأتعهد بالإلتزام بهذه اللوائح إلتزاماُ تاماُ والعمل بموجبها.
+                    </div>
+
+                    <div style="margin-top: 40px; font-size: 1.05rem; line-height: 2;">
+                        <p><strong>المقر بما فيه:</strong></p>
+                        <p>الأسم: <strong>${emp.name}</strong></p>
+                        <p>التوقيع: .........................................</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.onload = function() {
+            populateDropdowns();
+            renderEmployees();
+        };
+    </script>
 </body>
 </html>
