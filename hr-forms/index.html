@@ -24,6 +24,11 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" onclick="HR_App.switchTab('companies-view', this)">
+                        <i class="fas fa-building"></i> إدارة الشركات والفروع
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" onclick="HR_App.switchTab('employees-view', this)">
                         <i class="fas fa-users"></i> قاعدة بيانات الموظفين
                     </a>
@@ -44,21 +49,119 @@
         <!-- Main Workspace -->
         <main class="main-content">
             
+            <!-- Global Company & Branch Selector -->
+            <div class="company-selector-bar" style="background: #fff; padding: 15px 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; border-right: 5px solid #0b4fb3;">
+                <div style="display: flex; align-items: center; gap: 15px; flex-grow: 1;">
+                    <i class="fas fa-building-user fa-2x" style="color: #0b4fb3;"></i>
+                    <div>
+                        <strong style="display: block; font-size: 0.9rem; color: #64748b;">الشركة والفرع النشط حالياً للعمل والطباعة:</strong>
+                        <div style="display: flex; gap: 10px; margin-top: 5px;">
+                            <select id="globalCompanySelect" class="form-control" style="width: 250px;" onchange="HR_Companies.onGlobalCompanyChange(this.value)">
+                                <option value="">-- اختر الشركة --</option>
+                            </select>
+                            <select id="globalBranchSelect" class="form-control" style="width: 200px;" onchange="HR_Companies.onGlobalBranchChange(this.value)">
+                                <option value="ALL">جميع الفروع / المركز الرئيسي</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <button class="btn btn-primary" onclick="HR_App.switchTab('companies-view')"><i class="fas fa-plus"></i> إضافة / تعديل شركة</button>
+                </div>
+            </div>
+
             <!-- Dashboard View -->
             <section id="dashboard-view" class="view-panel active">
-                <h2 class="section-title"><i class="fas fa-gauge-high"></i> لوحة الإحصائيات المباشرة</h2>
+                <h2 class="section-title"><i class="fas fa-gauge-high"></i> لوحة الإحصائيات والملخص</h2>
                 <div class="grid-3">
                     <div class="stats-card">
-                        <h4>إجمالي الموظفين</h4>
+                        <h4>إجمالي الموظفين (بالشركة المحددة)</h4>
                         <div class="value" id="statEmpCount">0</div>
                     </div>
                     <div class="stats-card" style="border-color: var(--success-color);">
-                        <h4>الشركات المعتمدة</h4>
+                        <h4>إجمالي الشركات</h4>
                         <div class="value" id="statCompCount">0</div>
                     </div>
                     <div class="stats-card" style="border-color: var(--warning-color);">
-                        <h4>النماذج الجاهزة</h4>
-                        <div class="value" id="statTmplCount">0</div>
+                        <h4>عدد الفروع المتاحة</h4>
+                        <div class="value" id="statBranchCount">0</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Companies & Branches View -->
+            <section id="companies-view" class="view-panel">
+                <h2 class="section-title"><i class="fas fa-building"></i> إدارة بيانات الشركات والفروع</h2>
+                <div class="grid-2">
+                    <!-- Form Card -->
+                    <div style="background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                        <h3 id="compFormTitle" style="margin-bottom: 15px; color: #0b2a5c;"><i class="fas fa-plus-circle"></i> إضافة / تعديل شركة</h3>
+                        <form id="companyForm" onsubmit="HR_Companies.saveCompany(event)">
+                            <input type="hidden" id="compId">
+                            
+                            <div class="form-group">
+                                <label class="form-label">أسم الشركة الكامل *</label>
+                                <input type="text" id="compName" class="form-control" required placeholder="مثال: شركة أكاديمية براكسي للتدريب">
+                            </div>
+
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <label class="form-label">رقم السجل التجاري *</label>
+                                    <input type="text" id="compRegNo" class="form-control" required placeholder="100293">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">رقم البطاقة الضريبية *</label>
+                                    <input type="text" id="compTaxNo" class="form-control" required placeholder="987-654-321">
+                                </div>
+                            </div>
+
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <label class="form-label">الرقم التأميني للشركة *</label>
+                                    <input type="text" id="compInsuranceNo" class="form-control" required placeholder="77889900">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">صاحب العمل *</label>
+                                    <input type="text" id="compOwner" class="form-control" required placeholder="أ. د/ لبيب ميشيل">
+                                </div>
+                            </div>
+
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <label class="form-label">نائب صاحب العمل / المدير المسؤول</label>
+                                    <input type="text" id="compDeputy" class="form-control" placeholder="أ/ نورا سيد الملا">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">الفروع (تفصل بينها بفصلة ,)</label>
+                                    <input type="text" id="compBranches" class="form-control" placeholder="الفرع الرئيسي, فرع مدينة نصر, فرع الإسكندرية">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">العنوان التفصيلي للمقر الرئيسي</label>
+                                <input type="text" id="compAddress" class="form-control" placeholder="القاهرة - مدينة نصر - الشارع الرئيسي">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;"><i class="fas fa-save"></i> حفظ بيانات الشركة والفروع</button>
+                            <button type="button" class="btn btn-secondary" onclick="HR_Companies.resetForm()" style="width: 100%; margin-top: 5px;">إلغاء / جديد</button>
+                        </form>
+                    </div>
+
+                    <!-- Companies List Table -->
+                    <div class="table-container" style="margin-top: 0;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>أسم الشركة</th>
+                                    <th>السجل التجاري</th>
+                                    <th>الرقم التأميني</th>
+                                    <th>صاحب العمل</th>
+                                    <th>الفروع</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="companiesTableBody"></tbody>
+                        </table>
                     </div>
                 </div>
             </section>
@@ -86,6 +189,7 @@
                                 <th>الرقم القومي</th>
                                 <th>الرقم التأميني</th>
                                 <th>الشركة</th>
+                                <th>الفرع</th>
                                 <th>الوظيفة</th>
                                 <th>تاريخ التعيين</th>
                                 <th>الإجراءات</th>
@@ -100,13 +204,17 @@
             <section id="print-center-view" class="view-panel">
                 <h2 class="section-title"><i class="fas fa-print"></i> مركز الطباعة وإخراج النماذج الرسمي</h2>
                 
-                <div class="grid-2 no-print" style="margin-bottom: 20px;">
+                <div class="grid-3 no-print" style="margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px;">
+                    <div>
+                        <label class="form-label">اختر الموظف:</label>
+                        <select id="printEmployeeSelect" class="form-control" onchange="HR_Print.onSelectChange()"></select>
+                    </div>
                     <div>
                         <label class="form-label">اختر النموذج المطلوب:</label>
-                        <select id="printTemplateSelect" class="form-control" onchange="HR_Print.generatePreview('EMP-001', this.value, 'printPreviewBox')"></select>
+                        <select id="printTemplateSelect" class="form-control" onchange="HR_Print.onSelectChange()"></select>
                     </div>
                     <div style="display: flex; align-items: flex-end; gap: 10px;">
-                        <button class="btn btn-primary" onclick="HR_Print.executePrint()">
+                        <button class="btn btn-primary" onclick="HR_Print.executePrint()" style="height: 42px;">
                             <i class="fas fa-print"></i> طباعة النموذج الآن (A4)
                         </button>
                     </div>
@@ -128,6 +236,7 @@
     <!-- Core App Scripts -->
     <script src="js/database.js"></script>
     <script src="js/validation.js"></script>
+    <script src="js/companies.js"></script>
     <script src="js/employees.js"></script>
     <script src="js/templates.js"></script>
     <script src="js/excel.js"></script>
