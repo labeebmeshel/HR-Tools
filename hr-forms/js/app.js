@@ -1,7 +1,8 @@
-// Application UI Controller & Navigation
+// Main Application Controller
 document.addEventListener('DOMContentLoaded', () => {
+    HR_Companies.init();
     HR_Employees.renderList('employeesTableBody');
-    HR_Templates.renderDropdown('printTemplateSelect');
+    HR_Print.init();
     HR_App.renderStats();
 });
 
@@ -18,10 +19,15 @@ const HR_App = {
     renderStats() {
         const employees = HR_Database.get(DB_KEYS.EMPLOYEES);
         const companies = HR_Database.get(DB_KEYS.COMPANIES);
-        const templates = HR_Database.get(DB_KEYS.TEMPLATES);
+        
+        const activeCompId = localStorage.getItem('ACTIVE_COMPANY_ID') || (companies[0] ? companies[0].id : '');
+        const activeComp = companies.find(c => c.id === activeCompId);
 
-        document.getElementById('statEmpCount').innerText = employees.length;
+        const filteredEmp = employees.filter(e => !activeCompId || e.companyId === activeCompId);
+        const branchesCount = activeComp && activeComp.branches ? activeComp.branches.split(',').length : 1;
+
+        document.getElementById('statEmpCount').innerText = filteredEmp.length;
         document.getElementById('statCompCount').innerText = companies.length;
-        document.getElementById('statTmplCount').innerText = templates.length;
+        document.getElementById('statBranchCount').innerText = branchesCount;
     }
 };
