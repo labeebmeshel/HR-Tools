@@ -26,7 +26,7 @@
 
         .app-layout { display: flex; gap: 15px; min-height: 95vh; }
 
-        /* القائمة الجانبية المنسدلة */
+        /* القائمة الجانبية */
         .side-menu {
             width: 260px; background: var(--primary-dark); color: #fff;
             border-radius: 12px; padding: 15px 10px; flex-shrink: 0;
@@ -53,7 +53,7 @@
 
         .workspace { flex: 1; overflow-y: auto; }
 
-        /* شريط التسلسل والفلترة الثلاثي */
+        /* شريط التصفية المترابط */
         .top-filter-bar {
             background: #fff; padding: 12px 18px; border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 15px;
@@ -72,6 +72,7 @@
         .btn-primary:hover { background: var(--primary-dark); }
         .btn-success { background: var(--success); color: #fff; }
         .btn-warning { background: var(--warning); color: #fff; }
+        .btn-danger { background: var(--danger); color: #fff; }
 
         .form-control {
             width: 100%; padding: 7px 10px; border: 1px solid var(--border);
@@ -87,18 +88,27 @@
         .data-table th, .data-table td { padding: 8px 10px; border: 1px solid var(--border); text-align: right; }
         .data-table th { background: #f1f5f9; color: var(--primary-dark); font-weight: bold; }
 
-        /* ورقة A4 للطباعة */
+        /* ورقة A4 للطباعة المقاسة */
         .a4-page {
             background: #ffffff; width: 210mm; min-height: 297mm; padding: 15mm 20mm;
             margin: 0 auto 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); border: 1px solid var(--border);
             position: relative; box-sizing: border-box; font-size: 13px; line-height: 1.6;
-            page-break-after: always;
+            page-break-after: always; display: flex; flex-direction: column; justify-content: space-between;
         }
 
         .official-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
         .official-table td, .official-table th { border: 1px solid #000; padding: 6px; text-align: center; }
 
-        /* قواعد الطباعة الصارمة المصلحة */
+        /* محاذاة الهيدر واللوجو */
+        .doc-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
+        .doc-header.logo-right { flex-direction: row-reverse; }
+        .doc-header.logo-center { flex-direction: column; text-align: center; }
+
+        .doc-footer { border-top: 1px solid #000; padding-top: 8px; font-size: 10px; text-align: center; margin-top: 20px; }
+
+        .signatures-grid { display: flex; justify-content: space-between; margin-top: 35px; gap: 15px; flex-wrap: wrap; }
+        .sig-box { text-align: center; flex: 1; min-width: 120px; }
+
         @media print {
             @page { size: A4 portrait; margin: 0; }
             html, body { background: #fff !important; padding: 0 !important; margin: 0 !important; width: 210mm !important; }
@@ -112,9 +122,9 @@
 <body>
 
     <div class="app-layout">
-        <!-- القائمة الجانبية اليمنى المنسدلة -->
+        <!-- القائمة الجانبية -->
         <aside class="side-menu no-print">
-            <div class="menu-title"><i class="fas fa-file-invoice"></i> إدارة الطباعة والنماذج</div>
+            <div class="menu-title"><i class="fas fa-file-invoice"></i> إدارة النماذج والطباعة</div>
             <ul style="padding: 0;">
                 <li class="nav-item">
                     <button class="nav-btn" onclick="toggleSubmenu('formsPrintSubmenu')">
@@ -122,7 +132,7 @@
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <ul class="submenu active" id="formsPrintSubmenu">
-                        <li><button class="submenu-btn active" onclick="showView('print-view', this)"><i class="fas fa-desktop"></i> مركز الطباعة المعاينة</button></li>
+                        <li><button class="submenu-btn active" onclick="showView('print-view', this)"><i class="fas fa-desktop"></i> مركز الطباعة الشامل</button></li>
                         <li><button class="submenu-btn" onclick="quickPrintTemplate('JOB_ACK', this)"><i class="fas fa-file-signature"></i> إقرار استلام عمل</button></li>
                         <li><button class="submenu-btn" onclick="quickPrintTemplate('WAGE_SCALE', this)"><i class="fas fa-chart-line"></i> صحيفة تدرج الأجور</button></li>
                         <li><button class="submenu-btn" onclick="quickPrintTemplate('OFFICIAL_HOLIDAYS', this)"><i class="fas fa-calendar-check"></i> صحيفة الإجازات الرسمية</button></li>
@@ -130,6 +140,11 @@
                         <li><button class="submenu-btn" onclick="quickPrintTemplate('PENALTIES_LOG', this)"><i class="fas fa-gavel"></i> صحيفة الجزاءات</button></li>
                         <li><button class="submenu-btn" onclick="quickPrintTemplate('SOCIAL_STATUS', this)"><i class="fas fa-users-viewfinder"></i> صحيفة الحالة الاجتماعية</button></li>
                     </ul>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-btn" onclick="showView('design-view', this)">
+                        <span><i class="fas fa-paint-brush"></i> تصميم الهيدر والتوقيعات</span>
+                    </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-btn" onclick="showView('companies-view', this)">
@@ -144,33 +159,84 @@
             </ul>
         </aside>
 
-        <!-- مساحة العمل والصفحات -->
+        <!-- مساحة العمل -->
         <main class="workspace">
             
-            <!-- شريط التسلسل والفلترة المترابط: User -> Company -> Branch -->
+            <!-- شريط الفلترة التسلسلي: اليوزر -> الشركة -> الفرع -->
             <div class="top-filter-bar no-print">
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                    <i class="fas fa-filter fa-lg" style="color: var(--primary);"></i>
+                    <i class="fas fa-user-shield fa-lg" style="color: var(--primary);"></i>
                     <div>
-                        <small style="font-weight: bold; color: #64748b;">1. اختر اليوزر:</small>
+                        <small style="font-weight: bold; color: #64748b;">1. يوزر النظام (User):</small>
                         <select id="filterUserSelect" class="form-control" style="width: 170px;" onchange="onUserFilterChange()"></select>
                     </div>
                     <div>
-                        <small style="font-weight: bold; color: #64748b;">2. اختر الشركة:</small>
+                        <small style="font-weight: bold; color: #64748b;">2. الشركة التابعة:</small>
                         <select id="filterCompSelect" class="form-control" style="width: 200px;" onchange="onCompanyFilterChange()"></select>
                     </div>
                     <div>
-                        <small style="font-weight: bold; color: #64748b;">3. اختر الفرع:</small>
+                        <small style="font-weight: bold; color: #64748b;">3. الفرع:</small>
                         <select id="filterBranchSelect" class="form-control" style="width: 170px;" onchange="renderEmployees()"></select>
                     </div>
                 </div>
             </div>
 
-            <!-- 1. شاشة إدارة الشركات والفروع وتسكينها تحت اليوزر -->
+            <!-- 1. شاشة تخصيص الهيدر، الفوتر، اللوجو والتوقيعات -->
+            <section id="design-view" class="view-panel">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3><i class="fas fa-heading"></i> إعدادات الترويسة (Header) والتذييل (Footer)</h3>
+                        <br>
+                        <form onsubmit="saveDesignConfig(event)">
+                            <label>نص الهيدر العلوي (اسم المنشأة/الشركة):</label>
+                            <input type="text" id="cfgHeaderText" class="form-control" placeholder="شركة النور لتوريدات الخضار والفاكهة - ش.م.م">
+                            
+                            <label>شعار الشركة (اللوجو):</label>
+                            <input type="file" id="cfgLogoFile" accept="image/*" class="form-control" onchange="previewLogoUpload(event)">
+                            
+                            <div class="grid-2">
+                                <div>
+                                    <label>موقع اللوجو بالنموذج:</label>
+                                    <select id="cfgLogoPosition" class="form-control">
+                                        <option value="left">يسار الهيدر</option>
+                                        <option value="right">يمين الهيدر</option>
+                                        <option value="center">منتصف الهيدر</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>ارتفاع اللوجو (بالميليمتر):</label>
+                                    <input type="number" id="cfgLogoHeight" class="form-control" value="20" min="10" max="50">
+                                </div>
+                            </div>
+
+                            <label>نص الفوتر السفلي (عنوان الشركة/التليفون/السجل):</label>
+                            <input type="text" id="cfgFooterText" class="form-control" placeholder="العبور - المنطقة الصناعية | تليفون: 01012345678 | س.ت: 100293">
+
+                            <br>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-save"></i> حفظ تصميم الهيدر واللوجو</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-signature"></i> التحكم بديناميكية التوقيعات والاعتمادات</h3>
+                        <br>
+                        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 10px;">قم بإضافة مسميات الأشخاص المسئولين عن التوقيع بأسفل كل نموذج:</p>
+                        
+                        <div id="signaturesList"></div>
+                        <br>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="newSigTitle" class="form-control" placeholder="مثال: مدير الموارد البشرية">
+                            <button class="btn btn-success" type="button" onclick="addSignatureTitle()"><i class="fas fa-plus"></i> إضافة</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. شاشة الشركات والفروع والتسكين تحت اليوزر -->
             <section id="companies-view" class="view-panel">
                 <div class="grid-2">
                     <div class="card">
-                        <h3><i class="fas fa-building"></i> إضافة / تعديل شركة تحت مستخدم</h3>
+                        <h3><i class="fas fa-building"></i> إضافة / تعديل شركة وتسكينها</h3>
                         <br>
                         <form onsubmit="saveCompany(event)">
                             <input type="hidden" id="cId">
@@ -217,11 +283,11 @@
 
                     <div class="card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <h3><i class="fas fa-code-branch"></i> إدارة الفروع وتسكينها</h3>
+                            <h3><i class="fas fa-code-branch"></i> إدارة الفروع</h3>
                             <div>
                                 <button class="btn btn-primary" onclick="downloadCompaniesTemplate()"><i class="fas fa-file-excel"></i> قالب الشركات</button>
                                 <label class="btn btn-success" style="cursor: pointer; margin: 0;">
-                                    <i class="fas fa-upload"></i> رفع الشركات
+                                    <i class="fas fa-upload"></i> رفع Excel
                                     <input type="file" accept=".xlsx, .xls" onchange="importCompaniesExcel(event)" style="display: none;">
                                 </label>
                             </div>
@@ -249,13 +315,13 @@
                 </div>
             </section>
 
-            <!-- 2. شاشة الموظفين والطباعة الجماعية -->
+            <!-- 3. شاشة الموظفين والطباعة الجماعية -->
             <section id="employees-view" class="view-panel">
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
                         <h2><i class="fas fa-users"></i> قاعدة بيانات الموظفين</h2>
                         <div style="display: flex; gap: 8px;">
-                            <button class="btn btn-warning" onclick="executeBulkPrint()"><i class="fas fa-print"></i> طباعة النماذج المحددة للموظفين المحددين</button>
+                            <button class="btn btn-warning" onclick="executeBulkPrint()"><i class="fas fa-print"></i> طباعة النماذج المحددة</button>
                             <button class="btn btn-primary" onclick="downloadEmployeesTemplate()"><i class="fas fa-file-excel"></i> قالب الموظفين (.xlsx)</button>
                             <label class="btn btn-success" style="cursor: pointer; margin: 0;">
                                 <i class="fas fa-upload"></i> رفع Excel الموظفين
@@ -264,7 +330,6 @@
                         </div>
                     </div>
 
-                    <!-- اختيار النماذج المتعددة المطلوبة للطباعة الجماعية -->
                     <div style="background: #f1f5f9; padding: 10px 15px; border-radius: 8px; margin-bottom: 12px;">
                         <strong style="display: block; margin-bottom: 6px; color: var(--primary-dark);">اختر النماذج المراد طباعتها للموظفين المحددين بالجدول:</strong>
                         <div style="display: flex; gap: 15px; flex-wrap: wrap; font-size: 0.85rem;">
@@ -298,7 +363,7 @@
                 </div>
             </section>
 
-            <!-- 3. شاشة المعاينة والطباعة الفردية والجماعية -->
+            <!-- 4. شاشة المعاينة والطباعة الشاملة -->
             <section id="print-view" class="view-panel active">
                 <div class="card no-print">
                     <div class="grid-3">
@@ -323,7 +388,6 @@
                     </div>
                 </div>
 
-                <!-- مساحة الطباعة المنفصلة التراكمية -->
                 <div id="printArea"></div>
             </section>
 
@@ -331,11 +395,11 @@
     </div>
 
     <script>
-        // المحافظة الحية على البيانات مع المزامنة
+        // مزامنة يوزرات الجدول بالصورة (Orbis و admin)
         let DB = {
             users: JSON.parse(localStorage.getItem('HR_USERS')) || [
-                { id: 'admin', name: 'مدير النظام (Admin)' },
-                { id: 'user_praxi', name: 'يوزر الشركات (PRAXI)' }
+                { id: 'admin', name: 'admin (مدير النظام)' },
+                { id: 'Orbis', name: 'Orbis (مستخدم)' }
             ],
             companies: JSON.parse(localStorage.getItem('HR_COMPANIES')) || [
                 { id: 'C1', userId: 'admin', name: 'شركة النور لتوريدات الخضار والفاكهة', reg: '100293', tax: '987-654-321', ins: '1740500', owner: 'أ. د/ لبيب ميشيل', deputy: 'أ/ نورا سيد الملا', addr: 'القاهرة - مدينة نصر' }
@@ -350,7 +414,15 @@
                     street: 'شارع الجيش', section: 'العبور', governorate: 'القليوبية', phone: '01012345678',
                     nationality: 'مصري', qualification: 'مؤهل متوسط', insDate: '2021-09-30', insuredSalary: '3000', grossSalary: '6000'
                 }
-            ]
+            ],
+            design: JSON.parse(localStorage.getItem('HR_DESIGN')) || {
+                headerText: 'شركة النور لتوريدات الخضار والفاكهة',
+                footerText: 'العبور - المنطقة الصناعية | تليفون: 01012345678 | سجل تجاري: 100293',
+                logoDataUrl: '',
+                logoPosition: 'left',
+                logoHeight: 20,
+                signatures: ['رئيس القسم', 'مدير إداري', 'المقر بما فيه']
+            }
         };
 
         function saveDB() {
@@ -358,6 +430,7 @@
             localStorage.setItem('HR_COMPANIES', JSON.stringify(DB.companies));
             localStorage.setItem('HR_BRANCHES', JSON.stringify(DB.branches));
             localStorage.setItem('HR_EMPLOYEES', JSON.stringify(DB.employees));
+            localStorage.setItem('HR_DESIGN', JSON.stringify(DB.design));
         }
 
         function toggleSubmenu(id) {
@@ -375,15 +448,15 @@
 
             if(viewId === 'employees-view') renderEmployees();
             if(viewId === 'print-view') populatePrintDropdowns();
+            if(viewId === 'design-view') renderDesignForm();
         }
 
-        // تهيئة وحشو فلاتر التسلسل (User -> Company -> Branch)
         function initFilterSequence() {
             const uSelect = document.getElementById('filterUserSelect');
             const cUserSelect = document.getElementById('cUserSelect');
             
-            uSelect.innerHTML = '<option value="ALL">جميع اليوزرات</option>';
-            cUserSelect.innerHTML = '<option value="">-- اختر اليوزر --</option>';
+            uSelect.innerHTML = '<option value="ALL">جميع المستخدمين</option>';
+            cUserSelect.innerHTML = '<option value="">-- اختر المستخدم --</option>';
 
             DB.users.forEach(u => {
                 uSelect.innerHTML += `<option value="${u.id}">${u.name}</option>`;
@@ -470,6 +543,64 @@
             document.querySelectorAll('.emp-select-check').forEach(c => c.checked = masterCheck.checked);
         }
 
+        // إعدادات التصميم والتوقيعات
+        function renderDesignForm() {
+            document.getElementById('cfgHeaderText').value = DB.design.headerText || '';
+            document.getElementById('cfgFooterText').value = DB.design.footerText || '';
+            document.getElementById('cfgLogoPosition').value = DB.design.logoPosition || 'left';
+            document.getElementById('cfgLogoHeight').value = DB.design.logoHeight || 20;
+            renderSignaturesList();
+        }
+
+        function previewLogoUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    DB.design.logoDataUrl = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function saveDesignConfig(e) {
+            e.preventDefault();
+            DB.design.headerText = document.getElementById('cfgHeaderText').value;
+            DB.design.footerText = document.getElementById('cfgFooterText').value;
+            DB.design.logoPosition = document.getElementById('cfgLogoPosition').value;
+            DB.design.logoHeight = document.getElementById('cfgLogoHeight').value;
+            saveDB();
+            alert('تم حفظ إعدادات الهيدر واللوجو بنجاح!');
+        }
+
+        function renderSignaturesList() {
+            const container = document.getElementById('signaturesList');
+            container.innerHTML = '';
+            DB.design.signatures.forEach((sig, index) => {
+                container.innerHTML += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 5px;">
+                        <span><strong>توقيع ${index + 1}:</strong> ${sig}</span>
+                        <button class="btn btn-danger" style="padding: 2px 6px;" onclick="removeSignatureTitle(${index})"><i class="fas fa-trash"></i></button>
+                    </div>`;
+            });
+        }
+
+        function addSignatureTitle() {
+            const input = document.getElementById('newSigTitle');
+            if (input.value.trim()) {
+                DB.design.signatures.push(input.value.trim());
+                saveDB();
+                renderSignaturesList();
+                input.value = '';
+            }
+        }
+
+        function removeSignatureTitle(index) {
+            DB.design.signatures.splice(index, 1);
+            saveDB();
+            renderSignaturesList();
+        }
+
         function saveCompany(e) {
             e.preventDefault();
             const id = document.getElementById('cId').value || 'C' + Date.now();
@@ -491,7 +622,7 @@
 
             saveDB();
             initFilterSequence();
-            alert('تم حفظ بيانات الشركة وتسكينها تحت المستخدم بنجاح!');
+            alert('تم حفظ الشركة وتسكينها تحت المستخدم!');
             e.target.reset();
         }
 
@@ -508,7 +639,7 @@
             DB.branches.push(branchObj);
             saveDB();
             initFilterSequence();
-            alert('تم إضافة الفرع وتسكينه بنجاح!');
+            alert('تم إضافة الفرع بنجاح!');
             e.target.reset();
         }
 
@@ -573,7 +704,7 @@
 
                 saveDB();
                 initFilterSequence();
-                alert(`تم تثبيت ${rows.length} شركة وفرع بنجاح!`);
+                alert(`تم استيراد ${rows.length} شركة وفرع بنجاح!`);
             };
             reader.readAsArrayBuffer(file);
         }
@@ -683,17 +814,16 @@
             renderPrintPreview();
         }
 
-        // طباعة جماعية متعددة للموظفين المحددين بالـ Checkboxes والنماذج المحددة
         function executeBulkPrint() {
             const selectedEmpIds = Array.from(document.querySelectorAll('.emp-select-check:checked')).map(c => c.value);
             const selectedTmplKeys = Array.from(document.querySelectorAll('.bulk-tmpl-check:checked')).map(c => c.value);
 
             if (selectedEmpIds.length === 0) {
-                alert('يرجى تحديد موظف واحد على الأقل من الجدول للطباعة الجماعية!');
+                alert('يرجى تحديد موظف واحد على الأقل من الجدول!');
                 return;
             }
             if (selectedTmplKeys.length === 0) {
-                alert('يرجى اختيار نموذج واحد على الأقل من مربعات الاختيار بال الأعلى!');
+                alert('يرجى اختيار نموذج واحد على الأقل من القائمة بال أعلى!');
                 return;
             }
 
@@ -723,7 +853,7 @@
             printArea.innerHTML = buildFormHTML(empId, tmplKey);
         }
 
-        // منشئ الهيكل الإلكتروني للنماذج الرسمية
+        // بناء الهيكل مع الهيدر والتوقيعات والفوتر
         function buildFormHTML(empId, tmplKey) {
             const emp = DB.employees.find(e => e.id === empId);
             if (!emp) return '';
@@ -731,157 +861,173 @@
             const comp = DB.companies.find(c => c.id === emp.compId) || { name: 'شركة النور لتوريدات الخضار والفاكهة' };
             const branch = DB.branches.find(b => b.id === emp.branchId) || { name: 'المركز الرئيسي' };
 
-            let html = '';
+            const logoImg = DB.design.logoDataUrl ? `<img src="${DB.design.logoDataUrl}" style="height: ${DB.design.logoHeight || 20}mm;">` : '';
+            const headerTitle = DB.design.headerText || comp.name;
+
+            const headerHTML = `
+                <div class="doc-header logo-${DB.design.logoPosition || 'left'}">
+                    <div>
+                        <h2 style="font-size: 1.3rem; margin: 0;">${headerTitle}</h2>
+                        <small style="color: #475569;">فرع: ${branch.name}</small>
+                    </div>
+                    ${logoImg}
+                </div>`;
+
+            const footerHTML = `
+                <div class="doc-footer">
+                    ${DB.design.footerText || 'منظومة إدارة وطباعة النماذج الرسمية'}
+                </div>`;
+
+            let sigsHTML = '<div class="signatures-grid">';
+            DB.design.signatures.forEach(sig => {
+                sigsHTML += `
+                    <div class="sig-box">
+                        <p><strong>${sig}</strong></p>
+                        <p style="margin-top: 25px;">............................</p>
+                    </div>`;
+            });
+            sigsHTML += '</div>';
+
+            let bodyContent = '';
 
             if (tmplKey === 'JOB_ACK') {
-                html = `
-                    <div class="a4-page">
-                        <div style="text-align: center; margin-bottom: 25px;">
-                            <h2 style="font-size: 1.8rem; font-weight: bold; text-decoration: underline;">إقرار إستلام عمل</h2>
-                        </div>
-                        <div style="font-size: 1.15rem; line-height: 2; text-align: justify;" contenteditable="true">
-                            أقر وأتعهد أنا <strong>${emp.name}</strong> ، بأني قد إستلمت العمل بشركة <strong>${comp.name}</strong>، بوظيفة <strong>${emp.job}</strong> إعتباراً من <strong>${emp.insDate || 'تاريخ الاستلام'}</strong> .<br><br>
-                            كما أنني أقر بأني لا أعمل حالياً بأية وظيفة سواء كانت حكومية أو خاصة ولا أتقاضى أجراً من أي جهة غير الأجر الذي سوف يصرف لي من الشركة المذكورة كما أنني أقر بأنني لن اقوم بتوصيل بطريقة مباشرة أو غير مباشرة إلى أي جهة أو شركة سواء كانت منافسة أو غير منافسة أي محتوى أو مستندات رسمية أو اية معلومات أكون قدحصلت عليها في نطاق عملي بدون إذن رسمي، كما أنه لا يجوز لي الحصور على صورة من أية مستندات أستلمتها عن طريق عملي بالشركة المذكورة.<br><br>
-                            أقر وأتعهد أنا الموقع أدناه بالإلتزام بالقيام بواجباتي في الشركة والمحافظة على ممتلكاتها وأسرارها وعدم السماح بالتضارب في المصالح معها.<br><br>
-                            كما أقر بأني إتطلعت على لائحة العمل الداخلية وسياسات العمل وأتعهد بالإلتزام بهذه اللوائح إلتزاماُ تاماُ والعمل بموجبها.
-                        </div>
-                        <div style="margin-top: 40px; font-size: 1.05rem; line-height: 2;">
-                            <p><strong>المقر بما فيه:</strong></p>
-                            <p>الأسم: <strong>${emp.name}</strong></p>
-                            <p>التوقيع: .........................................</p>
-                        </div>
+                bodyContent = `
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="font-size: 1.6rem; font-weight: bold; text-decoration: underline;">إقرار إستلام عمل</h2>
+                    </div>
+                    <div style="font-size: 1.1rem; line-height: 2; text-align: justify;" contenteditable="true">
+                        أقر وأتعهد أنا <strong>${emp.name}</strong> ، بأني قد إستلمت العمل بشركة <strong>${comp.name}</strong>، بوظيفة <strong>${emp.job}</strong> إعتباراً من <strong>${emp.insDate || 'تاريخ الاستلام'}</strong> .<br><br>
+                        كما أنني أقر بأني لا أعمل حالياً بأية وظيفة سواء كانت حكومية أو خاصة ولا أتقاضى أجراً من أي جهة غير الأجر الذي سوف يصرف لي من الشركة المذكورة كما أنني أقر بأنني لن اقوم بتوصيل بطريقة مباشرة أو غير مباشرة إلى أي جهة أو شركة سواء كانت منافسة أو غير منافسة أي محتوى أو مستندات رسمية أو اية معلومات أكون قد حصلت عليها في نطاق عملي بدون إذن رسمي.<br><br>
+                        أقر وأتعهد أنا الموقع أدناه بالإلتزام بالقيام بواجباتي في الشركة والمحافظة على ممتلكاتها وأسرارها.
                     </div>`;
             }
             else if (tmplKey === 'WAGE_SCALE') {
-                html = `
-                    <div class="a4-page">
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <h3>صحيفة تدرج الأجور</h3>
-                            <p style="font-size: 11px;">طبقاً للقرار الوزاري رقم 185 لسنة 2003 المنفذ لقانون العمل رقم 12 لسنة 2003</p>
-                        </div>
-                        <table style="width: 100%; font-size: 12px; margin-bottom: 10px;">
-                            <tr><td>أسـم المنشـأة: <strong>${comp.name}</strong></td><td>رقم قيد العامل بالسجل: <strong>${emp.code || emp.id}</strong></td></tr>
-                            <tr><td>أسـم العامـل: <strong>${emp.name}</strong></td><td>رقمه التأميني: <strong>${emp.insNo}</strong></td></tr>
-                            <tr><td colspan="2">أجره عند إلحاقه بالعمل: <strong>${emp.insuredSalary || emp.grossSalary} ج.م</strong></td></tr>
-                        </table>
-                        <table class="official-table">
-                            <thead>
-                                <tr><th>م</th><th>الأجر قبل الزيادة</th><th>الأجر بعد الزيادة</th><th>مقدار الزيادة</th><th>تاريخ الزيادة</th><th>سبب الزيادة</th></tr>
-                            </thead>
-                            <tbody>
-                                ${[1,2,3,4,5,6,7,8,9,10,11,12].map(i => `<tr><td>${i}</td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')}
-                            </tbody>
-                        </table>
-                    </div>`;
+                bodyContent = `
+                    <div style="text-align: center; margin-bottom: 12px;">
+                        <h3>صحيفة تدرج الأجور</h3>
+                        <p style="font-size: 11px;">طبقاً للقرار الوزاري رقم 185 لسنة 2003[cite: 2]</p>
+                    </div>
+                    <table style="width: 100%; font-size: 12px; margin-bottom: 10px;">
+                        <tr><td>أسـم المنشـأة: <strong>${comp.name}</strong></td><td>رقم قيد العامل: <strong>${emp.code || emp.id}</strong></td></tr>
+                        <tr><td>أسـم العامـل: <strong>${emp.name}</strong></td><td>رقمه التأميني: <strong>${emp.insNo}</strong></td></tr>
+                    </table>
+                    <table class="official-table">
+                        <thead>
+                            <tr><th>م</th><th>الأجر قبل الزيادة</th><th>الأجر بعد الزيادة</th><th>مقدار الزيادة</th><th>تاريخ الزيادة</th><th>سبب الزيادة</th></tr>
+                        </thead>
+                        <tbody>
+                            ${[1,2,3,4,5,6,7,8,9,10,11,12].map(i => `<tr><td>${i}</td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')}
+                        </tbody>
+                    </table>`;
             }
             else if (tmplKey === 'OFFICIAL_HOLIDAYS') {
-                html = `
-                    <div class="a4-page">
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <h3>صحيفة الإجازات الرسمية</h3>
-                            <p style="font-size: 11px;">طبقاً للقرار الوزاري رقم 185 لسنة 2003 بشأن تحديد أيام الأعياد الرسمية</p>
-                        </div>
-                        <table style="width: 100%; font-size: 12px; margin-bottom: 10px;">
-                            <tr><td>أسـم المنشـأة: <strong>${comp.name}</strong></td><td>تاريخ إلحاق العامل: <strong>${emp.insDate}</strong></td></tr>
-                            <tr><td>أسـم العامـل: <strong>${emp.name}</strong></td><td>رقمه التأميني: <strong>${emp.insNo}</strong></td></tr>
-                        </table>
-                        <table class="official-table">
-                            <thead>
-                                <tr><th>م</th><th>المناسبة</th><th>التاريخ</th><th>عدد الأيام</th><th>توقيع العامل بالحصول عليها</th><th>ملاحظات</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>1</td><td>اليوم الأول والثاني من أيام عيد الفطر</td><td></td><td></td><td></td><td></td></tr>
-                                <tr><td>2</td><td>اليوم الأول والثاني من أيام عيد الأضحى</td><td></td><td></td><td></td><td></td></tr>
-                                <tr><td>3</td><td>يوم المولد النبوي الشريف</td><td></td><td></td><td></td><td></td></tr>
-                                <tr><td>4</td><td>عيد الميلاد المجيد 7 يناير</td><td></td><td></td><td></td><td></td></tr>
-                                <tr><td>5</td><td>يوم شم النسيم</td><td></td><td></td><td></td><td></td></tr>
-                                <tr><td>6</td><td>يوم 23 يوليو</td><td></td><td></td><td></td><td></td></tr>
-                                <tr><td>7</td><td>رأس السنة الهجرية</td><td></td><td></td><td></td><td></td></tr>
-                                <tr><td>8</td><td>عيد العمال</td><td></td><td></td><td></td><td></td></tr>
-                                <tr><td>9</td><td>عيد تحرير سيناء</td><td></td><td></td><td></td><td></td></tr>
-                                <tr><td>10</td><td>عيد القوات المسلحة</td><td></td><td></td><td></td><td></td></tr>
-                                <tr><td>11</td><td>يوم 30 يونيو</td><td></td><td></td><td></td><td></td></tr>
-                            </tbody>
-                        </table>
-                        <div style="margin-top: 30px; text-align: left;">توقيع العامل: ................................</div>
-                    </div>`;
+                bodyContent = `
+                    <div style="text-align: center; margin-bottom: 12px;">
+                        <h3>صحيفة الإجازات الرسمية</h3>
+                        <p style="font-size: 11px;">طبقاً للقرار الوزاري رقم 185 لسنة 2003[cite: 3]</p>
+                    </div>
+                    <table style="width: 100%; font-size: 12px; margin-bottom: 10px;">
+                        <tr><td>أسـم المنشـأة: <strong>${comp.name}</strong></td><td>تاريخ الإلحاق: <strong>${emp.insDate}</strong></td></tr>
+                        <tr><td>أسـم العامـل: <strong>${emp.name}</strong></td><td>رقمه التأميني: <strong>${emp.insNo}</strong></td></tr>
+                    </table>
+                    <table class="official-table">
+                        <thead>
+                            <tr><th>م</th><th>المناسبة</th><th>التاريخ</th><th>عدد الأيام</th><th>توقيع العامل بالحصول عليها</th><th>ملاحظات</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>اليوم الأول والثاني من أيام عيد الفطر</td><td></td><td></td><td></td><td></td></tr>
+                            <tr><td>2</td><td>اليوم الأول والثاني من أيام عيد الأضحى</td><td></td><td></td><td></td><td></td></tr>
+                            <tr><td>3</td><td>يوم المولد النبوي الشريف</td><td></td><td></td><td></td><td></td></tr>
+                            <tr><td>4</td><td>عيد الميلاد المجيد 7 يناير</td><td></td><td></td><td></td><td></td></tr>
+                            <tr><td>5</td><td>يوم شم النسيم</td><td></td><td></td><td></td><td></td></tr>
+                            <tr><td>6</td><td>يوم 23 يوليو</td><td></td><td></td><td></td><td></td></tr>
+                            <tr><td>7</td><td>رأس السنة الهجرية</td><td></td><td></td><td></td><td></td></tr>
+                            <tr><td>8</td><td>عيد العمال</td><td></td><td></td><td></td><td></td></tr>
+                            <tr><td>9</td><td>عيد تحرير سيناء</td><td></td><td></td><td></td><td></td></tr>
+                            <tr><td>10</td><td>عيد القوات المسلحة</td><td></td><td></td><td></td><td></td></tr>
+                            <tr><td>11</td><td>يوم 30 يونيو</td><td></td><td></td><td></td><td></td></tr>
+                        </tbody>
+                    </table>`;
             }
             else if (tmplKey === 'SICK_LEAVES') {
-                html = `
-                    <div class="a4-page">
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <h3>صحيفة الإجازات المرضية</h3>
-                            <p style="font-size: 11px;">طبقا للقرار الوزاري رقم 185 لسنة 2003 المنفذ لقانون العمل رقم 12 لسنة 2003</p>
-                        </div>
-                        <table style="width: 100%; font-size: 12px; margin-bottom: 10px;">
-                            <tr><td>اسم المنشـأة: <strong>${comp.name}</strong></td><td>تاريخ التحاق العامل: <strong>${emp.insDate}</strong></td></tr>
-                            <tr><td>اسم العامل: <strong>${emp.name}</strong></td><td>رقم التأمين: <strong>${emp.insNo}</strong></td></tr>
-                        </table>
-                        <table class="official-table">
-                            <thead>
-                                <tr><th rowspan="2">م</th><th colspan="2">المدة</th><th rowspan="2">عدد الأيام</th><th rowspan="2">الرصيد</th><th rowspan="2">نسبة الأجر</th><th rowspan="2">توقيع العامل</th></tr>
-                                <tr><th>من</th><th>إلي</th></tr>
-                            </thead>
-                            <tbody>
-                                ${[1,2,3,4,5,6].map(i => `<tr><td>${i}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')}
-                            </tbody>
-                        </table>
-                    </div>`;
+                bodyContent = `
+                    <div style="text-align: center; margin-bottom: 12px;">
+                        <h3>صحيفة الإجازات المرضية</h3>
+                        <p style="font-size: 11px;">طبقاً للقرار الوزاري رقم 185 لسنة 2003[cite: 4]</p>
+                    </div>
+                    <table style="width: 100%; font-size: 12px; margin-bottom: 10px;">
+                        <tr><td>اسم المنشـأة: <strong>${comp.name}</strong></td><td>تاريخ الإلحاق: <strong>${emp.insDate}</strong></td></tr>
+                        <tr><td>اسم العامل: <strong>${emp.name}</strong></td><td>رقم التأمين: <strong>${emp.insNo}</strong></td></tr>
+                    </table>
+                    <table class="official-table">
+                        <thead>
+                            <tr><th rowspan="2">م</th><th colspan="2">المدة</th><th rowspan="2">عدد الأيام</th><th rowspan="2">الرصيد</th><th rowspan="2">نسبة الأجر</th><th rowspan="2">توقيع العامل</th></tr>
+                            <tr><th>من</th><th>إلي</th></tr>
+                        </thead>
+                        <tbody>
+                            ${[1,2,3,4,5,6].map(i => `<tr><td>${i}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')}
+                        </tbody>
+                    </table>`;
             }
             else if (tmplKey === 'PENALTIES_LOG') {
-                html = `
-                    <div class="a4-page">
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <h3>صحيفة الجزاءات</h3>
-                            <p style="font-size: 11px;">طبقا للقرار الوزاري رقم 185 لسنة 2003 المنفذ لقانون العمل رقم 12 لسنة 2003</p>
-                        </div>
-                        <table style="width: 100%; font-size: 12px; margin-bottom: 10px;">
-                            <tr><td>أسـم المنشـأة: <strong>${comp.name}</strong></td><td>آخر أجر يتقاضاه: <strong>${emp.grossSalary} ج.م</strong></td></tr>
-                            <tr><td>أسـم العامـل: <strong>${emp.name}</strong></td><td>رقمه التأميني: <strong>${emp.insNo}</strong></td></tr>
-                        </table>
-                        <table class="official-table">
-                            <thead>
-                                <tr><th>م</th><th>تاريخ الجزاء</th><th>سبب الجزاء</th><th>مقدار الجزاء</th><th>قيمة الجزاء</th><th>توقيع العامل بالعلم</th></tr>
-                            </thead>
-                            <tbody>
-                                ${[1,2,3,4,5,6,7,8,9,10].map(i => `<tr><td>${i}</td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')}
-                            </tbody>
-                        </table>
-                    </div>`;
+                bodyContent = `
+                    <div style="text-align: center; margin-bottom: 12px;">
+                        <h3>صحيفة الجزاءات</h3>
+                        <p style="font-size: 11px;">طبقاً للقرار الوزاري رقم 185 لسنة 2003[cite: 5]</p>
+                    </div>
+                    <table style="width: 100%; font-size: 12px; margin-bottom: 10px;">
+                        <tr><td>أسـم المنشـأة: <strong>${comp.name}</strong></td><td>آخر أجر: <strong>${emp.grossSalary} ج.م</strong></td></tr>
+                        <tr><td>أسـم العامـل: <strong>${emp.name}</strong></td><td>رقمه التأميني: <strong>${emp.insNo}</strong></td></tr>
+                    </table>
+                    <table class="official-table">
+                        <thead>
+                            <tr><th>م</th><th>تاريخ الجزاء</th><th>سبب الجزاء</th><th>مقدار الجزاء</th><th>قيمة الجزاء</th><th>توقيع العامل بالعلم</th></tr>
+                        </thead>
+                        <tbody>
+                            ${[1,2,3,4,5,6,7,8,9,10].map(i => `<tr><td>${i}</td><td></td><td></td><td></td><td></td><td></td></tr>`).join('')}
+                        </tbody>
+                    </table>`;
             }
             else if (tmplKey === 'SOCIAL_STATUS') {
-                html = `
-                    <div class="a4-page">
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <h3>صحيفة الحالة الاجتماعية</h3>
-                        </div>
-                        <table style="width: 100%; font-size: 12px; line-height: 1.8;">
-                            <tr><td>أسم المنشأة: <strong>${comp.name}</strong></td><td>تأمين المنشأة: <strong>${comp.ins || '-'}</strong></td></tr>
-                            <tr><td>إسم العامل: <strong>${emp.name}</strong></td><td>مكتب التأمينات: <strong>${emp.section || 'العبور'}</strong></td></tr>
-                            <tr><td>تاريخ الإلتحاق: <strong>${emp.insDate}</strong></td><td>القسم / الفرع: <strong>${branch.name}</strong></td></tr>
-                            <tr><td>رقم تأمين العامل: <strong>${emp.insNo}</strong></td><td>الجنسية: <strong>${emp.nationality || 'مصري'}</strong></td></tr>
-                            <tr><td>الرقم القومي: <strong>${emp.natId}</strong></td><td>محل الميلاد / الإقامة: <strong>${emp.governorate || '-'}</strong></td></tr>
-                        </table>
-                        <h4 style="margin-top: 15px;">(بيان من يعولهم العامل)</h4>
-                        <table class="official-table">
-                            <thead>
-                                <tr><th>مسلسل</th><th>الإسم</th><th>تاريخ الميلاد</th><th>صلة القرابة</th><th>ملاحظات</th></tr>
-                            </thead>
-                            <tbody>
-                                ${[1,2,3,4,5].map(i => `<tr><td>${i}</td><td></td><td></td><td></td><td></td></tr>`).join('')}
-                            </tbody>
-                        </table>
-                        <p style="margin-top: 20px; font-size: 11px;">البيانات المذكورة عاليه صحيحة وتحت مسئوليتي وأتعهد بإخطار صاحب العمل وكل تغيير يطرأ عليها خلال ثلاثة أيام من تاريخ التغيير.</p>
-                        <div style="margin-top: 25px; text-align: left;">توقيع العامل: ................................</div>
-                    </div>`;
+                bodyContent = `
+                    <div style="text-align: center; margin-bottom: 12px;">
+                        <h3>صحيفة الحالة الاجتماعية</h3>
+                    </div>
+                    <table style="width: 100%; font-size: 12px; line-height: 1.8;">
+                        <tr><td>أسم المنشأة: <strong>${comp.name}</strong></td><td>تأمين المنشأة: <strong>${comp.ins || '-'}</strong></td></tr>
+                        <tr><td>إسم العامل: <strong>${emp.name}</strong></td><td>مكتب التأمينات: <strong>${emp.section || 'العبور'}</strong></td></tr>
+                        <tr><td>تاريخ الإلتحاق: <strong>${emp.insDate}</strong></td><td>القسم / الفرع: <strong>${branch.name}</strong></td></tr>
+                        <tr><td>رقم تأمين العامل: <strong>${emp.insNo}</strong></td><td>الجنسية: <strong>${emp.nationality || 'مصري'}</strong></td></tr>
+                        <tr><td>الرقم القومي: <strong>${emp.natId}</strong></td><td>محل الميلاد: <strong>${emp.governorate || '-'}</strong></td></tr>
+                    </table>
+                    <h4 style="margin-top: 10px;">(بيان من يعولهم العامل)[cite: 6]</h4>
+                    <table class="official-table">
+                        <thead>
+                            <tr><th>مسلسل</th><th>الإسم</th><th>تاريخ الميلاد</th><th>صلة القرابة</th><th>ملاحظات</th></tr>
+                        </thead>
+                        <tbody>
+                            ${[1,2,3,4,5].map(i => `<tr><td>${i}</td><td></td><td></td><td></td><td></td></tr>`).join('')}
+                        </tbody>
+                    </table>`;
             }
 
-            return html;
+            return `
+                <div class="a4-page">
+                    <div>
+                        ${headerHTML}
+                        ${bodyContent}
+                    </div>
+                    <div>
+                        ${sigsHTML}
+                        ${footerHTML}
+                    </div>
+                </div>`;
         }
 
         window.onload = function() {
             initFilterSequence();
             renderEmployees();
+            renderDesignForm();
         };
     </script>
 </body>
