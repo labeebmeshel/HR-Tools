@@ -30,7 +30,7 @@
 
         .team-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 25px;
             justify-content: center;
         }
@@ -38,7 +38,7 @@
         .team-card {
             background: var(--surface);
             border-radius: 20px;
-            padding: 30px 20px;
+            padding: 25px 20px;
             text-align: center;
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
@@ -53,9 +53,10 @@
             box-shadow: var(--shadow-hover);
         }
 
+        /* تعديل الإطار الدائري مع التثبيت على الوجه أعلي الصورة */
         .img-wrapper {
-            width: 130px;
-            height: 130px;
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             margin-bottom: 20px;
             padding: 4px;
@@ -67,7 +68,9 @@
         .img-wrapper img {
             width: 100%;
             height: 100%;
+            /* ضبط المحاذاة لأعلى الصورة للتركيز على الوجه ومنع القطع */
             object-fit: cover;
+            object-position: top center;
             border-radius: 50%;
             background: #fff;
             display: block;
@@ -81,7 +84,7 @@
         }
 
         .member-title {
-            font-size: 0.88rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: var(--primary);
             background: #eff6ff;
@@ -104,7 +107,7 @@
             
             <div class="team-card">
                 <div class="img-wrapper">
-                    <img src="./labeeb.png" alt="Labeeb Meshel" onerror="this.src='https://via.placeholder.com/130'">
+                    <img src="./labeeb.png" alt="Labeeb Meshel" onerror="this.src='https://via.placeholder.com/140'">
                 </div>
                 <h3 class="member-name">د. لبيب ميشيل</h3>
                 <span class="member-title">HR Consultant & Trainer</span>
@@ -112,7 +115,7 @@
 
             <div class="team-card">
                 <div class="img-wrapper">
-                    <img src="./nora.jpg" alt="Nora Sayed" onerror="this.src='https://via.placeholder.com/130'">
+                    <img src="./nora.jpg" alt="Nora Sayed" onerror="this.src='https://via.placeholder.com/140'">
                 </div>
                 <h3 class="member-name">نورا سيد الملا</h3>
                 <span class="member-title">Personnel Manager</span>
@@ -120,7 +123,7 @@
 
             <div class="team-card">
                 <div class="img-wrapper">
-                    <img src="./mostafa1.jpg" alt="Mostafa Abdelrazik" onerror="this.src='https://via.placeholder.com/130'">
+                    <img src="./mostafa1.jpg" alt="Mostafa Abdelrazik" onerror="this.src='https://via.placeholder.com/140'">
                 </div>
                 <h3 class="member-name">مصطفى عبد الرازق حسين</h3>
                 <span class="member-title">Personnel & Payroll Section Head</span>
@@ -128,7 +131,7 @@
 
             <div class="team-card">
                 <div class="img-wrapper">
-                    <img src="./nashwa.jpg" alt="Nashwa Mostafa" onerror="this.src='https://via.placeholder.com/130'">
+                    <img src="./nashwa.jpg" alt="Nashwa Mostafa" onerror="this.src='https://via.placeholder.com/140'">
                 </div>
                 <h3 class="member-name">نشوى مصطفى</h3>
                 <span class="member-title">HR Supervisor</span>
@@ -136,7 +139,7 @@
 
             <div class="team-card">
                 <div class="img-wrapper">
-                    <img src="./mostafa2.jpg" alt="Mostafa Hussien" onerror="this.src='https://via.placeholder.com/130'">
+                    <img src="./mostafa2.jpg" alt="Mostafa Hussien" onerror="this.src='https://via.placeholder.com/140'">
                 </div>
                 <h3 class="member-name">مصطفى حسين رأفت</h3>
                 <span class="member-title">HR Supervisor</span>
@@ -144,7 +147,7 @@
 
             <div class="team-card">
                 <div class="img-wrapper">
-                    <img src="./abdelrahman.jpg" alt="Abdelrahman Mostafa" onerror="this.src='https://via.placeholder.com/130'">
+                    <img src="./abdelrahman.jpg" alt="Abdelrahman Mostafa" onerror="this.src='https://via.placeholder.com/140'">
                 </div>
                 <h3 class="member-name">عبد الرحمن مصطفى</h3>
                 <span class="member-title">HR Specialist</span>
