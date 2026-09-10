@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Labeeb Meshel - HR Platform System</title>
+    <title>Labeeb Meshel - HR Platform System (Live Firebase)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- مكتبات Firebase لقواعد البيانات الحية (Compat JS Browser Build) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <style>
         :root {
             --primary: #0b4fb3;
@@ -20,7 +25,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-light); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
 
-        /* ===== شاشة تسجيل الدخول الأجهزة ===== */
+        /* ===== شاشة تسجيل الدخول ===== */
         #loginScreen {
             position: fixed; inset: 0; background: linear-gradient(135deg, var(--primary-dark), var(--primary));
             z-index: 99999; display: flex; align-items: center; justify-content: center;
@@ -74,7 +79,7 @@
         .page-frame { width: 100%; height: 100%; border: none; display: none; }
         .page-frame.active { display: block; }
 
-        /* ===== الشاشات الداخلية (Profile & Admin) ===== */
+        /* ===== الشاشات الداخلية ===== */
         .inner-view { padding: 30px; height: 100%; overflow-y: auto; background: var(--bg-light); }
         .card-panel { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .card-panel h3 { color: var(--primary-dark); margin-bottom: 15px; font-size: 1.1rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
@@ -87,6 +92,10 @@
         .data-table th, .data-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: right; }
         .data-table th { background: #f8fafc; color: var(--primary-dark); font-weight: bold; }
 
+        .status-badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
+        .status-online { background: #d1fae5; color: #065f46; }
+        .status-offline { background: #fee2e2; color: #991b1b; }
+
         @media (max-width: 900px) {
             .grid-2, .grid-3 { grid-template-columns: 1fr; }
         }
@@ -94,7 +103,7 @@
 </head>
 <body>
 
-    <!-- شاشة تسجيل الدخول الأجهزة -->
+    <!-- شاشة تسجيل الدخول -->
     <div id="loginScreen">
         <div class="login-card">
             <i class="fas fa-shield-halved fa-3x" style="color: var(--primary); margin-bottom: 15px;"></i>
@@ -114,6 +123,9 @@
             <img id="sidebarLogo" src="https://via.placeholder.com/60" class="company-logo-img" alt="لوجو الشركة">
             <h3 id="sidebarCompName">اسم الشركة</h3>
             <p id="sidebarCompField">مجال الشركة</p>
+            <div style="margin-top: 6px;">
+                <span id="dbConnectionStatus" class="status-badge status-offline">جاري الاتصال بـ Firebase...</span>
+            </div>
         </div>
         
         <ul class="nav-list" id="mainNav">
@@ -198,7 +210,6 @@
         </div>
     </aside>
 
-    <!-- منطقة عرض الأطر والشاشات -->
     <main class="main-wrapper">
         <iframe id="home-frame" class="page-frame active" src="home.html"></iframe>
         <iframe id="cv-frame" class="page-frame" src="cv.html"></iframe>
@@ -215,7 +226,7 @@
 
         <!-- شاشة بروفايل الشركة والحساب الشخصي -->
         <div id="profile-view-frame" class="page-frame inner-view">
-            <h2><i class="fas fa-building-user"></i> إدارة البروفايل وبيانات الشركة</h2>
+            <h2><i class="fas fa-building-user"></i> إدارة البروفايل وبيانات الشركة (Firebase Live)</h2>
             <br>
             <div class="grid-2">
                 <div class="card-panel">
@@ -225,11 +236,11 @@
                         <input type="text" id="profCompName" class="form-input" required>
                         <label>مجال الشركة:</label>
                         <input type="text" id="profCompField" class="form-input" required>
-                        <label>رابط اللوجو (أو Base64):</label>
+                        <label>رابط اللوجو (URL):</label>
                         <input type="text" id="profCompLogo" class="form-input" required>
                         <label>اسم أدمن الشركة / المدير المسؤول:</label>
                         <input type="text" id="profCompAdmin" class="form-input" required>
-                        <button type="submit" class="btn-action" style="margin-top: 10px;">حفظ بيانات الشركة</button>
+                        <button type="submit" class="btn-action" style="margin-top: 10px;">حفظ بيانات الشركة سحابياً</button>
                     </form>
                 </div>
 
@@ -248,7 +259,7 @@
 
         <!-- الداشبورد المتقدمة للأدمن -->
         <div id="admin-dashboard-frame" class="page-frame inner-view">
-            <h2><i class="fas fa-user-shield"></i> لوحة تحكم مدير النظام الشاملة (Admin Dashboard)</h2>
+            <h2><i class="fas fa-user-shield"></i> لوحة تحكم مدير النظام (Firebase Realtime System)</h2>
             <br>
             
             <div class="grid-3">
@@ -268,7 +279,6 @@
 
             <br>
             <div class="grid-2">
-                <!-- إدارة المستخدمين وكلمات المرور المكشوفة -->
                 <div class="card-panel">
                     <h3><i class="fas fa-user-plus"></i> إضافة وإدارة المستخدمين</h3>
                     <form onsubmit="addNewUser(event)">
@@ -278,10 +288,10 @@
                             <option value="user">مستخدم عادي (User)</option>
                             <option value="admin">مدير نظام (Admin)</option>
                         </select>
-                        <button type="submit" class="btn-action" style="background: #10b981;">إضافة المستخدم</button>
+                        <button type="submit" class="btn-action" style="background: #10b981;">إضافة المستخدم للقاعدة الحية</button>
                     </form>
 
-                    <h3 style="margin-top: 25px;"><i class="fas fa-users"></i> مستخدمو النظام وكلمات السر</h3>
+                    <h3 style="margin-top: 25px;"><i class="fas fa-users"></i> مستخدمو النظام وكلمات السر المزامنة</h3>
                     <div style="max-height: 300px; overflow-y: auto;">
                         <table class="data-table">
                             <thead>
@@ -292,10 +302,9 @@
                     </div>
                 </div>
 
-                <!-- سجل الحركات الشامل -->
                 <div class="card-panel">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <h3><i class="fas fa-history"></i> سجل الحركات والأنشطة التفصيلي (Audit Logs)</h3>
+                        <h3><i class="fas fa-history"></i> سجل الحركات المباشر (Realtime Logs)</h3>
                         <button onclick="clearSystemLogs()" style="background: var(--danger); color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem;">تفريغ السجل</button>
                     </div>
                     <div style="max-height: 450px; overflow-y: auto;">
@@ -312,62 +321,113 @@
     </main>
 
     <script>
-        // تشفير الحسابات الافتراضية
-        const INIT_USERS = [
-            { username: "admin", pass: btoa("admin123"), role: "admin" },
-            { username: "labeeb", pass: btoa("123456"), role: "user" }
-        ];
+        // إعدادات مشروع Firebase الحقيقية الخاصة بك
+        const firebaseConfig = {
+            apiKey: "AIzaSyBty7fK-7mchOETrE_vtOZx4dgWSHIuC8Y",
+            authDomain: "hr-platform-system.firebaseapp.com",
+            databaseURL: "https://hr-platform-system-default-rtdb.firebaseio.com",
+            projectId: "hr-platform-system",
+            storageBucket: "hr-platform-system.firebasestorage.app",
+            messagingSenderId: "994791756938",
+            appId: "1:994791756938:web:48303535285e25f1c80973",
+            measurementId: "G-7PBDNQ52E9"
+        };
 
-        const INIT_COMPANY = {
+        // الـ Hashes الافتراضية لحماية كلمات السر في View Source
+        const DEFAULT_USERS = {
+            "admin": { username: "admin", pass: "YWRtaW4xMjM=", role: "admin" },
+            "labeeb": { username: "labeeb", pass: "MTIzNDU2", role: "user" }
+        };
+
+        const DEFAULT_COMPANY = {
             name: "أكاديمية براكسي (PRAXI Academy)",
             field: "استشارات وتدريب الموارد البشرية",
             logo: "https://via.placeholder.com/60/0b4fb3/ffffff?text=PRAXI",
             adminName: "د. لبيب ميشيل"
         };
 
-        function getUsersDB() {
-            const db = localStorage.getItem('SYSTEM_USERS_SECURE');
-            return db ? JSON.parse(db) : INIT_USERS;
-        }
+        let dbUsers = DEFAULT_USERS;
+        let dbCompany = DEFAULT_COMPANY;
+        let dbLogs = [];
 
-        function getCompanyDB() {
-            const db = localStorage.getItem('SYSTEM_COMPANY_PROFILE');
-            return db ? JSON.parse(db) : INIT_COMPANY;
-        }
+        // تهيئة Firebase والربط الحقيقي بالقاعدة
+        try {
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.database();
 
-        function getLogsDB() {
-            const db = localStorage.getItem('SYSTEM_AUDIT_LOGS');
-            return db ? JSON.parse(db) : [];
+            // فحص حالة الاتصال بالسيرفر
+            db.ref('.info/connected').on('value', (snap) => {
+                const statusBadge = document.getElementById('dbConnectionStatus');
+                if (snap.val() === true) {
+                    statusBadge.innerText = '● متصل حياً بـ Firebase';
+                    statusBadge.className = 'status-badge status-online';
+                } else {
+                    statusBadge.innerText = '○ غير متصل (جاري إعادة الاتصال)';
+                    statusBadge.className = 'status-badge status-offline';
+                }
+            });
+
+            // استماع حقيقي وبناء القاعدة إذا كانت فارغة (Null Handling)
+            db.ref('system_users').on('value', (snapshot) => {
+                const val = snapshot.val();
+                if (val !== null) {
+                    dbUsers = val;
+                } else {
+                    db.ref('system_users').set(DEFAULT_USERS);
+                }
+                renderAdminDashboard();
+            });
+
+            db.ref('system_company').on('value', (snapshot) => {
+                const val = snapshot.val();
+                if (val !== null) {
+                    dbCompany = val;
+                    updateCompanyUI();
+                } else {
+                    db.ref('system_company').set(DEFAULT_COMPANY);
+                }
+            });
+
+            db.ref('system_logs').on('value', (snapshot) => {
+                const val = snapshot.val();
+                dbLogs = val ? Object.values(val).reverse() : [];
+                renderLogsTable();
+            });
+
+        } catch (e) {
+            console.error("Firebase connection error:", e);
         }
 
         function addLog(action) {
             const currentUser = sessionStorage.getItem('LOGGED_USER') || 'مجهول';
-            const logs = getLogsDB();
-            logs.unshift({
+            const logItem = {
                 time: new Date().toLocaleString('ar-EG'),
                 user: currentUser,
                 action: action
-            });
-            localStorage.setItem('SYSTEM_AUDIT_LOGS', JSON.stringify(logs));
-            renderLogsTable();
+            };
+            try {
+                firebase.database().ref('system_logs').push(logItem);
+            } catch(e) {
+                dbLogs.unshift(logItem);
+                renderLogsTable();
+            }
         }
 
-        // الدخول والخروج
         function handleLogin(e) {
             e.preventDefault();
             const u = document.getElementById('loginUsername').value.trim();
             const p = document.getElementById('loginPassword').value.trim();
-            const users = getUsersDB();
+            const encryptedInputPass = btoa(p);
 
-            const found = users.find(user => user.username === u && atob(user.pass) === p);
+            const foundUser = dbUsers[u];
 
-            if (found) {
-                sessionStorage.setItem('LOGGED_USER', found.username);
-                sessionStorage.setItem('USER_ROLE', found.role);
+            if (foundUser && foundUser.pass === encryptedInputPass) {
+                sessionStorage.setItem('LOGGED_USER', foundUser.username);
+                sessionStorage.setItem('USER_ROLE', foundUser.role);
                 document.getElementById('loginScreen').style.display = 'none';
                 
-                addLog(`تسجيل الدخول للنظام بنجاح (${found.role})`);
-                initSystemData();
+                addLog(`تسجيل الدخول للنظام بنجاح (${foundUser.role})`);
+                initSystemUI();
             } else {
                 addLog(`محاولة دخول فاشلة باسم: ${u}`);
                 document.getElementById('loginError').style.display = 'block';
@@ -380,18 +440,8 @@
             location.reload();
         }
 
-        // تحميل وتحديث بيانات البروفايل
-        function initSystemData() {
-            const company = getCompanyDB();
-            document.getElementById('sidebarCompName').innerText = company.name;
-            document.getElementById('sidebarCompField').innerText = company.field;
-            document.getElementById('sidebarLogo').src = company.logo;
-
-            document.getElementById('profCompName').value = company.name;
-            document.getElementById('profCompField').value = company.field;
-            document.getElementById('profCompLogo').value = company.logo;
-            document.getElementById('profCompAdmin').value = company.adminName;
-
+        function initSystemUI() {
+            updateCompanyUI();
             const loggedUser = sessionStorage.getItem('LOGGED_USER');
             const loggedRole = sessionStorage.getItem('USER_ROLE');
 
@@ -406,38 +456,49 @@
             renderAdminDashboard();
         }
 
+        function updateCompanyUI() {
+            document.getElementById('sidebarCompName').innerText = dbCompany.name;
+            document.getElementById('sidebarCompField').innerText = dbCompany.field;
+            document.getElementById('sidebarLogo').src = dbCompany.logo;
+
+            document.getElementById('profCompName').value = dbCompany.name;
+            document.getElementById('profCompField').value = dbCompany.field;
+            document.getElementById('profCompLogo').value = dbCompany.logo;
+            document.getElementById('profCompAdmin').value = dbCompany.adminName;
+        }
+
         function saveCompanyProfile(e) {
             e.preventDefault();
-            const companyObj = {
+            const updatedCompany = {
                 name: document.getElementById('profCompName').value,
                 field: document.getElementById('profCompField').value,
                 logo: document.getElementById('profCompLogo').value,
                 adminName: document.getElementById('profCompAdmin').value
             };
-            localStorage.setItem('SYSTEM_COMPANY_PROFILE', JSON.stringify(companyObj));
-            addLog('تعديل بيانات بروفايل الشركة واللوجو');
-            alert('تم حفظ بيانات الشركة بنجاح!');
-            initSystemData();
+
+            firebase.database().ref('system_company').set(updatedCompany)
+                .then(() => {
+                    addLog('تعديل بيانات بروفايل الشركة واللوجو سحابياً');
+                    alert('تم حفظ بيانات الشركة بنجاح على السيرفر!');
+                });
         }
 
         function updateUserPassword(e) {
             e.preventDefault();
             const loggedUser = sessionStorage.getItem('LOGGED_USER');
             const newPass = document.getElementById('profNewPass').value;
-            const users = getUsersDB();
 
-            const idx = users.findIndex(u => u.username === loggedUser);
-            if (idx !== -1) {
-                users[idx].pass = btoa(newPass);
-                localStorage.setItem('SYSTEM_USERS_SECURE', JSON.stringify(users));
-                addLog('تغيير كلمة المرور الخاصة بالحساب الحساب الشخصي');
-                alert('تم التحديث بنجاح!');
-                document.getElementById('profNewPass').value = '';
-                renderAdminDashboard();
+            if (dbUsers[loggedUser]) {
+                const updatedUser = { ...dbUsers[loggedUser], pass: btoa(newPass) };
+                firebase.database().ref(`system_users/${loggedUser}`).set(updatedUser)
+                    .then(() => {
+                        addLog('تغيير كلمة المرور الخاصة للحساب الشخصي سحابياً');
+                        alert('تم تحديث كلمة المرور بنجاح!');
+                        document.getElementById('profNewPass').value = '';
+                    });
             }
         }
 
-        // التنقل والتابات
         function loadPage(evt, frameId, btnElement) {
             if (evt) evt.preventDefault();
             
@@ -466,54 +527,49 @@
             loadPage(evt, frameId, btnElement);
         }
 
-        // إدارة الأدمن
         function addNewUser(e) {
             e.preventDefault();
             const u = document.getElementById('newUsername').value.trim();
             const p = document.getElementById('newPassword').value.trim();
             const r = document.getElementById('newRole').value;
 
-            const users = getUsersDB();
-            users.push({ username: u, pass: btoa(p), role: r });
-            localStorage.setItem('SYSTEM_USERS_SECURE', JSON.stringify(users));
+            const newUser = { username: u, pass: btoa(p), role: r };
 
-            addLog(`إضافة مستخدم جديد: ${u} بصلاحية (${r})`);
-            alert('تم إضافة المستخدم بنجاح!');
-            document.getElementById('newUsername').value = '';
-            document.getElementById('newPassword').value = '';
-            renderAdminDashboard();
+            firebase.database().ref(`system_users/${u}`).set(newUser)
+                .then(() => {
+                    addLog(`إضافة مستخدم جديد سحابياً: ${u} بصلاحية (${r})`);
+                    alert('تم إضافة المستخدم بنجاح لـ Firebase!');
+                    document.getElementById('newUsername').value = '';
+                    document.getElementById('newPassword').value = '';
+                });
         }
 
         function deleteUser(username) {
-            if (confirm(`هل تريد حذف المستخدم ${username}؟`)) {
-                let users = getUsersDB();
-                users = users.filter(u => u.username !== username);
-                localStorage.setItem('SYSTEM_USERS_SECURE', JSON.stringify(users));
-                addLog(`حذف المستخدم: ${username}`);
-                renderAdminDashboard();
+            if (confirm(`هل تريد حذف المستخدم ${username} من القاعدة؟`)) {
+                firebase.database().ref(`system_users/${username}`).remove()
+                    .then(() => {
+                        addLog(`حذف المستخدم سحابياً: ${username}`);
+                    });
             }
         }
 
         function clearSystemLogs() {
-            if (confirm('هل أنت متأكد من مسح جميع سجلات النظام؟')) {
-                localStorage.removeItem('SYSTEM_AUDIT_LOGS');
-                renderLogsTable();
+            if (confirm('هل أنت متأكد من تفريغ سجلات النظام بـ Firebase؟')) {
+                firebase.database().ref('system_logs').remove();
             }
         }
 
         function renderAdminDashboard() {
-            const users = getUsersDB();
-            const logs = getLogsDB();
-            const company = getCompanyDB();
-
-            document.getElementById('statUsersCount').innerText = users.length;
-            document.getElementById('statLogsCount').innerText = logs.length;
-            document.getElementById('statCompName').innerText = company.name;
+            const usersArray = Object.values(dbUsers);
+            document.getElementById('statUsersCount').innerText = usersArray.length;
+            document.getElementById('statLogsCount').innerText = dbLogs.length;
+            document.getElementById('statCompName').innerText = dbCompany.name;
 
             const tbodyUsers = document.getElementById('usersTableBody');
             tbodyUsers.innerHTML = '';
-            users.forEach((u, i) => {
-                const rawPass = atob(u.pass);
+            usersArray.forEach((u) => {
+                let rawPass = u.pass;
+                try { rawPass = atob(u.pass); } catch(e){}
                 tbodyUsers.innerHTML += `
                     <tr>
                         <td><strong>${u.username}</strong></td>
@@ -527,23 +583,19 @@
         }
 
         function renderLogsTable() {
-            const logs = getLogsDB();
             const tbody = document.getElementById('logsTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            logs.slice(0, 100).forEach(l => {
+            dbLogs.slice(0, 100).forEach(l => {
                 tbody.innerHTML += `<tr><td>${l.time}</td><td><strong>${l.user}</strong></td><td>${l.action}</td></tr>`;
             });
         }
 
         window.onload = function() {
-            if(!localStorage.getItem('SYSTEM_USERS_SECURE')) {
-                localStorage.setItem('SYSTEM_USERS_SECURE', JSON.stringify(INIT_USERS));
-            }
             const logged = sessionStorage.getItem('LOGGED_USER');
             if (logged) {
                 document.getElementById('loginScreen').style.display = 'none';
-                initSystemData();
+                initSystemUI();
             }
         };
     </script>
