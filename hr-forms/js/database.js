@@ -55,25 +55,15 @@ const HR_Database = {
                     id: 'TMPL-JOB-ACK',
                     code: 'ACK-01',
                     name: 'إقرار استلام عمل',
-                    pages: 1,
                     content: `أقر وأتعهد أنا {{EMPLOYEE_NAME}} ، بأني قد إستلمت العمل بشركة {{COMPANY_NAME}}، بوظيفة {{JOB_TITLE}} إعتباراً من {{INSURANCE_DATE}} .\nكما أنني أقر بأني لا أعمل حالياً بأية وظيفة سواء كانت حكومية أو خاصة ولا أتقاضى أجراً من أي جهة غير الأجر الذي سوف يصرف لي من الشركة المذكورة كما أنني أقر بأنني لن اقوم بتوصيل بطريقة مباشرة أو غير مباشرة إلى أي جهة أو شركة سواء كانت منافسة أو غير منافسة أي محتوى أو مستندات رسمية أو اية معلومات أكون قد حصلت عليها في نطاق عملي بدون إذن رسمي، كما أنه لا يجوز لي الحصور على صورة من أية مستندات أستلمتها عن طريق عملي بالشركة المذكورة.\nأقر وأتعهد أنا الموقع أدناه بالإلتزام بالقيام بواجباتي في الشركة والمحافظة على ممتلكاتها وأسرارها وعدم السماح بالتضارب في المصالح معها.\nكما أقر بأني إتطلعت على لائحة العمل الداخلية وسياسات العمل وأتعهد بالإلتزام بهذه اللوائح إلتزاماُ تاماُ والعمل بموجبها.`
                 }
             ];
             localStorage.setItem(DB_KEYS.TEMPLATES, JSON.stringify(initialTemplates));
         }
-
-        if (!localStorage.getItem(DB_KEYS.LOGS)) {
-            localStorage.setItem(DB_KEYS.LOGS, JSON.stringify([]));
-        }
     },
 
     get(key) { return JSON.parse(localStorage.getItem(key)) || []; },
-    set(key, data) { localStorage.setItem(key, JSON.stringify(data)); },
-    log(action, details) {
-        const logs = this.get(DB_KEYS.LOGS);
-        logs.unshift({ timestamp: new Date().toLocaleString('ar-EG'), user: sessionStorage.getItem('LOGGED_USER') || 'Admin', action, details });
-        this.set(DB_KEYS.LOGS, logs);
-    }
+    set(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
 };
 
 HR_Database.init();
