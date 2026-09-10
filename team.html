@@ -2,29 +2,177 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>فريق الإعداد والتطوير</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Cairo', sans-serif; background: #f4f7fc; padding: 40px; text-align: center; }
-        .team-card { background: white; max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
-        h1 { color: #0b4fb3; margin-bottom: 10px; }
-        p { color: #64748b; margin-bottom: 25px; }
-        .member { display: flex; align-items: center; justify-content: space-between; padding: 15px; border-bottom: 1px solid #e2e8f0; }
-        .member-title { font-weight: bold; color: #1e293b; }
+        :root {
+            --primary: #0b4fb3;
+            --primary-dark: #0b2a5c;
+            --bg: #f4f7fc;
+            --surface: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 10px 25px rgba(11, 42, 92, 0.08);
+            --shadow-hover: 0 15px 35px rgba(11, 42, 92, 0.15);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text-main); padding: 40px 20px; line-height: 1.5; }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        .header-section { text-align: center; margin-bottom: 45px; }
+        .header-section h1 { color: var(--primary-dark); font-size: 2.2rem; font-weight: 900; margin-bottom: 10px; }
+        .header-section p { color: var(--text-muted); font-size: 1.05rem; font-weight: 600; }
+        .header-line { width: 80px; height: 4px; background: var(--primary); margin: 15px auto 0; border-radius: 2px; }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+            justify-content: center;
+        }
+
+        .team-card {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .team-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .team-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(11, 79, 179, 0.3);
+        }
+
+        .team-card:hover::before { opacity: 1; }
+
+        .img-wrapper {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            padding: 4px;
+            background: linear-gradient(135deg, var(--primary), #e2e8f0);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+
+        .img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            background: #fff;
+        }
+
+        .member-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+        }
+
+        .member-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--primary);
+            background: #eff6ff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 20px 10px; }
+            .header-section h1 { font-size: 1.7rem; }
+            .team-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
-    <div class="team-card">
-        <h1>فريق الإعداد والتطوير</h1>
-        <p>نخبة الكوادر المسئولة عن تطوير المنظومة والأدوات المتاحة</p>
-        <div class="member">
-            <span class="member-title">د. لبيب ميشيل</span>
-            <span>استشاري الموارد البشرية والتحول الرقمي</span>
+
+    <div class="container">
+        <div class="header-section">
+            <h1>فريق الإعداد والتطوير</h1>
+            <p>الخبراء والكوادر المسئولة عن إعداد وتطوير منصة الموارد البشرية</p>
+            <div class="header-line"></div>
         </div>
-        <div class="member">
-            <span class="member-title">أكاديمية براكسي (PRAXI Academy)</span>
-            <span>إعداد وتدقيق القوانين والضرائب</span>
+
+        <div class="team-grid">
+            
+            <div class="team-card">
+                <div class="img-wrapper">
+                    <img src="./Labeeb Meshel - HR Consultant and triner.png" alt="Labeeb Meshel">
+                </div>
+                <h3 class="member-name">د. لبيب ميشيل</h3>
+                <span class="member-title">HR Consultant & Trainer</span>
+            </div>
+
+            <div class="team-card">
+                <div class="img-wrapper">
+                    <img src="./Nora Sayed El Molla - Personnel Manager.jpeg" alt="Nora Sayed">
+                </div>
+                <h3 class="member-name">نورا سيد الملا</h3>
+                <span class="member-title">Personnel Manager</span>
+            </div>
+
+            <div class="team-card">
+                <div class="img-wrapper">
+                    <img src="./Mostafa abdelrazik hussien - Personnel and Payroll Section Head.jpeg" alt="Mostafa Abdelrazik">
+                </div>
+                <h3 class="member-name">مصطفى عبد الرازق حسين</h3>
+                <span class="member-title">Personnel & Payroll Section Head</span>
+            </div>
+
+            <div class="team-card">
+                <div class="img-wrapper">
+                    <img src="./Nashwa Mostafa - HR Supervisor.jpg" alt="Nashwa Mostafa">
+                </div>
+                <h3 class="member-name">نشوى مصطفى</h3>
+                <span class="member-title">HR Supervisor</span>
+            </div>
+
+            <div class="team-card">
+                <div class="img-wrapper">
+                    <img src="./Mostafa Hussien Raafat - HR Supervisor.jpeg" alt="Mostafa Hussien">
+                </div>
+                <h3 class="member-name">مصطفى حسين رأفت</h3>
+                <span class="member-title">HR Supervisor</span>
+            </div>
+
+            <div class="team-card">
+                <div class="img-wrapper">
+                    <img src="./Abdelrahman Mostafa Abdelrahman - HR specialist.jpeg" alt="Abdelrahman Mostafa">
+                </div>
+                <h3 class="member-name">عبد الرحمن مصطفى</h3>
+                <span class="member-title">HR Specialist</span>
+            </div>
+
         </div>
     </div>
+
 </body>
 </html>
