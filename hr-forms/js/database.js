@@ -1,10 +1,8 @@
-// Local Database Engine & Seeder
 const DB_KEYS = {
     COMPANIES: 'HR_DB_COMPANIES',
+    BRANCHES: 'HR_DB_BRANCHES',
     EMPLOYEES: 'HR_DB_EMPLOYEES',
     TEMPLATES: 'HR_DB_TEMPLATES',
-    FIELDS: 'HR_DB_FIELDS',
-    FORM_DATA: 'HR_DB_FORM_DATA',
     LOGS: 'HR_DB_LOGS'
 };
 
@@ -12,26 +10,41 @@ const HR_Database = {
     init() {
         if (!localStorage.getItem(DB_KEYS.COMPANIES)) {
             const initialCompanies = [
-                {
-                    id: 'COMP-01',
-                    name: 'أكاديمية براكسي (PRAXI Academy)',
-                    regNo: '100293',
-                    taxNo: '987-654-321',
-                    insuranceNo: '77889900',
-                    owner: 'أ. د/ لبيب ميشيل',
-                    deputy: 'أ/ نورا سيد الملا',
-                    branches: 'الفرع الرئيسي, فرع مدينة نصر, فرع الإسكندرية',
-                    address: 'القاهرة - مدينة نصر - الشارع الرئيسي'
-                }
+                { id: 'COMP-01', name: 'شركة النور لتوريدات الخضار والفاكهة', regNo: '100293', taxNo: '987-654-321', owner: 'أ. د/ لبيب ميشيل' }
             ];
             localStorage.setItem(DB_KEYS.COMPANIES, JSON.stringify(initialCompanies));
         }
 
+        if (!localStorage.getItem(DB_KEYS.BRANCHES)) {
+            const initialBranches = [
+                { id: 'BR-01', companyId: 'COMP-01', name: 'الفرع الرئيسي - العبور', insuranceNo: '77889900', address: 'العبور - المنطقة الصناعية' },
+                { id: 'BR-02', companyId: 'COMP-01', name: 'فرع مدينة نصر', insuranceNo: '77889911', address: 'مدينة نصر - القاهرة' }
+            ];
+            localStorage.setItem(DB_KEYS.BRANCHES, JSON.stringify(initialBranches));
+        }
+
         if (!localStorage.getItem(DB_KEYS.EMPLOYEES)) {
             const initialEmployees = [
-                { id: 'EMP-001', companyId: 'COMP-01', branch: 'فرع مدينة نصر', name: 'أحمد محمد علي', nationalId: '29501011201234', insuranceNo: '123456789', jobTitle: 'أخصائي موارد بشرية', hireDate: '2022-01-15', phone: '01012345678', status: 'Active' },
-                { id: 'EMP-002', companyId: 'COMP-01', branch: 'الفرع الرئيسي', name: 'محمود حسن مصطفى', nationalId: '29205121509876', insuranceNo: '987654321', jobTitle: 'محاسب أجور', hireDate: '2023-03-01', phone: '01198765432', status: 'Active' },
-                { id: 'EMP-003', companyId: 'COMP-01', branch: 'فرع الإسكندرية', name: 'لبيب ميشيل فؤاد', nationalId: '28809201405566', insuranceNo: '556677889', jobTitle: 'استشاري HR', hireDate: '2021-06-10', phone: '01255667788', status: 'Active' }
+                {
+                    id: 'EMP-001',
+                    code: '1001',
+                    companyId: 'COMP-01',
+                    branchId: 'BR-01',
+                    name: 'أحمد محمد علي',
+                    insuranceNo: '123456789',
+                    jobTitle: 'مسؤول مشتريات',
+                    jobCode: 'JOB-501',
+                    nationalId: '29501011201234',
+                    street: 'شارع 15',
+                    section: 'العبور',
+                    governorate: 'القليوبية',
+                    phone: '01012345678',
+                    nationality: 'مصري',
+                    qualification: 'بكالوريوس تجارة',
+                    insuranceDate: '2022-01-15',
+                    insuredSalary: '4000',
+                    grossSalary: '7000'
+                }
             ];
             localStorage.setItem(DB_KEYS.EMPLOYEES, JSON.stringify(initialEmployees));
         }
@@ -39,18 +52,11 @@ const HR_Database = {
         if (!localStorage.getItem(DB_KEYS.TEMPLATES)) {
             const initialTemplates = [
                 {
-                    id: 'TMPL-S1',
-                    code: 'S1',
-                    name: 'نموذج س1 - إخطار بدء اشتراك مؤمن عليه',
-                    pages: 2,
-                    isDuplex: true,
-                    fieldsMapping: [
-                        { fieldKey: 'name', targetLabel: 'اسم المؤمن عليه', required: true },
-                        { fieldKey: 'nationalId', targetLabel: 'الرقم القومي', required: true },
-                        { fieldKey: 'insuranceNo', targetLabel: 'الرقم التأميني', required: true },
-                        { fieldKey: 'jobTitle', targetLabel: 'المهنة / الوظيفة', required: false },
-                        { fieldKey: 'hireDate', targetLabel: 'تاريخ بدء الاشتراك', required: true }
-                    ]
+                    id: 'TMPL-JOB-ACK',
+                    code: 'ACK-01',
+                    name: 'إقرار استلام عمل',
+                    pages: 1,
+                    content: `أقر وأتعهد أنا {{EMPLOYEE_NAME}} ، بأني قد إستلمت العمل بشركة {{COMPANY_NAME}}، بوظيفة {{JOB_TITLE}} إعتباراً من {{INSURANCE_DATE}} .\nكما أنني أقر بأني لا أعمل حالياً بأية وظيفة سواء كانت حكومية أو خاصة ولا أتقاضى أجراً من أي جهة غير الأجر الذي سوف يصرف لي من الشركة المذكورة كما أنني أقر بأنني لن اقوم بتوصيل بطريقة مباشرة أو غير مباشرة إلى أي جهة أو شركة سواء كانت منافسة أو غير منافسة أي محتوى أو مستندات رسمية أو اية معلومات أكون قد حصلت عليها في نطاق عملي بدون إذن رسمي، كما أنه لا يجوز لي الحصور على صورة من أية مستندات أستلمتها عن طريق عملي بالشركة المذكورة.\nأقر وأتعهد أنا الموقع أدناه بالإلتزام بالقيام بواجباتي في الشركة والمحافظة على ممتلكاتها وأسرارها وعدم السماح بالتضارب في المصالح معها.\nكما أقر بأني إتطلعت على لائحة العمل الداخلية وسياسات العمل وأتعهد بالإلتزام بهذه اللوائح إلتزاماُ تاماُ والعمل بموجبها.`
                 }
             ];
             localStorage.setItem(DB_KEYS.TEMPLATES, JSON.stringify(initialTemplates));
@@ -61,22 +67,11 @@ const HR_Database = {
         }
     },
 
-    get(key) {
-        return JSON.parse(localStorage.getItem(key)) || [];
-    },
-
-    set(key, data) {
-        localStorage.setItem(key, JSON.stringify(data));
-    },
-
+    get(key) { return JSON.parse(localStorage.getItem(key)) || []; },
+    set(key, data) { localStorage.setItem(key, JSON.stringify(data)); },
     log(action, details) {
         const logs = this.get(DB_KEYS.LOGS);
-        logs.unshift({
-            timestamp: new Date().toLocaleString('ar-EG'),
-            user: sessionStorage.getItem('LOGGED_USER') || 'Admin',
-            action: action,
-            details: details
-        });
+        logs.unshift({ timestamp: new Date().toLocaleString('ar-EG'), user: sessionStorage.getItem('LOGGED_USER') || 'Admin', action, details });
         this.set(DB_KEYS.LOGS, logs);
     }
 };
