@@ -6,6 +6,7 @@
     <title>Labeeb Meshel - Multi-User HR Platform System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- مكتبات Firebase لقواعد البيانات الحية -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -215,7 +216,8 @@
         <iframe id="tax-reverse-bulk-frame" class="page-frame" src="tax-reverse-bulk.html"></iframe>
         <iframe id="s1-frame" class="page-frame" src="s1.html"></iframe>
         <iframe id="forms-print-frame" class="page-frame" src="./hr-forms/index.html"></iframe>
-        <iframe id="team-frame" class="page-frame" src="team.html"></iframe>
+        <!-- تعديل المسار لتوافق مع مجلد Team مع مراعاة حالة الأحرف لـ GitHub Pages -->
+        <iframe id="team-frame" class="page-frame" src="./Team/team.html"></iframe>
         <iframe id="tafqit-frame" class="page-frame" src="tafqit.html"></iframe>
         <iframe id="feedback-frame" class="page-frame" src="feedback.html"></iframe>
         <iframe id="disc-frame" class="page-frame" src="disc.html"></iframe>
@@ -500,7 +502,6 @@
             renderAdminDashboard();
         }
 
-        // تحديث واجهة الشركة الخاصة باليوزر المسجل بناءً على الـ companyId
         function updateCompanyUI(username) {
             const userObj = dbUsers[username];
             if (userObj && userObj.companyId && dbCompanies[userObj.companyId]) {
@@ -600,7 +601,6 @@
             }
         }
 
-        // إضافة مستخدم جديد (ربطه بشركة سابقة أو بإنشاء شركة جديدة)
         function addNewUser(e) {
             e.preventDefault();
             const u = document.getElementById('newUsername').value.trim();
