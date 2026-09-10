@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>فريق الإعداد والتطوير</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #0b4fb3;
@@ -20,7 +19,7 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text-main); padding: 40px 20px; line-height: 1.5; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text-main); padding: 40px 20px; }
 
         .container { max-width: 1200px; margin: 0 auto; }
 
@@ -31,7 +30,7 @@
 
         .team-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 25px;
             justify-content: center;
         }
@@ -43,31 +42,16 @@
             text-align: center;
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        .team-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
         .team-card:hover {
             transform: translateY(-8px);
             box-shadow: var(--shadow-hover);
-            border-color: rgba(11, 79, 179, 0.3);
         }
-
-        .team-card:hover::before { opacity: 1; }
 
         .img-wrapper {
             width: 130px;
@@ -77,6 +61,7 @@
             padding: 4px;
             background: linear-gradient(135deg, var(--primary), #e2e8f0);
             box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
 
         .img-wrapper img {
@@ -85,6 +70,7 @@
             object-fit: cover;
             border-radius: 50%;
             background: #fff;
+            display: block;
         }
 
         .member-name {
@@ -102,13 +88,6 @@
             padding: 4px 12px;
             border-radius: 20px;
             display: inline-block;
-            margin-bottom: 12px;
-        }
-
-        @media (max-width: 600px) {
-            body { padding: 20px 10px; }
-            .header-section h1 { font-size: 1.7rem; }
-            .team-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -125,7 +104,7 @@
             
             <div class="team-card">
                 <div class="img-wrapper">
-                    <img src="./Labeeb Meshel - HR Consultant and triner.png" alt="Labeeb Meshel">
+                    <img src="labeeb.png" alt="Labeeb Meshel" onerror="this.src='https://via.placeholder.com/130'">
                 </div>
                 <h3 class="member-name">د. لبيب ميشيل</h3>
                 <span class="member-title">HR Consultant & Trainer</span>
@@ -133,7 +112,7 @@
 
             <div class="team-card">
                 <div class="img-wrapper">
-                    <img src="./Nora Sayed El Molla - Personnel Manager.jpeg" alt="Nora Sayed">
+                    <img src="nora.jpg" alt="Nora Sayed" onerror="this.src='https://via.placeholder.com/130'">
                 </div>
                 <h3 class="member-name">نورا سيد الملا</h3>
                 <span class="member-title">Personnel Manager</span>
@@ -141,7 +120,7 @@
 
             <div class="team-card">
                 <div class="img-wrapper">
-                    <img src="./Mostafa abdelrazik hussien - Personnel and Payroll Section Head.jpeg" alt="Mostafa Abdelrazik">
+                    <img src="mostafa1.jpg" alt="Mostafa Abdelrazik" onerror="this.src='https://via.placeholder.com/130'">
                 </div>
                 <h3 class="member-name">مصطفى عبد الرازق حسين</h3>
                 <span class="member-title">Personnel & Payroll Section Head</span>
@@ -149,7 +128,7 @@
 
             <div class="team-card">
                 <div class="img-wrapper">
-                    <img src="./Nashwa Mostafa - HR Supervisor.jpg" alt="Nashwa Mostafa">
+                    <img src="nashwa.jpg" alt="Nashwa Mostafa" onerror="this.src='https://via.placeholder.com/130'">
                 </div>
                 <h3 class="member-name">نشوى مصطفى</h3>
                 <span class="member-title">HR Supervisor</span>
@@ -157,7 +136,7 @@
 
             <div class="team-card">
                 <div class="img-wrapper">
-                    <img src="./Mostafa Hussien Raafat - HR Supervisor.jpeg" alt="Mostafa Hussien">
+                    <img src="mostafa2.jpg" alt="Mostafa Hussien" onerror="this.src='https://via.placeholder.com/130'">
                 </div>
                 <h3 class="member-name">مصطفى حسين رأفت</h3>
                 <span class="member-title">HR Supervisor</span>
@@ -165,7 +144,7 @@
 
             <div class="team-card">
                 <div class="img-wrapper">
-                    <img src="./Abdelrahman Mostafa Abdelrahman - HR specialist.jpeg" alt="Abdelrahman Mostafa">
+                    <img src="abdelrahman.jpg" alt="Abdelrahman Mostafa" onerror="this.src='https://via.placeholder.com/130'">
                 </div>
                 <h3 class="member-name">عبد الرحمن مصطفى</h3>
                 <span class="member-title">HR Specialist</span>
