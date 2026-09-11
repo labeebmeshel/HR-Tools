@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مركز معاينة وطباعة النماذج الرسمية | HR Forms Engine</title>
+    <title>منظومة إدارة وطباعة النماذج المتقدمة | HR Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- مكتبات Firebase SDK لقراءة داتا الأدمن السحابية -->
+    <!-- مكتبات معالجة ملفات Excel وقواعد البيانات -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -20,6 +21,7 @@
             --border: #cbd5e1;
             --success: #10b981;
             --warning: #f59e0b;
+            --danger: #ef4444;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -41,17 +43,32 @@
         }
 
         .btn {
-            padding: 9px 16px; border: none; border-radius: 8px; font-weight: bold;
-            cursor: pointer; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
+            padding: 8px 14px; border: none; border-radius: 8px; font-weight: bold;
+            cursor: pointer; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s;
         }
         .btn-primary { background: var(--primary); color: #fff; }
         .btn-primary:hover { background: var(--primary-dark); }
+        .btn-success { background: var(--success); color: #fff; }
         .btn-warning { background: var(--warning); color: #fff; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-sm { padding: 3px 8px; font-size: 0.75rem; }
 
         .card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        /* شجرة البيانات الهرمية Tree View */
+        .tree-container { font-size: 0.9rem; line-height: 1.8; }
+        .tree-node { margin-right: 15px; border-right: 2px dashed var(--border); padding-right: 10px; margin-top: 5px; }
+        .tree-title {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #f1f5f9; padding: 6px 12px; border-radius: 6px; margin-bottom: 4px;
+        }
+        .tree-user { background: #e0f2fe; color: #0369a1; font-weight: bold; }
+        .tree-company { background: #fef3c7; color: #92400e; }
+        .tree-branch { background: #d1fae5; color: #065f46; }
 
         .data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
-        .data-table th, .data-table td { padding: 10px; border: 1px solid var(--border); text-align: right; }
+        .data-table th, .data-table td { padding: 8px 10px; border: 1px solid var(--border); text-align: right; }
         .data-table th { background: #f1f5f9; color: var(--primary-dark); font-weight: bold; }
 
         /* الورقة A4 للطباعة والمعاينة */
@@ -84,11 +101,11 @@
 </head>
 <body>
 
-    <!-- شريط تصفية سحب البيانات الحية من لوحة الأدمن -->
+    <!-- الشريط العلوي للتصفية السريعة وإجراءات الطباعة -->
     <div class="top-filter-bar no-print">
-        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
             <div class="filter-group">
-                <label><i class="fas fa-user-shield"></i> حساب المستخدم النشط:</label>
+                <label><i class="fas fa-user-shield"></i> المستخدم النشط:</label>
                 <select id="activeUserSelect" class="form-control" onchange="onUserSelectChange()"></select>
             </div>
             <div class="filter-group">
@@ -100,7 +117,7 @@
                 <select id="activeBranchSelect" class="form-control" onchange="renderEmployeesTable()"></select>
             </div>
             <div class="filter-group">
-                <label><i class="fas fa-file-invoice"></i> اختر النموذج للطباعة:</label>
+                <label><i class="fas fa-file-invoice"></i> نموذج الطباعة:</label>
                 <select id="activeTmplSelect" class="form-control" onchange="renderPreview()">
                     <option value="JOB_ACK">إقرار استلام عمل</option>
                     <option value="WAGE_SCALE">صحيفة تدرج الأجور</option>
@@ -112,19 +129,55 @@
             </div>
         </div>
 
-        <div style="display: flex; gap: 10px;">
-            <button class="btn btn-warning" onclick="executeBulkPrint()"><i class="fas fa-print"></i> طباعة جماعية للمحددين</button>
-            <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-file-pdf"></i> طباعة المعاينة (A4)</button>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn btn-warning" onclick="executeBulkPrint()"><i class="fas fa-print"></i> طباعة جماعية</button>
+            <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-file-pdf"></i> طباعة (A4)</button>
         </div>
     </div>
 
-    <!-- جدول اختيار الموظفين للطباعة -->
-    <div class="card no-print">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h3><i class="fas fa-users"></i> الموظفون المسجلون بلوحة الأدمن</h3>
-            <small style="color: #64748b;">اختر موظفاً لمعاينته أو حدد المجموعات للطباعة الجماعية</small>
+    <div class="grid-2 no-print">
+        <!-- 1. شجرة الهيكل التنظيمي المحدثة مع إمكانية التعديل السريع -->
+        <div class="card">
+            <h3><i class="fas fa-sitemap"></i> الهيكل التنظيمي (يوزر ➔ شركات ➔ فروع ➔ موظفين)</h3>
+            <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">يمكنك تعديل الأسماء مباشرة بالنقر على زر التعديل المالي لكل عنصر</p>
+            <div id="treeViewArea" class="tree-container" style="max-height: 280px; overflow-y: auto;"></div>
         </div>
-        <div style="max-height: 200px; overflow-y: auto;">
+
+        <!-- 2. محرك إدارة وتعيين الحقول المخصصة لـ Excel -->
+        <div class="card">
+            <h3><i class="fas fa-sliders"></i> تخصيص حقول الموظفين وقالب الـ Excel</h3>
+            <form onsubmit="addNewCustomField(event)" style="display: flex; gap: 8px; margin-bottom: 12px; margin-top: 8px;">
+                <input type="text" id="fieldNameInput" class="form-control" placeholder="اسم الحقل الجديد (مثال: رقم البصمة)" required>
+                <input type="number" id="fieldOrderInput" class="form-control" placeholder="الترتيب" style="width: 80px;" value="1" min="1" required>
+                <button type="submit" class="btn btn-success"><i class="fas fa-plus"></i> إضافة حقل</button>
+            </form>
+
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                <button class="btn btn-primary btn-sm" onclick="downloadDynamicExcelTemplate()"><i class="fas fa-download"></i> تنزيل قالب Excel بالحقول الحالية</button>
+                <label class="btn btn-warning btn-sm" style="cursor: pointer;">
+                    <i class="fas fa-upload"></i> رفع Excel الحقول
+                    <input type="file" accept=".xlsx, .xls" style="display: none;" onchange="importDynamicEmployeesExcel(event)">
+                </label>
+            </div>
+
+            <div style="max-height: 140px; overflow-y: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>الترتيب</th><th>اسم الحقل المخصص</th><th>حذف</th></tr>
+                    </thead>
+                    <tbody id="customFieldsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول عرض واختيار الموظفين للطباعة -->
+    <div class="card no-print">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h3><i class="fas fa-users"></i> الموظفون المتاحون في الفرع المحدد</h3>
+            <small style="color: #64748b;">اختر موظفاً للمعاينة المباشرة أو حدد الكل للطباعة</small>
+        </div>
+        <div style="max-height: 180px; overflow-y: auto;">
             <table class="data-table">
                 <thead>
                     <tr>
@@ -143,7 +196,7 @@
         </div>
     </div>
 
-    <!-- منطقة معاينة وطباعة الورقة الرسمية -->
+    <!-- منطقة المعاينة والطباعة للنماذج -->
     <div id="printArea"></div>
 
     <script>
@@ -157,29 +210,221 @@
 
         let dbUsers = {};
         let dbCompanies = {};
-        let dbBranches = [];
+        let dbBranches = {};
         let dbEmployees = [];
+        let dbCustomFields = [];
         let selectedEmpIdForSinglePrint = null;
 
-        function loadAdminData() {
-            // سحب كافة بيانات الأدمن والشركات والموظفين حياً
-            db.ref('system_users').on('value', (uSnap) => {
+        function loadAllSystemData() {
+            db.ref('system_users').on('value', uSnap => {
                 dbUsers = uSnap.val() || {};
-                
-                db.ref('system_companies').on('value', (cSnap) => {
+                db.ref('system_companies').on('value', cSnap => {
                     dbCompanies = cSnap.val() || {};
-                    
-                    db.ref('HR_FORM_SYSTEM_DATA/branches').on('value', (bSnap) => {
-                        const bVal = bSnap.val() || {};
-                        dbBranches = Object.values(bVal);
-
-                        db.ref('HR_FORM_SYSTEM_DATA/employees').on('value', (eSnap) => {
+                    db.ref('HR_FORM_SYSTEM_DATA/branches').on('value', bSnap => {
+                        dbBranches = bSnap.val() || {};
+                        db.ref('HR_FORM_SYSTEM_DATA/employees').on('value', eSnap => {
                             dbEmployees = eSnap.val() || [];
-                            populateUserDropdown();
+                            db.ref('HR_FORM_SYSTEM_DATA/customFields').on('value', fSnap => {
+                                const fVal = fSnap.val() || [];
+                                dbCustomFields = Object.values(fVal).sort((a,b) => a.order - b.order);
+                                
+                                populateUserDropdown();
+                                renderTreeView();
+                                renderCustomFieldsTable();
+                            });
                         });
                     });
                 });
             });
+        }
+
+        // عرض وإدارة الشجرة التنظيمية وتحديث الأسماء فوراً
+        function renderTreeView() {
+            const container = document.getElementById('treeViewArea');
+            container.innerHTML = '';
+
+            const usersArr = Object.values(dbUsers);
+            usersArr.forEach(u => {
+                let userHtml = `
+                    <div class="tree-node">
+                        <div class="tree-title tree-user">
+                            <span><i class="fas fa-user-circle"></i> المستخدم: ${u.username} (${u.role})</span>
+                            <button class="btn btn-warning btn-sm" onclick="editUsernamePrompt('${u.username}')"><i class="fas fa-edit"></i> تعديل</button>
+                        </div>`;
+
+                const userComps = Object.keys(dbCompanies)
+                    .filter(k => dbCompanies[k].userId === u.username || u.role === 'admin')
+                    .map(k => ({ id: k, ...dbCompanies[k] }));
+
+                userComps.forEach(c => {
+                    userHtml += `
+                        <div class="tree-node">
+                            <div class="tree-title tree-company">
+                                <span><i class="fas fa-building"></i> الشركة: ${c.name}</span>
+                                <button class="btn btn-warning btn-sm" onclick="editCompanyNamePrompt('${c.id}', '${c.name}')"><i class="fas fa-edit"></i> تعديل</button>
+                            </div>`;
+
+                    const compBranches = Object.keys(dbBranches)
+                        .filter(bk => dbBranches[bk].compId === c.id)
+                        .map(bk => ({ id: bk, ...dbBranches[bk] }));
+
+                    compBranches.forEach(b => {
+                        const branchEmpCount = dbEmployees.filter(e => e.compId === c.id && e.branchId === b.id).length;
+                        userHtml += `
+                            <div class="tree-node">
+                                <div class="tree-title tree-branch">
+                                    <span><i class="fas fa-code-branch"></i> الفرع: ${b.name} (${branchEmpCount} موظف)</span>
+                                    <button class="btn btn-warning btn-sm" onclick="editBranchNamePrompt('${b.id}', '${b.name}')"><i class="fas fa-edit"></i> تعديل</button>
+                                </div>
+                            </div>`;
+                    });
+
+                    userHtml += `</div>`;
+                });
+
+                userHtml += `</div>`;
+                container.innerHTML += userHtml;
+            });
+        }
+
+        // دوال التعديل المباشر في قاعدة البيانات
+        function editUsernamePrompt(oldUsername) {
+            const newName = prompt("أدخل اسم المستخدم الجديد:", oldUsername);
+            if (newName && newName.trim() !== "" && newName !== oldUsername) {
+                db.ref(`system_users/${oldUsername}`).once('value').then(snap => {
+                    const data = snap.val();
+                    data.username = newName.trim();
+                    db.ref(`system_users/${newName.trim()}`).set(data);
+                    db.ref(`system_users/${oldUsername}`).remove();
+                    alert("تم تحديث اسم المستخدم بنجاح!");
+                });
+            }
+        }
+
+        function editCompanyNamePrompt(compId, oldName) {
+            const newName = prompt("أدخل اسم الشركة الجديد:", oldName);
+            if (newName && newName.trim() !== "") {
+                db.ref(`system_companies/${compId}/name`).set(newName.trim()).then(() => alert("تم تحديث اسم الشركة!"));
+            }
+        }
+
+        function editBranchNamePrompt(branchId, oldName) {
+            const newName = prompt("أدخل اسم الفرع الجديد:", oldName);
+            if (newName && newName.trim() !== "") {
+                db.ref(`HR_FORM_SYSTEM_DATA/branches/${branchId}/name`).set(newName.trim()).then(() => alert("تم تحديث اسم الفرع!"));
+            }
+        }
+
+        // إدارات الحقول المخصصة لـ Excel
+        function addNewCustomField(e) {
+            e.preventDefault();
+            const name = document.getElementById('fieldNameInput').value.trim();
+            const order = parseInt(document.getElementById('fieldOrderInput').value) || 1;
+
+            const fieldId = 'field_' + Date.now();
+            const fieldObj = { id: fieldId, name: name, order: order };
+
+            db.ref(`HR_FORM_SYSTEM_DATA/customFields/${fieldId}`).set(fieldObj).then(() => {
+                alert("تم إضافة الحقل المخصص وتحديث ترتيبه بنجاح!");
+                e.target.reset();
+            });
+        }
+
+        function renderCustomFieldsTable() {
+            const tbody = document.getElementById('customFieldsTableBody');
+            tbody.innerHTML = '';
+
+            dbCustomFields.forEach(f => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${f.order}</strong></td>
+                        <td>${f.name}</td>
+                        <td><button class="btn btn-danger btn-sm" onclick="deleteCustomField('${f.id}')"><i class="fas fa-trash"></i></button></td>
+                    </tr>`;
+            });
+        }
+
+        function deleteCustomField(fieldId) {
+            if (confirm("هل تريد حذف هذا الحقل المخصص؟")) {
+                db.ref(`HR_FORM_SYSTEM_DATA/customFields/${fieldId}`).remove();
+            }
+        }
+
+        // تنزيل قالب Excel ديناميكي متضمن كافة الحقول المخصصة بترتيبها
+        function downloadDynamicExcelTemplate() {
+            let baseHeaders = [
+                "كود الموظف", "اسم الموظف", "الرقم القومي", "الرقم التأميني",
+                "الوظيفة", "تاريخ التعيين", "الأجر التأميني", "الأجر الشامل"
+            ];
+
+            // إضافة الحقول المخصصة بترتيبها المحدد
+            dbCustomFields.forEach(f => {
+                baseHeaders.push(f.name);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet([baseHeaders]);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "قالب الموظفين");
+            XLSX.writeFile(wb, "قالب_الموظفين_الديناميكي.xlsx");
+        }
+
+        // قراءة ورفع شيت الموظفين بالكامل مع الحقول المخصصة
+        function importDynamicEmployeesExcel(event) {
+            const compId = document.getElementById('activeCompanySelect').value;
+            const branchId = document.getElementById('activeBranchSelect').value;
+
+            if (!compId) {
+                alert("يرجى اختيار الشركة والفرع أولاً للرفع المباشر عليها!");
+                event.target.value = "";
+                return;
+            }
+
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                const importedEmployees = jsonData.map((row, idx) => {
+                    let empObj = {
+                        id: 'emp_' + Date.now() + '_' + idx,
+                        code: String(row["كود الموظف"] || (1000 + idx)),
+                        name: row["اسم الموظف"] || "",
+                        natId: String(row["الرقم القومي"] || ""),
+                        insNo: String(row["الرقم التأميني"] || ""),
+                        job: row["الوظيفة"] || "",
+                        insDate: row["تاريخ التعيين"] || "",
+                        insuredSalary: String(row["الأجر التأميني"] || "0"),
+                        grossSalary: String(row["الأجر الشامل"] || "0"),
+                        compId: compId,
+                        branchId: branchId === 'ALL' ? '' : branchId,
+                        customData: {}
+                    };
+
+                    // معالجة قراءة الحقول المخصصة الديناميكية
+                    dbCustomFields.forEach(f => {
+                        if (row[f.name] !== undefined) {
+                            empObj.customData[f.id] = String(row[f.name]);
+                        }
+                    });
+
+                    return empObj;
+                });
+
+                db.ref('HR_FORM_SYSTEM_DATA/employees').once('value').then(snap => {
+                    const currentArr = snap.val() || [];
+                    const updatedArr = [...currentArr, ...importedEmployees];
+                    db.ref('HR_FORM_SYSTEM_DATA/employees').set(updatedArr).then(() => {
+                        alert(`تم استيراد (${importedEmployees.length}) موظف بنجاح بالقالب الديناميكي!`);
+                        event.target.value = "";
+                    });
+                });
+            };
+            reader.readAsArrayBuffer(file);
         }
 
         function populateUserDropdown() {
@@ -192,13 +437,11 @@
             const usersArray = Object.values(dbUsers);
 
             if (loggedRole === 'admin') {
-                // الأدمن يستطيع التبديل والمعاينة لكافة الحسابات والشركات
                 usersArray.forEach(u => {
                     const isSelected = u.username === loggedUser ? 'selected' : '';
                     userSelect.innerHTML += `<option value="${u.username}" ${isSelected}>${u.username} (${u.role === 'admin' ? 'مدير النظام' : 'مستخدم'})</option>`;
                 });
             } else {
-                // المستخدم العادي يرى حسابه المربوط بشركته فقط
                 userSelect.innerHTML = `<option value="${loggedUser}">${loggedUser}</option>`;
             }
 
@@ -207,29 +450,20 @@
 
         function onUserSelectChange() {
             const selectedUsername = document.getElementById('activeUserSelect').value;
-            const userObj = dbUsers[selectedUsername];
             const compSelect = document.getElementById('activeCompanySelect');
             compSelect.innerHTML = '';
 
             const allCompaniesArray = Object.keys(dbCompanies).map(k => ({ id: k, ...dbCompanies[k] }));
 
-            // إذا كان الخيار المختار هو الأدمن، تعرض جميع شركات المنظومة
             if (selectedUsername === 'admin') {
-                if (allCompaniesArray.length === 0) {
-                    compSelect.innerHTML = '<option value="">-- لا توجد شركات مسجلة بـ Firebase --</option>';
-                } else {
-                    allCompaniesArray.forEach(c => {
-                        compSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                    });
-                }
+                allCompaniesArray.forEach(c => {
+                    compSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                });
             } else {
-                // إذا كان مستخدماً يتم جلب شركته المربوطة
-                if (userObj && userObj.companyId && dbCompanies[userObj.companyId]) {
-                    const comp = dbCompanies[userObj.companyId];
-                    compSelect.innerHTML = `<option value="${userObj.companyId}">${comp.name}</option>`;
-                } else {
-                    compSelect.innerHTML = '<option value="">-- لا توجد شركة مربوطة بهذا الحساب --</option>';
-                }
+                const userComps = allCompaniesArray.filter(c => c.userId === selectedUsername);
+                userComps.forEach(c => {
+                    compSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                });
             }
 
             onCompanyChange();
@@ -240,7 +474,9 @@
             const branchSelect = document.getElementById('activeBranchSelect');
             branchSelect.innerHTML = '<option value="ALL">جميع الفروع</option>';
 
-            const filteredBranches = dbBranches.filter(b => b.compId === compId);
+            const branchesArr = Object.keys(dbBranches).map(k => ({ id: k, ...dbBranches[k] }));
+            const filteredBranches = branchesArr.filter(b => b.compId === compId);
+
             filteredBranches.forEach(b => {
                 branchSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
             });
@@ -262,7 +498,7 @@
             });
 
             if (list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">لا يوجد موظفون مسجلون تحت هذه الشركة أو الفرع</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">لا يوجد موظفون مسجلون تحت هذا الاختيار</td></tr>';
                 document.getElementById('printArea').innerHTML = '';
                 selectedEmpIdForSinglePrint = null;
                 return;
@@ -280,7 +516,7 @@
                         <td>${e.job || '-'}</td>
                         <td>${e.grossSalary || '0'} ج.م</td>
                         <td>
-                            <button class="btn btn-primary" style="padding: 3px 8px; font-size:0.75rem;" onclick="selectSingleEmp('${e.id}')"><i class="fas fa-eye"></i> معاينة</button>
+                            <button class="btn btn-primary btn-sm" onclick="selectSingleEmp('${e.id}')"><i class="fas fa-eye"></i> معاينة</button>
                         </td>
                     </tr>`;
             });
@@ -314,7 +550,7 @@
             const tmplKey = document.getElementById('activeTmplSelect').value;
 
             if (selectedEmpIds.length === 0) {
-                alert("يرجى تحديد موظف واحد على الأقل من الجدول للطباعة الجماعية!");
+                alert("يرجى تحديد موظف واحد على الأقل للطباعة الجماعية!");
                 return;
             }
 
@@ -331,7 +567,7 @@
         function buildOfficialFormHTML(empId, tmplKey) {
             const emp = dbEmployees.find(e => e.id === empId) || {};
             const comp = dbCompanies[emp.compId] || dbCompanies[document.getElementById('activeCompanySelect').value] || { name: 'اسم الشركة', field: 'المجال' };
-            const branch = dbBranches.find(b => b.id === emp.branchId) || { name: 'المركز الرئيسي' };
+            const branch = Object.values(dbBranches).find(b => b.id === emp.branchId) || { name: 'المركز الرئيسي' };
 
             const logoHtml = comp.logo ? `<img src="${comp.logo}" style="height: 50px; border-radius:4px;">` : '';
 
@@ -339,14 +575,14 @@
                 <div class="doc-header">
                     <div>
                         <h2 style="font-size: 1.4rem; margin: 0; color: var(--primary-dark);">${comp.name}</h2>
-                        <small style="color: #64748b;">نشاط المنشأة: ${comp.field || '-'} | الفرع: ${branch.name}</small>
+                        <small style="color: #64748b;">النشاط: ${comp.field || '-'} | الفرع: ${branch.name}</small>
                     </div>
                     ${logoHtml}
                 </div>`;
 
             const footerHTML = `
                 <div class="doc-footer">
-                    الهاتف: ${comp.phone || '-'} | المسؤول: ${comp.adminName || '-'} | تم استخراج النموذج تلقائياً عبر منظومة الموارد البشرية
+                    الهاتف: ${comp.phone || '-'} | المسؤول: ${comp.adminName || '-'} | مستند معتمد من منظومة إدارة الموارد البشرية
                 </div>`;
 
             let bodyContent = '';
@@ -358,30 +594,9 @@
                     </div>
                     <div style="line-height: 2.2; text-align: justify; font-size: 14px;">
                         أقر وأتعهد أنا <strong>${emp.name || '........................'}</strong> ، القومي رقم ( <strong>${emp.natId || '........................'}</strong> ) بأني قد إستلمت العمل بشركة <strong>${comp.name}</strong>، بوظيفة <strong>${emp.job || '........................'}</strong> إعتباراً من <strong>${emp.insDate || 'تاريخ الاستلام'}</strong> .<br><br>
-                        كما أنني أقر بأني لا أعمل حالياً بأية وظيفة سواء كانت حكومية أو خاصة ولا أتقاضى أجراً من أي جهة غير الأجر الذي سوف يصرف لي من الشركة المذكورة وقدره ( <strong>${emp.grossSalary || '......'} ج.م</strong> ).<br><br>
+                        كما أنني أقر بأني لا أعمل حالياً بأية وظيفة سواء كانت حكومية أو خاصة وقدر الأجر الذي سوف يصرف لي من الشركة قدره ( <strong>${emp.grossSalary || '......'} ج.م</strong> ).<br><br>
                         أقر وأتعهد أنا الموقع أدناه بالإلتزام بالقيام بواجباتي في الشركة والمحافظة على ممتلكاتها وأسرارها.
                     </div>`;
-            } else if (tmplKey === 'WAGE_SCALE') {
-                bodyContent = `
-                    <div style="text-align: center; margin-bottom: 15px;">
-                        <h3>صحيفة تدرج الأجور</h3>
-                        <p style="font-size: 11px;">طبقاً للقرار الوزاري رقم 185 لسنة 2003</p>
-                    </div>
-                    <table style="width: 100%; font-size: 12px; margin-bottom: 15px;">
-                        <tr><td>اسم المنشأة: <strong>${comp.name}</strong></td><td>رقم الموظف: <strong>${emp.code || '-'}</strong></td></tr>
-                        <tr><td>اسم العامل: <strong>${emp.name || '-'}</strong></td><td>الرقم التأميني: <strong>${emp.insNo || '-'}</strong></td></tr>
-                    </table>
-                    <table class="official-table">
-                        <thead>
-                            <tr><th>م</th><th>الأجر قبل الزيادة</th><th>الأجر بعد الزيادة</th><th>مقدار الزيادة</th><th>تاريخ الزيادة</th><th>سبب الزيادة</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>1</td><td>${emp.insuredSalary || ''}</td><td>${emp.grossSalary || ''}</td><td></td><td>${emp.insDate || ''}</td><td>بداية تعيين</td></tr>
-                            <tr><td>2</td><td></td><td></td><td></td><td></td><td></td></tr>
-                            <tr><td>3</td><td></td><td></td><td></td><td></td><td></td></tr>
-                            <tr><td>4</td><td></td><td></td><td></td><td></td><td></td></tr>
-                        </tbody>
-                    </table>`;
             } else {
                 bodyContent = `
                     <div style="text-align: center; margin-bottom: 15px;">
@@ -414,7 +629,7 @@
         }
 
         window.onload = function() {
-            loadAdminData();
+            loadAllSystemData();
         };
     </script>
 </body>
