@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طباعة ملصقات ملفات الموظفين | A4 Labels Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #0b4fb3;
+            --accent: #1e3a8a;
+            --border: #cbd5e1;
+            --bg: #f8fafc;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg);
+            color: #1e293b;
+        }
+
+        .no-print {
+            max-width: 1000px;
+            margin: 0 auto 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .control-group input, .control-group select {
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover { background: var(--accent); }
+        .btn-success { background: #059669; }
+        .btn-success:hover { background: #047857; }
+
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 10mm 5mm;
+            margin: 0 auto 20mm auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 4mm 5mm;
+            direction: rtl;
+        }
+
+        .label-card {
+            border: 1px dashed var(--border);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            padding: 4mm;
+            background: #fff;
+            position: relative;
+            page-break-inside: avoid;
+            overflow: hidden;
+        }
+
+        .top-spacer {
+            width: 100%;
+            transition: height 0.1s ease;
+        }
+
+        .label-card .content-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            gap: 4px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .company-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            margin-top: 4px;
+        }
+
+        .company-footer.lang-ar { flex-direction: row; }
+        .company-footer.lang-en { flex-direction: row-reverse; }
+
+        .company-logo {
+            max-height: 22px;
+            max-width: 35px;
+            object-fit: contain;
+        }
+
+        .company-name {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #334155;
+            white-space: nowrap;
+        }
+
+        .emp-code {
+            font-weight: 800;
+            color: var(--primary);
+            border: 1.5px solid var(--primary);
+            padding: 2px 10px;
+            border-radius: 4px;
+        }
+
+        .emp-name {
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .emp-dept {
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .no-print { display: none !important; }
+            .a4-page {
+                box-shadow: none;
+                margin: 0;
+                padding: 5mm;
+                width: 210mm;
+                height: 297mm;
+                page-break-after: always;
+            }
+            .label-card { border: 1px solid #cbd5e1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div>
+                <h2 style="margin:0; color: var(--primary);">مولّد ملصقات ملفات الموظفين الذكي</h2>
+                <p style="font-size: 0.85rem; color: #64748b; margin: 4px 0 0 0;">مرتبط تلقائياً بشركات وقاعدة بيانات منظومة الموارد البشرية.</p>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <input type="file" id="excelInput" accept=".xlsx, .xls, .csv" style="display: none;" onchange="processExcel(this.files)">
+                <button class="btn" onclick="document.getElementById('excelInput').click()">
+                    <i class="fas fa-file-excel"></i> رفع Excel خارجي
+                </button>
+                <button class="btn btn-success" id="printBtn" onclick="window.print()">
+                    <i class="fas fa-print"></i> طباعة (A4)
+                </button>
+            </div>
+        </div>
+
+        <div class="controls-grid">
+            <div class="control-group">
+                <label>اختر الشركة:</label>
+                <select id="compSelect" onchange="onCompanyChange()"></select>
+            </div>
+            <div class="control-group">
+                <label>اختر الفرع / الإدارة:</label>
+                <select id="branchSelect" onchange="loadEmployeesFromDB()"></select>
+            </div>
+            <div class="control-group">
+                <label>اسم الشركة (للعرض):</label>
+                <input type="text" id="companyInput" placeholder="اكتب اسم الشركة" oninput="reRenderIfData()">
+            </div>
+            <div class="control-group">
+                <label>تغيير اللوجو:</label>
+                <input type="file" id="logoInput" accept="image/*" onchange="loadLogo(this.files)">
+            </div>
+            <div class="control-group">
+                <label>عرض الـ Label (سم):</label>
+                <input type="number" id="labelWidth" value="6" step="0.5" oninput="updateStyles()">
+            </div>
+            <div class="control-group">
+                <label>ارتفاع الـ Label (سم):</label>
+                <input type="number" id="labelHeight" value="8" step="0.5" oninput="updateStyles()">
+            </div>
+            <div class="control-group">
+                <label>ارتفاع الجزء الفارغ (%):</label>
+                <input type="number" id="topSpace" value="40" min="0" max="85" step="5" oninput="updateStyles()">
+            </div>
+            <div class="control-group">
+                <label>حجم الخط (px):</label>
+                <input type="number" id="fontSize" value="14" min="10" max="24" oninput="updateStyles()">
+            </div>
+            <div class="control-group">
+                <label>عدد العناصر في الصفحة:</label>
+                <input type="number" id="maxPerPage" value="9" min="1" max="30" oninput="reRenderIfData()">
+            </div>
+        </div>
+    </div>
+
+    <div id="pagesContainer"></div>
+
+<script>
+    const firebaseConfig = { databaseURL: "https://hr-performance-system-f388a-default-rtdb.firebaseio.com" };
+    firebase.initializeApp(firebaseConfig);
+    const fbDB = firebase.database();
+
+    let DB = { companies: [], branches: [], employees: [] };
+    let globalJsonData = [];
+    let uploadedLogoBase64 = "";
+
+    window.onload = function() {
+        fbDB.ref('HR_FORM_SYSTEM_DATA').once('value').then((snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                DB.companies = data.companies || [];
+                DB.branches = data.branches || [];
+                DB.employees = data.employees || [];
+                populateCompDropdown();
+            }
+        });
+    };
+
+    function populateCompDropdown() {
+        const compSelect = document.getElementById('compSelect');
+        compSelect.innerHTML = '<option value="">-- اختر الشركة --</option>';
+        DB.companies.forEach(c => {
+            compSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+        });
+    }
+
+    function onCompanyChange() {
+        const cId = document.getElementById('compSelect').value;
+        const comp = DB.companies.find(c => c.id === cId);
+        if (comp) {
+            document.getElementById('companyInput').value = comp.name;
+            uploadedLogoBase64 = comp.logoUrl || "";
+        }
+
+        const branchSelect = document.getElementById('branchSelect');
+        branchSelect.innerHTML = '<option value="ALL">جميع الفروع / الإدارات</option>';
+        DB.branches.filter(b => b.compId === cId).forEach(b => {
+            branchSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+        });
+
+        loadEmployeesFromDB();
+    }
+
+    function loadEmployeesFromDB() {
+        const cId = document.getElementById('compSelect').value;
+        const bId = document.getElementById('branchSelect').value;
+
+        if (!cId) return;
+
+        const filteredEmp = DB.employees.filter(e => {
+            const matchC = e.compId === cId;
+            const matchB = bId === 'ALL' || e.branchId === bId;
+            return matchC && matchB;
+        });
+
+        globalJsonData = filteredEmp.map(e => {
+            const branch = DB.branches.find(b => b.id === e.branchId) || { name: 'المركز الرئيسي' };
+            return {
+                code: e.code || e.id,
+                name: e.name,
+                dept: e.job || branch.name
+            };
+        });
+
+        renderLabels();
+    }
+
+    function loadLogo(files) {
+        if (!files.length) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            uploadedLogoBase64 = e.target.result;
+            reRenderIfData();
+        };
+        reader.readAsDataURL(files[0]);
+    }
+
+    function processExcel(files) {
+        if (!files.length) return;
+        const file = files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const raw = XLSX.utils.sheet_to_json(firstSheet);
+
+            globalJsonData = raw.map(row => {
+                let code = '---', name = '---', dept = '---';
+                Object.keys(row).forEach(k => {
+                    const lk = k.toLowerCase().trim();
+                    if (lk.includes('كود') || lk.includes('id') || lk.includes('code')) code = row[k];
+                    else if (lk.includes('اسم') || lk.includes('name')) name = row[k];
+                    else if (lk.includes('إدارة') || lk.includes('قسم') || lk.includes('dept')) dept = row[k];
+                });
+                return { code, name, dept };
+            });
+
+            renderLabels();
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function reRenderIfData() { if (globalJsonData.length) renderLabels(); }
+
+    function isArabicText(text) { return /[\u0600-\u06FF]/.test(text); }
+
+    function renderLabels() {
+        const container = document.getElementById('pagesContainer');
+        container.innerHTML = '';
+        if (!globalJsonData.length) return;
+
+        const companyName = document.getElementById('companyInput').value.trim();
+        const isArabic = isArabicText(companyName);
+        const langClass = isArabic ? 'lang-ar' : 'lang-en';
+
+        let currentPage = createA4Page();
+        container.appendChild(currentPage);
+
+        let countInPage = 0;
+        const maxPerPage = parseInt(document.getElementById('maxPerPage').value) || 9;
+
+        globalJsonData.forEach((row) => {
+            if (countInPage >= maxPerPage) {
+                currentPage = createA4Page();
+                container.appendChild(currentPage);
+                countInPage = 0;
+            }
+
+            const label = document.createElement('div');
+            label.className = 'label-card';
+
+            let logoHtml = uploadedLogoBase64 ? `<img src="${uploadedLogoBase64}" class="company-logo">` : '';
+            let companyHtml = companyName ? `<div class="company-name">${companyName}</div>` : '';
+
+            let footerHtml = (logoHtml || companyHtml) ? `
+                <div class="company-footer ${langClass}">
+                    ${logoHtml}
+                    ${companyHtml}
+                </div>
+            ` : '';
+
+            label.innerHTML = `
+                <div class="top-spacer"></div>
+                <div class="content-box">
+                    <div class="emp-code">${row.code}</div>
+                    <div class="emp-name">${row.name}</div>
+                    <div class="emp-dept">${row.dept}</div>
+                    ${footerHtml}
+                </div>
+            `;
+
+            currentPage.appendChild(label);
+            countInPage++;
+        });
+
+        updateStyles();
+    }
+
+    function createA4Page() {
+        const page = document.createElement('div');
+        page.className = 'a4-page';
+        return page;
+    }
+
+    function updateStyles() {
+        const width = document.getElementById('labelWidth').value || 6;
+        const height = document.getElementById('labelHeight').value || 8;
+        const topSpace = document.getElementById('topSpace').value || 40;
+        const fontSize = document.getElementById('fontSize').value || 14;
+
+        document.querySelectorAll('.label-card').forEach(card => {
+            card.style.width = width + 'cm';
+            card.style.height = height + 'cm';
+        });
+
+        document.querySelectorAll('.top-spacer').forEach(spacer => {
+            spacer.style.height = topSpace + '%';
+        });
+
+        document.querySelectorAll('.emp-code').forEach(el => el.style.fontSize = (fontSize * 1.1) + 'px');
+        document.querySelectorAll('.emp-name').forEach(el => el.style.fontSize = fontSize + 'px');
+        document.querySelectorAll('.emp-dept').forEach(el => el.style.fontSize = (fontSize * 0.85) + 'px');
+    }
+</script>
+</body>
+</html>
