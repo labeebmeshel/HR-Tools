@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منظومة إدارة الموارد البشرية والشركات الشاملة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- مكتبات قراءة ملفات Excel السريعة -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-    <!-- مكتبات Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -29,22 +25,17 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-light); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
 
-        /* شاشة تسجيل الدخول */
         #loginScreen {
             position: fixed; inset: 0; background: linear-gradient(135deg, var(--primary-dark), var(--primary));
             z-index: 99999; display: flex; align-items: center; justify-content: center;
         }
-        .login-card {
-            background: white; width: 420px; padding: 35px; border-radius: 16px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); text-align: center;
-        }
+        .login-card { background: white; width: 420px; padding: 35px; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); text-align: center; }
         .login-card h2 { color: var(--primary-dark); margin-bottom: 20px; font-size: 1.4rem; }
         .form-input { width: 100%; padding: 10px 12px; margin-bottom: 12px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-size: 0.9rem; }
         .btn-action { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-action:hover { background: var(--primary-dark); }
         .login-error { color: var(--danger); font-size: 0.85rem; margin-top: 10px; display: none; }
 
-        /* القائمة الجانبية */
         .sidebar {
             width: var(--sidebar-width); background: var(--primary-dark); color: white;
             display: flex; flex-direction: column; height: 100vh; z-index: 1000; flex-shrink: 0;
@@ -65,20 +56,10 @@
         .nav-link:hover, .nav-link.active { background: var(--primary); color: white; }
         .nav-link i { width: 20px; text-align: center; font-size: 1.05rem; }
 
-        .submenu { display: none; list-style: none; padding-right: 25px; margin-top: 4px; }
-        .submenu.active { display: block; }
-        .submenu-btn {
-            display: block; width: 100%; text-align: right; padding: 8px 12px;
-            color: rgba(255,255,255,0.7); border: none; background: none; cursor: pointer;
-            font-size: 0.85rem; border-radius: 6px; transition: 0.2s;
-        }
-        .submenu-btn:hover, .submenu-btn.active { color: #fcd34d; background: rgba(255,255,255,0.05); }
-
         .sidebar-footer { padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); }
         .user-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
         .btn-logout { background: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
 
-        /* الشاشات الرئيسية */
         .main-wrapper { flex: 1; height: 100vh; position: relative; overflow: hidden; }
         .page-frame { width: 100%; height: 100%; border: none; display: none; }
         .page-frame.active { display: block; }
@@ -89,138 +70,57 @@
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-        .stat-card-view { background: white; padding: 20px; border-radius: 10px; border-right: 4px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-        .data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
-        .data-table th, .data-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: right; }
-        .data-table th { background: #f8fafc; color: var(--primary-dark); font-weight: bold; }
+        /* الشجرة التنظيمية */
+        .tree-container { font-size: 0.9rem; line-height: 1.8; }
+        .tree-node { margin-right: 15px; border-right: 2px dashed var(--border); padding-right: 10px; margin-top: 5px; }
+        .tree-title {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #f1f5f9; padding: 8px 12px; border-radius: 8px; margin-bottom: 5px;
+        }
+        .tree-user { background: #e0f2fe; color: #0369a1; font-weight: bold; }
+        .tree-company { background: #fef3c7; color: #92400e; }
+        .tree-branch { background: #d1fae5; color: #065f46; }
 
-        .status-badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
-        .status-online { background: #d1fae5; color: #065f46; }
-        .status-offline { background: #fee2e2; color: #991b1b; }
+        .btn-edit-sm { background: var(--warning); color: white; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
 
         @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-    <!-- شاشة تسجيل الدخول -->
     <div id="loginScreen">
         <div class="login-card">
             <i class="fas fa-user-shield fa-3x" style="color: var(--primary); margin-bottom: 15px;"></i>
             <h2>تسجيل الدخول للنظام</h2>
             <form id="loginForm" onsubmit="handleLogin(event)">
-                <input type="text" id="loginUsername" class="form-input" placeholder="اسم المستخدم (Username)" required>
-                <input type="password" id="loginPassword" class="form-input" placeholder="كلمة المرور (Password)" required>
+                <input type="text" id="loginUsername" class="form-input" placeholder="اسم المستخدم" required>
+                <input type="password" id="loginPassword" class="form-input" placeholder="كلمة المرور" required>
                 <button type="submit" class="btn-action">دخول</button>
             </form>
             <div id="loginError" class="login-error">اسم المستخدم أو كلمة المرور غير صحيحة!</div>
         </div>
     </div>
 
-    <!-- القائمة الجانبية -->
     <aside class="sidebar">
         <div class="sidebar-header">
             <img id="sidebarLogo" src="" class="company-logo-img" alt="لوجو الشركة">
             <h3 id="sidebarCompName">اسم الشركة</h3>
             <p id="sidebarCompField">مجال الشركة</p>
-            <div style="margin-top: 6px;">
-                <span id="dbConnectionStatus" class="status-badge status-offline">جاري الاتصال...</span>
-            </div>
         </div>
         
         <ul class="nav-list" id="mainNav">
-            <li class="nav-item">
-                <button class="nav-link active" onclick="loadPage(event, 'home-frame', this)">
-                    <i class="fas fa-house"></i> الرئيسية
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" onclick="loadPage(event, 'profile-view-frame', this)">
-                    <i class="fas fa-building-user"></i> بروفايل الشركة والحساب
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" onclick="loadPage(event, 'cv-frame', this)">
-                    <i class="fas fa-id-card"></i> السيرة الذاتية
-                </button>
-            </li>
-
-            <li class="nav-item">
-                <button class="nav-link" onclick="toggleSubmenu('taxSubmenu')">
-                    <i class="fas fa-calculator"></i> حاسبات الضرائب ▾
-                </button>
-                <ul class="submenu" id="taxSubmenu">
-                    <li><button class="submenu-btn" onclick="loadDropdownPage(event, 'tax-frame', 'إجمالي ← صافي', this)">إجمالي ← صافي</button></li>
-                    <li><button class="submenu-btn" onclick="loadDropdownPage(event, 'tax-reverse-frame', 'عكس الضريبة فردي', this)">صافي ← إجمالي (فردي)</button></li>
-                    <li><button class="submenu-btn" onclick="loadDropdownPage(event, 'tax-reverse-bulk-frame', 'عكس الضريبة جماعي', this)">صافي ← إجمالي (جماعي)</button></li>
-                </ul>
-            </li>
-
-            <li class="nav-item">
-                <button class="nav-link" onclick="loadPage(event, 's1-frame', this)">
-                    <i class="fas fa-file-contract"></i> س1 تأمينات
-                </button>
-            </li>
-            
-            <li class="nav-item">
-                <button class="nav-link" onclick="loadPage(event, 'forms-print-frame', this)">
-                    <i class="fas fa-print"></i> طباعة النماذج الرسمية
-                </button>
-            </li>
-
-            <li class="nav-item">
-                <button class="nav-link" onclick="loadPage(event, 'labels-frame', this)">
-                    <i class="fas fa-tags"></i> ملصقات الموظفين (A4 Labels)
-                </button>
-            </li>
-
-            <li class="nav-item">
-                <button class="nav-link" onclick="loadPage(event, 'team-frame', this)">
-                    <i class="fas fa-users-gear"></i> فريق الإعداد
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" onclick="loadPage(event, 'tafqit-frame', this)">
-                    <i class="fas fa-spell-check"></i> أداة التفقيط
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" onclick="loadPage(event, 'feedback-frame', this)">
-                    <i class="fas fa-chart-line"></i> قياس الأداء
-                </button>
-            </li>
-
-            <li class="nav-item">
-                <button class="nav-link" onclick="toggleSubmenu('discSubmenu')">
-                    <i class="fas fa-user-gear"></i> تحليل الشخصية (DISC) ▾
-                </button>
-                <ul class="submenu" id="discSubmenu">
-                    <li><button class="submenu-btn" onclick="loadDropdownPage(event, 'disc-frame', 'تقييم DISC', this)">إجراء تقييم DISC</button></li>
-                    <li><button class="submenu-btn" onclick="loadDropdownPage(event, 'disc-dash-frame', 'لوحة نتائج DISC', this)">لوحة نتائج DISC</button></li>
-                </ul>
-            </li>
-
-            <li class="nav-item">
-                <button class="nav-link" onclick="loadPage(event, 'scan-frame', this)">
-                    <i class="fas fa-file-excel"></i> HR Scan → Excel
-                </button>
-            </li>
-            
-            <!-- لوحة تحكم الأدمن -->
+            <li class="nav-item"><button class="nav-link active" onclick="loadPage(event, 'home-frame', this)"><i class="fas fa-house"></i> الرئيسية</button></li>
+            <li class="nav-item"><button class="nav-link" onclick="loadPage(event, 'forms-print-frame', this)"><i class="fas fa-print"></i> طباعة النماذج الرسمية</button></li>
+            <li class="nav-item"><button class="nav-link" onclick="loadPage(event, 'labels-frame', this)"><i class="fas fa-tags"></i> ملصقات الموظفين (A4)</button></li>
             <li class="nav-item" id="adminTabItem" style="display: none;">
-                <button class="nav-link" style="color: #fcd34d;" onclick="loadPage(event, 'admin-dashboard-frame', this)">
-                    <i class="fas fa-user-shield"></i> لوحة تحكم الأدمن الرئيسية
-                </button>
+                <button class="nav-link" style="color: #fcd34d;" onclick="loadPage(event, 'admin-dashboard-frame', this)"><i class="fas fa-user-shield"></i> لوحة الأدمن والشجرة التنظيمية</button>
             </li>
         </ul>
 
         <div class="sidebar-footer">
             <div class="user-info">
-                <div>
-                    <strong id="activeUsername">User</strong><br>
-                    <small id="activeUserRole" style="color: #cbd5e1;">Role</small>
-                </div>
+                <div><strong id="activeUsername">User</strong><br><small id="activeUserRole" style="color: #cbd5e1;">Role</small></div>
                 <button class="btn-logout" onclick="logout()"><i class="fas fa-right-from-bracket"></i> خروج</button>
             </div>
         </div>
@@ -228,252 +128,42 @@
 
     <main class="main-wrapper">
         <iframe id="home-frame" class="page-frame active" src="home.html"></iframe>
-        <iframe id="cv-frame" class="page-frame" src="cv.html"></iframe>
-        <iframe id="tax-frame" class="page-frame" src="./Tax/tax.html"></iframe>
-        <iframe id="tax-reverse-frame" class="page-frame" src="./Tax/tax-reverse.html"></iframe>
-        <iframe id="tax-reverse-bulk-frame" class="page-frame" src="./Tax/tax-reverse-bulk.html"></iframe>
-        <iframe id="s1-frame" class="page-frame" src="s1.html"></iframe>
         <iframe id="forms-print-frame" class="page-frame" src="./hr-forms/index.html"></iframe>
         <iframe id="labels-frame" class="page-frame" src="./labels/index.html"></iframe>
-        <iframe id="team-frame" class="page-frame" src="./Team/team.html"></iframe>
-        <iframe id="tafqit-frame" class="page-frame" src="tafqit.html"></iframe>
-        <iframe id="feedback-frame" class="page-frame" src="feedback.html"></iframe>
-        <iframe id="disc-frame" class="page-frame" src="./DISC/disc.html"></iframe>
-        <iframe id="disc-dash-frame" class="page-frame" src="./DISC/disc-dashboard.html"></iframe>
-        <iframe id="scan-frame" class="page-frame" src="scan-to-excel.html"></iframe>
 
-        <!-- بروفايل الحساب والشركة -->
-        <div id="profile-view-frame" class="page-frame inner-view">
-            <h2><i class="fas fa-building-user"></i> إدارة بروفايل الشركة والحساب الشخصي</h2>
-            <br>
-            <div class="grid-2">
-                <div class="card-panel">
-                    <h3><i class="fas fa-building"></i> تعديل بيانات الشركة والشعار</h3>
-                    <form onsubmit="saveCompanyProfile(event)">
-                        <label>اسم الشركة:</label>
-                        <input type="text" id="profCompName" class="form-input" placeholder="أدخل اسم الشركة" required>
-                        <label>مجال الشركة:</label>
-                        <input type="text" id="profCompField" class="form-input" placeholder="أدخل المجال" required>
-                        <label>رقم الهاتف:</label>
-                        <input type="text" id="profCompPhone" class="form-input" placeholder="رقم التواصل">
-                        <label>رابط الشعار / رفع اللوجو:</label>
-                        <input type="file" accept="image/*" class="form-input" onchange="convertImageToBase64(this, 'profCompLogo')">
-                        <input type="hidden" id="profCompLogo">
-                        <label>اسم المسؤول:</label>
-                        <input type="text" id="profCompAdmin" class="form-input" placeholder="اسم المسؤول">
-                        <button type="submit" class="btn-action" style="margin-top: 10px;">حفظ التغييرات</button>
-                    </form>
-                </div>
-
-                <div class="card-panel">
-                    <h3><i class="fas fa-key"></i> تغيير كلمة المرور</h3>
-                    <form onsubmit="updateUserPassword(event)">
-                        <label>اسم المستخدم الحالي:</label>
-                        <input type="text" id="profUsername" class="form-input" readonly style="background: #f1f5f9;">
-                        <label>كلمة المرور الجديدة:</label>
-                        <input type="password" id="profNewPass" class="form-input" required placeholder="أدخل كلمة المرور الجديدة">
-                        <button type="submit" class="btn-action" style="background: #10b981; margin-top: 10px;">تحديث كلمة المرور</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- لوحة تحكم الأدمن الكاملة -->
+        <!-- لوحة تحكم الأدمن وبها الشجرة التنظيمية -->
         <div id="admin-dashboard-frame" class="page-frame inner-view">
-            <h2><i class="fas fa-user-shield"></i> لوحة تحكم الأدمن والإدارة الشاملة للنظام</h2>
-            <br>
+            <h2><i class="fas fa-sitemap"></i> الهيكل التنظيمي والربط (يوزر ➔ شركات ➔ فروع ➔ موظفين)</h2>
+            <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px;">يمكنك تعديل الأسماء مباشرة بالنقر على زر التعديل المالي لكل عنصر</p>
             
-            <div class="grid-3">
-                <div class="stat-card-view">
-                    <h4>إجمالي المستخدمين</h4>
-                    <h2 id="statUsersCount">0</h2>
-                </div>
-                <div class="stat-card-view" style="border-color: #10b981;">
-                    <h4>إجمالي الشركات</h4>
-                    <h2 id="statCompCount">0</h2>
-                </div>
-                <div class="stat-card-view" style="border-color: #ef4444;">
-                    <h4>مسح شامل للداتا</h4>
-                    <button class="btn-action" style="background: var(--danger); margin-top: 5px; padding: 6px;" onclick="wipeAllCompaniesData()"><i class="fas fa-dumpster"></i> مسح داتا الشركات بالكامل</button>
-                </div>
-            </div>
-
-            <br>
-            <div class="grid-2">
-                <!-- قسم إضافة يوزر وشركات وفروع -->
-                <div class="card-panel">
-                    <h3><i class="fas fa-user-plus"></i> ① إنشاء مستخدم جديد + شركة + فرع</h3>
-                    <form onsubmit="addNewFullUserAccount(event)">
-                        <div class="grid-2">
-                            <div>
-                                <label>اسم المستخدم (Username): *</label>
-                                <input type="text" id="newUsername" class="form-input" required placeholder="أدخل اسم المستخدم">
-                            </div>
-                            <div>
-                                <label>كلمة المرور (Password): *</label>
-                                <input type="password" id="newPassword" class="form-input" required placeholder="أدخل كلمة المرور">
-                            </div>
-                        </div>
-                        
-                        <div class="grid-2">
-                            <div>
-                                <label>نوع الصلاحية:</label>
-                                <select id="newRole" class="form-input">
-                                    <option value="user">مستخدم عادي (User)</option>
-                                    <option value="admin">مدير نظام (Admin)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>اسم الشركة المربوطة:</label>
-                                <input type="text" id="newCompName" class="form-input" required placeholder="أدخل اسم الشركة">
-                            </div>
-                        </div>
-
-                        <div class="grid-2">
-                            <div>
-                                <label>مجال الشركة:</label>
-                                <input type="text" id="newCompField" class="form-input" placeholder="أدخل المجال">
-                            </div>
-                            <div>
-                                <label>اسم الفرع المضاف للشركة:</label>
-                                <input type="text" id="newBranchName" class="form-input" placeholder="أدخل اسم الفرع">
-                            </div>
-                        </div>
-
-                        <label>رفع شعار / لوجو الشركة:</label>
-                        <input type="file" accept="image/*" class="form-input" onchange="convertImageToBase64(this, 'newCompLogo')">
-                        <input type="hidden" id="newCompLogo">
-
-                        <button type="submit" class="btn-action" style="background: #10b981; margin-top: 10px;">إنشاء وتسكين الحساب بالكامل</button>
-                    </form>
-
-                    <!-- قسم إضافة شركة جديدة ليوزر حالي -->
-                    <h3 style="margin-top: 25px;"><i class="fas fa-building"></i> ② إضافة شركة وفرع إضافي لمستخدم موجود</h3>
-                    <form onsubmit="addCompanyToExistingUser(event)">
-                        <div class="grid-2">
-                            <div>
-                                <label>اختر المستخدم:</label>
-                                <select id="existingUserSelect" class="form-input" required></select>
-                            </div>
-                            <div>
-                                <label>اسم الشركة الجديدة:</label>
-                                <input type="text" id="addCompName" class="form-input" required placeholder="أدخل اسم الشركة">
-                            </div>
-                        </div>
-                        <div class="grid-2">
-                            <div>
-                                <label>مجال الشركة:</label>
-                                <input type="text" id="addCompField" class="form-input" placeholder="أدخل المجال">
-                            </div>
-                            <div>
-                                <label>اسم الفرع:</label>
-                                <input type="text" id="addBranchName" class="form-input" placeholder="أدخل الفرع">
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-action" style="background: var(--primary); margin-top: 5px;">إضافة الشركة للترخيص</button>
-                    </form>
-
-                    <!-- قسم إضافة الموظفين بالكامل عن طريق الاكسيل -->
-                    <h3 style="margin-top: 25px;"><i class="fas fa-file-excel"></i> ③ إضافة واستيراد موظفين عن طريق Excel (بيانات كاملة)</h3>
-                    <div style="margin-bottom: 15px;">
-                        <label>اختر المستخدم / الشركة المراد التسكين عليها:</label>
-                        <select id="empUserSelect" class="form-input" required></select>
-                        
-                        <div style="display: flex; gap: 10px; margin-top: 10px;">
-                            <button type="button" class="btn-action" style="background: #059669;" onclick="downloadFullEmployeesExcelTemplate()">
-                                <i class="fas fa-download"></i> تنزيل قالب Excel الشامل
-                            </button>
-                            
-                            <label class="btn-action" style="background: #d97706; cursor: pointer; text-align: center;">
-                                <i class="fas fa-upload"></i> رفع ملف Excel الموظفين
-                                <input type="file" accept=".xlsx, .xls" style="display: none;" onchange="importFullEmployeesFromExcel(event)">
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- جدول رؤية كافة المستخدمين والشركات المربوطة -->
-                <div class="card-panel">
-                    <h3><i class="fas fa-users-cog"></i> جدول مستخدمي المنظومة والشركات المربوطة</h3>
-                    <div style="max-height: 550px; overflow-y: auto;">
-                        <table class="data-table">
-                            <thead>
-                                <tr><th>المستخدم</th><th>الشركة التابع لها</th><th>كلمة السر</th><th>الصلاحية</th><th>حذف</th></tr>
-                            </thead>
-                            <tbody id="usersTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="card-panel">
+                <div id="treeViewArea" class="tree-container"></div>
             </div>
         </div>
     </main>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBty7fK-7mchOETrE_vtOZx4dgWSHIuC8Y",
-            authDomain: "hr-platform-system.firebaseapp.com",
-            databaseURL: "https://hr-platform-system-default-rtdb.firebaseio.com",
-            projectId: "hr-platform-system",
-            storageBucket: "hr-platform-system.firebasestorage.app",
-            messagingSenderId: "994791756938",
-            appId: "1:994791756938:web:48303535285e25f1c80973",
-            measurementId: "G-7PBDNQ52E9"
-        };
-
-        let dbUsers = {};
-        let dbCompanies = {};
+        const firebaseConfig = { databaseURL: "https://hr-platform-system-default-rtdb.firebaseio.com" };
+        let dbUsers = {}, dbCompanies = {}, dbBranches = {}, dbEmployees = [];
 
         try {
             firebase.initializeApp(firebaseConfig);
             const db = firebase.database();
 
-            db.ref('.info/connected').on('value', (snap) => {
-                const statusBadge = document.getElementById('dbConnectionStatus');
-                if (snap.val() === true) {
-                    statusBadge.innerText = '● متصل حياً بـ Firebase';
-                    statusBadge.className = 'status-badge status-online';
-                } else {
-                    statusBadge.innerText = '○ غير متصل';
-                    statusBadge.className = 'status-badge status-offline';
-                }
-            });
+            db.ref('system_companies').on('value', snap => { dbCompanies = snap.val() || {}; renderTreeView(); });
+            db.ref('system_users').on('value', snap => { dbUsers = snap.val() || {}; renderTreeView(); });
+            db.ref('HR_FORM_SYSTEM_DATA/branches').on('value', snap => { dbBranches = snap.val() || {}; renderTreeView(); });
+            db.ref('HR_FORM_SYSTEM_DATA/employees').on('value', snap => { dbEmployees = snap.val() || []; renderTreeView(); });
 
-            db.ref('system_companies').on('value', (snapshot) => {
-                dbCompanies = snapshot.val() || {};
-                const loggedUser = sessionStorage.getItem('LOGGED_USER');
-                if(loggedUser) updateCompanyUI(loggedUser);
-            });
-
-            db.ref('system_users').on('value', (snapshot) => {
-                dbUsers = snapshot.val() || {};
-                const loggedUser = sessionStorage.getItem('LOGGED_USER');
-                if(loggedUser) updateCompanyUI(loggedUser);
-                renderAdminDashboard();
-            });
-
-        } catch (e) {
-            console.error("Firebase Connection Error:", e);
-        }
-
-        function convertImageToBase64(fileInput, hiddenInputId) {
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById(hiddenInputId).value = e.target.result;
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            }
-        }
+        } catch (e) { console.error(e); }
 
         function handleLogin(e) {
             e.preventDefault();
             const u = document.getElementById('loginUsername').value.trim();
             const p = document.getElementById('loginPassword').value.trim();
-            const encryptedInputPass = btoa(p);
-
             const foundUser = dbUsers[u];
 
-            if (foundUser && (foundUser.pass === encryptedInputPass || foundUser.pass === p)) {
+            if (foundUser && (foundUser.pass === btoa(p) || foundUser.pass === p)) {
                 sessionStorage.setItem('LOGGED_USER', foundUser.username);
                 sessionStorage.setItem('USER_ROLE', foundUser.role);
                 document.getElementById('loginScreen').style.display = 'none';
@@ -483,316 +173,88 @@
             }
         }
 
-        function logout() {
-            sessionStorage.clear();
-            location.reload();
-        }
+        function logout() { sessionStorage.clear(); location.reload(); }
 
         function initSystemUI() {
             const loggedUser = sessionStorage.getItem('LOGGED_USER');
             const loggedRole = sessionStorage.getItem('USER_ROLE');
-
-            updateCompanyUI(loggedUser);
-
             document.getElementById('activeUsername').innerText = loggedUser;
             document.getElementById('activeUserRole').innerText = loggedRole === 'admin' ? 'مدير نظام' : 'مستخدم';
-            document.getElementById('profUsername').value = loggedUser;
-
-            if (loggedRole === 'admin') {
-                document.getElementById('adminTabItem').style.display = 'block';
-            } else {
-                document.getElementById('adminTabItem').style.display = 'none';
-            }
-
-            renderAdminDashboard();
+            if (loggedRole === 'admin') document.getElementById('adminTabItem').style.display = 'block';
         }
 
-        function updateCompanyUI(username) {
-            const userObj = dbUsers[username];
-            if (userObj && userObj.companyId && dbCompanies[userObj.companyId]) {
-                const comp = dbCompanies[userObj.companyId];
-                document.getElementById('sidebarCompName').innerText = comp.name || '';
-                document.getElementById('sidebarCompField').innerText = comp.field || '';
-                
-                const logoImg = document.getElementById('sidebarLogo');
-                if (comp.logo) {
-                    logoImg.src = comp.logo;
-                    logoImg.style.display = 'inline-block';
-                } else {
-                    logoImg.style.display = 'none';
-                }
+        function renderTreeView() {
+            const container = document.getElementById('treeViewArea');
+            if (!container) return;
+            container.innerHTML = '';
 
-                document.getElementById('profCompName').value = comp.name || '';
-                document.getElementById('profCompField').value = comp.field || '';
-                document.getElementById('profCompLogo').value = comp.logo || '';
-            } else {
-                document.getElementById('sidebarCompName').innerText = username === 'admin' ? 'لوحة مدير النظام' : 'بدون شركة';
-                document.getElementById('sidebarCompField').innerText = username === 'admin' ? 'إدارة المنظومة' : '-';
-                document.getElementById('sidebarLogo').style.display = 'none';
-            }
-        }
+            const usersArr = Object.values(dbUsers).filter(u => u.username !== 'admin');
+            usersArr.forEach(u => {
+                let html = `
+                    <div class="tree-node">
+                        <div class="tree-title tree-user">
+                            <span><i class="fas fa-user"></i> المستخدم: ${u.username} (${u.role})</span>
+                            <button class="btn-edit-sm" onclick="editUserPrompt('${u.username}')"><i class="fas fa-edit"></i> تعديل</button>
+                        </div>`;
 
-        function saveCompanyProfile(e) {
-            e.preventDefault();
-            const loggedUser = sessionStorage.getItem('LOGGED_USER');
-            const userObj = dbUsers[loggedUser];
-            
-            if (userObj && userObj.companyId) {
-                const updatedComp = {
-                    name: document.getElementById('profCompName').value,
-                    field: document.getElementById('profCompField').value,
-                    phone: document.getElementById('profCompPhone').value || '',
-                    logo: document.getElementById('profCompLogo').value || '',
-                    adminName: document.getElementById('profCompAdmin').value || ''
-                };
+                const userComps = Object.keys(dbCompanies)
+                    .filter(k => dbCompanies[k].userId === u.username || u.companyId === k)
+                    .map(k => ({ id: k, ...dbCompanies[k] }));
 
-                firebase.database().ref(`system_companies/${userObj.companyId}`).update(updatedComp)
-                    .then(() => alert('تم تحديث بروفايل وشعار الشركة بنجاح!'));
-            }
-        }
+                userComps.forEach(c => {
+                    html += `
+                        <div class="tree-node">
+                            <div class="tree-title tree-company">
+                                <span><i class="fas fa-building"></i> الشركة: ${c.name}</span>
+                                <button class="btn-edit-sm" onclick="editCompPrompt('${c.id}', '${c.name}')"><i class="fas fa-edit"></i> تعديل</button>
+                            </div>`;
 
-        function updateUserPassword(e) {
-            e.preventDefault();
-            const loggedUser = sessionStorage.getItem('LOGGED_USER');
-            const newPass = document.getElementById('profNewPass').value;
+                    const branches = Object.keys(dbBranches)
+                        .filter(bk => dbBranches[bk].compId === c.id)
+                        .map(bk => ({ id: bk, ...dbBranches[bk] }));
 
-            if (dbUsers[loggedUser]) {
-                firebase.database().ref(`system_users/${loggedUser}/pass`).set(btoa(newPass))
-                    .then(() => {
-                        alert('تم تحديث كلمة المرور بنجاح!');
-                        document.getElementById('profNewPass').value = '';
+                    branches.forEach(b => {
+                        const count = dbEmployees.filter(e => e.compId === c.id && e.branchId === b.id).length;
+                        html += `
+                            <div class="tree-node">
+                                <div class="tree-title tree-branch">
+                                    <span><i class="fas fa-code-branch"></i> الفرع: ${b.name} (${count} موظف)</span>
+                                    <button class="btn-edit-sm" onclick="editBranchPrompt('${b.id}', '${b.name}')"><i class="fas fa-edit"></i> تعديل</button>
+                                </div>
+                            </div>`;
                     });
-            }
+
+                    html += `</div>`;
+                });
+
+                html += `</div>`;
+                container.innerHTML += html;
+            });
         }
 
-        function loadPage(evt, frameId, btnElement) {
-            if (evt && evt.preventDefault) evt.preventDefault();
-            
+        function editUserPrompt(old) {
+            const n = prompt("تعديل اسم المستخدم:", old);
+            if(n && n !== old) firebase.database().ref(`system_users/${old}/username`).set(n);
+        }
+        function editCompPrompt(id, old) {
+            const n = prompt("تعديل اسم الشركة:", old);
+            if(n && n !== old) firebase.database().ref(`system_companies/${id}/name`).set(n);
+        }
+        function editBranchPrompt(id, old) {
+            const n = prompt("تعديل اسم الفرع:", old);
+            if(n && n !== old) firebase.database().ref(`HR_FORM_SYSTEM_DATA/branches/${id}/name`).set(n);
+        }
+
+        function loadPage(evt, frameId, btn) {
+            if (evt) evt.preventDefault();
             document.querySelectorAll('.page-frame').forEach(f => f.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.submenu-btn').forEach(b => b.classList.remove('active'));
-            
-            const targetFrame = document.getElementById(frameId);
-            if (targetFrame) targetFrame.classList.add('active');
-
-            if (btnElement) {
-                if (typeof btnElement === 'string') {
-                    const btn = document.querySelector(btnElement);
-                    if (btn) btn.classList.add('active');
-                } else if (btnElement.classList) {
-                    btnElement.classList.add('active');
-                }
-            }
-        }
-
-        function toggleSubmenu(id) {
-            const el = document.getElementById(id);
-            if(el) el.classList.toggle('active');
-        }
-
-        function loadDropdownPage(evt, frameId, title, btnElement) {
-            if (evt && evt.stopPropagation) evt.stopPropagation();
-            loadPage(evt, frameId, btnElement);
-        }
-
-        // ① إنشاء حساب كامل (يوزر + شركة + فرع)
-        function addNewFullUserAccount(e) {
-            e.preventDefault();
-            const u = document.getElementById('newUsername').value.trim();
-            const p = document.getElementById('newPassword').value.trim();
-            const r = document.getElementById('newRole').value;
-            const cName = document.getElementById('newCompName').value.trim();
-            const cField = document.getElementById('newCompField').value.trim();
-            const bName = document.getElementById('newBranchName').value.trim() || 'المركز الرئيسي';
-            const logo = document.getElementById('newCompLogo').value || '';
-
-            const compId = 'comp_' + Date.now();
-            const branchId = 'branch_' + Date.now();
-
-            const newCompanyObj = { name: cName, field: cField, logo: logo, userId: u };
-            const newBranchObj = { id: branchId, compId: compId, name: bName };
-            const newUserObj = { username: u, pass: btoa(p), role: r, companyId: compId };
-
-            Promise.all([
-                firebase.database().ref(`system_companies/${compId}`).set(newCompanyObj),
-                firebase.database().ref(`HR_FORM_SYSTEM_DATA/branches`).push(newBranchObj),
-                firebase.database().ref(`system_users/${u}`).set(newUserObj)
-            ]).then(() => {
-                alert(`تم إنشاء وتسكين حساب (${u}) وربطه بشركة (${cName}) بنجاح!`);
-                e.target.reset();
-            });
-        }
-
-        // ② إضافة شركة وفرع إضافي لمستخدم موجود
-        function addCompanyToExistingUser(e) {
-            e.preventDefault();
-            const u = document.getElementById('existingUserSelect').value;
-            const cName = document.getElementById('addCompName').value.trim();
-            const cField = document.getElementById('addCompField').value.trim();
-            const bName = document.getElementById('addBranchName').value.trim() || 'المركز الرئيسي';
-
-            const compId = 'comp_' + Date.now();
-            const branchId = 'branch_' + Date.now();
-
-            const newCompanyObj = { name: cName, field: cField, logo: '', userId: u };
-            const newBranchObj = { id: branchId, compId: compId, name: bName };
-
-            Promise.all([
-                firebase.database().ref(`system_companies/${compId}`).set(newCompanyObj),
-                firebase.database().ref(`HR_FORM_SYSTEM_DATA/branches`).push(newBranchObj),
-                firebase.database().ref(`system_users/${u}/companyId`).set(compId)
-            ]).then(() => {
-                alert(`تم إضافة وتسكين شركة (${cName}) وفرعها للمستخدم (${u}) بنجاح!`);
-                e.target.reset();
-            });
-        }
-
-        // ③ تنزيل قالب إكسيل النماذج الشامل
-        function downloadFullEmployeesExcelTemplate() {
-            const headers = [[
-                "كود الموظف", "اسم الموظف", "الرقم القومي", "الرقم التأميني",
-                "الوظيفة", "تاريخ التعيين", "الأجر التأميني", "الأجر الشامل",
-                "الشارع/العنوان", "المركز/القسم", "المحافظة", "رقم الهاتف", "الجنسية", "المؤهل الدراسي"
-            ]];
-
-            const ws = XLSX.utils.aoa_to_sheet(headers);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "الموظفين");
-            XLSX.writeFile(wb, "قالب_الموظفين_الشامل.xlsx");
-        }
-
-        // ③ رفع ملف Excel واستيراد الموظفين بالكامل
-        function importFullEmployeesFromExcel(event) {
-            const uId = document.getElementById('empUserSelect').value;
-            const userObj = dbUsers[uId];
-
-            if (!uId || !userObj || !userObj.companyId) {
-                alert("⚠️ يرجى اختيار المستخدم / الشركة أولاً قبل اختيار ملف الإكسيل!");
-                event.target.value = "";
-                return;
-            }
-
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-
-                if (jsonData.length === 0) {
-                    alert("الملف الفارغ لا يحتوي على بيانات!");
-                    return;
-                }
-
-                const importedEmployees = jsonData.map((row, idx) => ({
-                    id: 'emp_' + Date.now() + '_' + idx,
-                    code: String(row["كود الموظف"] || (1000 + idx)),
-                    name: row["اسم الموظف"] || "",
-                    natId: String(row["الرقم القومي"] || ""),
-                    insNo: String(row["الرقم التأميني"] || ""),
-                    job: row["الوظيفة"] || "",
-                    insDate: row["تاريخ التعيين"] || "",
-                    insuredSalary: String(row["الأجر التأميني"] || "0"),
-                    grossSalary: String(row["الأجر الشامل"] || "0"),
-                    street: row["الشارع/العنوان"] || "",
-                    section: row["المركز/القسم"] || "",
-                    governorate: row["المحافظة"] || "",
-                    phone: String(row["رقم الهاتف"] || ""),
-                    nationality: row["الجنسية"] || "مصري",
-                    qualification: row["المؤهل الدراسي"] || "",
-                    compId: userObj.companyId
-                }));
-
-                firebase.database().ref('HR_FORM_SYSTEM_DATA/employees').once('value').then(snap => {
-                    const currentArr = snap.val() || [];
-                    const updatedArr = [...currentArr, ...importedEmployees];
-
-                    firebase.database().ref('HR_FORM_SYSTEM_DATA/employees').set(updatedArr).then(() => {
-                        alert(`✅ تم استيراد عدد (${importedEmployees.length}) موظف ببياناتهم الكاملة وتسكينهم بنجاح!`);
-                        event.target.value = "";
-                    });
-                });
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        // مسح بيانات الشركات بالكامل
-        function wipeAllCompaniesData() {
-            if (confirm("⚠️ تنبيه شديد الخطورة: هل أنت متأكد من مسح جميع بيانات الشركات والفروع والموظفين المسجلة بجميع الحسابات؟")) {
-                if (confirm("تأكيد نهائي: سيتم تفريغ داتا الشركات والموظفين كلياً من السحابة.")) {
-                    Promise.all([
-                        firebase.database().ref('system_companies').remove(),
-                        firebase.database().ref('HR_FORM_SYSTEM_DATA').remove()
-                    ]).then(() => {
-                        alert("تم مسح كافة بيانات الشركات والموظفين بنجاح!");
-                        location.reload();
-                    });
-                }
-            }
-        }
-
-        function deleteUser(username) {
-            if (username === 'admin') {
-                alert("لا يمكن حذف حساب مدير النظام الرئيسي!");
-                return;
-            }
-            if (confirm(`هل تريد حذف حساب المستخدم (${username})؟`)) {
-                firebase.database().ref(`system_users/${username}`).remove().then(() => {
-                    alert('تم حذف الحساب بنجاح!');
-                });
-            }
-        }
-
-        function renderAdminDashboard() {
-            const usersArray = Object.values(dbUsers);
-            const compArray = Object.values(dbCompanies);
-
-            // تصفية العرض لمنع ظهور داتا يوزر الأدمن للآخرين
-            const filteredUsers = usersArray.filter(u => u.username !== 'admin');
-
-            document.getElementById('statUsersCount').innerText = filteredUsers.length;
-            document.getElementById('statCompCount').innerText = compArray.length;
-
-            // تحديث القوائم المنسدلة للشركات والمستخدمين
-            const existingUserSelect = document.getElementById('existingUserSelect');
-            const empUserSelect = document.getElementById('empUserSelect');
-
-            if (existingUserSelect && empUserSelect) {
-                existingUserSelect.innerHTML = '<option value="">-- اختر المستخدم --</option>';
-                empUserSelect.innerHTML = '<option value="">-- اختر المستخدم / الشركة --</option>';
-
-                filteredUsers.forEach(u => {
-                    const comp = dbCompanies[u.companyId] || { name: 'بدون شركة' };
-                    existingUserSelect.innerHTML += `<option value="${u.username}">${u.username}</option>`;
-                    empUserSelect.innerHTML += `<option value="${u.username}">${u.username} (${comp.name})</option>`;
-                });
-            }
-
-            const tbodyUsers = document.getElementById('usersTableBody');
-            if(!tbodyUsers) return;
-            tbodyUsers.innerHTML = '';
-
-            filteredUsers.forEach((u) => {
-                let rawPass = u.pass;
-                try { rawPass = atob(u.pass); } catch(e){}
-                const comp = dbCompanies[u.companyId] || {};
-                tbodyUsers.innerHTML += `
-                    <tr>
-                        <td><strong>${u.username}</strong></td>
-                        <td>${comp.name || 'غير محدد'}</td>
-                        <td><code style="background:#e2e8f0; padding:2px 6px; border-radius:4px;">${rawPass}</code></td>
-                        <td>${u.role}</td>
-                        <td><button onclick="deleteUser('${u.username}')" style="background:var(--danger); color:white; border:none; border-radius:4px; padding:2px 6px; cursor:pointer;"><i class="fas fa-trash"></i></button></td>
-                    </tr>`;
-            });
+            document.getElementById(frameId).classList.add('active');
+            if (btn) btn.classList.add('active');
         }
 
         window.onload = function() {
-            const logged = sessionStorage.getItem('LOGGED_USER');
-            if (logged) {
+            if (sessionStorage.getItem('LOGGED_USER')) {
                 document.getElementById('loginScreen').style.display = 'none';
                 initSystemUI();
             }
