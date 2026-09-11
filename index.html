@@ -160,14 +160,12 @@
                 </button>
             </li>
             
-            <!-- قسم طباعة النماذج الرسمي -->
             <li class="nav-item">
                 <button class="nav-link" onclick="loadPage(event, 'forms-print-frame', this)">
                     <i class="fas fa-print"></i> طباعة النماذج الرسمية
                 </button>
             </li>
 
-            <!-- قسم ملصقات الموظفين (A4 Labels) -->
             <li class="nav-item">
                 <button class="nav-link" onclick="loadPage(event, 'labels-frame', this)">
                     <i class="fas fa-tags"></i> ملصقات الموظفين (A4 Labels)
@@ -189,11 +187,18 @@
                     <i class="fas fa-chart-line"></i> قياس الأداء
                 </button>
             </li>
+
+            <!-- قسم تحليل الشخصية (DISC) -->
             <li class="nav-item">
-                <button class="nav-link" onclick="loadPage(event, 'disc-frame', this)">
-                    <i class="fas fa-user-gear"></i> تحليل الشخصية
+                <button class="nav-link" onclick="toggleSubmenu('discSubmenu')">
+                    <i class="fas fa-user-gear"></i> تحليل الشخصية (DISC) ▾
                 </button>
+                <ul class="submenu" id="discSubmenu">
+                    <li><button class="submenu-btn" onclick="loadDropdownPage(event, 'disc-frame', 'تقييم DISC', this)">إجراء تقييم DISC</button></li>
+                    <li><button class="submenu-btn" onclick="loadDropdownPage(event, 'disc-dash-frame', 'لوحة نتائج DISC', this)">لوحة نتائج DISC</button></li>
+                </ul>
             </li>
+
             <li class="nav-item">
                 <button class="nav-link" onclick="loadPage(event, 'scan-frame', this)">
                     <i class="fas fa-file-excel"></i> HR Scan → Excel
@@ -221,16 +226,23 @@
     <main class="main-wrapper">
         <iframe id="home-frame" class="page-frame active" src="home.html"></iframe>
         <iframe id="cv-frame" class="page-frame" src="cv.html"></iframe>
-        <iframe id="tax-frame" class="page-frame" src="tax.html"></iframe>
-        <iframe id="tax-reverse-frame" class="page-frame" src="tax-reverse.html"></iframe>
-        <iframe id="tax-reverse-bulk-frame" class="page-frame" src="tax-reverse-bulk.html"></iframe>
+        
+        <!-- مسارات حاسبات الضرائب داخل مجلد Tax -->
+        <iframe id="tax-frame" class="page-frame" src="./Tax/tax.html"></iframe>
+        <iframe id="tax-reverse-frame" class="page-frame" src="./Tax/tax-reverse.html"></iframe>
+        <iframe id="tax-reverse-bulk-frame" class="page-frame" src="./Tax/tax-reverse-bulk.html"></iframe>
+        
         <iframe id="s1-frame" class="page-frame" src="s1.html"></iframe>
         <iframe id="forms-print-frame" class="page-frame" src="./hr-forms/index.html"></iframe>
         <iframe id="labels-frame" class="page-frame" src="./labels/index.html"></iframe>
         <iframe id="team-frame" class="page-frame" src="./Team/team.html"></iframe>
         <iframe id="tafqit-frame" class="page-frame" src="tafqit.html"></iframe>
         <iframe id="feedback-frame" class="page-frame" src="feedback.html"></iframe>
-        <iframe id="disc-frame" class="page-frame" src="disc.html"></iframe>
+        
+        <!-- مسارات أداة DISC داخل مجلد DISC -->
+        <iframe id="disc-frame" class="page-frame" src="./DISC/disc.html"></iframe>
+        <iframe id="disc-dash-frame" class="page-frame" src="./DISC/disc-dashboard.html"></iframe>
+        
         <iframe id="scan-frame" class="page-frame" src="scan-to-excel.html"></iframe>
 
         <!-- شاشة بروفايل الشركة واليوزر -->
@@ -319,7 +331,6 @@
                             </div>
                         </div>
 
-                        <!-- الحقول التي تظهر في حالة إضافة شركة جديدة -->
                         <div id="newCompanyFields">
                             <div class="grid-2">
                                 <div>
@@ -573,7 +584,6 @@
             }
         }
 
-        // دالة التنقل العامة المحدثة تدعم الاستدعاء المباشر أو عبر الـ Event
         function loadPage(evt, frameId, btnElement) {
             if (evt && evt.preventDefault) evt.preventDefault();
             
