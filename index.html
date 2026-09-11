@@ -159,11 +159,21 @@
                     <i class="fas fa-file-contract"></i> س1 تأمينات
                 </button>
             </li>
+            
+            <!-- قسم طباعة النماذج المحدث -->
             <li class="nav-item">
                 <button class="nav-link" onclick="loadPage(event, 'forms-print-frame', this)">
-                    <i class="fas fa-print"></i> طباعة النماذج
+                    <i class="fas fa-print"></i> طباعة النماذج الرسمية
                 </button>
             </li>
+
+            <!-- قسم ملصقات الموظفين (Labels) المضاف -->
+            <li class="nav-item">
+                <button class="nav-link" onclick="loadPage(event, 'labels-frame', this)">
+                    <i class="fas fa-tags"></i> ملصقات الموظفين (A4 Labels)
+                </button>
+            </li>
+
             <li class="nav-item">
                 <button class="nav-link" onclick="loadPage(event, 'team-frame', this)">
                     <i class="fas fa-users-gear"></i> فريق الإعداد
@@ -216,7 +226,7 @@
         <iframe id="tax-reverse-bulk-frame" class="page-frame" src="tax-reverse-bulk.html"></iframe>
         <iframe id="s1-frame" class="page-frame" src="s1.html"></iframe>
         <iframe id="forms-print-frame" class="page-frame" src="./hr-forms/index.html"></iframe>
-        <!-- تعديل المسار لتوافق مع مجلد Team مع مراعاة حالة الأحرف لـ GitHub Pages -->
+        <iframe id="labels-frame" class="page-frame" src="./labels/index.html"></iframe>
         <iframe id="team-frame" class="page-frame" src="./Team/team.html"></iframe>
         <iframe id="tafqit-frame" class="page-frame" src="tafqit.html"></iframe>
         <iframe id="feedback-frame" class="page-frame" src="feedback.html"></iframe>
@@ -395,6 +405,12 @@
                 pass: "YWRtaW4xMjM=",
                 role: "admin",
                 companyId: "comp_praxi"
+            },
+            "Orbis": {
+                username: "Orbis",
+                pass: "MTIz",
+                role: "user",
+                companyId: "comp_praxi"
             }
         };
 
@@ -497,6 +513,8 @@
 
             if (loggedRole === 'admin') {
                 document.getElementById('adminTabItem').style.display = 'block';
+            } else {
+                document.getElementById('adminTabItem').style.display = 'none';
             }
 
             renderAdminDashboard();
@@ -668,6 +686,7 @@
             document.getElementById('statAdminUser').innerText = sessionStorage.getItem('LOGGED_USER') || '-';
 
             const tbodyUsers = document.getElementById('usersTableBody');
+            if(!tbodyUsers) return;
             tbodyUsers.innerHTML = '';
             usersArray.forEach((u) => {
                 let rawPass = u.pass;
