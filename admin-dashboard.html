@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم الأدمن الرئيسية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- مكتبات معالجة الإكسيل وقواعد البيانات -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #0b4fb3;
+            --primary-dark: #0b2a5c;
+            --bg-light: #f4f7fc;
+            --white: #ffffff;
+            --text: #1e293b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: #cbd5e1;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-light); color: var(--text); padding: 25px; direction: rtl; }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white; padding: 20px 25px; border-radius: 12px; margin-bottom: 25px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .card-panel { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .card-panel h3 { color: var(--primary-dark); margin-bottom: 15px; font-size: 1.15rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+
+        .stat-card-view { background: white; padding: 20px; border-radius: 10px; border-right: 4px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        .form-input { width: 100%; padding: 10px 12px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-size: 0.9rem; }
+        .btn-action { padding: 10px 18px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-action:hover { background: var(--primary-dark); }
+        .btn-danger { background: var(--danger); }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-warning { background: var(--warning); }
+        .btn-success { background: var(--success); }
+
+        /* الشجرة التنظيمية الهرمية */
+        .tree-container { font-size: 0.92rem; line-height: 1.8; }
+        .tree-node { margin-right: 15px; border-right: 2px dashed var(--border); padding-right: 10px; margin-top: 8px; }
+        .tree-title {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #f1f5f9; padding: 8px 14px; border-radius: 8px; margin-bottom: 4px;
+        }
+        .tree-user { background: #e0f2fe; color: #0369a1; font-weight: bold; }
+        .tree-company { background: #fef3c7; color: #92400e; }
+        .tree-branch { background: #d1fae5; color: #065f46; }
+
+        .btn-edit-sm { background: var(--warning); color: white; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
+        .data-table th, .data-table td { padding: 10px; border: 1px solid var(--border); text-align: right; }
+        .data-table th { background: #f8fafc; color: var(--primary-dark); font-weight: bold; }
+
+        @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-header">
+        <div>
+            <h2 style="margin: 0;"><i class="fas fa-user-shield"></i> لوحة تحكم الأدمن الرئيسية</h2>
+            <small style="opacity: 0.85;">إدارة الشجرة التنظيمية والشركات والمستخدمين بالكامل</small>
+        </div>
+        <div>
+            <span id="dbConnectionStatus" style="background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">جاري الاتصال بالسحابة...</span>
+        </div>
+    </div>
+
+    <!-- كروت الإحصائيات والأزرار العامة -->
+    <div class="grid-3" style="margin-bottom: 25px;">
+        <div class="stat-card-view">
+            <h4>إجمالي المستخدمين</h4>
+            <h2 id="statUsersCount">0</h2>
+        </div>
+        <div class="stat-card-view" style="border-color: #10b981;">
+            <h4>إجمالي الشركات</h4>
+            <h2 id="statCompCount">0</h2>
+        </div>
+        <div class="stat-card-view" style="border-color: #ef4444;">
+            <h4>مسح شامل للداتا</h4>
+            <button class="btn-action btn-danger" style="margin-top: 5px; padding: 6px 12px; font-size: 0.8rem;" onclick="wipeAllCompaniesData()"><i class="fas fa-dumpster"></i> مسح داتا الشركات كلياً</button>
+        </div>
+    </div>
+
+    <!-- الشجرة التنظيمية الهرمية مع إمكانية التعديل السريع -->
+    <div class="card-panel">
+        <h3><i class="fas fa-sitemap"></i> الهيكل التنظيمي (يوزر ➔ شركات ➔ فروع ➔ موظفين)</h3>
+        <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">يمكنك تعديل الأسماء مباشرة بالنقر على زر التعديل لكل عنصر</p>
+        <div id="treeViewArea" class="tree-container" style="max-height: 350px; overflow-y: auto;"></div>
+    </div>
+
+    <div class="grid-2">
+        <!-- قسم إضافة حساب مستخدم وشركة وفرع -->
+        <div class="card-panel">
+            <h3><i class="fas fa-user-plus"></i> ① إضافة مستخدم وتأسيس شركته وفرعه</h3>
+            <form onsubmit="addNewFullUserAccount(event)">
+                <div class="grid-2">
+                    <div>
+                        <label>اسم المستخدم (Username): *</label>
+                        <input type="text" id="newUsername" class="form-input" required placeholder="أدخل اسم المستخدم">
+                    </div>
+                    <div>
+                        <label>كلمة المرور (Password): *</label>
+                        <input type="password" id="newPassword" class="form-input" required placeholder="أدخل كلمة المرور">
+                    </div>
+                </div>
+                
+                <div class="grid-2">
+                    <div>
+                        <label>نوع الصلاحية:</label>
+                        <select id="newRole" class="form-input">
+                            <option value="user">مستخدم عادي (User)</option>
+                            <option value="admin">مدير نظام (Admin)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>اسم الشركة المربوطة:</label>
+                        <input type="text" id="newCompName" class="form-input" required placeholder="أدخل اسم الشركة">
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div>
+                        <label>مجال الشركة:</label>
+                        <input type="text" id="newCompField" class="form-input" placeholder="أدخل المجال">
+                    </div>
+                    <div>
+                        <label>اسم الفرع الأول:</label>
+                        <input type="text" id="newBranchName" class="form-input" placeholder="المركز الرئيسي">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-action btn-success" style="width: 100%; justify-content: center; margin-top: 10px;">إنشاء وتسكين الحساب بالكامل</button>
+            </form>
+
+            <h3 style="margin-top: 25px;"><i class="fas fa-file-excel"></i> ② استيراد موظفين عبر Excel (بيانات كاملة)</h3>
+            <div>
+                <label>اختر المستخدم / الشركة لتسكين الموظفين عليها:</label>
+                <select id="empUserSelect" class="form-input" required></select>
+                
+                <div style="display: flex; gap: 10px; margin-top: 8px;">
+                    <button type="button" class="btn-action btn-success" onclick="downloadFullEmployeesExcelTemplate()"><i class="fas fa-download"></i> تنزيل قالب Excel</button>
+                    <label class="btn-action btn-warning" style="cursor: pointer;">
+                        <i class="fas fa-upload"></i> رفع ملف Excel
+                        <input type="file" accept=".xlsx, .xls" style="display: none;" onchange="importFullEmployeesFromExcel(event)">
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- جدول مستخدمي المنظومة والشركات المربوطة -->
+        <div class="card-panel">
+            <h3><i class="fas fa-users-cog"></i> جدول مستخدمي المنظومة والشركات المربوطة</h3>
+            <div style="max-height: 480px; overflow-y: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>المستخدم</th><th>الشركة التابع لها</th><th>كلمة السر</th><th>الصلاحية</th><th>حذف</th></tr>
+                    </thead>
+                    <tbody id="usersTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = { databaseURL: "https://hr-platform-system-default-rtdb.firebaseio.com" };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let dbUsers = {}, dbCompanies = {}, dbBranches = {}, dbEmployees = [];
+
+        window.onload = function() {
+            db.ref('.info/connected').on('value', (snap) => {
+                const el = document.getElementById('dbConnectionStatus');
+                if (snap.val() === true) {
+                    el.innerText = '● متصل حياً بالسحابة';
+                    el.style.color = '#10b981';
+                } else {
+                    el.innerText = '○ غير متصل';
+                    el.style.color = '#ef4444';
+                }
+            });
+
+            db.ref('system_companies').on('value', snap => { dbCompanies = snap.val() || {}; renderAll(); });
+            db.ref('system_users').on('value', snap => { dbUsers = snap.val() || {}; renderAll(); });
+            db.ref('HR_FORM_SYSTEM_DATA/branches').on('value', snap => { dbBranches = snap.val() || {}; renderAll(); });
+            db.ref('HR_FORM_SYSTEM_DATA/employees').on('value', snap => { dbEmployees = snap.val() || []; renderAll(); });
+        };
+
+        function renderAll() {
+            renderTreeView();
+            renderAdminDashboard();
+        }
+
+        function renderTreeView() {
+            const container = document.getElementById('treeViewArea');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const usersArr = Object.values(dbUsers).filter(u => u.username !== 'admin');
+            usersArr.forEach(u => {
+                let html = `
+                    <div class="tree-node">
+                        <div class="tree-title tree-user">
+                            <span><i class="fas fa-user"></i> المستخدم: ${u.username} (${u.role})</span>
+                            <button class="btn-edit-sm" onclick="editUserPrompt('${u.username}')"><i class="fas fa-edit"></i> تعديل</button>
+                        </div>`;
+
+                const userComps = Object.keys(dbCompanies)
+                    .filter(k => dbCompanies[k].userId === u.username || u.companyId === k)
+                    .map(k => ({ id: k, ...dbCompanies[k] }));
+
+                userComps.forEach(c => {
+                    html += `
+                        <div class="tree-node">
+                            <div class="tree-title tree-company">
+                                <span><i class="fas fa-building"></i> الشركة: ${c.name}</span>
+                                <button class="btn-edit-sm" onclick="editCompPrompt('${c.id}', '${c.name}')"><i class="fas fa-edit"></i> تعديل</button>
+                            </div>`;
+
+                    const branches = Object.keys(dbBranches)
+                        .filter(bk => dbBranches[bk].compId === c.id)
+                        .map(bk => ({ id: bk, ...dbBranches[bk] }));
+
+                    branches.forEach(b => {
+                        const count = dbEmployees.filter(e => e.compId === c.id && e.branchId === b.id).length;
+                        html += `
+                            <div class="tree-node">
+                                <div class="tree-title tree-branch">
+                                    <span><i class="fas fa-code-branch"></i> الفرع: ${b.name} (${count} موظف)</span>
+                                    <button class="btn-edit-sm" onclick="editBranchPrompt('${b.id}', '${b.name}')"><i class="fas fa-edit"></i> تعديل</button>
+                                </div>
+                            </div>`;
+                    });
+
+                    html += `</div>`;
+                });
+
+                html += `</div>`;
+                container.innerHTML += html;
+            });
+        }
+
+        function editUserPrompt(old) {
+            const n = prompt("تعديل اسم المستخدم:", old);
+            if(n && n.trim() !== "" && n !== old) db.ref(`system_users/${old}/username`).set(n.trim());
+        }
+        function editCompPrompt(id, old) {
+            const n = prompt("تعديل اسم الشركة:", old);
+            if(n && n.trim() !== "" && n !== old) db.ref(`system_companies/${id}/name`).set(n.trim());
+        }
+        function editBranchPrompt(id, old) {
+            const n = prompt("تعديل اسم الفرع:", old);
+            if(n && n.trim() !== "" && n !== old) db.ref(`HR_FORM_SYSTEM_DATA/branches/${id}/name`).set(n.trim());
+        }
+
+        function addNewFullUserAccount(e) {
+            e.preventDefault();
+            const u = document.getElementById('newUsername').value.trim();
+            const p = document.getElementById('newPassword').value.trim();
+            const r = document.getElementById('newRole').value;
+            const cName = document.getElementById('newCompName').value.trim();
+            const cField = document.getElementById('newCompField').value.trim();
+            const bName = document.getElementById('newBranchName').value.trim() || 'المركز الرئيسي';
+
+            const compId = 'comp_' + Date.now();
+            const branchId = 'branch_' + Date.now();
+
+            const newCompanyObj = { name: cName, field: cField, userId: u };
+            const newBranchObj = { id: branchId, compId: compId, name: bName };
+            const newUserObj = { username: u, pass: btoa(p), role: r, companyId: compId };
+
+            Promise.all([
+                db.ref(`system_companies/${compId}`).set(newCompanyObj),
+                db.ref(`HR_FORM_SYSTEM_DATA/branches/${branchId}`).set(newBranchObj),
+                db.ref(`system_users/${u}`).set(newUserObj)
+            ]).then(() => {
+                alert(`تم إنشاء وتسكين حساب (${u}) وربطه بشركة (${cName}) بنجاح!`);
+                e.target.reset();
+            });
+        }
+
+        function downloadFullEmployeesExcelTemplate() {
+            const headers = [["كود الموظف", "اسم الموظف", "الرقم القومي", "الرقم التأميني", "الوظيفة", "الأجر التأميني", "الأجر الشامل"]];
+            const ws = XLSX.utils.aoa_to_sheet(headers);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "الموظفين");
+            XLSX.writeFile(wb, "قالب_استيراد_الموظفين.xlsx");
+        }
+
+        function importFullEmployeesFromExcel(event) {
+            const uId = document.getElementById('empUserSelect').value;
+            const userObj = dbUsers[uId];
+            if (!uId || !userObj || !userObj.companyId) {
+                alert("يرجى اختيار المستخدم / الشركة أولاً!");
+                return;
+            }
+
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+
+                const importedEmployees = jsonData.map((row, idx) => ({
+                    id: 'emp_' + Date.now() + '_' + idx,
+                    code: String(row["كود الموظف"] || (1000 + idx)),
+                    name: row["اسم الموظف"] || "",
+                    natId: String(row["الرقم القومي"] || ""),
+                    insNo: String(row["الرقم التأميني"] || ""),
+                    job: row["الوظيفة"] || "",
+                    insuredSalary: String(row["الأجر التأميني"] || "0"),
+                    grossSalary: String(row["الأجر الشامل"] || "0"),
+                    compId: userObj.companyId
+                }));
+
+                db.ref('HR_FORM_SYSTEM_DATA/employees').once('value').then(snap => {
+                    const currentArr = snap.val() || [];
+                    db.ref('HR_FORM_SYSTEM_DATA/employees').set([...currentArr, ...importedEmployees]).then(() => {
+                        alert(`تم استيراد وتسكين (${importedEmployees.length}) موظف بنجاح!`);
+                        event.target.value = "";
+                    });
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function wipeAllCompaniesData() {
+            if (confirm("هل أنت متأكد من مسح جميع بيانات الشركات والفروع والموظفين مسحاً شاملاً؟")) {
+                Promise.all([
+                    db.ref('system_companies').remove(),
+                    db.ref('HR_FORM_SYSTEM_DATA').remove()
+                ]).then(() => alert("تم مسح داتا الشركات بالكامل!"));
+            }
+        }
+
+        function deleteUser(u) {
+            if (u === 'admin') return alert("لا يمكن حذف مدير النظام الرئيسي!");
+            if (confirm(`حذف حساب (${u})؟`)) db.ref(`system_users/${u}`).remove();
+        }
+
+        function renderAdminDashboard() {
+            const filteredUsers = Object.values(dbUsers).filter(u => u.username !== 'admin');
+            document.getElementById('statUsersCount').innerText = filteredUsers.length;
+            document.getElementById('statCompCount').innerText = Object.keys(dbCompanies).length;
+
+            const select = document.getElementById('empUserSelect');
+            if (select) {
+                select.innerHTML = '<option value="">-- اختر المستخدم / الشركة --</option>';
+                filteredUsers.forEach(u => {
+                    const comp = dbCompanies[u.companyId] || { name: 'بدون شركة' };
+                    select.innerHTML += `<option value="${u.username}">${u.username} (${comp.name})</option>`;
+                });
+            }
+
+            const tbody = document.getElementById('usersTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            filteredUsers.forEach(u => {
+                let rawPass = u.pass;
+                try { rawPass = atob(u.pass); } catch(e){}
+                const comp = dbCompanies[u.companyId] || {};
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${u.username}</strong></td>
+                        <td>${comp.name || 'غير محدد'}</td>
+                        <td><code>${rawPass}</code></td>
+                        <td>${u.role}</td>
+                        <td><button onclick="deleteUser('${u.username}')" style="background:var(--danger); color:white; border:none; padding:3px 8px; border-radius:4px; cursor:pointer;"><i class="fas fa-trash"></i></button></td>
+                    </tr>`;
+            });
+        }
+    </script>
+</body>
+</html>
