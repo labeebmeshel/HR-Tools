@@ -160,14 +160,14 @@
                 </button>
             </li>
             
-            <!-- قسم طباعة النماذج المحدث -->
+            <!-- قسم طباعة النماذج الرسمي -->
             <li class="nav-item">
                 <button class="nav-link" onclick="loadPage(event, 'forms-print-frame', this)">
                     <i class="fas fa-print"></i> طباعة النماذج الرسمية
                 </button>
             </li>
 
-            <!-- قسم ملصقات الموظفين (Labels) المضاف -->
+            <!-- قسم ملصقات الموظفين (A4 Labels) -->
             <li class="nav-item">
                 <button class="nav-link" onclick="loadPage(event, 'labels-frame', this)">
                     <i class="fas fa-tags"></i> ملصقات الموظفين (A4 Labels)
@@ -482,7 +482,7 @@
 
             const foundUser = dbUsers[u];
 
-            if (foundUser && foundUser.pass === encryptedInputPass) {
+            if (foundUser && (foundUser.pass === encryptedInputPass || foundUser.pass === p)) {
                 sessionStorage.setItem('LOGGED_USER', foundUser.username);
                 sessionStorage.setItem('USER_ROLE', foundUser.role);
                 document.getElementById('loginScreen').style.display = 'none';
@@ -573,8 +573,9 @@
             }
         }
 
+        // دالة التنقل العامة المحدثة تدعم الاستدعاء المباشر أو عبر الـ Event
         function loadPage(evt, frameId, btnElement) {
-            if (evt) evt.preventDefault();
+            if (evt && evt.preventDefault) evt.preventDefault();
             
             document.querySelectorAll('.page-frame').forEach(f => f.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
@@ -585,19 +586,25 @@
                 targetFrame.classList.add('active');
             }
 
-            if (btnElement && btnElement.classList) {
-                btnElement.classList.add('active');
+            if (btnElement) {
+                if (typeof btnElement === 'string') {
+                    const btn = document.querySelector(btnElement);
+                    if (btn) btn.classList.add('active');
+                } else if (btnElement.classList) {
+                    btnElement.classList.add('active');
+                }
             }
 
             addLog(`الانتقال إلى: ${frameId}`);
         }
 
         function toggleSubmenu(id) {
-            document.getElementById(id).classList.toggle('active');
+            const el = document.getElementById(id);
+            if(el) el.classList.toggle('active');
         }
 
         function loadDropdownPage(evt, frameId, title, btnElement) {
-            if (evt) evt.stopPropagation();
+            if (evt && evt.stopPropagation) evt.stopPropagation();
             loadPage(evt, frameId, btnElement);
         }
 
