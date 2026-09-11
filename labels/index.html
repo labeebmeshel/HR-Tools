@@ -71,7 +71,7 @@
             background: var(--primary);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 18px;
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
@@ -79,11 +79,14 @@
             align-items: center;
             gap: 8px;
             transition: 0.2s;
+            font-size: 0.88rem;
         }
 
         .btn:hover { background: var(--accent); }
         .btn-success { background: #059669; }
         .btn-success:hover { background: #047857; }
+        .btn-warning { background: #d97706; }
+        .btn-warning:hover { background: #b45309; }
 
         .status-pill {
             display: inline-flex;
@@ -205,10 +208,16 @@
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div>
                 <h2 style="margin:0; color: var(--primary);"><i class="fas fa-tags"></i> مولّد ملصقات الموظفين المربوط بالمنظومة</h2>
-                <p style="font-size: 0.85rem; color: #64748b; margin: 4px 0 0 0;">طباعة ملصقات ملفات الموظفين تلقائياً عبر السحابة أو باستقلالية عبر ملفات Excel.</p>
+                <p style="font-size: 0.85rem; color: #64748b; margin: 4px 0 0 0;">طباعة ملصقات ملفات الموظفين عبر السحابة أو باستقلالية عبر ملفات Excel.</p>
             </div>
-            <div style="display:flex; align-items:center; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                 <span id="syncStatus" class="status-pill"><i class="fas fa-circle-notch fa-spin"></i> جاري الربط...</span>
+                
+                <!-- زر تحميل القالب للعمل المستقل -->
+                <button class="btn btn-warning" onclick="downloadExcelTemplate()">
+                    <i class="fas fa-download"></i> تنزيل قالب Excel
+                </button>
+                
                 <input type="file" id="excelInput" accept=".xlsx, .xls, .csv" style="display: none;" onchange="processExcel(this.files)">
                 <button class="btn" onclick="document.getElementById('excelInput').click()">
                     <i class="fas fa-file-excel"></i> رفع Excel مستقل
@@ -226,11 +235,11 @@
                 <select id="userSelect" onchange="onAdminUserChange()"></select>
             </div>
             <div class="control-group">
-                <label>الشركة المربوطة:</label>
+                <label>الشركة المربوطة بالداتا:</label>
                 <select id="compSelect" onchange="onCompanyChange()"></select>
             </div>
             <div class="control-group">
-                <label>الفرع / الإدارة:</label>
+                <label>الفرع / الإدارة التابعة:</label>
                 <select id="branchSelect" onchange="loadEmployeesFromDB()"></select>
             </div>
             <div class="control-group">
@@ -274,7 +283,6 @@
     </div>
 
 <script>
-    // تهيئة Firebase الموحدة لمنظومة HR
     const firebaseConfig = {
         databaseURL: "https://hr-platform-system-default-rtdb.firebaseio.com"
     };
@@ -306,8 +314,16 @@
             DB.users = userSnap.val() || {};
 
             DB.companies = formData.companies || [];
-            DB.branches = formData.branches || [];
             DB.employees = formData.employees || [];
+
+            // دمج الفروع
+            if (formData.branches) {
+                if (Array.isArray(formData.branches)) {
+                    DB.branches = formData.branches;
+                } else {
+                    DB.branches = Object.values(formData.branches);
+                }
+            }
 
             // دمج سحابي شامل للشركات
             Object.keys(sysCompanies).forEach(key => {
@@ -321,15 +337,6 @@
                     });
                 }
             });
-
-            // التعامل مع الفروع من الشجرة الرئيسية
-            if (formData.branches) {
-                if (Array.isArray(formData.branches)) {
-                    DB.branches = formData.branches;
-                } else {
-                    DB.branches = Object.values(formData.branches);
-                }
-            }
 
             const statusEl = document.getElementById('syncStatus');
             statusEl.className = 'status-pill active';
@@ -450,6 +457,20 @@
         }
 
         renderLabels();
+    }
+
+    // تنزيل قالب Excel جاهز للعمل المستقل
+    function downloadExcelTemplate() {
+        const headers = [["كود الموظف", "اسم الموظف", "الإدارة / الوظيفة"]];
+        const sampleData = [
+            ["1001", "أحمد محمد علي", "الموارد البشرية"],
+            ["1002", "سارة إبراهيم محمود", "الإدارة المالية"]
+        ];
+
+        const ws = XLSX.utils.aoa_to_sheet([...headers, ...sampleData]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "الملصقات");
+        XLSX.writeFile(wb, "قالب_ملصقات_الموظفين.xlsx");
     }
 
     function loadLogo(files) {
