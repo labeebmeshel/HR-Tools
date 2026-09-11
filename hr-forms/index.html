@@ -8,55 +8,111 @@
     <!-- مكتبة الأيقونات FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- ربط ملفات التنسيق CSS بناءً على مجلد css الظاهر في الهيكل -->
+    <!-- Firebase SDK (Compat Version) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <!-- ربط ملفات التنسيق CSS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/print.css">
 </head>
 <body>
 
-    <!-- الواجهة الرئيسية لنظام النماذج -->
-    <div id="appContainer">
-        <!-- القائمة العلوية وأدوات التحكم -->
-        <header class="app-header no-print">
-            <div class="header-titles">
-                <h2><i class="fas fa-print"></i> نظام طباعة النماذج والعقود الرسمية</h2>
-                <p>إدارة الشركات، الموظفين، وطباعة النماذج المعتمدة</p>
+    <div class="app-layout">
+        <!-- القائمة الجانبية المخصصة لتطبيق النماذج -->
+        <aside class="sidebar no-print">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-print"></i> طباعة النماذج</h2>
             </div>
-            <div class="header-actions">
+            <ul class="nav-menu">
+                <li class="nav-item active" onclick="switchFormTab('print-center')">
+                    <i class="fas fa-desktop"></i> مركز الطباعة والمعاينة
+                </li>
+                <li class="nav-item" onclick="switchFormTab('template-designer')">
+                    <i class="fas fa-sliders-h"></i> تصميم وتخصيص النماذج (الأدمن)
+                </li>
+                <li class="nav-item" onclick="switchFormTab('companies-mgr')">
+                    <i class="fas fa-building"></i> إدارة الشركات والفروع
+                </li>
+                <li class="nav-item" onclick="switchFormTab('employees-db')">
+                    <i class="fas fa-users"></i> قاعدة بيانات الموظفين
+                </li>
+                <li class="nav-item" onclick="switchFormTab('users-mgr')">
+                    <i class="fas fa-user-shield"></i> إدارة المستخدمين والكلمات السرية
+                </li>
+            </ul>
+        </aside>
+
+        <!-- منطقة العمل الرئيسية -->
+        <main class="main-content">
+            <!-- شريط الأدوات والاختيارات العلوية -->
+            <div class="top-bar no-print">
+                <div class="filter-group">
+                    <label>حساب المستخدم النشط:</label>
+                    <select id="activeUserSelect" class="form-control" onchange="onUserChange()"></select>
+                </div>
+                <div class="filter-group">
+                    <label>اختر الشركة / الفرع:</label>
+                    <select id="companySelect" class="form-control" onchange="onCompanyChange()"></select>
+                </div>
+                <div class="filter-group">
+                    <label>اختر الموظف:</label>
+                    <select id="employeeSelect" class="form-control" onchange="onEmployeeChange()"></select>
+                </div>
+                <div class="filter-group">
+                    <label>اختر النموذج:</label>
+                    <select id="formSelect" class="form-control" onchange="onFormChange()"></select>
+                </div>
                 <button class="btn btn-primary" onclick="window.print()">
-                    <i class="fas fa-print"></i> طباعة النموذج الحالي
+                    <i class="fas fa-print"></i> طباعة
                 </button>
             </div>
-        </header>
 
-        <!-- المحتوى التشغيلي للبرنامج -->
-        <main class="app-main">
-            <!-- سيتم تحميل لوحة البيانات والسياسات والنماذج ديناميكياً بواسطة ملفات الجافا سكربت -->
-            <div id="mainView" class="view-content"></div>
+            <!-- حاوية عرض النموذج والمعاينة -->
+            <div id="printCenterView" class="view-panel active">
+                <div id="paperContainer" class="paper-container">
+                    <div id="formPreviewArea" class="form-preview">
+                        <div class="placeholder-msg">
+                            <i class="fas fa-file-invoice fa-3x"></i>
+                            <p>يرجى اختيار الموظف والنموذج من القائمة العلوية لمعاينة الحقول والطباعة</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- شاشات الإدارة والإعدادات الخفية -->
+            <div id="templateDesignerPanel" class="view-panel hidden"></div>
+            <div id="companiesMgrPanel" class="view-panel hidden"></div>
+            <div id="employeesDbPanel" class="view-panel hidden"></div>
+            <div id="usersMgrPanel" class="view-panel hidden"></div>
         </main>
     </div>
 
     <!-- ========================================================= -->
-    <!-- ربط ملفات البرمجة JS بناءً على مجلد js الظاهر في الهيكل   -->
-    <!-- الترتيب يراعي الاعتمادية (Dependencies) لضمان عدم حدوث أخطاء -->
+    <!-- ربط ملفات الجافاسكربت بالترتيب الصحيح                       -->
     <!-- ========================================================= -->
-    
-    <!-- 1. قاعدة البيانات والتحقق -->
     <script src="js/database.js"></script>
     <script src="js/validation.js"></script>
-    
-    <!-- 2. إدارة البيانات (الشركات والموظفين) -->
     <script src="js/companies.js"></script>
     <script src="js/employees.js"></script>
-    
-    <!-- 3. القوالب ومعالجة ملفات الإكسيل -->
     <script src="js/templates.js"></script>
     <script src="js/excel.js"></script>
-    
-    <!-- 4. محرك الطباعة والتشغيل الرئيسي -->
     <script src="js/print.js"></script>
     <script src="js/app.js"></script>
 
+    <script>
+        // دالة التنقل المباشرة بين التابات الداخلية للنماذج
+        function switchFormTab(tabId) {
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+
+            if (tabId === 'print-center') document.getElementById('printCenterView').classList.remove('hidden');
+            if (tabId === 'template-designer') document.getElementById('templateDesignerPanel').classList.remove('hidden');
+            if (tabId === 'companies-mgr') document.getElementById('companiesMgrPanel').classList.remove('hidden');
+            if (tabId === 'employees-db') document.getElementById('employeesDbPanel').classList.remove('hidden');
+            if (tabId === 'users-mgr') document.getElementById('usersMgrPanel').classList.remove('hidden');
+        }
+    </script>
 </body>
 </html>
