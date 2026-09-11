@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظومة إدارة وطباعة النماذج الرسمية المتكاملة</title>
+    <title>منظومة إدارة وطباعة النماذج المتكاملة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- مكتبة Excel للقراءة والتصدير -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
-    <!-- مكتبات Firebase الرسمية الحية -->
+    <!-- مكتبات Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
@@ -30,6 +30,7 @@
 
         .app-layout { display: flex; gap: 15px; min-height: 95vh; }
 
+        /* القائمة الجانبية الأربعة أقسام فقط */
         .side-menu {
             width: 260px; background: var(--primary-dark); color: #fff;
             border-radius: 12px; padding: 15px 10px; flex-shrink: 0;
@@ -50,7 +51,7 @@
         .submenu.active { display: block; }
         .submenu-btn {
             width: 100%; text-align: right; padding: 8px 10px; background: none; border: none;
-            color: rgba(255,255,255,0.7); font-size: 0.85rem; border-radius: 6px; cursor: pointer; transition: 0.2s;
+            color: rgba(255,255,255,0.7); font-size: 0.88rem; border-radius: 6px; cursor: pointer; transition: 0.2s;
         }
         .submenu-btn:hover, .submenu-btn.active { color: #fcd34d; background: rgba(255,255,255,0.05); }
 
@@ -90,7 +91,7 @@
         .data-table th, .data-table td { padding: 8px 10px; border: 1px solid var(--border); text-align: right; }
         .data-table th { background: #f1f5f9; color: var(--primary-dark); font-weight: bold; }
 
-        /* ورقة A4 Mapped Dynamic Page */
+        /* A4 Interactive Form Output */
         .a4-page {
             background: #ffffff; width: 210mm; min-height: 297mm; padding: 15mm 20mm;
             margin: 0 auto 20px auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); border: 1px solid var(--border);
@@ -104,11 +105,10 @@
         .doc-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
         .doc-footer { border-top: 1px solid #000; padding-top: 8px; font-size: 10px; text-align: center; margin-top: 20px; }
 
-        .signatures-grid { display: flex; justify-content: space-between; margin-top: 30px; gap: 15px; flex-wrap: wrap; }
+        .signatures-grid { display: flex; margin-top: 30px; gap: 15px; flex-wrap: wrap; }
         .sig-box { text-align: center; flex: 1; min-width: 110px; }
 
-        .editable-area { outline: none; border: 1px dashed transparent; transition: 0.2s; padding: 5px; }
-        .editable-area:focus { border-color: var(--primary); background: #f0f9ff; }
+        .editable-area { outline: none; border: 1px dashed #0b4fb3; padding: 4px; border-radius: 4px; }
 
         @media print {
             @page { size: A4 portrait; margin: 0; }
@@ -123,39 +123,22 @@
 <body>
 
     <div class="app-layout">
-        <!-- القائمة الجانبية -->
+        <!-- القائمة الجانبية المنسدلة الرئيسية -->
         <aside class="side-menu no-print">
-            <div class="menu-title"><i class="fas fa-file-invoice"></i> إدارة الطباعة والنماذج</div>
+            <div class="menu-title"><i class="fas fa-file-invoice"></i> طباعة النماذج</div>
             <ul style="padding: 0;">
                 <li class="nav-item">
                     <button class="nav-btn" onclick="toggleSubmenu('formsPrintSubmenu')">
-                        <span><i class="fas fa-print"></i> طباعة النماذج</span>
+                        <span><i class="fas fa-print"></i> القائمة الرئيسية</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <ul class="submenu active" id="formsPrintSubmenu">
-                        <li><button class="submenu-btn active" onclick="showView('print-view', this)"><i class="fas fa-desktop"></i> مركز الطباعة المعاينة</button></li>
-                        <li><button class="submenu-btn" onclick="quickPrintTemplate('JOB_ACK', this)"><i class="fas fa-file-signature"></i> إقرار استلام عمل</button></li>
-                        <li><button class="submenu-btn" onclick="quickPrintTemplate('WAGE_SCALE', this)"><i class="fas fa-chart-line"></i> صحيفة تدرج الأجور</button></li>
-                        <li><button class="submenu-btn" onclick="quickPrintTemplate('OFFICIAL_HOLIDAYS', this)"><i class="fas fa-calendar-check"></i> صحيفة الإجازات الرسمية</button></li>
-                        <li><button class="submenu-btn" onclick="quickPrintTemplate('SICK_LEAVES', this)"><i class="fas fa-notes-medical"></i> صحيفة الإجازات المرضية</button></li>
-                        <li><button class="submenu-btn" onclick="quickPrintTemplate('PENALTIES_LOG', this)"><i class="fas fa-gavel"></i> صحيفة الجزاءات</button></li>
-                        <li><button class="submenu-btn" onclick="quickPrintTemplate('SOCIAL_STATUS', this)"><i class="fas fa-users-viewfinder"></i> صحيفة الحالة الاجتماعية</button></li>
+                        <li><button class="submenu-btn active" onclick="showView('print-view', this)"><i class="fas fa-desktop"></i> مركز الطباعة والمعاينة</button></li>
+                        <li id="adminDesignMenuBtn"><button class="submenu-btn" onclick="showView('form-customization-view', this)"><i class="fas fa-sliders-h"></i> تصميم وتخصيص النماذج (الأدمن)</button></li>
+                        <li><button class="submenu-btn" onclick="showView('companies-view', this)"><i class="fas fa-building"></i> إدارة الشركات والفروع</button></li>
+                        <li><button class="submenu-btn" onclick="showView('employees-view', this)"><i class="fas fa-users"></i> قاعدة بيانات الموظفين</button></li>
+                        <li id="adminUserMgmtMenuBtn"><button class="submenu-btn" onclick="showView('users-view', this)"><i class="fas fa-user-cog"></i> إدارة المستخدمين والكلمات السرية</button></li>
                     </ul>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-btn" onclick="showView('form-customization-view', this)">
-                        <span><i class="fas fa-sliders-h"></i> تصميم وتخصيص النماذج</span>
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-btn" onclick="showView('companies-view', this)">
-                        <span><i class="fas fa-building"></i> إدارة الشركات والفروع</span>
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-btn" onclick="showView('employees-view', this)">
-                        <span><i class="fas fa-users"></i> قاعدة بيانات الموظفين</span>
-                    </button>
                 </li>
             </ul>
         </aside>
@@ -182,92 +165,152 @@
                 </div>
             </div>
 
-            <!-- 1. شاشة تخصيص النماذج والتحكم في الخطوط والجداول -->
+            <!-- 1. شاشة تصميم وتخصيص النماذج التفاعلية المباشرة (خاص بالأدمن) -->
             <section id="form-customization-view" class="view-panel">
                 <div class="grid-2">
                     <div class="card">
-                        <h3><i class="fas fa-font"></i> التحكم في الخطوط، العناوين والتصميم</h3>
+                        <h3><i class="fas fa-paint-roller"></i> إعدادات التخصيص والمظهر الحي</h3>
+                        <br>
+                        <label>مستوى التخصيص:</label>
+                        <select id="custScope" class="form-control" onchange="loadFormCustomizationSettings()">
+                            <option value="GLOBAL">عام لجميع الشركات والفروع</option>
+                            <option value="COMPANY">لشركة محددة فقط</option>
+                            <option value="BRANCH">لفرع محدد فقط</option>
+                        </select>
+
                         <br>
                         <label>اختر النموذج المراد تخصيصه وتصميمه:</label>
                         <select id="custTmplSelect" class="form-control" onchange="loadFormCustomizationSettings()">
                             <option value="JOB_ACK">إقرار استلام عمل</option>
-                            <option value="WAGE_SCALE">صحيفة تدرج الأجور</option>
-                            <option value="OFFICIAL_HOLIDAYS">صحيفة الإجازات الرسمية</option>
-                            <option value="SICK_LEAVES">صحيفة الإجازات المرضية</option>
-                            <option value="PENALTIES_LOG">صحيفة الجزاءات</option>
-                            <option value="SOCIAL_STATUS">صحيفة الحالة الاجتماعية</option>
+                            <option value="WAGE_SCALE">صحيفة تدرج الأجور</option>[cite: 2]
+                            <option value="OFFICIAL_HOLIDAYS">صحيفة الإجازات الرسمية</option>[cite: 3]
+                            <option value="SICK_LEAVES">صحيفة الإجازات المرضية</option>[cite: 4]
+                            <option value="PENALTIES_LOG">صحيفة الجزاءات</option>[cite: 5]
+                            <option value="SOCIAL_STATUS">صحيفة الحالة الاجتماعية</option>[cite: 6]
                         </select>
 
                         <br>
                         <label>عنوان النموذج المخصص (Custom Title):</label>
-                        <input type="text" id="custFormTitle" class="form-control" placeholder="مثال: إقرار استلام عمل جديد">
+                        <input type="text" id="custFormTitle" class="form-control" placeholder="مثال: إقرار استلام عمل جديد" oninput="liveUpdatePreview()">
 
                         <div class="grid-2" style="margin-top: 10px;">
                             <div>
                                 <label>نوع الخط (Font Family):</label>
-                                <select id="custFontFamily" class="form-control">
-                                    <option value="'Segoe UI', Tahoma, sans-serif">Segoe UI Standard</option>
+                                <select id="custFontFamily" class="form-control" onchange="liveUpdatePreview()">
+                                    <option value="'Segoe UI', Tahoma, sans-serif">Segoe UI</option>
                                     <option value="'Cairo', sans-serif">Cairo Bold</option>
                                     <option value="'Amiri', serif">Amiri Official</option>
-                                    <option value="Arial, sans-serif">Arial Standard</option>
+                                    <option value="Arial, sans-serif">Arial</option>
                                 </select>
                             </div>
                             <div>
                                 <label>حجم الخط (Font Size - px):</label>
-                                <input type="number" id="custFontSize" class="form-control" value="13" min="10" max="22">
+                                <input type="number" id="custFontSize" class="form-control" value="13" min="10" max="22" oninput="liveUpdatePreview()">
                             </div>
                         </div>
 
                         <div class="grid-2" style="margin-top: 10px;">
                             <div>
                                 <label>لون النص الرئيسي:</label>
-                                <input type="color" id="custTextColor" class="form-control" value="#1e293b" style="height: 38px;">
+                                <input type="color" id="custTextColor" class="form-control" value="#1e293b" style="height: 38px;" onchange="liveUpdatePreview()">
                             </div>
                             <div>
                                 <label>لون خلفية عناوين الجداول:</label>
-                                <input type="color" id="custTableHeaderBg" class="form-control" value="#f1f5f9" style="height: 38px;">
+                                <input type="color" id="custTableHeaderBg" class="form-control" value="#f1f5f9" style="height: 38px;" onchange="liveUpdatePreview()">
                             </div>
                         </div>
 
                         <br>
                         <div style="background: #f8fafc; padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
-                            <strong style="display: block; margin-bottom: 8px;">التحكم بأعداد صفوف وجداول النموذج:</strong>
+                            <strong style="display: block; margin-bottom: 8px;">التحكم بأعداد الجداول والتوقيعات:</strong>
                             <div class="grid-2">
                                 <div>
                                     <label>عدد صفوف الجدول:</label>
-                                    <input type="number" id="custTableRows" class="form-control" value="10" min="1" max="30">
+                                    <input type="number" id="custTableRows" class="form-control" value="10" min="1" max="30" oninput="liveUpdatePreview()">
                                 </div>
                                 <div>
-                                    <label>الكود المرجعي للنموذج:</label>
-                                    <input type="text" id="custFormCode" class="form-control" placeholder="C1-ACK-01">
+                                    <label>محاذاة التوقيعات:</label>
+                                    <select id="custSigAlign" class="form-control" onchange="liveUpdatePreview()">
+                                        <option value="space-between">موزعة بالتساوي</option>
+                                        <option value="flex-start">يمين النموذج</option>
+                                        <option value="center">وسط النموذج</option>
+                                        <option value="flex-end">يسار النموذج</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
 
                         <br>
-                        <button type="button" class="btn btn-primary" style="width: 100%;" onclick="saveFormCustomization()"><i class="fas fa-cloud-upload-alt"></i> حفظ المظهر والتصميم في Firebase</button>
-                    </div>
-
-                    <div class="card">
-                        <h3><i class="fas fa-signature"></i> التوقيعات المعتمدة للنموذج المحدد</h3>
-                        <br>
-                        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 10px;">أضف أو عدل أصحاب التوقيع المعتمدين بأسفل هذا النموذج بالذات:</p>
-                        
                         <div id="tmplSignaturesList"></div>
-                        <br>
-                        <div style="display: flex; gap: 8px;">
-                            <input type="text" id="newTmplSigTitle" class="form-control" placeholder="مثال: المدير الإداري والتنفيذي">
+                        <div style="display: flex; gap: 8px; margin-top: 8px;">
+                            <input type="text" id="newTmplSigTitle" class="form-control" placeholder="مثال: مدير الموارد البشرية">
                             <button class="btn btn-success" type="button" onclick="addTmplSignature()"><i class="fas fa-plus"></i> إضافة توقيع</button>
                         </div>
+
+                        <br>
+                        <button type="button" class="btn btn-primary" style="width: 100%;" onclick="saveFormCustomization()"><i class="fas fa-save"></i> حفظ وتثبيت التصميم للنموذج</button>
+                    </div>
+
+                    <!-- شاشة المعاينة الحية المباشرة أمام الأدمن أثناء التعديل -->
+                    <div class="card">
+                        <h3><i class="fas fa-eye"></i> المعاينة الحية المباشرة للنموذج</h3>
+                        <br>
+                        <div id="livePreviewBox" style="transform: scale(0.85); transform-origin: top right;"></div>
                     </div>
                 </div>
             </section>
 
-            <!-- 2. شاشة الشركات والفروع -->
+            <!-- 2. شاشة إدارة المستخدمين والكلمات السرية (الأدمن) -->
+            <section id="users-view" class="view-panel">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3><i class="fas fa-user-plus"></i> إضافة / تعديل مستخدم جديد</h3>
+                        <br>
+                        <form onsubmit="saveUserAccount(event)">
+                            <label>اسم المستخدم (User ID / Username) *</label>
+                            <input type="text" id="uUsername" class="form-control" required placeholder="مثال: Orbis_HR">
+                            
+                            <label>الاسم الظاهر بالمنظومة *</label>
+                            <input type="text" id="uName" class="form-control" required placeholder="شركة أوربيس لتكنولوجيا المعلومات">
+                            
+                            <label>كلمة السر (الرقم السرّي) *</label>
+                            <input type="text" id="uPassword" class="form-control" required placeholder="123456">
+                            
+                            <label>نوع الصلاحيات *</label>
+                            <select id="uRole" class="form-control" required>
+                                <option value="user">مستخدم شركة عادي (User)</option>
+                                <option value="admin">مدير نظام شمول (Admin)</option>
+                            </select>
+                            
+                            <br>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-save"></i> حفظ الحساب</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-users-cog"></i> جدول مستخدمي النظام ورؤية كلمات السر</h3>
+                        <br>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>المستخدم</th>
+                                    <th>الاسم</th>
+                                    <th>كلمة السر</th>
+                                    <th>الصلاحية</th>
+                                    <th>حذف</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. شاشة الشركات والفروع ورفع اللوجو -->
             <section id="companies-view" class="view-panel">
                 <div class="grid-2">
                     <div class="card">
-                        <h3><i class="fas fa-building"></i> إضافة / تعديل شركة وتسكينها</h3>
+                        <h3><i class="fas fa-building"></i> إضافة / تعديل شركة ورفع اللوجو</h3>
                         <br>
                         <form onsubmit="saveCompany(event)">
                             <input type="hidden" id="cId">
@@ -297,14 +340,19 @@
                                     <input type="text" id="cOwner" class="form-control" required placeholder="أ. د/ لبيب ميشيل">
                                 </div>
                             </div>
+
                             <br>
-                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-save"></i> حفظ الشركة وحفظها سحابياً</button>
+                            <label>رفع لوجو الشركة (يظهر تلقائياً بنماذج الشركة):</label>
+                            <input type="file" id="cLogoFile" accept="image/*" class="form-control" onchange="uploadCompanyLogo(event)">
+
+                            <br>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-save"></i> حفظ الشركة وتسكينها</button>
                         </form>
                     </div>
 
                     <div class="card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <h3><i class="fas fa-code-branch"></i> إدارة الفروع</h3>
+                            <h3><i class="fas fa-code-branch"></i> إدارة الفروع وخيارات الحذف</h3>
                             <div>
                                 <button class="btn btn-primary" onclick="downloadCompaniesTemplate()"><i class="fas fa-file-excel"></i> قالب الشركات</button>
                                 <label class="btn btn-success" style="cursor: pointer; margin: 0;">
@@ -332,16 +380,21 @@
                             <br>
                             <button type="submit" class="btn btn-success" style="width: 100%;"><i class="fas fa-plus"></i> إضافة الفرع وتسكينه</button>
                         </form>
+
+                        <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--border);">
+                        <button class="btn btn-danger" onclick="deleteActiveCompany()"><i class="fas fa-trash-alt"></i> مسح الشركة المحددة بالكامل</button>
+                        <button class="btn btn-danger" onclick="deleteActiveBranch()"><i class="fas fa-trash"></i> مسح الفرع المحدد</button>
                     </div>
                 </div>
             </section>
 
-            <!-- 3. شاشة الموظفين وقاعدة البيانات -->
+            <!-- 4. شاشة الموظفين ومسح الداتا -->
             <section id="employees-view" class="view-panel">
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
                         <h2><i class="fas fa-users"></i> قاعدة بيانات الموظفين المتاحين</h2>
                         <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-danger" onclick="clearAllEmployeesData()"><i class="fas fa-eraser"></i> مسح داتا الموظفين بالكامل</button>
                             <button class="btn btn-warning" onclick="executeBulkPrint()"><i class="fas fa-print"></i> طباعة النماذج المحددة</button>
                             <button class="btn btn-primary" onclick="downloadEmployeesTemplate()"><i class="fas fa-file-excel"></i> قالب الموظفين (.xlsx)</button>
                             <label class="btn btn-success" style="cursor: pointer; margin: 0;">
@@ -355,11 +408,11 @@
                         <strong style="display: block; margin-bottom: 6px; color: var(--primary-dark);">اختر النماذج المراد طباعتها للموظفين المحددين بالجدول:</strong>
                         <div style="display: flex; gap: 15px; flex-wrap: wrap; font-size: 0.85rem;">
                             <label><input type="checkbox" class="bulk-tmpl-check" value="JOB_ACK" checked> إقرار استلام عمل</label>
-                            <label><input type="checkbox" class="bulk-tmpl-check" value="WAGE_SCALE"> صحيفة تدرج الأجور</label>
-                            <label><input type="checkbox" class="bulk-tmpl-check" value="OFFICIAL_HOLIDAYS"> صحيفة الإجازات الرسمية</label>
-                            <label><input type="checkbox" class="bulk-tmpl-check" value="SICK_LEAVES"> صحيفة الإجازات المرضية</label>
-                            <label><input type="checkbox" class="bulk-tmpl-check" value="PENALTIES_LOG"> صحيفة الجزاءات</label>
-                            <label><input type="checkbox" class="bulk-tmpl-check" value="SOCIAL_STATUS"> صحيفة الحالة الاجتماعية</label>
+                            <label><input type="checkbox" class="bulk-tmpl-check" value="WAGE_SCALE"> صحيفة تدرج الأجور</label>[cite: 2]
+                            <label><input type="checkbox" class="bulk-tmpl-check" value="OFFICIAL_HOLIDAYS"> صحيفة الإجازات الرسمية</label>[cite: 3]
+                            <label><input type="checkbox" class="bulk-tmpl-check" value="SICK_LEAVES"> صحيفة الإجازات المرضية</label>[cite: 4]
+                            <label><input type="checkbox" class="bulk-tmpl-check" value="PENALTIES_LOG"> صحيفة الجزاءات</label>[cite: 5]
+                            <label><input type="checkbox" class="bulk-tmpl-check" value="SOCIAL_STATUS"> صحيفة الحالة الاجتماعية</label>[cite: 6]
                         </div>
                     </div>
 
@@ -375,7 +428,7 @@
                                     <th>الشركة والفرع</th>
                                     <th>الوظيفة بالتأمينات</th>
                                     <th>الأجر الشامل</th>
-                                    <th>طباعة نموذج فردي</th>
+                                    <th>خيارات</th>
                                 </tr>
                             </thead>
                             <tbody id="empTableBody"></tbody>
@@ -384,7 +437,7 @@
                 </div>
             </section>
 
-            <!-- 4. شاشة المعاينة والطباعة المباشرة -->
+            <!-- 5. شاشة المعاينة والطباعة المباشرة -->
             <section id="print-view" class="view-panel active">
                 <div class="card no-print">
                     <div class="grid-3">
@@ -396,11 +449,11 @@
                             <label>اختر النموذج:</label>
                             <select id="pTmpl" class="form-control" onchange="renderPrintPreview()">
                                 <option value="JOB_ACK">إقرار استلام عمل</option>
-                                <option value="WAGE_SCALE">صحيفة تدرج الأجور</option>
-                                <option value="OFFICIAL_HOLIDAYS">صحيفة الإجازات الرسمية</option>
-                                <option value="SICK_LEAVES">صحيفة الإجازات المرضية</option>
-                                <option value="PENALTIES_LOG">صحيفة الجزاءات</option>
-                                <option value="SOCIAL_STATUS">صحيفة الحالة الاجتماعية</option>
+                                <option value="WAGE_SCALE">صحيفة تدرج الأجور</option>[cite: 2]
+                                <option value="OFFICIAL_HOLIDAYS">صحيفة الإجازات الرسمية</option>[cite: 3]
+                                <option value="SICK_LEAVES">صحيفة الإجازات المرضية</option>[cite: 4]
+                                <option value="PENALTIES_LOG">صحيفة الجزاءات</option>[cite: 5]
+                                <option value="SOCIAL_STATUS">صحيفة الحالة الاجتماعية</option>[cite: 6]
                             </select>
                         </div>
                         <div style="display: flex; align-items: flex-end;">
@@ -416,21 +469,20 @@
     </div>
 
     <script>
-        // إعداد وتوصيل Firebase Realtime Database
+        // تهيئة وإعدادات Firebase Realtime Database
         const firebaseConfig = {
             databaseURL: "https://hr-performance-system-f388a-default-rtdb.firebaseio.com"
         };
         firebase.initializeApp(firebaseConfig);
         const fbDB = firebase.database();
 
-        // الهيكل الأساسي لقاعدة البيانات المجهزة للتحميل والحفظ السحابي
         let DB = {
             users: [
-                { id: 'admin', name: 'admin (مدير النظام)', role: 'admin' },
-                { id: 'Orbis', name: 'Orbis (مستخدم شركة)', role: 'user' }
+                { id: 'admin', name: 'admin (مدير النظام)', password: 'admin123', role: 'admin' },
+                { id: 'Orbis', name: 'Orbis (مستخدم شركة)', password: '123', role: 'user' }
             ],
             companies: JSON.parse(localStorage.getItem('HR_COMPANIES')) || [
-                { id: 'C1', userId: 'Orbis', name: 'شركة النور لتوريدات الخضار والفاكهة', reg: '100293', tax: '987-654-321', ins: '1740500', owner: 'أ. د/ لبيب ميشيل', deputy: 'أ/ نورا سيد الملا', addr: 'القاهرة - مدينة نصر' }
+                { id: 'C1', userId: 'Orbis', name: 'شركة النور لتوريدات الخضار والفاكهة', reg: '100293', tax: '987-654-321', ins: '1740500', owner: 'أ. د/ لبيب ميشيل', logoUrl: '' }
             ],
             branches: JSON.parse(localStorage.getItem('HR_BRANCHES')) || [
                 { id: 'B1', compId: 'C1', name: 'الفرع الرئيسي - العبور', ins: '1740500', addr: 'العبور - المنطقة الصناعية' }
@@ -444,36 +496,39 @@
                 }
             ],
             formSettings: JSON.parse(localStorage.getItem('HR_FORM_SETTINGS')) || {
-                'JOB_ACK': { title: 'إقرار إستلام عمل', code: 'ACK-01', fontFamily: "'Segoe UI', Tahoma, sans-serif", fontSize: 13, textColor: '#1e293b', headerBg: '#f1f5f9', rows: 10, signatures: ['المقر بما فيه', 'رئيس القسم', 'مدير الموارد البشرية'] },
-                'WAGE_SCALE': { title: 'صحيفة تدرج الأجور', code: 'WAGE-02', fontFamily: "'Segoe UI', Tahoma, sans-serif", fontSize: 12, textColor: '#1e293b', headerBg: '#f1f5f9', rows: 12, signatures: ['إعداد الماهيات', 'مراجعة الأجور', 'يعتمد مدير الموقع'] },
-                'OFFICIAL_HOLIDAYS': { title: 'صحيفة الإجازات الرسمية', code: 'HOLI-03', fontFamily: "'Segoe UI', Tahoma, sans-serif", fontSize: 12, textColor: '#1e293b', headerBg: '#f1f5f9', rows: 11, signatures: ['توقيع العامل بالحصول عليها', 'شؤون العاملين'] },
-                'SICK_LEAVES': { title: 'صحيفة الإجازات المرضية', code: 'SICK-04', fontFamily: "'Segoe UI', Tahoma, sans-serif", fontSize: 12, textColor: '#1e293b', headerBg: '#f1f5f9', rows: 6, signatures: ['توقيع العامل', 'توقيع الطبيب/الهيئة', 'مدير الإدارة'] },
-                'PENALTIES_LOG': { title: 'صحيفة الجزاءات', code: 'PEN-05', fontFamily: "'Segoe UI', Tahoma, sans-serif", fontSize: 12, textColor: '#1e293b', headerBg: '#f1f5f9', rows: 10, signatures: ['توقيع العامل بالعلم', 'مدير الشؤون القانونية', 'يعتمد'] },
-                'SOCIAL_STATUS': { title: 'صحيفة الحالة الاجتماعية', code: 'SOC-06', fontFamily: "'Segoe UI', Tahoma, sans-serif", fontSize: 12, textColor: '#1e293b', headerBg: '#f1f5f9', rows: 5, signatures: ['توقيع العامل', 'مسؤول ملفات الخدمة'] }
+                'JOB_ACK': { title: 'إقرار إستلام عمل', fontFamily: "'Segoe UI', Tahoma, sans-serif", fontSize: 13, textColor: '#1e293b', headerBg: '#f1f5f9', rows: 10, sigAlign: 'space-between', signatures: ['المقر بما فيه', 'رئيس القسم', 'مدير الموارد البشرية'] },
+                'WAGE_SCALE': { title: 'صحيفة تدرج الأجور', fontFamily: "'Segoe UI', Tahoma, sans-serif", fontSize: 12, textColor: '#1e293b', headerBg: '#f1f5f9', rows: 12, sigAlign: 'space-between', signatures: ['إعداد الماهيات', 'مراجعة الأجور', 'يعتمد'] },[cite: 2]
+                'OFFICIAL_HOLIDAYS': { title: 'صحيفة الإجازات الرسمية', fontFamily: "'Segoe UI', Tahoma, sans-serif", fontSize: 12, textColor: '#1e293b', headerBg: '#f1f5f9', rows: 11, sigAlign: 'space-between', signatures: ['توقيع العامل بالحصول عليها', 'شؤون العاملين'] },[cite: 3]
+                'SICK_LEAVES': { title: 'صحيفة الإجازات المرضية', fontFamily: "'Segoe UI', Tahoma, sans-serif", fontSize: 12, textColor: '#1e293b', headerBg: '#f1f5f9', rows: 6, sigAlign: 'space-between', signatures: ['توقيع العامل', 'توقيع الطبيب/الهيئة'] },[cite: 4]
+                'PENALTIES_LOG': { title: 'صحيفة الجزاءات', fontFamily: "'Segoe UI', Tahoma, sans-serif", fontSize: 12, textColor: '#1e293b', headerBg: '#f1f5f9', rows: 10, sigAlign: 'space-between', signatures: ['توقيع العامل بالعلم', 'مدير الشؤون القانونية'] },[cite: 5]
+                'SOCIAL_STATUS': { title: 'صحيفة الحالة الاجتماعية', fontFamily: "'Segoe UI', Tahoma, sans-serif", fontSize: 12, textColor: '#1e293b', headerBg: '#f1f5f9', rows: 5, sigAlign: 'space-between', signatures: ['توقيع العامل', 'مسؤول ملفات الخدمة'] }[cite: 6]
             }
         };
 
-        // حفظ ثنائي بـ LocalStorage وسيرفر Firebase السحابي
+        let tempUploadedLogo = '';
+
         function saveDB() {
+            localStorage.setItem('HR_USERS', JSON.stringify(DB.users));
             localStorage.setItem('HR_COMPANIES', JSON.stringify(DB.companies));
             localStorage.setItem('HR_BRANCHES', JSON.stringify(DB.branches));
             localStorage.setItem('HR_EMPLOYEES', JSON.stringify(DB.employees));
             localStorage.setItem('HR_FORM_SETTINGS', JSON.stringify(DB.formSettings));
 
-            fbDB.ref('HR_FORM_SYSTEM_DATA').set(DB).catch(err => console.log("Firebase sync warning: " + err.message));
+            fbDB.ref('HR_FORM_SYSTEM_DATA').set(DB).catch(err => console.log("Firebase sync: " + err.message));
         }
 
-        // المزامنة التلقائية والتحميل الحسي عند التشغيل من Firebase
         function loadDBFromFirebase() {
             fbDB.ref('HR_FORM_SYSTEM_DATA').once('value').then((snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
+                    if (data.users) DB.users = data.users;
                     if (data.companies) DB.companies = data.companies;
                     if (data.branches) DB.branches = data.branches;
                     if (data.employees) DB.employees = data.employees;
                     if (data.formSettings) DB.formSettings = data.formSettings;
                     saveDB();
                     initFilterSequence();
+                    renderUsersTable();
                 }
             });
         }
@@ -494,6 +549,7 @@
             if(viewId === 'employees-view') renderEmployees();
             if(viewId === 'print-view') populatePrintDropdowns();
             if(viewId === 'form-customization-view') loadFormCustomizationSettings();
+            if(viewId === 'users-view') renderUsersTable();
         }
 
         function initFilterSequence() {
@@ -508,8 +564,6 @@
                 cUserSelect.innerHTML += `<option value="${u.id}">${u.name}</option>`;
             });
 
-            // ضبط المستخدم المبدئي الافتراضي لجلسة العمل على Orbis بدلاً من أدمن لحماية الرؤية
-            uSelect.value = 'Orbis';
             onUserFilterChange();
         }
 
@@ -522,14 +576,18 @@
             cSelect.innerHTML = '';
             bCompSelect.innerHTML = '<option value="">-- اختر الشركة --</option>';
 
-            // حظر وإخفاء أي شركات تخص مستخدمين آخرين إذا لم يكن أداء أدمن
+            // إخفاء خيارات الأدمن إذا كان المستخدم العادي يعمل
+            const isAdmin = currentUser && currentUser.role === 'admin';
+            document.getElementById('adminDesignMenuBtn').style.display = isAdmin ? 'block' : 'none';
+            document.getElementById('adminUserMgmtMenuBtn').style.display = isAdmin ? 'block' : 'none';
+
             let filteredCompanies = DB.companies;
-            if (currentUser && currentUser.role !== 'admin') {
+            if (!isAdmin) {
                 filteredCompanies = DB.companies.filter(c => c.userId === uId);
             }
 
             if (filteredCompanies.length === 0) {
-                cSelect.innerHTML = '<option value="">-- لا توجد شركات تابعة لهذا المستخدم --</option>';
+                cSelect.innerHTML = '<option value="">-- لا توجد شركات تابعة --</option>';
             } else {
                 filteredCompanies.forEach(c => {
                     cSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
@@ -583,9 +641,8 @@
                         <td>${e.job}</td>
                         <td>${e.grossSalary} ج.م</td>
                         <td>
-                            <button class="btn btn-primary" style="padding: 3px 8px; font-size: 0.75rem;" onclick="quickPrintForEmp('${e.id}')">
-                                <i class="fas fa-print"></i> طباعة فردية
-                            </button>
+                            <button class="btn btn-primary" style="padding: 3px 8px; font-size: 0.75rem;" onclick="quickPrintForEmp('${e.id}')"><i class="fas fa-print"></i></button>
+                            <button class="btn btn-danger" style="padding: 3px 8px; font-size: 0.75rem;" onclick="deleteEmployee('${e.id}')"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>`;
             });
@@ -595,36 +652,44 @@
             document.querySelectorAll('.emp-select-check').forEach(c => c.checked = masterCheck.checked);
         }
 
-        // شاشة تصميم وحفظ مظهر الخط والجداول وتوقيعات كل نموذج
+        // إدارات تخصيص وتصميم النماذج مع المعاينة الحية
         function loadFormCustomizationSettings() {
             const tmplKey = document.getElementById('custTmplSelect').value;
-            const cfg = DB.formSettings[tmplKey] || { title: '', code: '', fontFamily: "'Segoe UI', Tahoma, sans-serif", fontSize: 13, textColor: '#1e293b', headerBg: '#f1f5f9', rows: 10, signatures: [] };
+            const cfg = DB.formSettings[tmplKey] || { title: '', fontFamily: "'Segoe UI', Tahoma, sans-serif", fontSize: 13, textColor: '#1e293b', headerBg: '#f1f5f9', rows: 10, sigAlign: 'space-between', signatures: [] };
 
             document.getElementById('custFormTitle').value = cfg.title || '';
-            document.getElementById('custFormCode').value = cfg.code || '';
             document.getElementById('custFontFamily').value = cfg.fontFamily || "'Segoe UI', Tahoma, sans-serif";
             document.getElementById('custFontSize').value = cfg.fontSize || 13;
             document.getElementById('custTextColor').value = cfg.textColor || '#1e293b';
             document.getElementById('custTableHeaderBg').value = cfg.headerBg || '#f1f5f9';
             document.getElementById('custTableRows').value = cfg.rows || 10;
+            document.getElementById('custSigAlign').value = cfg.sigAlign || 'space-between';
 
             renderTmplSignaturesList();
+            liveUpdatePreview();
         }
 
-        function saveFormCustomization() {
+        function liveUpdatePreview() {
             const tmplKey = document.getElementById('custTmplSelect').value;
-            if (!DB.formSettings[tmplKey]) DB.formSettings[tmplKey] = {};
+            const previewArea = document.getElementById('livePreviewBox');
+            const sampleEmp = DB.employees[0] || { id: 'E1' };
 
+            // تحديث لحظي للقيم داخل الهيكل الحفاظي
+            if (!DB.formSettings[tmplKey]) DB.formSettings[tmplKey] = {};
             DB.formSettings[tmplKey].title = document.getElementById('custFormTitle').value;
-            DB.formSettings[tmplKey].code = document.getElementById('custFormCode').value;
             DB.formSettings[tmplKey].fontFamily = document.getElementById('custFontFamily').value;
             DB.formSettings[tmplKey].fontSize = document.getElementById('custFontSize').value;
             DB.formSettings[tmplKey].textColor = document.getElementById('custTextColor').value;
             DB.formSettings[tmplKey].headerBg = document.getElementById('custTableHeaderBg').value;
             DB.formSettings[tmplKey].rows = parseInt(document.getElementById('custTableRows').value) || 10;
+            DB.formSettings[tmplKey].sigAlign = document.getElementById('custSigAlign').value;
 
+            previewArea.innerHTML = buildFormHTML(sampleEmp.id, tmplKey);
+        }
+
+        function saveFormCustomization() {
             saveDB();
-            alert('تم حفظ وتحديث التصميم في قاعدة بيانات Firebase بنجاح!');
+            alert('تم حفظ وتثبيت التعديل والتصميم السحابي للنموذج بنجاح!');
         }
 
         function renderTmplSignaturesList() {
@@ -650,6 +715,7 @@
                 DB.formSettings[tmplKey].signatures.push(input.value.trim());
                 saveDB();
                 renderTmplSignaturesList();
+                liveUpdatePreview();
                 input.value = '';
             }
         }
@@ -659,6 +725,63 @@
             DB.formSettings[tmplKey].signatures.splice(idx, 1);
             saveDB();
             renderTmplSignaturesList();
+            liveUpdatePreview();
+        }
+
+        // إدارة المستخدمين ورؤية كلمة السر للأدمن
+        function saveUserAccount(e) {
+            e.preventDefault();
+            const username = document.getElementById('uUsername').value.trim();
+            const name = document.getElementById('uName').value.trim();
+            const password = document.getElementById('uPassword').value.trim();
+            const role = document.getElementById('uRole').value;
+
+            const idx = DB.users.findIndex(u => u.id === username);
+            const userObj = { id: username, name, password, role };
+
+            if (idx > -1) DB.users[idx] = userObj;
+            else DB.users.push(userObj);
+
+            saveDB();
+            initFilterSequence();
+            renderUsersTable();
+            alert(`تم إنشاء/تحديث حساب المستخدم (${username}) بنجاح!`);
+            e.target.reset();
+        }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+            DB.users.forEach(u => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${u.id}</strong></td>
+                        <td>${u.name}</td>
+                        <td><code style="background:#e0f2fe; padding:2px 6px; border-radius:4px; font-weight:bold; color:#0369a1;">${u.password || '123'}</code></td>
+                        <td><span class="btn ${u.role==='admin'?'btn-primary':'btn-warning'}" style="padding:2px 6px; font-size:0.75rem;">${u.role}</span></td>
+                        <td><button class="btn btn-danger" style="padding:2px 6px;" onclick="deleteUserAccount('${u.id}')"><i class="fas fa-trash"></i></button></td>
+                    </tr>`;
+            });
+        }
+
+        function deleteUserAccount(uId) {
+            if (uId === 'admin') { alert('لا يمكن مسح حساب مدير النظام الرئيسي!'); return; }
+            if (confirm(`هل أنت تأكد من مسح حساب المستخدم (${uId})؟`)) {
+                DB.users = DB.users.filter(u => u.id !== uId);
+                saveDB();
+                initFilterSequence();
+                renderUsersTable();
+            }
+        }
+
+        // مسح وإدارة الشركات والفروع واللوجو
+        function uploadCompanyLogo(evt) {
+            const file = evt.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => { tempUploadedLogo = e.target.result; };
+                reader.readAsDataURL(file);
+            }
         }
 
         function saveCompany(e) {
@@ -671,7 +794,8 @@
                 reg: document.getElementById('cReg').value,
                 tax: document.getElementById('cTax').value,
                 ins: document.getElementById('cIns').value,
-                owner: document.getElementById('cOwner').value
+                owner: document.getElementById('cOwner').value,
+                logoUrl: tempUploadedLogo || ''
             };
 
             const idx = DB.companies.findIndex(c => c.id === id);
@@ -680,8 +804,9 @@
 
             saveDB();
             initFilterSequence();
-            alert('تم حفظ الشركة وتحديث البيانات بنجاح!');
+            alert('تم حفظ الشركة ورابط اللوجو وتسكينها بنجاح!');
             e.target.reset();
+            tempUploadedLogo = '';
         }
 
         function saveBranch(e) {
@@ -697,8 +822,50 @@
             DB.branches.push(branchObj);
             saveDB();
             initFilterSequence();
-            alert('تم إضافة الفرع وتحديث البيانات سحابياً!');
+            alert('تم إضافة الفرع بنجاح!');
             e.target.reset();
+        }
+
+        function deleteActiveCompany() {
+            const cId = document.getElementById('filterCompSelect').value;
+            if (!cId) return;
+            if (confirm('هل أنت متأكد من مسح الشركة الحالية وكافة الفروع والموظفين المنسوبين لها؟')) {
+                DB.companies = DB.companies.filter(c => c.id !== cId);
+                DB.branches = DB.branches.filter(b => b.compId !== cId);
+                DB.employees = DB.employees.filter(e => e.compId !== cId);
+                saveDB();
+                initFilterSequence();
+                alert('تم مسح الشركة بالكامل!');
+            }
+        }
+
+        function deleteActiveBranch() {
+            const bId = document.getElementById('filterBranchSelect').value;
+            if (bId === 'ALL' || !bId) { alert('يرجى اختيار فرع محدد لمسحه!'); return; }
+            if (confirm('هل أنت متأكد من مسح الفرع المحدد والموظفين التابعين له؟')) {
+                DB.branches = DB.branches.filter(b => b.id !== bId);
+                DB.employees = DB.employees.filter(e => e.branchId !== bId);
+                saveDB();
+                initFilterSequence();
+                alert('تم مسح الفرع المحدد!');
+            }
+        }
+
+        function deleteEmployee(empId) {
+            if (confirm('هل أنت متأكد من مسح هذا الموظف؟')) {
+                DB.employees = DB.employees.filter(e => e.id !== empId);
+                saveDB();
+                renderEmployees();
+            }
+        }
+
+        function clearAllEmployeesData() {
+            if (confirm('تنبيه هام: هل أنت متأكد من مسح كافة أسماء وداتا الموظفين المسجلة بالمنظومة؟')) {
+                DB.employees = [];
+                saveDB();
+                renderEmployees();
+                alert('تم مسح كافة أسماء وداتا الموظفين بنجاح!');
+            }
         }
 
         function populatePrintDropdowns() {
@@ -727,24 +894,12 @@
             renderPrintPreview();
         }
 
-        function quickPrintTemplate(tmplKey, btnEl) {
-            showView('print-view', btnEl);
-            document.getElementById('pTmpl').value = tmplKey;
-            renderPrintPreview();
-        }
-
         function executeBulkPrint() {
             const selectedEmpIds = Array.from(document.querySelectorAll('.emp-select-check:checked')).map(c => c.value);
             const selectedTmplKeys = Array.from(document.querySelectorAll('.bulk-tmpl-check:checked')).map(c => c.value);
 
-            if (selectedEmpIds.length === 0) {
-                alert('يرجى تحديد موظف واحد على الأقل من الجدول!');
-                return;
-            }
-            if (selectedTmplKeys.length === 0) {
-                alert('يرجى اختيار نموذج واحد على الأقل من القائمة بال أعلى!');
-                return;
-            }
+            if (selectedEmpIds.length === 0) { alert('يرجى تحديد موظف واحد على الأقل من الجدول!'); return; }
+            if (selectedTmplKeys.length === 0) { alert('يرجى اختيار نموذج واحد على الأقل للطباعة!'); return; }
 
             showView('print-view');
             const printArea = document.getElementById('printArea');
@@ -772,24 +927,25 @@
             printArea.innerHTML = buildFormHTML(empId, tmplKey);
         }
 
-        // توليد محرك النماذج المخصص بحجم الجداول ولون الخط المحفوظ
+        // بناء ومزامنة النموذج حياً بدعم اللوجو، الخطوط، الجداول ومحاذاة التوقيعات
         function buildFormHTML(empId, tmplKey) {
-            const emp = DB.employees.find(e => e.id === empId);
-            if (!emp) return '';
-
-            const comp = DB.companies.find(c => c.id === emp.compId) || { name: 'شركة النور لتوريدات الخضار والفاكهة' };
-            const branch = DB.branches.find(b => b.id === emp.branchId) || { name: 'المركز الرئيسي' };
-            const cfg = DB.formSettings[tmplKey] || { title: '', code: 'N/A', fontFamily: 'Segoe UI', fontSize: 13, textColor: '#1e293b', headerBg: '#f1f5f9', rows: 10, signatures: ['التوقيع'] };
+            const emp = DB.employees.find(e => e.id === empId) || { name: 'اسم الموظف التجريبي', job: 'الوظيفة', insDate: '2022-01-01', grossSalary: '5000', insNo: '123456', natId: '29000000000000' };
+            const comp = DB.companies.find(c => c.id === emp.compId) || DB.companies[0] || { name: 'شركة النور لتوريدات الخضار والفاكهة' };
+            const branch = DB.branches.find(b => b.id === emp.branchId) || DB.branches[0] || { name: 'المركز الرئيسي' };
+            
+            const cfg = DB.formSettings[tmplKey] || { title: '', fontFamily: "'Segoe UI', Tahoma, sans-serif", fontSize: 13, textColor: '#1e293b', headerBg: '#f1f5f9', rows: 10, sigAlign: 'space-between', signatures: ['التوقيع'] };
 
             const pageStyle = `font-family: ${cfg.fontFamily}; font-size: ${cfg.fontSize}px; color: ${cfg.textColor};`;
-            const formTitle = cfg.title || 'نموذج رسمى';
+            const formTitle = cfg.title || 'نموذج رسمي';
+            const logoImg = comp.logoUrl ? `<img src="${comp.logoUrl}" style="height: 45px; border-radius: 4px;">` : '';
 
             const headerHTML = `
                 <div class="doc-header">
                     <div>
                         <h2 style="font-size: 1.3rem; margin: 0; color: ${cfg.textColor};">${comp.name}</h2>
-                        <small style="color: #475569;">الفرع: ${branch.name} | كود النموذج: <strong>${cfg.code}</strong></small>
+                        <small style="color: #475569;">الفرع: ${branch.name}</small>
                     </div>
+                    ${logoImg}
                 </div>`;
 
             const footerHTML = `
@@ -797,7 +953,7 @@
                     السجل التجاري: ${comp.reg || '-'} | البطاقة الضريبية: ${comp.tax || '-'} | العنوان: ${branch.addr || '-'}
                 </div>`;
 
-            let sigsHTML = '<div class="signatures-grid">';
+            let sigsHTML = `<div class="signatures-grid" style="justify-content: ${cfg.sigAlign || 'space-between'};">`;
             (cfg.signatures || ['التوقيع']).forEach(sig => {
                 sigsHTML += `
                     <div class="sig-box">
@@ -827,7 +983,7 @@
                 bodyContent = `
                     <div style="text-align: center; margin-bottom: 12px;">
                         <h3 class="editable-area" contenteditable="true">${formTitle}</h3>
-                        <p style="font-size: 11px;">طبقاً للقرار الوزاري رقم 185 لسنة 2003</p>
+                        <p style="font-size: 11px;">طبقاً للقرار الوزاري رقم 185 لسنة 2003</p>[cite: 2]
                     </div>
                     <table style="width: 100%; font-size: 12px; margin-bottom: 10px;">
                         <tr><td>أسـم المنشـأة: <strong>${comp.name}</strong></td><td>رقم قيد العامل: <strong>${emp.code || emp.id}</strong></td></tr>
@@ -844,7 +1000,7 @@
                 bodyContent = `
                     <div style="text-align: center; margin-bottom: 12px;">
                         <h3 class="editable-area" contenteditable="true">${formTitle}</h3>
-                        <p style="font-size: 11px;">طبقاً للقرار الوزاري رقم 185 لسنة 2003</p>
+                        <p style="font-size: 11px;">طبقاً للقرار الوزاري رقم 185 لسنة 2003</p>[cite: 3]
                     </div>
                     <table style="width: 100%; font-size: 12px; margin-bottom: 10px;">
                         <tr><td>أسـم المنشـأة: <strong>${comp.name}</strong></td><td>تاريخ الإلحاق: <strong>${emp.insDate}</strong></td></tr>
@@ -861,8 +1017,6 @@
                             <tr><td>4</td><td>عيد الميلاد المجيد</td><td></td><td></td><td></td><td></td></tr>
                             <tr><td>5</td><td>شم النسيم</td><td></td><td></td><td></td><td></td></tr>
                             <tr><td>6</td><td>23 يوليو</td><td></td><td></td><td></td><td></td></tr>
-                            <tr><td>7</td><td>رأس السنة الهجرية</td><td></td><td></td><td></td><td></td></tr>
-                            <tr><td>8</td><td>عيد العمال</td><td></td><td></td><td></td><td></td></tr>
                         </tbody>
                     </table>`;
             }
@@ -872,7 +1026,7 @@
                 bodyContent = `
                     <div style="text-align: center; margin-bottom: 12px;">
                         <h3 class="editable-area" contenteditable="true">${formTitle}</h3>
-                        <p style="font-size: 11px;">طبقاً للقرار الوزاري رقم 185 لسنة 2003</p>
+                        <p style="font-size: 11px;">طبقاً للقرار الوزاري رقم 185 لسنة 2003</p>[cite: 4]
                     </div>
                     <table style="width: 100%; font-size: 12px; margin-bottom: 10px;">
                         <tr><td>اسم المنشـأة: <strong>${comp.name}</strong></td><td>تاريخ الإلحاق: <strong>${emp.insDate}</strong></td></tr>
@@ -892,7 +1046,7 @@
                 bodyContent = `
                     <div style="text-align: center; margin-bottom: 12px;">
                         <h3 class="editable-area" contenteditable="true">${formTitle}</h3>
-                        <p style="font-size: 11px;">طبقاً للقرار الوزاري رقم 185 لسنة 2003</p>
+                        <p style="font-size: 11px;">طبقاً للقرار الوزاري رقم 185 لسنة 2003</p>[cite: 5]
                     </div>
                     <table style="width: 100%; font-size: 12px; margin-bottom: 10px;">
                         <tr><td>أسـم المنشـأة: <strong>${comp.name}</strong></td><td>آخر أجر: <strong>${emp.grossSalary} ج.م</strong></td></tr>
@@ -917,9 +1071,8 @@
                         <tr><td>إسم العامل: <strong>${emp.name}</strong></td><td>مكتب التأمينات: <strong>${emp.section || 'العبور'}</strong></td></tr>
                         <tr><td>تاريخ الإلتحاق: <strong>${emp.insDate}</strong></td><td>القسم / الفرع: <strong>${branch.name}</strong></td></tr>
                         <tr><td>رقم تأمين العامل: <strong>${emp.insNo}</strong></td><td>الجنسية: <strong>${emp.nationality || 'مصري'}</strong></td></tr>
-                        <tr><td>الرقم القومي: <strong>${emp.natId}</strong></td><td>محل الميلاد: <strong>${emp.governorate || '-'}</strong></td></tr>
                     </table>
-                    <h4 style="margin-top: 10px;">(بيان من يعولهم العامل)</h4>
+                    <h4 style="margin-top: 10px;">(بيان من يعولهم العامل)</h4>[cite: 6]
                     <table class="official-table">
                         <thead style="background-color: ${cfg.headerBg};">
                             <tr><th>مسلسل</th><th>الإسم</th><th>تاريخ الميلاد</th><th>صلة القرابة</th><th>ملاحظات</th></tr>
