@@ -84,15 +84,19 @@
 </head>
 <body>
 
-    <!-- شريط تصفية سحب البيانات من لوحة الأدمن -->
+    <!-- شريط تصفية سحب البيانات الحية من لوحة الأدمن -->
     <div class="top-filter-bar no-print">
         <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
             <div class="filter-group">
-                <label><i class="fas fa-building"></i> الشركة والفرع النشط (من الأدمن):</label>
+                <label><i class="fas fa-user-shield"></i> حساب المستخدم النشط:</label>
+                <select id="activeUserSelect" class="form-control" onchange="onUserSelectChange()"></select>
+            </div>
+            <div class="filter-group">
+                <label><i class="fas fa-building"></i> الشركة المتاحة:</label>
                 <select id="activeCompanySelect" class="form-control" onchange="onCompanyChange()"></select>
             </div>
             <div class="filter-group">
-                <label><i class="fas fa-code-branch"></i> الفرع المتاح:</label>
+                <label><i class="fas fa-code-branch"></i> الفرع:</label>
                 <select id="activeBranchSelect" class="form-control" onchange="renderEmployeesTable()"></select>
             </div>
             <div class="filter-group">
@@ -110,15 +114,15 @@
 
         <div style="display: flex; gap: 10px;">
             <button class="btn btn-warning" onclick="executeBulkPrint()"><i class="fas fa-print"></i> طباعة جماعية للمحددين</button>
-            <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-file-pdf"></i> طباعة النموذج الحالي (A4)</button>
+            <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-file-pdf"></i> طباعة المعاينة (A4)</button>
         </div>
     </div>
 
     <!-- جدول اختيار الموظفين للطباعة -->
     <div class="card no-print">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h3><i class="fas fa-users"></i> قائمة الموظفين المسجلين لوحة الأدمن</h3>
-            <small style="color: #64748b;">اختر موظف أو حدد مجموعة للطباعة الجماعية</small>
+            <h3><i class="fas fa-users"></i> الموظفون المسجلون بلوحة الأدمن</h3>
+            <small style="color: #64748b;">اختر موظفاً لمعاينته أو حدد المجموعات للطباعة الجماعية</small>
         </div>
         <div style="max-height: 200px; overflow-y: auto;">
             <table class="data-table">
@@ -143,7 +147,6 @@
     <div id="printArea"></div>
 
     <script>
-        // إعدادات Firebase لقراءة داتا الأدمن
         const firebaseConfig = {
             databaseURL: "https://hr-platform-system-default-rtdb.firebaseio.com"
         };
@@ -152,51 +155,81 @@
         }
         const db = firebase.database();
 
+        let dbUsers = {};
         let dbCompanies = {};
         let dbBranches = [];
         let dbEmployees = [];
         let selectedEmpIdForSinglePrint = null;
 
-        // تحميل البيانات الحية السحابية من لوحة الأدمن
         function loadAdminData() {
-            const loggedUser = sessionStorage.getItem('LOGGED_USER') || 'admin';
-            const userRole = sessionStorage.getItem('USER_ROLE') || 'admin';
-
-            // 1. سحب الشركات
-            db.ref('system_companies').on('value', (snap) => {
-                dbCompanies = snap.val() || {};
+            // سحب كافة بيانات الأدمن والشركات والموظفين حياً
+            db.ref('system_users').on('value', (uSnap) => {
+                dbUsers = uSnap.val() || {};
                 
-                // 2. سحب الفروع
-                db.ref('HR_FORM_SYSTEM_DATA/branches').on('value', (bSnap) => {
-                    const bVal = bSnap.val() || {};
-                    dbBranches = Object.values(bVal);
+                db.ref('system_companies').on('value', (cSnap) => {
+                    dbCompanies = cSnap.val() || {};
+                    
+                    db.ref('HR_FORM_SYSTEM_DATA/branches').on('value', (bSnap) => {
+                        const bVal = bSnap.val() || {};
+                        dbBranches = Object.values(bVal);
 
-                    // 3. سحب الموظفين
-                    db.ref('HR_FORM_SYSTEM_DATA/employees').on('value', (eSnap) => {
-                        dbEmployees = eSnap.val() || [];
-                        populateCompanyDropdown(loggedUser, userRole);
+                        db.ref('HR_FORM_SYSTEM_DATA/employees').on('value', (eSnap) => {
+                            dbEmployees = eSnap.val() || [];
+                            populateUserDropdown();
+                        });
                     });
                 });
             });
         }
 
-        function populateCompanyDropdown(username, role) {
+        function populateUserDropdown() {
+            const userSelect = document.getElementById('activeUserSelect');
+            userSelect.innerHTML = '';
+
+            const loggedUser = sessionStorage.getItem('LOGGED_USER') || 'admin';
+            const loggedRole = sessionStorage.getItem('USER_ROLE') || 'admin';
+
+            const usersArray = Object.values(dbUsers);
+
+            if (loggedRole === 'admin') {
+                // الأدمن يستطيع التبديل والمعاينة لكافة الحسابات والشركات
+                usersArray.forEach(u => {
+                    const isSelected = u.username === loggedUser ? 'selected' : '';
+                    userSelect.innerHTML += `<option value="${u.username}" ${isSelected}>${u.username} (${u.role === 'admin' ? 'مدير النظام' : 'مستخدم'})</option>`;
+                });
+            } else {
+                // المستخدم العادي يرى حسابه المربوط بشركته فقط
+                userSelect.innerHTML = `<option value="${loggedUser}">${loggedUser}</option>`;
+            }
+
+            onUserSelectChange();
+        }
+
+        function onUserSelectChange() {
+            const selectedUsername = document.getElementById('activeUserSelect').value;
+            const userObj = dbUsers[selectedUsername];
             const compSelect = document.getElementById('activeCompanySelect');
             compSelect.innerHTML = '';
 
-            const compArray = Object.keys(dbCompanies).map(key => ({ id: key, ...dbCompanies[key] }));
+            const allCompaniesArray = Object.keys(dbCompanies).map(k => ({ id: k, ...dbCompanies[k] }));
 
-            let userCompanies = compArray;
-            if (role !== 'admin') {
-                userCompanies = compArray.filter(c => c.userId === username);
-            }
-
-            if (userCompanies.length === 0) {
-                compSelect.innerHTML = '<option value="">-- لا توجد شركات مسجلة بأسمك --</option>';
+            // إذا كان الخيار المختار هو الأدمن، تعرض جميع شركات المنظومة
+            if (selectedUsername === 'admin') {
+                if (allCompaniesArray.length === 0) {
+                    compSelect.innerHTML = '<option value="">-- لا توجد شركات مسجلة بـ Firebase --</option>';
+                } else {
+                    allCompaniesArray.forEach(c => {
+                        compSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                    });
+                }
             } else {
-                userCompanies.forEach(c => {
-                    compSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                });
+                // إذا كان مستخدماً يتم جلب شركته المربوطة
+                if (userObj && userObj.companyId && dbCompanies[userObj.companyId]) {
+                    const comp = dbCompanies[userObj.companyId];
+                    compSelect.innerHTML = `<option value="${userObj.companyId}">${comp.name}</option>`;
+                } else {
+                    compSelect.innerHTML = '<option value="">-- لا توجد شركة مربوطة بهذا الحساب --</option>';
+                }
             }
 
             onCompanyChange();
@@ -229,8 +262,9 @@
             });
 
             if (list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">لا يوجد موظفين تسكين تحت هذه الشركة أو الفرع</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">لا يوجد موظفون مسجلون تحت هذه الشركة أو الفرع</td></tr>';
                 document.getElementById('printArea').innerHTML = '';
+                selectedEmpIdForSinglePrint = null;
                 return;
             }
 
@@ -294,7 +328,6 @@
             setTimeout(() => { window.print(); }, 300);
         }
 
-        // بناء الورقة بالداتا التي تم سحبها من الأدمن (الهيدر، الفوتر، اللوجو)
         function buildOfficialFormHTML(empId, tmplKey) {
             const emp = dbEmployees.find(e => e.id === empId) || {};
             const comp = dbCompanies[emp.compId] || dbCompanies[document.getElementById('activeCompanySelect').value] || { name: 'اسم الشركة', field: 'المجال' };
