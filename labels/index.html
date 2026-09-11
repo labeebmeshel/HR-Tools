@@ -205,13 +205,13 @@
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div>
                 <h2 style="margin:0; color: var(--primary);"><i class="fas fa-tags"></i> مولّد ملصقات الموظفين المربوط بالمنظومة</h2>
-                <p style="font-size: 0.85rem; color: #64748b; margin: 4px 0 0 0;">يتم جلب الشركة، اللوجو، الإدارات، وأكواد الموظفين تلقائياً من قواعد البيانات الرسمية.</p>
+                <p style="font-size: 0.85rem; color: #64748b; margin: 4px 0 0 0;">طباعة ملصقات ملفات الموظفين تلقائياً عبر السحابة أو باستقلالية عبر ملفات Excel.</p>
             </div>
             <div style="display:flex; align-items:center; gap:10px;">
                 <span id="syncStatus" class="status-pill"><i class="fas fa-circle-notch fa-spin"></i> جاري الربط...</span>
                 <input type="file" id="excelInput" accept=".xlsx, .xls, .csv" style="display: none;" onchange="processExcel(this.files)">
                 <button class="btn" onclick="document.getElementById('excelInput').click()">
-                    <i class="fas fa-file-excel"></i> رفع Excel خارجي
+                    <i class="fas fa-file-excel"></i> رفع Excel مستقل
                 </button>
                 <button class="btn btn-success" id="printBtn" onclick="window.print()">
                     <i class="fas fa-print"></i> طباعة الملصقات (A4)
@@ -220,6 +220,11 @@
         </div>
 
         <div class="controls-grid">
+            <!-- التحكم بالحسابات للـ Admin -->
+            <div class="control-group" id="adminUserFilterGroup" style="display: none;">
+                <label>تصفية الحساب (Admin):</label>
+                <select id="userSelect" onchange="onAdminUserChange()"></select>
+            </div>
             <div class="control-group">
                 <label>الشركة المربوطة:</label>
                 <select id="compSelect" onchange="onCompanyChange()"></select>
@@ -279,16 +284,18 @@
     }
     const fbDB = firebase.database();
 
-    let DB = { companies: [], branches: [], employees: [] };
+    let DB = { users: {}, companies: [], branches: [], employees: [] };
     let globalJsonData = [];
     let uploadedLogoBase64 = "";
+
+    const loggedUser = sessionStorage.getItem('LOGGED_USER') || 'admin';
+    const loggedRole = sessionStorage.getItem('USER_ROLE') || 'admin';
 
     window.onload = function() {
         loadSystemData();
     };
 
     function loadSystemData() {
-        // الربط المزدوج مع المسارات السحابية بالمنظومة
         Promise.all([
             fbDB.ref('HR_FORM_SYSTEM_DATA').once('value'),
             fbDB.ref('system_companies').once('value'),
@@ -296,67 +303,101 @@
         ]).then(([formSnap, compSnap, userSnap]) => {
             const formData = formSnap.val() || {};
             const sysCompanies = compSnap.val() || {};
-            const sysUsers = userSnap.val() || {};
+            DB.users = userSnap.val() || {};
 
             DB.companies = formData.companies || [];
             DB.branches = formData.branches || [];
             DB.employees = formData.employees || [];
 
-            // دمج الشركات المسجلة باللوحة الرئيسية مع نظام النماذج
+            // دمج سحابي شامل للشركات
             Object.keys(sysCompanies).forEach(key => {
                 const c = sysCompanies[key];
                 if (!DB.companies.some(item => item.id === key || item.name === c.name)) {
                     DB.companies.push({
                         id: key,
                         name: c.name,
-                        logoUrl: c.logo || ''
+                        logoUrl: c.logo || '',
+                        userId: c.userId || ''
                     });
                 }
             });
+
+            // التعامل مع الفروع من الشجرة الرئيسية
+            if (formData.branches) {
+                if (Array.isArray(formData.branches)) {
+                    DB.branches = formData.branches;
+                } else {
+                    DB.branches = Object.values(formData.branches);
+                }
+            }
 
             const statusEl = document.getElementById('syncStatus');
             statusEl.className = 'status-pill active';
             statusEl.innerHTML = '<i class="fas fa-check-circle"></i> متصل بالبيانات';
 
-            populateCompDropdown();
-            autoSelectLoggedUserCompany(sysUsers);
+            configureUserView();
         }).catch(err => {
             console.error("Firebase Sync Error:", err);
             const statusEl = document.getElementById('syncStatus');
-            statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> وضع أو أوفلاين';
+            statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> وضع أوفلاين';
         });
     }
 
-    function autoSelectLoggedUserCompany(sysUsers) {
-        const loggedUser = sessionStorage.getItem('LOGGED_USER');
-        const compSelect = document.getElementById('compSelect');
+    function configureUserView() {
+        const adminGroup = document.getElementById('adminUserFilterGroup');
+        const userSelect = document.getElementById('userSelect');
 
-        if (loggedUser && sysUsers[loggedUser] && sysUsers[loggedUser].companyId) {
-            const userCompId = sysUsers[loggedUser].companyId;
-            if (DB.companies.some(c => c.id === userCompId)) {
-                compSelect.value = userCompId;
-                onCompanyChange();
-                return;
+        if (loggedRole === 'admin') {
+            adminGroup.style.display = 'flex';
+            userSelect.innerHTML = '';
+            
+            Object.values(DB.users).forEach(u => {
+                const isSelected = u.username === loggedUser ? 'selected' : '';
+                userSelect.innerHTML += `<option value="${u.username}" ${isSelected}>${u.username} (${u.role})</option>`;
+            });
+
+            onAdminUserChange();
+        } else {
+            adminGroup.style.display = 'none';
+            populateCompDropdownForUser(loggedUser);
+        }
+    }
+
+    function onAdminUserChange() {
+        const selectedUsername = document.getElementById('userSelect').value;
+        populateCompDropdownForUser(selectedUsername);
+    }
+
+    function populateCompDropdownForUser(username) {
+        const compSelect = document.getElementById('compSelect');
+        compSelect.innerHTML = '';
+
+        let targetCompanies = [];
+
+        if (username === 'admin') {
+            targetCompanies = DB.companies;
+        } else {
+            const userObj = DB.users[username];
+            if (userObj && userObj.companyId) {
+                targetCompanies = DB.companies.filter(c => c.id === userObj.companyId || c.userId === username);
+            } else {
+                targetCompanies = DB.companies.filter(c => c.userId === username);
             }
         }
 
-        if (DB.companies.length > 0) {
-            compSelect.selectedIndex = 0;
-            onCompanyChange();
-        }
-    }
-
-    function populateCompDropdown() {
-        const compSelect = document.getElementById('compSelect');
-        compSelect.innerHTML = '';
-        if (DB.companies.length === 0) {
+        if (targetCompanies.length === 0) {
             compSelect.innerHTML = '<option value="">-- لا توجد شركات مسجلة --</option>';
+            document.getElementById('companyInput').value = '';
+            globalJsonData = [];
+            renderLabels();
             return;
         }
 
-        DB.companies.forEach(c => {
+        targetCompanies.forEach(c => {
             compSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
         });
+
+        onCompanyChange();
     }
 
     function onCompanyChange() {
@@ -390,7 +431,7 @@
         }
 
         const filteredEmp = DB.employees.filter(e => {
-            const matchC = e.compId === cId;
+            const matchC = e.compId === cId || !e.compId;
             const matchB = (bId === 'ALL' || !bId) || e.branchId === bId;
             return matchC && matchB;
         });
@@ -405,12 +446,7 @@
                 };
             });
         } else {
-            // بيانات افتراضية توضيحية للشركة في حالة عدم وجود موظفين
-            globalJsonData = [
-                { code: '1001', name: 'أحمد محمود علي', dept: 'الإدارة المالية' },
-                { code: '1002', name: 'سارة محمد إبراهيم', dept: 'الموارد البشرية' },
-                { code: '1003', name: 'مينا سمير يوسف', dept: 'إدارة المبيعات' }
-            ];
+            globalJsonData = [];
         }
 
         renderLabels();
@@ -426,6 +462,7 @@
         reader.readAsDataURL(files[0]);
     }
 
+    // معالجة ملفات Excel للتشغيل المستقل
     function processExcel(files) {
         if (!files.length) return;
         const file = files[0];
@@ -435,6 +472,11 @@
             const workbook = XLSX.read(data, { type: 'array' });
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
             const raw = XLSX.utils.sheet_to_json(firstSheet);
+
+            if (raw.length === 0) {
+                alert("الملف المرفوع فارغ!");
+                return;
+            }
 
             globalJsonData = raw.map(row => {
                 let code = '---', name = '---', dept = '---';
@@ -448,17 +490,19 @@
             });
 
             renderLabels();
+            alert(`✅ تم توفيق وقراءة (${globalJsonData.length}) ملصق بنجاح من شيت الـ Excel!`);
         };
         reader.readAsArrayBuffer(file);
     }
 
-    function reRenderIfData() { if (globalJsonData.length) renderLabels(); }
+    function reRenderIfData() { renderLabels(); }
 
     function isArabicText(text) { return /[\u0600-\u06FF]/.test(text); }
 
     function renderLabels() {
         const container = document.getElementById('pagesContainer');
         container.innerHTML = '';
+
         if (!globalJsonData.length) {
             container.innerHTML = `
                 <div class="a4-page">
