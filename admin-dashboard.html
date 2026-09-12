@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم الأدمن الرئيسية</title>
+    <title>لوحة تحكم الأدمن الرئيسية المتقدمة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- مكتبات معالجة الإكسيل وقواعد البيانات -->
@@ -43,7 +43,7 @@
         .stat-card-view { background: white; padding: 20px; border-radius: 10px; border-right: 4px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
         .form-input { width: 100%; padding: 10px 12px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-size: 0.9rem; }
-        .btn-action { padding: 10px 18px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-action { padding: 9px 16px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
         .btn-action:hover { background: var(--primary-dark); }
         .btn-danger { background: var(--danger); }
         .btn-danger:hover { background: #dc2626; }
@@ -68,6 +68,10 @@
         .data-table th, .data-table td { padding: 10px; border: 1px solid var(--border); text-align: right; }
         .data-table th { background: #f8fafc; color: var(--primary-dark); font-weight: bold; }
 
+        .badge-type { padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+        .badge-core { background: #e0f2fe; color: #0369a1; }
+        .badge-custom { background: #fef3c7; color: #92400e; }
+
         @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -75,15 +79,15 @@
 
     <div class="dashboard-header">
         <div>
-            <h2 style="margin: 0;"><i class="fas fa-user-shield"></i> لوحة تحكم الأدمن الرئيسية</h2>
-            <small style="opacity: 0.85;">إدارة الهيكل التنظيمي، الحسابات، وقوالب الاستيراد المخصصة</small>
+            <h2 style="margin: 0;"><i class="fas fa-user-shield"></i> لوحة تحكم الأدمن الشاملة</h2>
+            <small style="opacity: 0.85;">إدارة الهيكل التنظيمي، تخصيص قوالب Excel، وتطهير البيانات</small>
         </div>
         <div>
             <span id="dbConnectionStatus" style="background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">جاري الاتصال بالسحابة...</span>
         </div>
     </div>
 
-    <!-- كروت الإحصائيات -->
+    <!-- كروت الإحصائيات والتحكم السريع -->
     <div class="grid-3" style="margin-bottom: 25px;">
         <div class="stat-card-view">
             <h4>إجمالي المستخدمين</h4>
@@ -94,23 +98,77 @@
             <h2 id="statCompCount">0</h2>
         </div>
         <div class="stat-card-view" style="border-color: #ef4444;">
-            <h4>مسح شامل للداتا</h4>
-            <button class="btn-action btn-danger" style="margin-top: 5px; padding: 6px 12px; font-size: 0.8rem;" onclick="wipeAllCompaniesData()"><i class="fas fa-dumpster"></i> مسح داتا الشركات كلياً</button>
+            <h4>مسح كافة داتا المنظومة</h4>
+            <button class="btn-action btn-danger" style="margin-top: 5px; padding: 6px 12px; font-size: 0.8rem;" onclick="wipeAllCompaniesData()"><i class="fas fa-dumpster"></i> مسح السحابة بالكامل</button>
         </div>
     </div>
 
     <!-- الشجرة التنظيمية الهرمية -->
     <div class="card-panel">
         <h3><i class="fas fa-sitemap"></i> الهيكل التنظيمي (يوزر ➔ شركات ➔ فروع ➔ موظفين)</h3>
-        <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">تعديل الأسماء فوراً بالنقر على زر التعديل لكل عنصر</p>
-        <div id="treeViewArea" class="tree-container" style="max-height: 300px; overflow-y: auto;"></div>
+        <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">تعديل الأسماء مباشرة بالنقر على زر التعديل المالي لكل عنصر</p>
+        <div id="treeViewArea" class="tree-container" style="max-height: 280px; overflow-y: auto;"></div>
     </div>
 
     <div class="grid-2">
         <div>
-            <!-- ① إنشاء حساب مستخدم -->
+            <!-- ① إدارة وتخصيص حقول قالب Excel الشامل وترتيبها -->
             <div class="card-panel">
-                <h3><i class="fas fa-user-plus"></i> ① إضافة مستخدم وتأسيس شركته وفرعه</h3>
+                <h3><i class="fas fa-sliders"></i> ① تخصيص حقول وترتيب قالب Excel (عام لكل الشركات)</h3>
+                <form onsubmit="addNewCustomField(event)" style="display: flex; gap: 8px; margin-bottom: 12px;">
+                    <input type="text" id="customFieldNameInput" class="form-input" style="margin: 0;" placeholder="إضافة حقل جديد (مثال: رقم البصمة، مركز التكلفة)" required>
+                    <button type="submit" class="btn-action btn-success" style="white-space: nowrap;"><i class="fas fa-plus"></i> إضافة حقل</button>
+                </form>
+
+                <div style="max-height: 250px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">الترتيب</th>
+                                <th>اسم الحقل</th>
+                                <th>نوع الحقل</th>
+                                <th>تعديل الترتيب</th>
+                                <th style="width: 50px;">حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody id="templateFieldsTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ② استيراد الموظفين وحذفهم حسب الفرع/الشركة -->
+            <div class="card-panel">
+                <h3><i class="fas fa-file-excel"></i> ② استيراد وتنزيل قالب Excel المخصص</h3>
+                <label>اختر المستخدم / الشركة لتسكين الموظفين عليها:</label>
+                <select id="empUserSelect" class="form-input" required></select>
+                
+                <div style="display: flex; gap: 10px; margin-top: 8px; margin-bottom: 20px;">
+                    <button type="button" class="btn-action btn-success" onclick="downloadDynamicEmployeesExcelTemplate()"><i class="fas fa-download"></i> تنزيل قالب Excel بكتالوج الحقول</button>
+                    <label class="btn-action btn-warning" style="cursor: pointer;">
+                        <i class="fas fa-upload"></i> رفع ملف Excel
+                        <input type="file" accept=".xlsx, .xls" style="display: none;" onchange="importFullEmployeesFromExcel(event)">
+                    </label>
+                </div>
+
+                <h3 style="color: var(--danger); border-color: #fee2e2;"><i class="fas fa-user-minus"></i> ③ مسح موظفين فرع أو شركة معينة</h3>
+                <div class="grid-2">
+                    <div>
+                        <label>اختر الشركة:</label>
+                        <select id="wipeCompSelect" class="form-input" onchange="onWipeCompChange()"></select>
+                    </div>
+                    <div>
+                        <label>اختر الفرع:</label>
+                        <select id="wipeBranchSelect" class="form-input"></select>
+                    </div>
+                </div>
+                <button type="button" class="btn-action btn-danger" style="width: 100%; justify-content: center;" onclick="wipeBranchEmployees()"><i class="fas fa-trash-alt"></i> تفريغ موظفي الفرع/الشركة المحددة</button>
+            </div>
+        </div>
+
+        <div>
+            <!-- ③ إنشاء حساب مستخدم وشركة -->
+            <div class="card-panel">
+                <h3><i class="fas fa-user-plus"></i> إنشاء مستخدم وتأسيس شركته وفرعه</h3>
                 <form onsubmit="addNewFullUserAccount(event)">
                     <div class="grid-2">
                         <div>
@@ -148,58 +206,21 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-action btn-success" style="width: 100%; justify-content: center; margin-top: 5px;">إنشاء وتسكين الحساب بالكامل</button>
+                    <button type="submit" class="btn-action btn-success" style="width: 100%; justify-content: center;">إنشاء وتسكين الحساب بالكامل</button>
                 </form>
             </div>
 
-            <!-- ② تخصيص حقول القالب العام للإكسيل -->
+            <!-- ④ جدول مستخدمي المنظومة -->
             <div class="card-panel">
-                <h3><i class="fas fa-sliders"></i> ② تخصيص حقول قالب Excel (موحد لكافة الشركات)</h3>
-                <form onsubmit="addCustomFieldToTemplate(event)" style="display: flex; gap: 8px; margin-bottom: 12px;">
-                    <input type="text" id="customFieldNameInput" class="form-input" style="margin: 0;" placeholder="اسم الحقل الجديد (مثال: رقم البصمة، مركز التكلفة)" required>
-                    <button type="submit" class="btn-action btn-success" style="white-space: nowrap;"><i class="fas fa-plus"></i> إضافة حقل</button>
-                </form>
-
-                <div style="max-height: 180px; overflow-y: auto;">
+                <h3><i class="fas fa-users-cog"></i> جدول مستخدمي المنظومة والشركات المربوطة</h3>
+                <div style="max-height: 380px; overflow-y: auto;">
                     <table class="data-table">
                         <thead>
-                            <tr>
-                                <th>الترتيب</th>
-                                <th>اسم الحقل المخصص</th>
-                                <th>تغيير الترتيب</th>
-                                <th>حذف</th>
-                            </tr>
+                            <tr><th>المستخدم</th><th>الشركة التابع لها</th><th>كلمة السر</th><th>الصلاحية</th><th>حذف</th></tr>
                         </thead>
-                        <tbody id="customFieldsTbody"></tbody>
+                        <tbody id="usersTableBody"></tbody>
                     </table>
                 </div>
-
-                <div style="margin-top: 20px;">
-                    <h3><i class="fas fa-file-excel"></i> ③ استيراد موظفين عبر Excel (بالقالب المخصص)</h3>
-                    <label>اختر المستخدم / الشركة لتسكين الموظفين عليها:</label>
-                    <select id="empUserSelect" class="form-input" required></select>
-                    
-                    <div style="display: flex; gap: 10px; margin-top: 8px;">
-                        <button type="button" class="btn-action btn-success" onclick="downloadDynamicEmployeesExcelTemplate()"><i class="fas fa-download"></i> تنزيل قالب Excel</button>
-                        <label class="btn-action btn-warning" style="cursor: pointer;">
-                            <i class="fas fa-upload"></i> رفع ملف Excel
-                            <input type="file" accept=".xlsx, .xls" style="display: none;" onchange="importFullEmployeesFromExcel(event)">
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- جدول مستخدمي المنظومة -->
-        <div class="card-panel">
-            <h3><i class="fas fa-users-cog"></i> جدول مستخدمي المنظومة والشركات المربوطة</h3>
-            <div style="max-height: 650px; overflow-y: auto;">
-                <table class="data-table">
-                    <thead>
-                        <tr><th>المستخدم</th><th>الشركة التابع لها</th><th>كلمة السر</th><th>الصلاحية</th><th>حذف</th></tr>
-                    </thead>
-                    <tbody id="usersTableBody"></tbody>
-                </table>
             </div>
         </div>
     </div>
@@ -209,7 +230,21 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let dbUsers = {}, dbCompanies = {}, dbBranches = {}, dbEmployees = [], dbCustomFields = [];
+        let dbUsers = {}, dbCompanies = {}, dbBranches = {}, dbEmployees = [];
+        
+        // الحقول الأساسية الافتراضية
+        const defaultCoreFields = [
+            { id: 'code', name: 'كود الموظف', isCore: true },
+            { id: 'name', name: 'اسم الموظف', isCore: true },
+            { id: 'natId', name: 'الرقم القومي', isCore: true },
+            { id: 'insNo', name: 'الرقم التأميني', isCore: true },
+            { id: 'job', name: 'الوظيفة', isCore: true },
+            { id: 'insDate', name: 'تاريخ التعيين', isCore: true },
+            { id: 'insuredSalary', name: 'الأجر التأميني', isCore: true },
+            { id: 'grossSalary', name: 'الأجر الشامل', isCore: true }
+        ];
+
+        let allTemplateFields = [];
 
         window.onload = function() {
             db.ref('.info/connected').on('value', (snap) => {
@@ -226,17 +261,25 @@
             db.ref('system_companies').on('value', snap => { dbCompanies = snap.val() || {}; renderAll(); });
             db.ref('system_users').on('value', snap => { dbUsers = snap.val() || {}; renderAll(); });
             db.ref('HR_FORM_SYSTEM_DATA/branches').on('value', snap => { dbBranches = snap.val() || {}; renderAll(); });
-            db.ref('HR_FORM_SYSTEM_DATA/employees').on('value', snap => { dbEmployees = snap.val() || []; renderAll(); });
-            db.ref('HR_FORM_SYSTEM_DATA/customFields').on('value', snap => {
-                const fVal = snap.val() || {};
-                dbCustomFields = Object.keys(fVal).map(k => ({ id: k, ...fVal[k] })).sort((a,b) => (a.order || 0) - (b.order || 0));
-                renderCustomFieldsTable();
+            db.ref('HR_FORM_SYSTEM_DATA/employees').on('value', snap => { dbEmployees = snap.val() || []; });
+            
+            // جلب ترتيب الحقول بالكامل من السحابة
+            db.ref('HR_FORM_SYSTEM_DATA/templateFieldsSchema').on('value', snap => {
+                const schemaVal = snap.val();
+                if (schemaVal && Array.isArray(schemaVal) && schemaVal.length > 0) {
+                    allTemplateFields = schemaVal;
+                } else {
+                    allTemplateFields = [...defaultCoreFields];
+                    db.ref('HR_FORM_SYSTEM_DATA/templateFieldsSchema').set(allTemplateFields);
+                }
+                renderTemplateFieldsTable();
             });
         };
 
         function renderAll() {
             renderTreeView();
             renderAdminDashboard();
+            populateWipeDropdowns();
         }
 
         function renderTreeView() {
@@ -288,81 +331,67 @@
             });
         }
 
-        // إدارة تخصيص وترتيب الحقول
-        function addCustomFieldToTemplate(e) {
-            e.preventDefault();
-            const fieldName = document.getElementById('customFieldNameInput').value.trim();
-            if (!fieldName) return;
-
-            const fieldId = 'field_' + Date.now();
-            const maxOrder = dbCustomFields.length > 0 ? Math.max(...dbCustomFields.map(f => f.order || 0)) : 0;
-
-            db.ref(`HR_FORM_SYSTEM_DATA/customFields/${fieldId}`).set({
-                name: fieldName,
-                order: maxOrder + 1
-            }).then(() => {
-                alert(`تم إضافة حقل (${fieldName}) للقالب بنجاح!`);
-                e.target.reset();
-            });
-        }
-
-        function renderCustomFieldsTable() {
-            const tbody = document.getElementById('customFieldsTbody');
+        // عرض الحقول بالكامل مع أزرار الترتيب الفعالة
+        function renderTemplateFieldsTable() {
+            const tbody = document.getElementById('templateFieldsTbody');
             if (!tbody) return;
             tbody.innerHTML = '';
 
-            if (dbCustomFields.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد حقول مخصصة حُددت بعد</td></tr>';
-                return;
-            }
+            allTemplateFields.forEach((f, idx) => {
+                const typeBadge = f.isCore ? `<span class="badge-type badge-core">أساسي</span>` : `<span class="badge-type badge-custom">مخصص</span>`;
+                const deleteBtn = f.isCore ? `<i class="fas fa-lock" style="color:#cbd5e1;"></i>` : `<button class="btn-action btn-danger btn-sm" onclick="deleteCustomField('${f.id}')"><i class="fas fa-trash"></i></button>`;
 
-            dbCustomFields.forEach((f, idx) => {
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${idx + 1}</strong></td>
                         <td>${f.name}</td>
+                        <td>${typeBadge}</td>
                         <td>
-                            <button class="btn-action btn-sm" style="background:#64748b;" onclick="moveCustomFieldOrder('${f.id}', -1)" ${idx === 0 ? 'disabled' : ''}><i class="fas fa-arrow-up"></i></button>
-                            <button class="btn-action btn-sm" style="background:#64748b;" onclick="moveCustomFieldOrder('${f.id}', 1)" ${idx === dbCustomFields.length - 1 ? 'disabled' : ''}><i class="fas fa-arrow-down"></i></button>
+                            <button class="btn-action btn-sm" style="background:#64748b;" onclick="moveFieldOrder(${idx}, -1)" ${idx === 0 ? 'disabled' : ''}><i class="fas fa-arrow-up"></i></button>
+                            <button class="btn-action btn-sm" style="background:#64748b;" onclick="moveFieldOrder(${idx}, 1)" ${idx === allTemplateFields.length - 1 ? 'disabled' : ''}><i class="fas fa-arrow-down"></i></button>
                         </td>
-                        <td>
-                            <button class="btn-action btn-danger btn-sm" onclick="deleteCustomField('${f.id}')"><i class="fas fa-trash"></i></button>
-                        </td>
+                        <td style="text-align:center;">${deleteBtn}</td>
                     </tr>`;
             });
         }
 
-        function moveCustomFieldOrder(fieldId, direction) {
-            const index = dbCustomFields.findIndex(f => f.id === fieldId);
-            if (index < 0) return;
-
+        function moveFieldOrder(index, direction) {
             const targetIndex = index + direction;
-            if (targetIndex < 0 || targetIndex >= dbCustomFields.length) return;
+            if (targetIndex < 0 || targetIndex >= allTemplateFields.length) return;
 
-            const current = dbCustomFields[index];
-            const target = dbCustomFields[targetIndex];
+            const temp = allTemplateFields[index];
+            allTemplateFields[index] = allTemplateFields[targetIndex];
+            allTemplateFields[targetIndex] = temp;
 
-            Promise.all([
-                db.ref(`HR_FORM_SYSTEM_DATA/customFields/${current.id}/order`).set(target.order),
-                db.ref(`HR_FORM_SYSTEM_DATA/customFields/${target.id}/order`).set(current.order)
-            ]);
+            // تحديث الحقول حياً في Firebase
+            db.ref('HR_FORM_SYSTEM_DATA/templateFieldsSchema').set(allTemplateFields);
+        }
+
+        function addNewCustomField(e) {
+            e.preventDefault();
+            const name = document.getElementById('customFieldNameInput').value.trim();
+            if (!name) return;
+
+            const fieldId = 'field_' + Date.now();
+            allTemplateFields.push({ id: fieldId, name: name, isCore: false });
+
+            db.ref('HR_FORM_SYSTEM_DATA/templateFieldsSchema').set(allTemplateFields).then(() => {
+                alert(`تم إضافة الحقل المخصص (${name}) بنجاح!`);
+                e.target.reset();
+            });
         }
 
         function deleteCustomField(fieldId) {
-            if (confirm("هل تريد حذف هذا الحقل المخصص من القالب؟")) {
-                db.ref(`HR_FORM_SYSTEM_DATA/customFields/${fieldId}`).remove();
+            if (confirm("هل تريد حذف هذا الحقل المخصص؟")) {
+                allTemplateFields = allTemplateFields.filter(f => f.id !== fieldId);
+                db.ref('HR_FORM_SYSTEM_DATA/templateFieldsSchema').set(allTemplateFields);
             }
         }
 
+        // تنزيل قالب Excel بحسب الترتيب المحدد بدقة
         function downloadDynamicEmployeesExcelTemplate() {
-            let baseHeaders = [
-                "كود الموظف", "اسم الموظف", "الرقم القومي", "الرقم التأميني",
-                "الوظيفة", "تاريخ التعيين", "الأجر التأميني", "الأجر الشامل"
-            ];
-
-            dbCustomFields.forEach(f => baseHeaders.push(f.name));
-
-            const ws = XLSX.utils.aoa_to_sheet([baseHeaders]);
+            const headers = [allTemplateFields.map(f => f.name)];
+            const ws = XLSX.utils.aoa_to_sheet(headers);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "الموظفين");
             XLSX.writeFile(wb, "قالب_الموظفين_المخصص.xlsx");
@@ -401,7 +430,7 @@
                         customData: {}
                     };
 
-                    dbCustomFields.forEach(f => {
+                    allTemplateFields.filter(f => !f.isCore).forEach(f => {
                         if (row[f.name] !== undefined) {
                             empObj.customData[f.id] = String(row[f.name]);
                         }
@@ -413,12 +442,62 @@
                 db.ref('HR_FORM_SYSTEM_DATA/employees').once('value').then(snap => {
                     const currentArr = snap.val() || [];
                     db.ref('HR_FORM_SYSTEM_DATA/employees').set([...currentArr, ...importedEmployees]).then(() => {
-                        alert(`تم استيراد وتسكين (${importedEmployees.length}) موظف بنجاح!`);
+                        alert(`تم استيراد وتسكين (${importedEmployees.length}) موظف بنجاح بالقالب المخصص!`);
                         event.target.value = "";
                     });
                 });
             };
             reader.readAsArrayBuffer(file);
+        }
+
+        // مسح موظفي فرع أو شركة
+        function populateWipeDropdowns() {
+            const wipeCompSelect = document.getElementById('wipeCompSelect');
+            if (!wipeCompSelect) return;
+            wipeCompSelect.innerHTML = '<option value="">-- اختر الشركة --</option>';
+
+            Object.keys(dbCompanies).forEach(k => {
+                wipeCompSelect.innerHTML += `<option value="${k}">${dbCompanies[k].name}</option>`;
+            });
+
+            onWipeCompChange();
+        }
+
+        function onWipeCompChange() {
+            const compId = document.getElementById('wipeCompSelect').value;
+            const wipeBranchSelect = document.getElementById('wipeBranchSelect');
+            wipeBranchSelect.innerHTML = '<option value="ALL">جميع فروع الشركة</option>';
+
+            if (compId) {
+                const branches = Object.keys(dbBranches)
+                    .filter(k => dbBranches[k].compId === compId)
+                    .map(k => ({ id: k, ...dbBranches[k] }));
+
+                branches.forEach(b => {
+                    wipeBranchSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+                });
+            }
+        }
+
+        function wipeBranchEmployees() {
+            const compId = document.getElementById('wipeCompSelect').value;
+            const branchId = document.getElementById('wipeBranchSelect').value;
+
+            if (!compId) return alert("يرجى اختيار الشركة أولاً!");
+
+            const compName = dbCompanies[compId] ? dbCompanies[compId].name : '';
+            if (confirm(`هل أنت متأكد من مسح كافة الموظفين التابعين لـ (${compName})؟`)) {
+                const updatedEmployees = dbEmployees.filter(e => {
+                    if (e.compId === compId) {
+                        if (branchId === 'ALL' || e.branchId === branchId) return false;
+                    }
+                    return true;
+                });
+
+                db.ref('HR_FORM_SYSTEM_DATA/employees').set(updatedEmployees).then(() => {
+                    alert("تم مسح الموظفين المحددين بنجاح!");
+                });
+            }
         }
 
         function editUserPrompt(old) {
@@ -465,7 +544,7 @@
                 Promise.all([
                     db.ref('system_companies').remove(),
                     db.ref('HR_FORM_SYSTEM_DATA').remove()
-                ]).then(() => alert("تم مسح داتا الشركات بالكامل!"));
+                ]).then(() => alert("تم مسح داتا السحابة بالكامل!"));
             }
         }
 
