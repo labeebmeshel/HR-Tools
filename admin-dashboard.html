@@ -49,6 +49,7 @@
         .btn-danger:hover { background: #dc2626; }
         .btn-warning { background: var(--warning); }
         .btn-success { background: var(--success); }
+        .btn-sm { padding: 4px 8px; font-size: 0.78rem; border-radius: 4px; }
 
         /* الشجرة التنظيمية الهرمية */
         .tree-container { font-size: 0.92rem; line-height: 1.8; }
@@ -75,7 +76,7 @@
     <div class="dashboard-header">
         <div>
             <h2 style="margin: 0;"><i class="fas fa-user-shield"></i> لوحة تحكم الأدمن الرئيسية</h2>
-            <small style="opacity: 0.85;">إدارة الشجرة التنظيمية والشركات والمستخدمين بالكامل</small>
+            <small style="opacity: 0.85;">إدارة الشجرة التنظيمية والشركات والمستخدمين وقوالب الاستيراد</small>
         </div>
         <div>
             <span id="dbConnectionStatus" style="background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">جاري الاتصال بالسحابة...</span>
@@ -106,60 +107,85 @@
     </div>
 
     <div class="grid-2">
-        <!-- قسم إضافة حساب مستخدم وشركة وفرع -->
-        <div class="card-panel">
-            <h3><i class="fas fa-user-plus"></i> ① إضافة مستخدم وتأسيس شركته وفرعه</h3>
-            <form onsubmit="addNewFullUserAccount(event)">
-                <div class="grid-2">
-                    <div>
-                        <label>اسم المستخدم (Username): *</label>
-                        <input type="text" id="newUsername" class="form-input" required placeholder="أدخل اسم المستخدم">
+        <!-- قسم إضافة حساب مستخدم وتخصيص القالب -->
+        <div>
+            <div class="card-panel">
+                <h3><i class="fas fa-user-plus"></i> ① إضافة مستخدم وتأسيس شركته وفرعه</h3>
+                <form onsubmit="addNewFullUserAccount(event)">
+                    <div class="grid-2">
+                        <div>
+                            <label>اسم المستخدم (Username): *</label>
+                            <input type="text" id="newUsername" class="form-input" required placeholder="أدخل اسم المستخدم">
+                        </div>
+                        <div>
+                            <label>كلمة المرور (Password): *</label>
+                            <input type="password" id="newPassword" class="form-input" required placeholder="أدخل كلمة المرور">
+                        </div>
                     </div>
-                    <div>
-                        <label>كلمة المرور (Password): *</label>
-                        <input type="password" id="newPassword" class="form-input" required placeholder="أدخل كلمة المرور">
+                    
+                    <div class="grid-2">
+                        <div>
+                            <label>نوع الصلاحية:</label>
+                            <select id="newRole" class="form-input">
+                                <option value="user">مستخدم عادي (User)</option>
+                                <option value="admin">مدير نظام (Admin)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>اسم الشركة المربوطة:</label>
+                            <input type="text" id="newCompName" class="form-input" required placeholder="أدخل اسم الشركة">
+                        </div>
                     </div>
-                </div>
-                
-                <div class="grid-2">
-                    <div>
-                        <label>نوع الصلاحية:</label>
-                        <select id="newRole" class="form-input">
-                            <option value="user">مستخدم عادي (User)</option>
-                            <option value="admin">مدير نظام (Admin)</option>
-                        </select>
+
+                    <div class="grid-2">
+                        <div>
+                            <label>مجال الشركة:</label>
+                            <input type="text" id="newCompField" class="form-input" placeholder="أدخل المجال">
+                        </div>
+                        <div>
+                            <label>اسم الفرع الأول:</label>
+                            <input type="text" id="newBranchName" class="form-input" placeholder="المركز الرئيسي">
+                        </div>
                     </div>
-                    <div>
-                        <label>اسم الشركة المربوطة:</label>
-                        <input type="text" id="newCompName" class="form-input" required placeholder="أدخل اسم الشركة">
-                    </div>
+
+                    <button type="submit" class="btn-action btn-success" style="width: 100%; justify-content: center; margin-top: 5px;">إنشاء وتسكين الحساب بالكامل</button>
+                </form>
+            </div>
+
+            <!-- قسم التحكم في حقول القالب العام -->
+            <div class="card-panel">
+                <h3><i class="fas fa-sliders"></i> تخصيص حقول قالب الـ Excel الشامل (عام لكل الشركات)</h3>
+                <form onsubmit="addCustomFieldToTemplate(event)" style="display: flex; gap: 8px; margin-bottom: 12px;">
+                    <input type="text" id="customFieldNameInput" class="form-input" style="margin: 0;" placeholder="اسم الحقل الجديد (مثال: رقم البصمة، مركز التكلفة)" required>
+                    <button type="submit" class="btn-action btn-success" style="white-space: nowrap;"><i class="fas fa-plus"></i> إضافة حقل</button>
+                </form>
+
+                <div style="max-height: 180px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>الترتيب</th>
+                                <th>اسم الحقل المخصص</th>
+                                <th>تعديل الترتيب</th>
+                                <th>حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customFieldsTbody"></tbody>
+                    </table>
                 </div>
 
-                <div class="grid-2">
-                    <div>
-                        <label>مجال الشركة:</label>
-                        <input type="text" id="newCompField" class="form-input" placeholder="أدخل المجال">
+                <div style="margin-top: 20px;">
+                    <h3><i class="fas fa-file-excel"></i> ② استيراد موظفين عبر Excel (بالقالب المخصص)</h3>
+                    <label>اختر المستخدم / الشركة لتسكين الموظفين عليها:</label>
+                    <select id="empUserSelect" class="form-input" required></select>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 8px;">
+                        <button type="button" class="btn-action btn-success" onclick="downloadDynamicEmployeesExcelTemplate()"><i class="fas fa-download"></i> تنزيل قالب Excel</button>
+                        <label class="btn-action btn-warning" style="cursor: pointer;">
+                            <i class="fas fa-upload"></i> رفع ملف Excel
+                            <input type="file" accept=".xlsx, .xls" style="display: none;" onchange="importFullEmployeesFromExcel(event)">
+                        </label>
                     </div>
-                    <div>
-                        <label>اسم الفرع الأول:</label>
-                        <input type="text" id="newBranchName" class="form-input" placeholder="المركز الرئيسي">
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-action btn-success" style="width: 100%; justify-content: center; margin-top: 10px;">إنشاء وتسكين الحساب بالكامل</button>
-            </form>
-
-            <h3 style="margin-top: 25px;"><i class="fas fa-file-excel"></i> ② استيراد موظفين عبر Excel (بيانات كاملة)</h3>
-            <div>
-                <label>اختر المستخدم / الشركة لتسكين الموظفين عليها:</label>
-                <select id="empUserSelect" class="form-input" required></select>
-                
-                <div style="display: flex; gap: 10px; margin-top: 8px;">
-                    <button type="button" class="btn-action btn-success" onclick="downloadFullEmployeesExcelTemplate()"><i class="fas fa-download"></i> تنزيل قالب Excel</button>
-                    <label class="btn-action btn-warning" style="cursor: pointer;">
-                        <i class="fas fa-upload"></i> رفع ملف Excel
-                        <input type="file" accept=".xlsx, .xls" style="display: none;" onchange="importFullEmployeesFromExcel(event)">
-                    </label>
                 </div>
             </div>
         </div>
@@ -167,7 +193,7 @@
         <!-- جدول مستخدمي المنظومة والشركات المربوطة -->
         <div class="card-panel">
             <h3><i class="fas fa-users-cog"></i> جدول مستخدمي المنظومة والشركات المربوطة</h3>
-            <div style="max-height: 480px; overflow-y: auto;">
+            <div style="max-height: 650px; overflow-y: auto;">
                 <table class="data-table">
                     <thead>
                         <tr><th>المستخدم</th><th>الشركة التابع لها</th><th>كلمة السر</th><th>الصلاحية</th><th>حذف</th></tr>
@@ -183,7 +209,7 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let dbUsers = {}, dbCompanies = {}, dbBranches = {}, dbEmployees = [];
+        let dbUsers = {}, dbCompanies = {}, dbBranches = {}, dbEmployees = [], dbCustomFields = [];
 
         window.onload = function() {
             db.ref('.info/connected').on('value', (snap) => {
@@ -201,6 +227,11 @@
             db.ref('system_users').on('value', snap => { dbUsers = snap.val() || {}; renderAll(); });
             db.ref('HR_FORM_SYSTEM_DATA/branches').on('value', snap => { dbBranches = snap.val() || {}; renderAll(); });
             db.ref('HR_FORM_SYSTEM_DATA/employees').on('value', snap => { dbEmployees = snap.val() || []; renderAll(); });
+            db.ref('HR_FORM_SYSTEM_DATA/customFields').on('value', snap => {
+                const fVal = snap.val() || {};
+                dbCustomFields = Object.keys(fVal).map(k => ({ id: k, ...fVal[k] })).sort((a,b) => (a.order || 0) - (b.order || 0));
+                renderCustomFieldsTable();
+            });
         };
 
         function renderAll() {
@@ -257,6 +288,142 @@
             });
         }
 
+        // إدارة الحقول المخصصة لـ Excel للعموم
+        function addCustomFieldToTemplate(e) {
+            e.preventDefault();
+            const fieldName = document.getElementById('customFieldNameInput').value.trim();
+            if (!fieldName) return;
+
+            const fieldId = 'field_' + Date.now();
+            const maxOrder = dbCustomFields.length > 0 ? Math.max(...dbCustomFields.map(f => f.order || 0)) : 0;
+
+            db.ref(`HR_FORM_SYSTEM_DATA/customFields/${fieldId}`).set({
+                name: fieldName,
+                order: maxOrder + 1
+            }).then(() => {
+                alert(`تم إضافة حقل (${fieldName}) للقالب العام بنجاح!`);
+                e.target.reset();
+            });
+        }
+
+        function renderCustomFieldsTable() {
+            const tbody = document.getElementById('customFieldsTbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (dbCustomFields.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد حقول مخصصة مضافة للقالب بعد</td></tr>';
+                return;
+            }
+
+            dbCustomFields.forEach((f, idx) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${idx + 1}</strong></td>
+                        <td>${f.name}</td>
+                        <td>
+                            <button class="btn-action btn-sm" style="background:#64748b;" onclick="moveCustomFieldOrder('${f.id}', -1)" ${idx === 0 ? 'disabled' : ''}><i class="fas fa-arrow-up"></i></button>
+                            <button class="btn-action btn-sm" style="background:#64748b;" onclick="moveCustomFieldOrder('${f.id}', 1)" ${idx === dbCustomFields.length - 1 ? 'disabled' : ''}><i class="fas fa-arrow-down"></i></button>
+                        </td>
+                        <td>
+                            <button class="btn-action btn-danger btn-sm" onclick="deleteCustomField('${f.id}')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function moveCustomFieldOrder(fieldId, direction) {
+            const index = dbCustomFields.findIndex(f => f.id === fieldId);
+            if (index < 0) return;
+
+            const targetIndex = index + direction;
+            if (targetIndex < 0 || targetIndex >= dbCustomFields.length) return;
+
+            const current = dbCustomFields[index];
+            const target = dbCustomFields[targetIndex];
+
+            Promise.all([
+                db.ref(`HR_FORM_SYSTEM_DATA/customFields/${current.id}/order`).set(target.order),
+                db.ref(`HR_FORM_SYSTEM_DATA/customFields/${target.id}/order`).set(current.order)
+            ]);
+        }
+
+        function deleteCustomField(fieldId) {
+            if (confirm("هل تريد حذف هذا الحقل المخصص من القالب العام؟")) {
+                db.ref(`HR_FORM_SYSTEM_DATA/customFields/${fieldId}`).remove();
+            }
+        }
+
+        // بناء وتنزيل قالب Excel الشامل التفاعلي
+        function downloadDynamicEmployeesExcelTemplate() {
+            let baseHeaders = [
+                "كود الموظف", "اسم الموظف", "الرقم القومي", "الرقم التأميني",
+                "الوظيفة", "تاريخ التعيين", "الأجر التأميني", "الأجر الشامل"
+            ];
+
+            // إضافة الحقول المخصصة المضافة من الأدمن
+            dbCustomFields.forEach(f => baseHeaders.push(f.name));
+
+            const ws = XLSX.utils.aoa_to_sheet([baseHeaders]);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "الموظفين");
+            XLSX.writeFile(wb, "قالب_الموظفين_المخصص.xlsx");
+        }
+
+        function importFullEmployeesFromExcel(event) {
+            const uId = document.getElementById('empUserSelect').value;
+            const userObj = dbUsers[uId];
+            if (!uId || !userObj || !userObj.companyId) {
+                alert("يرجى اختيار المستخدم / الشركة أولاً!");
+                event.target.value = "";
+                return;
+            }
+
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+
+                const importedEmployees = jsonData.map((row, idx) => {
+                    let empObj = {
+                        id: 'emp_' + Date.now() + '_' + idx,
+                        code: String(row["كود الموظف"] || (1000 + idx)),
+                        name: row["اسم الموظف"] || "",
+                        natId: String(row["الرقم القومي"] || ""),
+                        insNo: String(row["الرقم التأميني"] || ""),
+                        job: row["الوظيفة"] || "",
+                        insDate: row["تاريخ التعيين"] || "",
+                        insuredSalary: String(row["الأجر التأميني"] || "0"),
+                        grossSalary: String(row["الأجر الشامل"] || "0"),
+                        compId: userObj.companyId,
+                        customData: {}
+                    };
+
+                    // معالجة كافة الحقول المخصصة
+                    dbCustomFields.forEach(f => {
+                        if (row[f.name] !== undefined) {
+                            empObj.customData[f.id] = String(row[f.name]);
+                        }
+                    });
+
+                    return empObj;
+                });
+
+                db.ref('HR_FORM_SYSTEM_DATA/employees').once('value').then(snap => {
+                    const currentArr = snap.val() || [];
+                    db.ref('HR_FORM_SYSTEM_DATA/employees').set([...currentArr, ...importedEmployees]).then(() => {
+                        alert(`تم استيراد وتسكين (${importedEmployees.length}) موظف بنجاح بالقالب المخصص!`);
+                        event.target.value = "";
+                    });
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
         function editUserPrompt(old) {
             const n = prompt("تعديل اسم المستخدم:", old);
             if(n && n.trim() !== "" && n !== old) db.ref(`system_users/${old}/username`).set(n.trim());
@@ -294,54 +461,6 @@
                 alert(`تم إنشاء وتسكين حساب (${u}) وربطه بشركة (${cName}) بنجاح!`);
                 e.target.reset();
             });
-        }
-
-        function downloadFullEmployeesExcelTemplate() {
-            const headers = [["كود الموظف", "اسم الموظف", "الرقم القومي", "الرقم التأميني", "الوظيفة", "الأجر التأميني", "الأجر الشامل"]];
-            const ws = XLSX.utils.aoa_to_sheet(headers);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "الموظفين");
-            XLSX.writeFile(wb, "قالب_استيراد_الموظفين.xlsx");
-        }
-
-        function importFullEmployeesFromExcel(event) {
-            const uId = document.getElementById('empUserSelect').value;
-            const userObj = dbUsers[uId];
-            if (!uId || !userObj || !userObj.companyId) {
-                alert("يرجى اختيار المستخدم / الشركة أولاً!");
-                return;
-            }
-
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-
-                const importedEmployees = jsonData.map((row, idx) => ({
-                    id: 'emp_' + Date.now() + '_' + idx,
-                    code: String(row["كود الموظف"] || (1000 + idx)),
-                    name: row["اسم الموظف"] || "",
-                    natId: String(row["الرقم القومي"] || ""),
-                    insNo: String(row["الرقم التأميني"] || ""),
-                    job: row["الوظيفة"] || "",
-                    insuredSalary: String(row["الأجر التأميني"] || "0"),
-                    grossSalary: String(row["الأجر الشامل"] || "0"),
-                    compId: userObj.companyId
-                }));
-
-                db.ref('HR_FORM_SYSTEM_DATA/employees').once('value').then(snap => {
-                    const currentArr = snap.val() || [];
-                    db.ref('HR_FORM_SYSTEM_DATA/employees').set([...currentArr, ...importedEmployees]).then(() => {
-                        alert(`تم استيراد وتسكين (${importedEmployees.length}) موظف بنجاح!`);
-                        event.target.value = "";
-                    });
-                });
-            };
-            reader.readAsArrayBuffer(file);
         }
 
         function wipeAllCompaniesData() {
