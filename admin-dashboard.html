@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم الأدمن الرئيسية المتقدمة</title>
+    <title>لوحة تحكم الأدمن والصلاحيات المتقدمة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- مكتبات معالجة الإكسيل وقواعد البيانات -->
@@ -51,7 +51,6 @@
         .btn-success { background: var(--success); }
         .btn-sm { padding: 4px 8px; font-size: 0.78rem; border-radius: 4px; }
 
-        /* الشجرة التنظيمية الهرمية */
         .tree-container { font-size: 0.92rem; line-height: 1.8; }
         .tree-node { margin-right: 15px; border-right: 2px dashed var(--border); padding-right: 10px; margin-top: 8px; }
         .tree-title {
@@ -68,6 +67,9 @@
         .data-table th, .data-table td { padding: 10px; border: 1px solid var(--border); text-align: right; }
         .data-table th { background: #f8fafc; color: var(--primary-dark); font-weight: bold; }
 
+        .permissions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 12px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid var(--border); }
+        .perm-item { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; }
+
         .badge-type { padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
         .badge-core { background: #e0f2fe; color: #0369a1; }
         .badge-custom { background: #fef3c7; color: #92400e; }
@@ -79,15 +81,15 @@
 
     <div class="dashboard-header">
         <div>
-            <h2 style="margin: 0;"><i class="fas fa-user-shield"></i> لوحة تحكم الأدمن الشاملة</h2>
-            <small style="opacity: 0.85;">إدارة الهيكل التنظيمي، تخصيص قوالب Excel، وتطهير البيانات</small>
+            <h2 style="margin: 0;"><i class="fas fa-user-shield"></i> لوحة تحكم الأدمن وإدارة الصلاحيات</h2>
+            <small style="opacity: 0.85;">إدارة التابات الجانبية لليوزرات وعزل البيانات بالكامل</small>
         </div>
         <div>
             <span id="dbConnectionStatus" style="background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">جاري الاتصال بالسحابة...</span>
         </div>
     </div>
 
-    <!-- كروت الإحصائيات والتحكم السريع -->
+    <!-- الإحصائيات العامة -->
     <div class="grid-3" style="margin-bottom: 25px;">
         <div class="stat-card-view">
             <h4>إجمالي المستخدمين</h4>
@@ -103,30 +105,56 @@
         </div>
     </div>
 
-    <!-- الشجرة التنظيمية الهرمية -->
+    <!-- قسم التحكم في صلاحيات التابات لكل يوزر -->
+    <div class="card-panel">
+        <h3><i class="fas fa-user-lock"></i> إعطاء وصلاحيات التابات والقوائم الجانبية للمستخدمين (عرض / إخفاء)</h3>
+        <div class="grid-2" style="align-items: flex-end;">
+            <div>
+                <label>اختر المستخدم لتحديد التابات المتاحة له:</label>
+                <select id="permissionUserSelect" class="form-input" style="margin-bottom: 0;" onchange="loadUserPermissions()"></select>
+            </div>
+            <button type="button" class="btn-action btn-success" onclick="saveUserPermissions()"><i class="fas fa-save"></i> حفظ صلاحيات التابات</button>
+        </div>
+
+        <div class="permissions-grid" id="permissionsContainer">
+            <label class="perm-item"><input type="checkbox" value="profile" class="perm-check"> بروفايل الشركة والحساب</label>
+            <label class="perm-item"><input type="checkbox" value="cv" class="perm-check"> السيرة الذاتية</label>
+            <label class="perm-item"><input type="checkbox" value="tax" class="perm-check"> حاسبات الضرائب</label>
+            <label class="perm-item"><input type="checkbox" value="s1" class="perm-check"> س1 تأمينات</label>
+            <label class="perm-item"><input type="checkbox" value="forms" class="perm-check"> طباعة النماذج الرسمية</label>
+            <label class="perm-item"><input type="checkbox" value="labels" class="perm-check"> ملصقات الموظفين (A4 Labels)</label>
+            <label class="perm-item"><input type="checkbox" value="team" class="perm-check"> فريق الإعداد</label>
+            <label class="perm-item"><input type="checkbox" value="tafqit" class="perm-check"> أداة التفقيط</label>
+            <label class="perm-item"><input type="checkbox" value="feedback" class="perm-check"> قياس الأداء</label>
+            <label class="perm-item"><input type="checkbox" value="disc" class="perm-check"> تحليل الشخصية (DISC)</label>
+            <label class="perm-item"><input type="checkbox" value="scan" class="perm-check"> HR Scan → Excel</label>
+        </div>
+    </div>
+
+    <!-- الهيكل التنظيمي -->
     <div class="card-panel">
         <h3><i class="fas fa-sitemap"></i> الهيكل التنظيمي (يوزر ➔ شركات ➔ فروع ➔ موظفين)</h3>
         <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">تعديل الأسماء مباشرة بالنقر على زر التعديل المالي لكل عنصر</p>
-        <div id="treeViewArea" class="tree-container" style="max-height: 280px; overflow-y: auto;"></div>
+        <div id="treeViewArea" class="tree-container" style="max-height: 250px; overflow-y: auto;"></div>
     </div>
 
     <div class="grid-2">
         <div>
-            <!-- ① إدارة وتخصيص حقول قالب Excel الشامل وترتيبها -->
+            <!-- تخصيص حقول قالب Excel -->
             <div class="card-panel">
-                <h3><i class="fas fa-sliders"></i> ① تخصيص حقول وترتيب قالب Excel (عام لكل الشركات)</h3>
+                <h3><i class="fas fa-sliders"></i> تخصيص حقول وترتيب قالب Excel (عام لكل الشركات)</h3>
                 <form onsubmit="addNewCustomField(event)" style="display: flex; gap: 8px; margin-bottom: 12px;">
-                    <input type="text" id="customFieldNameInput" class="form-input" style="margin: 0;" placeholder="إضافة حقل جديد (مثال: رقم البصمة، مركز التكلفة)" required>
+                    <input type="text" id="customFieldNameInput" class="form-input" style="margin: 0;" placeholder="إضافة حقل جديد (مثال: رقم البصمة)" required>
                     <button type="submit" class="btn-action btn-success" style="white-space: nowrap;"><i class="fas fa-plus"></i> إضافة حقل</button>
                 </form>
 
-                <div style="max-height: 250px; overflow-y: auto;">
+                <div style="max-height: 200px; overflow-y: auto;">
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th style="width: 50px;">الترتيب</th>
                                 <th>اسم الحقل</th>
-                                <th>نوع الحقل</th>
+                                <th>النوع</th>
                                 <th>تعديل الترتيب</th>
                                 <th style="width: 50px;">حذف</th>
                             </tr>
@@ -136,21 +164,21 @@
                 </div>
             </div>
 
-            <!-- ② استيراد الموظفين وحذفهم حسب الفرع/الشركة -->
+            <!-- استيراد ومسح الموظفين -->
             <div class="card-panel">
-                <h3><i class="fas fa-file-excel"></i> ② استيراد وتنزيل قالب Excel المخصص</h3>
+                <h3><i class="fas fa-file-excel"></i> استيراد وتنزيل قالب Excel المخصص</h3>
                 <label>اختر المستخدم / الشركة لتسكين الموظفين عليها:</label>
                 <select id="empUserSelect" class="form-input" required></select>
                 
                 <div style="display: flex; gap: 10px; margin-top: 8px; margin-bottom: 20px;">
-                    <button type="button" class="btn-action btn-success" onclick="downloadDynamicEmployeesExcelTemplate()"><i class="fas fa-download"></i> تنزيل قالب Excel بكتالوج الحقول</button>
+                    <button type="button" class="btn-action btn-success" onclick="downloadDynamicEmployeesExcelTemplate()"><i class="fas fa-download"></i> تنزيل قالب Excel</button>
                     <label class="btn-action btn-warning" style="cursor: pointer;">
                         <i class="fas fa-upload"></i> رفع ملف Excel
                         <input type="file" accept=".xlsx, .xls" style="display: none;" onchange="importFullEmployeesFromExcel(event)">
                     </label>
                 </div>
 
-                <h3 style="color: var(--danger); border-color: #fee2e2;"><i class="fas fa-user-minus"></i> ③ مسح موظفين فرع أو شركة معينة</h3>
+                <h3 style="color: var(--danger); border-color: #fee2e2;"><i class="fas fa-user-minus"></i> مسح موظفين فرع أو شركة معينة</h3>
                 <div class="grid-2">
                     <div>
                         <label>اختر الشركة:</label>
@@ -161,12 +189,12 @@
                         <select id="wipeBranchSelect" class="form-input"></select>
                     </div>
                 </div>
-                <button type="button" class="btn-action btn-danger" style="width: 100%; justify-content: center;" onclick="wipeBranchEmployees()"><i class="fas fa-trash-alt"></i> تفريغ موظفي الفرع/الشركة المحددة</button>
+                <button type="button" class="btn-action btn-danger" style="width: 100%; justify-content: center;" onclick="wipeBranchEmployees()"><i class="fas fa-trash-alt"></i> تفريغ الموظفين</button>
             </div>
         </div>
 
         <div>
-            <!-- ③ إنشاء حساب مستخدم وشركة -->
+            <!-- إنشاء مستخدم وشركة -->
             <div class="card-panel">
                 <h3><i class="fas fa-user-plus"></i> إنشاء مستخدم وتأسيس شركته وفرعه</h3>
                 <form onsubmit="addNewFullUserAccount(event)">
@@ -210,9 +238,9 @@
                 </form>
             </div>
 
-            <!-- ④ جدول مستخدمي المنظومة -->
+            <!-- جدول المستخدمين -->
             <div class="card-panel">
-                <h3><i class="fas fa-users-cog"></i> جدول مستخدمي المنظومة والشركات المربوطة</h3>
+                <h3><i class="fas fa-users-cog"></i> جدول مستخدمي المنظومة</h3>
                 <div style="max-height: 380px; overflow-y: auto;">
                     <table class="data-table">
                         <thead>
@@ -232,7 +260,6 @@
 
         let dbUsers = {}, dbCompanies = {}, dbBranches = {}, dbEmployees = [];
         
-        // الحقول الأساسية الافتراضية
         const defaultCoreFields = [
             { id: 'code', name: 'كود الموظف', isCore: true },
             { id: 'name', name: 'اسم الموظف', isCore: true },
@@ -263,7 +290,6 @@
             db.ref('HR_FORM_SYSTEM_DATA/branches').on('value', snap => { dbBranches = snap.val() || {}; renderAll(); });
             db.ref('HR_FORM_SYSTEM_DATA/employees').on('value', snap => { dbEmployees = snap.val() || []; });
             
-            // جلب ترتيب الحقول بالكامل من السحابة
             db.ref('HR_FORM_SYSTEM_DATA/templateFieldsSchema').on('value', snap => {
                 const schemaVal = snap.val();
                 if (schemaVal && Array.isArray(schemaVal) && schemaVal.length > 0) {
@@ -280,6 +306,50 @@
             renderTreeView();
             renderAdminDashboard();
             populateWipeDropdowns();
+            populatePermissionUsers();
+        }
+
+        function populatePermissionUsers() {
+            const select = document.getElementById('permissionUserSelect');
+            if (!select) return;
+            select.innerHTML = '<option value="">-- اختر المستخدم --</option>';
+
+            Object.values(dbUsers).filter(u => u.username !== 'admin').forEach(u => {
+                select.innerHTML += `<option value="${u.username}">${u.username}</option>`;
+            });
+        }
+
+        function loadUserPermissions() {
+            const uName = document.getElementById('permissionUserSelect').value;
+            const checkboxes = document.querySelectorAll('.perm-check');
+
+            if (!uName) {
+                checkboxes.forEach(c => c.checked = false);
+                return;
+            }
+
+            db.ref(`userPermissions/${uName}`).once('value').then(snap => {
+                const perms = snap.val() || {};
+                checkboxes.forEach(c => {
+                    c.checked = perms[c.value] !== false; // افتراضياً كافة التابات مفعّلة ما لم تُخفَ
+                });
+            });
+        }
+
+        function saveUserPermissions() {
+            const uName = document.getElementById('permissionUserSelect').value;
+            if (!uName) return alert("يرجى اختيار مستخدم لتحديد الصلاحيات له!");
+
+            const checkboxes = document.querySelectorAll('.perm-check');
+            let permObj = {};
+
+            checkboxes.forEach(c => {
+                permObj[c.value] = c.checked;
+            });
+
+            db.ref(`userPermissions/${uName}`).set(permObj).then(() => {
+                alert(`تم حفظ صلاحيات التابات للمستخدم (${uName}) بنجاح!`);
+            });
         }
 
         function renderTreeView() {
@@ -331,7 +401,6 @@
             });
         }
 
-        // عرض الحقول بالكامل مع أزرار الترتيب الفعالة
         function renderTemplateFieldsTable() {
             const tbody = document.getElementById('templateFieldsTbody');
             if (!tbody) return;
@@ -363,7 +432,6 @@
             allTemplateFields[index] = allTemplateFields[targetIndex];
             allTemplateFields[targetIndex] = temp;
 
-            // تحديث الحقول حياً في Firebase
             db.ref('HR_FORM_SYSTEM_DATA/templateFieldsSchema').set(allTemplateFields);
         }
 
@@ -388,7 +456,6 @@
             }
         }
 
-        // تنزيل قالب Excel بحسب الترتيب المحدد بدقة
         function downloadDynamicEmployeesExcelTemplate() {
             const headers = [allTemplateFields.map(f => f.name)];
             const ws = XLSX.utils.aoa_to_sheet(headers);
@@ -442,7 +509,7 @@
                 db.ref('HR_FORM_SYSTEM_DATA/employees').once('value').then(snap => {
                     const currentArr = snap.val() || [];
                     db.ref('HR_FORM_SYSTEM_DATA/employees').set([...currentArr, ...importedEmployees]).then(() => {
-                        alert(`تم استيراد وتسكين (${importedEmployees.length}) موظف بنجاح بالقالب المخصص!`);
+                        alert(`تم استيراد وتسكين (${importedEmployees.length}) موظف بنجاح!`);
                         event.target.value = "";
                     });
                 });
@@ -450,7 +517,6 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // مسح موظفي فرع أو شركة
         function populateWipeDropdowns() {
             const wipeCompSelect = document.getElementById('wipeCompSelect');
             if (!wipeCompSelect) return;
