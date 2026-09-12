@@ -76,14 +76,14 @@
     <div class="dashboard-header">
         <div>
             <h2 style="margin: 0;"><i class="fas fa-user-shield"></i> لوحة تحكم الأدمن الرئيسية</h2>
-            <small style="opacity: 0.85;">إدارة الشجرة التنظيمية والشركات والمستخدمين وقوالب الاستيراد</small>
+            <small style="opacity: 0.85;">إدارة الهيكل التنظيمي، الحسابات، وقوالب الاستيراد المخصصة</small>
         </div>
         <div>
             <span id="dbConnectionStatus" style="background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">جاري الاتصال بالسحابة...</span>
         </div>
     </div>
 
-    <!-- كروت الإحصائيات والأزرار العامة -->
+    <!-- كروت الإحصائيات -->
     <div class="grid-3" style="margin-bottom: 25px;">
         <div class="stat-card-view">
             <h4>إجمالي المستخدمين</h4>
@@ -99,16 +99,16 @@
         </div>
     </div>
 
-    <!-- الشجرة التنظيمية الهرمية مع إمكانية التعديل السريع -->
+    <!-- الشجرة التنظيمية الهرمية -->
     <div class="card-panel">
         <h3><i class="fas fa-sitemap"></i> الهيكل التنظيمي (يوزر ➔ شركات ➔ فروع ➔ موظفين)</h3>
-        <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">يمكنك تعديل الأسماء مباشرة بالنقر على زر التعديل لكل عنصر</p>
-        <div id="treeViewArea" class="tree-container" style="max-height: 350px; overflow-y: auto;"></div>
+        <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 12px;">تعديل الأسماء فوراً بالنقر على زر التعديل لكل عنصر</p>
+        <div id="treeViewArea" class="tree-container" style="max-height: 300px; overflow-y: auto;"></div>
     </div>
 
     <div class="grid-2">
-        <!-- قسم إضافة حساب مستخدم وتخصيص القالب -->
         <div>
+            <!-- ① إنشاء حساب مستخدم -->
             <div class="card-panel">
                 <h3><i class="fas fa-user-plus"></i> ① إضافة مستخدم وتأسيس شركته وفرعه</h3>
                 <form onsubmit="addNewFullUserAccount(event)">
@@ -152,9 +152,9 @@
                 </form>
             </div>
 
-            <!-- قسم التحكم في حقول القالب العام -->
+            <!-- ② تخصيص حقول القالب العام للإكسيل -->
             <div class="card-panel">
-                <h3><i class="fas fa-sliders"></i> تخصيص حقول قالب الـ Excel الشامل (عام لكل الشركات)</h3>
+                <h3><i class="fas fa-sliders"></i> ② تخصيص حقول قالب Excel (موحد لكافة الشركات)</h3>
                 <form onsubmit="addCustomFieldToTemplate(event)" style="display: flex; gap: 8px; margin-bottom: 12px;">
                     <input type="text" id="customFieldNameInput" class="form-input" style="margin: 0;" placeholder="اسم الحقل الجديد (مثال: رقم البصمة، مركز التكلفة)" required>
                     <button type="submit" class="btn-action btn-success" style="white-space: nowrap;"><i class="fas fa-plus"></i> إضافة حقل</button>
@@ -166,7 +166,7 @@
                             <tr>
                                 <th>الترتيب</th>
                                 <th>اسم الحقل المخصص</th>
-                                <th>تعديل الترتيب</th>
+                                <th>تغيير الترتيب</th>
                                 <th>حذف</th>
                             </tr>
                         </thead>
@@ -175,7 +175,7 @@
                 </div>
 
                 <div style="margin-top: 20px;">
-                    <h3><i class="fas fa-file-excel"></i> ② استيراد موظفين عبر Excel (بالقالب المخصص)</h3>
+                    <h3><i class="fas fa-file-excel"></i> ③ استيراد موظفين عبر Excel (بالقالب المخصص)</h3>
                     <label>اختر المستخدم / الشركة لتسكين الموظفين عليها:</label>
                     <select id="empUserSelect" class="form-input" required></select>
                     
@@ -190,7 +190,7 @@
             </div>
         </div>
 
-        <!-- جدول مستخدمي المنظومة والشركات المربوطة -->
+        <!-- جدول مستخدمي المنظومة -->
         <div class="card-panel">
             <h3><i class="fas fa-users-cog"></i> جدول مستخدمي المنظومة والشركات المربوطة</h3>
             <div style="max-height: 650px; overflow-y: auto;">
@@ -288,7 +288,7 @@
             });
         }
 
-        // إدارة الحقول المخصصة لـ Excel للعموم
+        // إدارة تخصيص وترتيب الحقول
         function addCustomFieldToTemplate(e) {
             e.preventDefault();
             const fieldName = document.getElementById('customFieldNameInput').value.trim();
@@ -301,7 +301,7 @@
                 name: fieldName,
                 order: maxOrder + 1
             }).then(() => {
-                alert(`تم إضافة حقل (${fieldName}) للقالب العام بنجاح!`);
+                alert(`تم إضافة حقل (${fieldName}) للقالب بنجاح!`);
                 e.target.reset();
             });
         }
@@ -312,7 +312,7 @@
             tbody.innerHTML = '';
 
             if (dbCustomFields.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد حقول مخصصة مضافة للقالب بعد</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد حقول مخصصة حُددت بعد</td></tr>';
                 return;
             }
 
@@ -349,19 +349,17 @@
         }
 
         function deleteCustomField(fieldId) {
-            if (confirm("هل تريد حذف هذا الحقل المخصص من القالب العام؟")) {
+            if (confirm("هل تريد حذف هذا الحقل المخصص من القالب؟")) {
                 db.ref(`HR_FORM_SYSTEM_DATA/customFields/${fieldId}`).remove();
             }
         }
 
-        // بناء وتنزيل قالب Excel الشامل التفاعلي
         function downloadDynamicEmployeesExcelTemplate() {
             let baseHeaders = [
                 "كود الموظف", "اسم الموظف", "الرقم القومي", "الرقم التأميني",
                 "الوظيفة", "تاريخ التعيين", "الأجر التأميني", "الأجر الشامل"
             ];
 
-            // إضافة الحقول المخصصة المضافة من الأدمن
             dbCustomFields.forEach(f => baseHeaders.push(f.name));
 
             const ws = XLSX.utils.aoa_to_sheet([baseHeaders]);
@@ -403,7 +401,6 @@
                         customData: {}
                     };
 
-                    // معالجة كافة الحقول المخصصة
                     dbCustomFields.forEach(f => {
                         if (row[f.name] !== undefined) {
                             empObj.customData[f.id] = String(row[f.name]);
@@ -416,7 +413,7 @@
                 db.ref('HR_FORM_SYSTEM_DATA/employees').once('value').then(snap => {
                     const currentArr = snap.val() || [];
                     db.ref('HR_FORM_SYSTEM_DATA/employees').set([...currentArr, ...importedEmployees]).then(() => {
-                        alert(`تم استيراد وتسكين (${importedEmployees.length}) موظف بنجاح بالقالب المخصص!`);
+                        alert(`تم استيراد وتسكين (${importedEmployees.length}) موظف بنجاح!`);
                         event.target.value = "";
                     });
                 });
