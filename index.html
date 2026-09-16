@@ -32,27 +32,46 @@
         /* شاشة تسجيل الدخول */
         #loginScreen {
             position: fixed; inset: 0; background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-            z-index: 99999; display: flex; align-items: center; justify-content: center;
+            z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 15px;
         }
         .login-card {
-            background: white; width: 420px; padding: 35px; border-radius: 16px;
+            background: white; width: 100%; max-width: 420px; padding: 30px 25px; border-radius: 16px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.2); text-align: center;
         }
-        .login-card h2 { color: var(--primary-dark); margin-bottom: 20px; font-size: 1.4rem; }
-        .form-input { width: 100%; padding: 10px 12px; margin-bottom: 12px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-size: 0.9rem; }
-        .btn-action { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .login-card h2 { color: var(--primary-dark); margin-bottom: 20px; font-size: 1.3rem; }
+        .form-input { width: 100%; padding: 11px 14px; margin-bottom: 12px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-size: 0.95rem; }
+        .btn-action { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
         .btn-action:hover { background: var(--primary-dark); }
         .login-error { color: var(--danger); font-size: 0.85rem; margin-top: 10px; display: none; }
+
+        .public-disc-link {
+            margin-top: 18px; padding-top: 15px; border-top: 1px dashed #cbd5e1;
+            display: flex; flex-direction: column; gap: 8px; align-items: center;
+        }
+        .btn-public-disc {
+            background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;
+            padding: 10px 16px; border-radius: 8px; font-weight: bold; text-decoration: none;
+            font-size: 0.88rem; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; transition: 0.2s;
+        }
+        .btn-public-disc:hover { background: #fde68a; }
+
+        /* الهيدر العلوي للموبايل */
+        .mobile-header {
+            display: none; height: 55px; background: var(--primary-dark); color: white;
+            align-items: center; justify-content: space-between; padding: 0 15px;
+            position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+        }
+        .mobile-menu-btn { background: none; border: none; color: white; font-size: 1.3rem; cursor: pointer; }
 
         /* القائمة الجانبية */
         .sidebar {
             width: var(--sidebar-width); background: var(--primary-dark); color: white;
             display: flex; flex-direction: column; height: 100vh; z-index: 1000; flex-shrink: 0;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1); transition: transform 0.3s ease;
         }
         .sidebar-header { padding: 20px 15px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .company-logo-img { width: 65px; height: 65px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 2px solid #fcd34d; background: #fff; display: none; }
-        .sidebar-header h3 { font-size: 1rem; color: #fff; font-weight: bold; }
+        .company-logo-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-bottom: 8px; border: 2px solid #fcd34d; background: #fff; display: none; }
+        .sidebar-header h3 { font-size: 0.95rem; color: #fff; font-weight: bold; }
         .sidebar-header p { font-size: 0.75rem; color: #fcd34d; margin-top: 2px; }
 
         .nav-list { flex: 1; overflow-y: auto; padding: 15px 10px; list-style: none; }
@@ -83,8 +102,8 @@
         .page-frame { width: 100%; height: 100%; border: none; display: none; }
         .page-frame.active { display: block; }
 
-        .inner-view { padding: 30px; height: 100%; overflow-y: auto; background: var(--bg-light); }
-        .card-panel { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .inner-view { padding: 25px; height: 100%; overflow-y: auto; background: var(--bg-light); }
+        .card-panel { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .card-panel h3 { color: var(--primary-dark); margin-bottom: 15px; font-size: 1.1rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -93,10 +112,28 @@
         .status-online { background: #d1fae5; color: #065f46; }
         .status-offline { background: #fee2e2; color: #991b1b; }
 
-        @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+        /* التوافق مع الهواتف الذكية */
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .mobile-header { display: flex; }
+            .sidebar {
+                position: fixed; top: 55px; bottom: 0; right: 0; width: 260px;
+                transform: translateX(100%); z-index: 10000;
+            }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .main-wrapper { margin-top: 55px; height: calc(100vh - 55px); }
+            .grid-2 { grid-template-columns: 1fr; }
+            .inner-view { padding: 15px; }
+        }
     </style>
 </head>
 <body>
+
+    <!-- الهيدر الخاص بالشاشات الصغيرة (الموبايل) -->
+    <div class="mobile-header">
+        <span style="font-weight: bold; font-size: 0.95rem;"><i class="fas fa-layer-group"></i> المنظومة الشاملة</span>
+        <button class="mobile-menu-btn" onclick="toggleMobileSidebar()"><i class="fas fa-bars"></i></button>
+    </div>
 
     <!-- شاشة تسجيل الدخول -->
     <div id="loginScreen">
@@ -106,14 +143,22 @@
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <input type="text" id="loginUsername" class="form-input" placeholder="اسم المستخدم (Username)" required>
                 <input type="password" id="loginPassword" class="form-input" placeholder="كلمة المرور (Password)" required>
-                <button type="submit" class="btn-action">دخول</button>
+                <button type="submit" class="btn-action">دخول للنظام</button>
             </form>
             <div id="loginError" class="login-error">اسم المستخدم أو كلمة المرور غير صحيحة!</div>
+
+            <!-- رابط مباشر لاختبار DISC بدون كلمة سر -->
+            <div class="public-disc-link">
+                <small style="color: #64748b; font-size: 0.8rem;">هل تريد إجراء تحليل الشخصية مباشرة؟</small>
+                <a href="./DISC/disc.html" target="_blank" class="btn-public-disc">
+                    <i class="fas fa-user-gear"></i> إجراء تقييم DISC المباشر (مفتوح)
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- القائمة الجانبية -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="appSidebar">
         <div class="sidebar-header">
             <img id="sidebarLogo" src="" class="company-logo-img" alt="لوجو الشركة">
             <h3 id="sidebarCompName">اسم الشركة</h3>
@@ -236,7 +281,6 @@
         <iframe id="disc-dash-frame" class="page-frame" src="./DISC/disc-dashboard.html"></iframe>
         <iframe id="scan-frame" class="page-frame" src="scan-to-excel.html"></iframe>
         
-        <!-- إطار لوحة تحكم الأدمن المستقلة والمحدثة -->
         <iframe id="admin-dashboard-frame" class="page-frame" src="admin-dashboard.html"></iframe>
 
         <!-- بروفايل الحساب والشركة -->
@@ -320,6 +364,10 @@
 
         } catch (e) {
             console.error("Firebase Connection Error:", e);
+        }
+
+        function toggleMobileSidebar() {
+            document.getElementById('appSidebar').classList.toggle('mobile-open');
         }
 
         function convertImageToBase64(fileInput, hiddenInputId) {
@@ -448,6 +496,9 @@
                     btnElement.classList.add('active');
                 }
             }
+
+            // إغلاق القائمة الجانبية تلقائياً على شاشات الهواتف عند اختيار أداة
+            document.getElementById('appSidebar').classList.remove('mobile-open');
         }
 
         function toggleSubmenu(id) {
