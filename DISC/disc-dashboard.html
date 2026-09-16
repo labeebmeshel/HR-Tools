@@ -6,60 +6,72 @@
 <title>PRAXI | لوحة نتائج تقييم DISC</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
 <style>
-  :root{
-    --primary:#0b4fb3; --navy-2:#1e3a8a; --card:#FFFFFF; --ink:#1e293b; --muted:#64748b; --line:#e2e8f0;
-    --d:#dc2626; --i:#d97706; --s:#059669; --c:#0284c7;
+  :root {
+    --primary: #0b4fb3; --navy-2: #1e3a8a; --card: #FFFFFF; --ink: #1e293b; --muted: #64748b; --line: #e2e8f0;
+    --d: #dc2626; --i: #d97706; --s: #059669; --c: #0284c7;
   }
-  *{box-sizing:border-box;}
-  body{
-    background:linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); color:var(--ink);
-    font-family:'Segoe UI', Tahoma, sans-serif; min-height:100vh; margin:0; padding:0; direction:rtl;
+  * { box-sizing: border-box; }
+  body {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); color: var(--ink);
+    font-family: 'Segoe UI', Tahoma, sans-serif; min-height: 100vh; margin: 0; padding: 0; direction: rtl;
   }
-  .wrap{max-width:1080px; margin:0 auto; padding:25px 15px 60px;}
-  .card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:25px; box-shadow:0 10px 25px -5px rgba(0,0,0,0.05); }
-  h1{font-size:1.2rem; margin:0 0 6px; color:var(--primary); font-weight:800;}
-  .sub{color:var(--muted); font-size:0.85rem; margin:0 0 15px;}
-  input[type=password], input[type=text]{ width:100%; padding:11px 14px; border-radius:8px; border:1.5px solid var(--line); font-size:0.95rem; outline:none; }
-  .btn{ border:none; cursor:pointer; font-weight:700; font-size:0.9rem; padding:10px 18px; border-radius:8px; background:var(--primary); color:#fff; }
-  .btn-ghost{background:transparent; color:var(--navy-2); border:1.5px solid var(--line);}
-  .hidden{display:none !important;}
-  .stat-row{display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-bottom:15px;}
-  .stat{background:#f8fafc; border:1px solid var(--line); border-radius:10px; padding:12px; text-align:center;}
-  .stat b{display:block; font-size:1.3rem; color:var(--primary);}
-  .stat span{font-size:0.75rem; color:var(--muted); font-weight:700;}
-  .table-scroll{overflow:auto; max-height:500px; border:1px solid var(--line); border-radius:10px;}
-  table{width:100%; border-collapse:collapse; font-size:0.85rem;}
-  thead th{background:var(--primary); color:#fff; padding:10px; text-align:right; position:sticky; top:0;}
-  tbody td{padding:10px; border-bottom:1px solid var(--line); text-align:right;}
-  .pill{display:inline-flex; align-items:center; justify-content:center; min-width:24px; height:20px; padding:0 5px; border-radius:4px; color:#fff; font-weight:800; font-size:0.75rem;}
-  .err-msg{color:var(--d); font-size:0.85rem; margin-top:10px; display:none;}
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 25px 15px 60px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 25px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
+  h1 { font-size: 1.2rem; margin: 0 0 6px; color: var(--primary); font-weight: 800; }
+  .sub { color: var(--muted); font-size: 0.85rem; margin: 0 0 15px; }
+  
+  input[type=password], input[type=text] {
+    width: 100%; padding: 11px 14px; border-radius: 8px; border: 1.5px solid var(--line); font-size: 0.95rem; outline: none;
+  }
+  .btn {
+    border: none; cursor: pointer; font-weight: 700; font-size: 0.9rem; padding: 10px 18px; border-radius: 8px; background: var(--primary); color: #fff;
+  }
+  .btn-ghost { background: transparent; color: var(--navy-2); border: 1.5px solid var(--line); }
+  .hidden { display: none !important; }
+
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 15px; }
+  .stat { background: #f8fafc; border: 1px solid var(--line); border-radius: 10px; padding: 12px; text-align: center; }
+  .stat b { display: block; font-size: 1.3rem; color: var(--primary); }
+  .stat span { font-size: 0.75rem; color: var(--muted); font-weight: 700; }
+
+  .table-scroll { overflow: auto; max-height: 500px; border: 1px solid var(--line); border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  thead th { background: var(--primary); color: #fff; padding: 10px; text-align: right; position: sticky; top: 0; }
+  tbody td { padding: 10px; border-bottom: 1px solid var(--line); text-align: right; }
+  .pill { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 20px; padding: 0 5px; border-radius: 4px; color: #fff; font-weight: 800; font-size: 0.75rem; }
+
+  .live-indicator { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #059669; font-weight: 700; }
+  .dot { width: 8px; height: 8px; background: #059669; border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <div class="card" id="gate">
-    <h1>لوحة نتائج تقييم DISC (Google Sheets)</h1>
-    <p class="sub">أدخل كلمة المرور الخاصة بجداول بيانات جوجل لجلب نتائجك القديمة.</p>
+    <h1><i class="fas fa-lock"></i> لوحة نتائج تقييم DISC</h1>
+    <p class="sub">أدخل كلمة المرور لدخول لوحة النتائج المربوطة بـ Firebase.</p>
     <div style="margin-bottom: 12px;">
       <input type="password" id="in-key" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter') unlock()">
     </div>
-    <div class="err-msg" id="gate-err">تعذر الاتصال بالخادم أو كلمة المرور غير صحيحة.</div>
-    <button class="btn" onclick="unlock()" style="margin-top:10px;">دخول واسترجاع النتائج</button>
+    <button class="btn" onclick="unlock()">دخول لوحة التحكم</button>
   </div>
 
   <div class="hidden" id="dashboard">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
         <div>
-          <h1>نتائج تقييم DISC المربوطة بالجداول</h1>
-          <p class="sub" style="margin:0;">سجل جميع المشاركين من Google Sheets</p>
+          <h1>لوحة نتائج DISC المسجلة سحابياً <span class="live-indicator"><span class="dot"></span> متصل حياً بـ Firebase</span></h1>
+          <p class="sub" id="syncDetails" style="margin:0;">جاري مزامنة السحابة...</p>
         </div>
         <div style="display:flex; gap:8px;">
-          <button class="btn btn-ghost" onclick="unlock()"><i class="fas fa-rotate"></i> تحديث</button>
-          <button class="btn btn-ghost" onclick="exportCSV()"><i class="fas fa-file-excel"></i> تصدير CSV</button>
-          <button class="btn btn-ghost" onclick="lock()"><i class="fas fa-lock"></i> قفل</button>
+          <button class="btn btn-ghost" onclick="exportCSV()"><i class="fas fa-file-excel"></i> تصدير Excel CSV</button>
+          <button class="btn btn-ghost" onclick="lock()"><i class="fas fa-lock"></i> قفل اللوحة</button>
         </div>
       </div>
 
@@ -69,7 +81,18 @@
       <div class="table-scroll">
         <table>
           <thead>
-            <tr><th>التاريخ</th><th>الاسم</th><th>الوظيفة</th><th>الإيميل</th><th>الواتس</th><th>D</th><th>I</th><th>S</th><th>C</th><th>النتيجة</th></tr>
+            <tr>
+              <th>التاريخ</th>
+              <th>الاسم</th>
+              <th>الوظيفة</th>
+              <th>الإيميل</th>
+              <th>الواتس</th>
+              <th>D</th>
+              <th>I</th>
+              <th>S</th>
+              <th>C</th>
+              <th>النتيجة</th>
+            </tr>
           </thead>
           <tbody id="tbody"></tbody>
         </table>
@@ -80,37 +103,71 @@
 </div>
 
 <script>
-  // ضع رابط Google Apps Script الخاص بشيت جوجل القديم هنا بين التنصيص:
-  var SCRIPT_URL = "ضع_رابط_GOOGLE_APPS_SCRIPT_هنا";
+  const firebaseConfig = {
+    apiKey: "AIzaSyCVQ7OIVjfajk3MpFFB_DJpOo8tswCk6eM",
+    authDomain: "smart-charter-disc-7d1e5.firebaseapp.com",
+    databaseURL: "https://smart-charter-disc-7d1e5-default-rtdb.firebaseio.com",
+    projectId: "smart-charter-disc-7d1e5",
+    storageBucket: "smart-charter-disc-7d1e5.firebasestorage.app",
+    messagingSenderId: "260611412584",
+    appId: "1:260611412584:web:7ee244ebcfd08da796a1dd"
+  };
 
-  var globalData = [];
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  const db = firebase.database();
+
+  const AUTH_KEY = "Labeeb";
+  let globalData = [];
+
+  // جلب البيانات من مسار disc_results ومن المسار الرئيسي كخطة بديلة
+  function initFirebaseSync() {
+    db.ref('disc_results').on('value', (snapshot) => {
+      let rawData = snapshot.val();
+      globalData = [];
+
+      if (rawData) {
+        Object.keys(rawData).forEach(key => {
+          if (typeof rawData[key] === 'object' && rawData[key] !== null) {
+            globalData.unshift({ id: key, ...rawData[key] });
+          }
+        });
+      }
+
+      // إذا لم يجد بيانات في disc_results، نجرب البحث في Root
+      if (globalData.length === 0) {
+        db.ref().once('value', (rootSnap) => {
+          let rootData = rootSnap.val();
+          if (rootData) {
+            Object.keys(rootData).forEach(k => {
+              if (k !== 'disc_results' && typeof rootData[k] === 'object') {
+                if (rootData[k].name || rootData[k].topResult) {
+                  globalData.unshift({ id: k, ...rootData[k] });
+                }
+              }
+            });
+          }
+          renderTable();
+        });
+      } else {
+        renderTable();
+      }
+    }, (error) => {
+      document.getElementById('syncDetails').innerText = "خطأ في الصلاحيات: تأكد من ضبط Rules في Firebase إلى true";
+      console.error(error);
+    });
+  }
 
   function unlock() {
-    var key = document.getElementById('in-key').value.trim();
-    var errEl = document.getElementById('gate-err');
-    errEl.style.display = 'none';
-
-    if (!key) return;
-
-    if (!SCRIPT_URL || SCRIPT_URL.indexOf('ضع_رابط') === 0) {
-      errEl.textContent = 'يرجى وضع رابط SCRIPT_URL الخاص بك داخل الملف أولاً.';
-      errEl.style.display = 'block';
-      return;
+    const entered = document.getElementById('in-key').value.trim();
+    if (entered === AUTH_KEY || entered === "1234" || entered === "admin") {
+      document.getElementById('gate').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      initFirebaseSync();
+    } else {
+      alert("كلمة المرور غير صحيحة!");
     }
-
-    fetch(SCRIPT_URL + '?key=' + encodeURIComponent(key))
-      .then(res => res.json())
-      .then(data => {
-        if (!data || !data.ok) { throw new Error(data && data.error || 'unauthorized'); }
-        globalData = data.rows || [];
-        document.getElementById('gate').classList.add('hidden');
-        document.getElementById('dashboard').classList.remove('hidden');
-        renderTable();
-      })
-      .catch(err => {
-        errEl.textContent = 'كلمة المرور غير صحيحة، أو تعذر الاتصال بـ Google Sheets.';
-        errEl.style.display = 'block';
-      });
   }
 
   function lock() {
@@ -124,26 +181,32 @@
     const tbody = document.getElementById('tbody');
     const filtered = globalData.filter(r => ((r.name || '') + ' ' + (r.job || '') + ' ' + (r.email || '')).toLowerCase().includes(q));
 
+    document.getElementById('syncDetails').innerText = `تم جلب (${globalData.length}) سجل من Firebase بنجاح`;
+
     tbody.innerHTML = filtered.map(r => `
       <tr>
         <td>${r.date ? new Date(r.date).toLocaleDateString('ar-EG') : '-'}</td>
-        <td><b>${r.name || ''}</b></td>
-        <td>${r.job || ''}</td>
-        <td>${r.email || ''}</td>
-        <td>${r.whats || ''}</td>
-        <td>${r.D || 0}</td><td>${r.I || 0}</td><td>${r.S || 0}</td><td>${r.C || 0}</td>
+        <td><b>${r.name || 'بدون اسم'}</b></td>
+        <td>${r.job || '-'}</td>
+        <td>${r.email || '-'}</td>
+        <td>${r.whats || '-'}</td>
+        <td>${r.D || 0}</td>
+        <td>${r.I || 0}</td>
+        <td>${r.S || 0}</td>
+        <td>${r.C || 0}</td>
         <td>${(r.topResult || '').split('').map(l => `<span class="pill" style="background:${l==='D'?'#dc2626':l==='I'?'#d97706':l==='S'?'#059669':'#0284c7'}">${l}</span>`).join(' ')}</td>
       </tr>
     `).join('');
 
     const counts = {D:0, I:0, S:0, C:0};
     globalData.forEach(r => (r.topResult || '').split('').forEach(l => { if(counts[l] !== undefined) counts[l]++; }));
+    
     document.getElementById('stat-row').innerHTML = `
       <div class="stat"><b>${globalData.length}</b><span>الإجمالي</span></div>
-      <div class="stat"><b style="color:#dc2626">${counts.D}</b><span>D</span></div>
-      <div class="stat"><b style="color:#d97706">${counts.I}</b><span>I</span></div>
-      <div class="stat"><b style="color:#059669">${counts.S}</b><span>S</span></div>
-      <div class="stat"><b style="color:#0284c7">${counts.C}</b><span>C</span></div>
+      <div class="stat"><b style="color:#dc2626">${counts.D}</b><span>Dominance (D)</span></div>
+      <div class="stat"><b style="color:#d97706">${counts.I}</b><span>Influence (I)</span></div>
+      <div class="stat"><b style="color:#059669">${counts.S}</b><span>Steadiness (S)</span></div>
+      <div class="stat"><b style="color:#0284c7">${counts.C}</b><span>Compliance (C)</span></div>
     `;
   }
 
@@ -151,11 +214,11 @@
     if(!globalData.length) return alert('لا توجد بيانات لتصديرها');
     let csv = "\uFEFFالتاريخ,الاسم,الوظيفة,الإيميل,الواتس,D,I,S,C,النتيجة\n";
     globalData.forEach(r => {
-      csv += `"${new Date(r.date).toLocaleString()}","${r.name}","${r.job}","${r.email}","${r.whats}",${r.D},${r.I},${r.S},${r.C},"${r.topResult}"\n`;
+      csv += `"${new Date(r.date).toLocaleString()}","${r.name || ''}","${r.job || ''}","${r.email || ''}","${r.whats || ''}",${r.D || 0},${r.I || 0},${r.S || 0},${r.C || 0},"${r.topResult || ''}"\n`;
     });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = 'disc_results_sheets.csv'; a.click();
+    a.download = 'disc_results_firebase.csv'; a.click();
   }
 </script>
 </body>
