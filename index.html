@@ -62,6 +62,7 @@
             position: fixed; top: 0; left: 0; right: 0; z-index: 999;
         }
         .mobile-menu-btn { background: none; border: none; color: white; font-size: 1.3rem; cursor: pointer; }
+        .mobile-logout-btn { background: none; border: none; color: #fca5a5; font-size: 1.2rem; cursor: pointer; margin-left: 15px; }
 
         /* القائمة الجانبية */
         .sidebar {
@@ -119,6 +120,7 @@
             .sidebar {
                 position: fixed; top: 55px; bottom: 0; right: 0; width: 260px;
                 transform: translateX(100%); z-index: 10000;
+                height: calc(100% - 55px); /* إصلاح ارتفاع القائمة ليظهر زر الخروج */
             }
             .sidebar.mobile-open { transform: translateX(0); }
             .main-wrapper { margin-top: 55px; height: calc(100vh - 55px); }
@@ -129,10 +131,13 @@
 </head>
 <body>
 
-    <!-- الهيدر الخاص بالشاشات الصغيرة (الموبايل) -->
+    <!-- الهيدر الخاص بالشاشات الصغيرة (الموبايل) مع زر الخروج المباشر -->
     <div class="mobile-header">
         <span style="font-weight: bold; font-size: 0.95rem;"><i class="fas fa-layer-group"></i> المنظومة الشاملة</span>
-        <button class="mobile-menu-btn" onclick="toggleMobileSidebar()"><i class="fas fa-bars"></i></button>
+        <div style="display: flex; align-items: center;">
+            <button class="mobile-logout-btn" onclick="logout()" title="تسجيل الخروج"><i class="fas fa-right-from-bracket"></i></button>
+            <button class="mobile-menu-btn" onclick="toggleMobileSidebar()"><i class="fas fa-bars"></i></button>
+        </div>
     </div>
 
     <!-- شاشة تسجيل الدخول -->
@@ -246,7 +251,6 @@
                 </button>
             </li>
             
-            <!-- زر لوحة تحكم الأدمن (فتح الملف الخارجي) -->
             <li class="nav-item" id="adminTabItem" style="display: none;">
                 <button class="nav-link" style="color: #fcd34d;" onclick="loadPage(event, 'admin-dashboard-frame', this)">
                     <i class="fas fa-user-shield"></i> لوحة تحكم الأدمن الرئيسية
