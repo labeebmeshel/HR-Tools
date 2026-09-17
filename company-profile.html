@@ -141,7 +141,7 @@
     <!-- 2. ديباجة الأوراق الرسمية -->
     <div class="card">
         <div class="card-header" onclick="toggleAccordion(this)">
-            <h3><i class="fas fa-heading"></i> ديباجة الأوراق الرسمية (نصوص الهيدر والفوتر واللوجو)</h3>
+            <h3><i class="fas fa-heading"></i> ديباجة الأوراق الرسمية (رأس الصفحة وأسفل الصفحة)</h3>
             <i class="fas fa-chevron-down chevron"></i>
         </div>
         <div class="card-body">
@@ -280,7 +280,6 @@
                 const reader = new FileReader();
                 reader.onload = e => {
                     document.getElementById(targetHiddenId).value = e.target.result;
-                    // تحديث جميع المعاينات باللوجو الجديد
                     document.querySelectorAll('#letterheadsContainer .dynamic-item-box').forEach(box => {
                         updatePreview(box.id);
                     });
@@ -304,7 +303,7 @@
                 .then(() => alert('تم حفظ البيانات الأساسية وشعار الشركة بنجاح!'));
         }
 
-        /* 2. إضافة نموذج ديباجة مخصص مع التحكم بموقع اللوجو والمعاينة */
+        /* 2. إضافة نموذج ديباجة مخصص */
         function addLetterheadItem(data = {}) {
             const container = document.getElementById('letterheadsContainer');
             const id = 'lh_' + Date.now() + Math.random().toString(36).substr(2, 4);
@@ -316,16 +315,16 @@
                         <button class="btn btn-danger" onclick="document.getElementById('${id}').remove()"><i class="fas fa-trash"></i> حذف</button>
                     </div>
                     
-                    <!-- إعدادات الجزء العلوي (Header + Logo Pos) -->
+                    <!-- إعدادات رأس الصفحة -->
                     <div style="background:#fff; padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid #e2e8f0;">
-                        <small style="color:var(--primary); font-weight:bold;">الترويسة العلوية وشعار الشركة (Header & Logo)</small>
+                        <small style="color:var(--primary); font-weight:bold;">رأس الصفحة وشعار الشركة (Header & Logo)</small>
                         <div class="form-row-4" style="margin-top:5px;">
                             <input type="text" class="lh-h-line1" value="${data.hLine1 || ''}" placeholder="السطر الأول" oninput="updatePreview('${id}')">
                             <input type="text" class="lh-h-line2" value="${data.hLine2 || ''}" placeholder="السطر الثاني" oninput="updatePreview('${id}')">
                             <select class="lh-h-align" onchange="updatePreview('${id}')">
-                                <option value="right" ${data.hAlign === 'right' ? 'selected' : ''}>نص الهيدر: يمين</option>
-                                <option value="center" ${data.hAlign === 'center' ? 'selected' : ''}>نص الهيدر: وسط</option>
-                                <option value="left" ${data.hAlign === 'left' ? 'selected' : ''}>نص الهيدر: يسار</option>
+                                <option value="right" ${data.hAlign === 'right' ? 'selected' : ''}>نص رأس الصفحة: يمين</option>
+                                <option value="center" ${data.hAlign === 'center' ? 'selected' : ''}>نص رأس الصفحة: وسط</option>
+                                <option value="left" ${data.hAlign === 'left' ? 'selected' : ''}>نص رأس الصفحة: يسار</option>
                             </select>
                             <select class="lh-logo-pos" onchange="updatePreview('${id}')" style="font-weight:bold; color:var(--primary);">
                                 <option value="left" ${data.logoPos === 'left' ? 'selected' : ''}>مكان اللوجو: يسار</option>
@@ -336,9 +335,9 @@
                         </div>
                     </div>
 
-                    <!-- إعدادات الجزء السفلي (Footer) -->
+                    <!-- إعدادات أسفل الصفحة -->
                     <div style="background:#fff; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
-                        <small style="color:var(--primary); font-weight:bold;">التذييل السفلي (Footer Text)</small>
+                        <small style="color:var(--primary); font-weight:bold;">أسفل الصفحة (Footer Text)</small>
                         <div class="form-row-3" style="margin-top:5px;">
                             <input type="text" class="lh-f-line1" value="${data.fLine1 || ''}" placeholder="السطر الأول" oninput="updatePreview('${id}')">
                             <input type="text" class="lh-f-line2" value="${data.fLine2 || ''}" placeholder="السطر الثاني" oninput="updatePreview('${id}')">
@@ -352,7 +351,7 @@
 
                     <!-- صندوق المعاينة الحية المباشرة -->
                     <div style="margin-top:10px;">
-                        <small style="font-weight:bold; color:#64748b;"><i class="fas fa-eye"></i> معاينة الورقة الرسمية A4 مع اللوجو:</small>
+                        <small style="font-weight:bold; color:#64748b;"><i class="fas fa-eye"></i> معاينة الورقة الرسمية A4:</small>
                         <div class="paper-preview">
                             <div class="preview-header-zone" id="${id}_prev_header"></div>
                             <div class="preview-body-zone">[ محتوى التقرير / الخطاب الرسمي ]</div>
@@ -369,13 +368,13 @@
             const box = document.getElementById(id);
             if (!box) return;
 
-            const hLine1 = box.querySelector('.lh-h-line1').value || 'السطر الأول للترويسة';
-            const hLine2 = box.querySelector('.lh-h-line2').value || 'السطر الثاني للترويسة';
+            const hLine1 = box.querySelector('.lh-h-line1').value || 'السطر الأول لرأس الصفحة';
+            const hLine2 = box.querySelector('.lh-h-line2').value || 'السطر الثاني لرأس الصفحة';
             const hAlign = box.querySelector('.lh-h-align').value;
             const logoPos = box.querySelector('.lh-logo-pos').value;
 
-            const fLine1 = box.querySelector('.lh-f-line1').value || 'السطر الأول للتذييل (العنوان / الفرع)';
-            const fLine2 = box.querySelector('.lh-f-line2').value || 'السطر الثاني للتذييل (التواصل / البريد)';
+            const fLine1 = box.querySelector('.lh-f-line1').value || 'السطر الأول لأسفل الصفحة (العنوان / الفرع)';
+            const fLine2 = box.querySelector('.lh-f-line2').value || 'السطر الثاني لأسفل الصفحة (التواصل / البريد)';
             const fAlign = box.querySelector('.lh-f-align').value;
 
             const logoSrc = document.getElementById('compLogoBase64').value;
@@ -386,7 +385,6 @@
             const prevHeader = document.getElementById(`${id}_prev_header`);
             const prevFooter = document.getElementById(`${id}_prev_footer`);
 
-            // بناء هيدر ورقة المعاينة بناءً على موقع اللوجو المختار
             if (logoPos === 'right') {
                 prevHeader.style.flexDirection = 'row-reverse';
                 prevHeader.innerHTML = textHtml + logoHtml;
