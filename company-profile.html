@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة بروفايل الشركة والحساب</title>
+    <title>إدارة بروفايل الشركة الشامل</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- مكتبة Excel لقراءة واستخراج بيانات الموظفين -->
+    <!-- مكتبة Excel لقراءة واستخراج البيانات -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
     <!-- Firebase SDKs -->
@@ -22,6 +22,7 @@
             --text: #1e293b;
             --border: #cbd5e1;
             --success: #10b981;
+            --accent: #f59e0b;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -36,9 +37,10 @@
 
         .form-group { margin-bottom: 12px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
         
         label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: #475569; }
-        input[type="text"], input[type="password"], input[type="file"], select {
+        input[type="text"], input[type="password"], input[type="time"], input[type="number"], input[type="file"], select {
             width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-size: 0.9rem; transition: 0.2s;
         }
         input:focus { border-color: var(--primary); }
@@ -48,33 +50,43 @@
         .btn-primary:hover { background: var(--primary-dark); }
         .btn-success { background: var(--success); color: white; }
 
+        .preview-box { width: 70px; height: 70px; border: 1px dashed var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #f8fafc; }
+        .preview-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
         .sig-box { background: #f8fafc; border: 1px dashed var(--border); padding: 12px; border-radius: 8px; margin-bottom: 10px; }
         
-        /* جدول الموظفين */
         .table-responsive { overflow-x: auto; max-height: 250px; }
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
         th, td { padding: 8px 10px; border: 1px solid #e2e8f0; text-align: right; }
         th { background: #f1f5f9; color: var(--primary-dark); font-weight: bold; }
 
+        /* الهيكل التنظيمي */
+        .org-chart-container { display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 15px 0; overflow-x: auto; }
+        .org-node { background: #eff6ff; border: 2px solid var(--primary); border-radius: 10px; padding: 10px 15px; text-align: center; min-width: 140px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+        .org-node .title { font-size: 0.75rem; color: var(--accent); font-weight: bold; }
+        .org-node .name { font-size: 0.9rem; font-weight: bold; color: var(--primary-dark); }
+        .org-children { display: flex; gap: 15px; position: relative; padding-top: 15px; }
+        .org-children::before { content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 15px; background: var(--primary); }
+
         @media (max-width: 900px) {
             .grid-layout { grid-template-columns: 1fr; }
-            .form-row { grid-template-columns: 1fr; }
+            .form-row, .form-row-3 { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
     <div class="header-title">
-        <i class="fas fa-building-user"></i> إدارة بروفايل الشركة والتوقيعات والموظفين
+        <i class="fas fa-building-user"></i> إدارة بروفايل الشركة الهوية والرسميات والـ HR Rules
     </div>
 
     <div class="grid-layout">
-        <!-- القسم الأيمن: بيانات الشركة + التوقيعات + قاعدة بيانات الموظفين -->
+        <!-- القسم الأيمن: البيانات، الهوية، التأمينات، والوردية -->
         <div>
-            <!-- بيانات الشركة ثنائية اللغة -->
+            <!-- 1. بيانات الشركة الأساسية -->
             <div class="card">
-                <h3><i class="fas fa-building"></i> البيانات الأساسية للشركة (عربي / English)</h3>
-                <form id="compProfileForm" onsubmit="saveCompanyData(event)">
+                <h3><i class="fas fa-building"></i> البيانات الأساسية (عربي / English)</h3>
+                <form onsubmit="saveCompanyData(event)">
                     <div class="form-row">
                         <div class="form-group">
                             <label>اسم الشركة (بالعربي):</label>
@@ -104,26 +116,118 @@
                         </div>
                         <div class="form-group">
                             <label>رفع الشعار (Logo):</label>
-                            <input type="file" accept="image/*" onchange="convertImage(this, 'compLogoBase64')">
+                            <input type="file" accept="image/*" onchange="convertImage(this, 'compLogoBase64', 'prevLogo')">
                             <input type="hidden" id="compLogoBase64">
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
                         <i class="fas fa-floppy-disk"></i> حفظ البيانات الأساسية
                     </button>
                 </form>
             </div>
 
-            <!-- إعداد التوقيعات الرسمية -->
+            <!-- 2. الهوية الرسمية (الختم الدائري + الورق الرسمي) -->
             <div class="card">
-                <h3><i class="fas fa-file-signature"></i> اعتماد التوقيعات للنماذج والعقود</h3>
+                <h3><i class="fas fa-stamp"></i> الهوية الرسمية (الختم والديباجة)</h3>
+                <form onsubmit="saveIdentity(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>صورة الختم الدائري (Stamp PNG):</label>
+                            <input type="file" accept="image/*" onchange="convertImage(this, 'stampBase64', 'prevStamp')">
+                            <input type="hidden" id="stampBase64">
+                        </div>
+                        <div class="preview-box" id="prevStamp">ختم</div>
+                    </div>
+
+                    <div class="form-row" style="margin-top: 10px;">
+                        <div class="form-group">
+                            <label>ترويسة الورق الرسمي (Header Image):</label>
+                            <input type="file" accept="image/*" onchange="convertImage(this, 'headerBase64', 'prevHeader')">
+                            <input type="hidden" id="headerBase64">
+                        </div>
+                        <div class="form-group">
+                            <label>تذييل الورق الرسمي (Footer Image):</label>
+                            <input type="file" accept="image/*" onchange="convertImage(this, 'footerBase64', 'prevFooter')">
+                            <input type="hidden" id="footerBase64">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-photo-film"></i> حفظ ملفات الهوية الرسمية
+                    </button>
+                </form>
+            </div>
+
+            <!-- 3. إعدادات التأمينات الاجتماعية والمنشأة -->
+            <div class="card">
+                <h3><i class="fas fa-file-contract"></i> بيانات المنشأة والتأمينات الاجتماعية</h3>
+                <form onsubmit="saveInsuranceSettings(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>رقم المنشأة التأميني:</label>
+                            <input type="text" id="insNum" placeholder="أدخل رقم المنشأة التأميني">
+                        </div>
+                        <div class="form-group">
+                            <label>مكتب التأمينات التابع له:</label>
+                            <input type="text" id="insOffice" placeholder="مثال: مكتب تأمينات العبور">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-shield-halved"></i> حفظ بيانات التأمينات
+                    </button>
+                </form>
+            </div>
+
+            <!-- 4. إعدادات أوقات العمل والوردية (Shift & HR Rules) -->
+            <div class="card">
+                <h3><i class="fas fa-clock"></i> أوقات العمل والوردية الرسمية (Shift Rules)</h3>
+                <form onsubmit="saveShiftRules(event)">
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label>بداية العمل الرسمي:</label>
+                            <input type="time" id="shiftStart">
+                        </div>
+                        <div class="form-group">
+                            <label>نهاية العمل الرسمي:</label>
+                            <input type="time" id="shiftEnd">
+                        </div>
+                        <div class="form-group">
+                            <label>فترة السماح (بالدقائق):</label>
+                            <input type="number" id="gracePeriod" placeholder="15">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>معدل حساب الساعات الإضافية (Overtime Rate):</label>
+                            <input type="number" step="0.1" id="otRate" placeholder="1.5">
+                        </div>
+                        <div class="form-group">
+                            <label>خصم التأخير التلقائي بعد السماح:</label>
+                            <select id="autoDeduct">
+                                <option value="quarter">خصم ربع يوم</option>
+                                <option value="half">خصم نصف يوم</option>
+                                <option value="exact">حساب بالدقيقة</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-user-clock"></i> حفظ قواعد الوردية والحضور
+                    </button>
+                </form>
+            </div>
+
+            <!-- 5. التوقيعات الرسمية -->
+            <div class="card">
+                <h3><i class="fas fa-file-signature"></i> التوقيعات الرسمية المعتمدة</h3>
                 <form onsubmit="saveSignatures(event)">
-                    <!-- التوقيع الأول -->
                     <div class="sig-box">
                         <small style="font-weight: bold; color: var(--primary);">المعتمد الأول (مثل: مدير الموارد البشرية)</small>
                         <div class="form-row" style="margin-top: 5px;">
-                            <input type="text" id="sig1TitleAr" placeholder="اللقب/الوظيفة (عربي)">
+                            <input type="text" id="sig1TitleAr" placeholder="الوظيفة (عربي)">
                             <input type="text" id="sig1TitleEn" placeholder="Title (English)" dir="ltr">
                         </div>
                         <div class="form-row" style="margin-top: 5px;">
@@ -132,11 +236,10 @@
                         </div>
                     </div>
 
-                    <!-- التوقيع الثاني -->
                     <div class="sig-box">
-                        <small style="font-weight: bold; color: var(--primary);">المعتمد الثاني (مثل: المدير العام / رئيس مجلس الإدارة)</small>
+                        <small style="font-weight: bold; color: var(--primary);">المعتمد الثاني (مثل: رئيس مجلس الإدارة)</small>
                         <div class="form-row" style="margin-top: 5px;">
-                            <input type="text" id="sig2TitleAr" placeholder="اللقب/الوظيفة (عربي)">
+                            <input type="text" id="sig2TitleAr" placeholder="الوظيفة (عربي)">
                             <input type="text" id="sig2TitleEn" placeholder="Title (English)" dir="ltr">
                         </div>
                         <div class="form-row" style="margin-top: 5px;">
@@ -146,44 +249,52 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary" style="width: 100%;">
-                        <i class="fas fa-file-pen"></i> حفظ التوقيعات الرسمية
+                        <i class="fas fa-file-pen"></i> حفظ التوقيعات
                     </button>
                 </form>
             </div>
+        </div>
 
-            <!-- رفع وإدارة موظفي الشركة -->
+        <!-- القسم الأيسر: رفع الشيت، الهيكل التنظيمي، وكلمة المرور -->
+        <div>
+            <!-- رفع وعرض شيت الموظفين -->
             <div class="card">
-                <h3><i class="fas fa-users-viewfinder"></i> رفع وعرض شيت موظفي الشركة (Excel)</h3>
-                <div class="form-row" style="align-items: center;">
+                <h3><i class="fas fa-file-excel"></i> شيت موظفي الشركة (Excel)</h3>
+                <div class="form-group">
                     <input type="file" id="excelFileInput" accept=".xlsx, .xls">
-                    <button class="btn btn-success" onclick="uploadEmployeeExcel()">
-                        <i class="fas fa-file-excel"></i> قراءة ورفع الشيت
-                    </button>
                 </div>
+                <button class="btn btn-success" onclick="uploadEmployeeExcel()" style="width: 100%; margin-bottom: 10px;">
+                    <i class="fas fa-cloud-arrow-up"></i> رفع واستخراج البيانات
+                </button>
 
                 <div class="table-responsive">
                     <table id="empTable">
                         <thead>
                             <tr>
                                 <th>كود</th>
-                                <th>اسم الموظف</th>
+                                <th>الاسم</th>
                                 <th>الوظيفة</th>
                                 <th>القسم</th>
-                                <th>الرقم القومي</th>
                             </tr>
                         </thead>
                         <tbody id="empTableBody">
-                            <tr><td colspan="5" style="text-align:center; color:#94a3b8;">لم يتم رفع موظفين بعد.</td></tr>
+                            <tr><td colspan="4" style="text-align:center; color:#94a3b8;">لم يتم رفع موظفين بعد.</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>
 
-        <!-- القسم الأيسر: إعدادات الحساب وكلمة المرور -->
-        <div>
+            <!-- مولد الهيكل التنظيمي تلقائياً -->
             <div class="card">
-                <h3><i class="fas fa-user-lock"></i> تغيير كلمة المرور</h3>
+                <h3><i class="fas fa-sitemap"></i> الهيكل التنظيمي التلقائي (Org Chart)</h3>
+                <div class="org-chart-container" id="orgChartTree">
+                    <div style="font-size: 0.8rem; color: #94a3b8; text-align: center;">يرجى رفع شيت Excel الموظفين ليتم رسم الهيكل التنظيمي تلقائياً.</div>
+                </div>
+            </div>
+
+            <!-- تغيير كلمة المرور -->
+            <div class="card">
+                <h3><i class="fas fa-user-lock"></i> كلمة المرور والحساب</h3>
                 <form onsubmit="updatePassword(event)">
                     <div class="form-group">
                         <label>المستخدم الحالي:</label>
@@ -222,10 +333,15 @@
             loadCompanyProfile();
         };
 
-        function convertImage(fileInput, targetId) {
+        function convertImage(fileInput, targetHiddenId, previewBoxId) {
             if (fileInput.files && fileInput.files[0]) {
                 const reader = new FileReader();
-                reader.onload = e => document.getElementById(targetId).value = e.target.result;
+                reader.onload = e => {
+                    document.getElementById(targetHiddenId).value = e.target.result;
+                    if(previewBoxId) {
+                        document.getElementById(previewBoxId).innerHTML = `<img src="${e.target.result}">`;
+                    }
+                };
                 reader.readAsDataURL(fileInput.files[0]);
             }
         }
@@ -241,7 +357,41 @@
                 logo: document.getElementById('compLogoBase64').value
             };
             db.ref(`companyProfiles/${activeUser}/info`).update(data)
-                .then(() => alert('تم حفظ بيانات الشركة بنجاح!'));
+                .then(() => alert('تم حفظ البيانات الأساسية بنجاح!'));
+        }
+
+        function saveIdentity(e) {
+            e.preventDefault();
+            const identity = {
+                stamp: document.getElementById('stampBase64').value,
+                header: document.getElementById('headerBase64').value,
+                footer: document.getElementById('footerBase64').value
+            };
+            db.ref(`companyProfiles/${activeUser}/identity`).set(identity)
+                .then(() => alert('تم حفظ ملفات الهوية والختم والورق الرسمي!'));
+        }
+
+        function saveInsuranceSettings(e) {
+            e.preventDefault();
+            const ins = {
+                num: document.getElementById('insNum').value,
+                office: document.getElementById('insOffice').value
+            };
+            db.ref(`companyProfiles/${activeUser}/insurance`).set(ins)
+                .then(() => alert('تم حفظ بيانات التأمينات الاجتماعية!'));
+        }
+
+        function saveShiftRules(e) {
+            e.preventDefault();
+            const shift = {
+                start: document.getElementById('shiftStart').value,
+                end: document.getElementById('shiftEnd').value,
+                grace: document.getElementById('gracePeriod').value,
+                otRate: document.getElementById('otRate').value,
+                autoDeduct: document.getElementById('autoDeduct').value
+            };
+            db.ref(`companyProfiles/${activeUser}/shiftRules`).set(shift)
+                .then(() => alert('تم حفظ قواعد الحضور والوردية الرسمية!'));
         }
 
         function saveSignatures(e) {
@@ -261,7 +411,7 @@
                 }
             };
             db.ref(`companyProfiles/${activeUser}/signatures`).set(sigs)
-                .then(() => alert('تم حفظ التوقيعات الرسمية بنجاح!'));
+                .then(() => alert('تم حفظ التوقيعات المعتمدة!'));
         }
 
         function uploadEmployeeExcel() {
@@ -277,8 +427,9 @@
 
                 db.ref(`companyProfiles/${activeUser}/employees`).set(jsonData)
                     .then(() => {
-                        alert('تم رفع شيت الموظفين بنجاح!');
+                        alert('تم رفع شيت الموظفين ورسم الهيكل التنظيمي بنجاح!');
                         renderEmployees(jsonData);
+                        generateOrgChart(jsonData);
                     });
             };
             reader.readAsArrayBuffer(fileInput.files[0]);
@@ -298,6 +449,26 @@
                     document.getElementById('compLogoBase64').value = val.info.logo || '';
                 }
 
+                if (val.identity) {
+                    document.getElementById('stampBase64').value = val.identity.stamp || '';
+                    document.getElementById('headerBase64').value = val.identity.header || '';
+                    document.getElementById('footerBase64').value = val.identity.footer || '';
+                    if(val.identity.stamp) document.getElementById('prevStamp').innerHTML = `<img src="${val.identity.stamp}">`;
+                }
+
+                if (val.insurance) {
+                    document.getElementById('insNum').value = val.insurance.num || '';
+                    document.getElementById('insOffice').value = val.insurance.office || '';
+                }
+
+                if (val.shiftRules) {
+                    document.getElementById('shiftStart').value = val.shiftRules.start || '';
+                    document.getElementById('shiftEnd').value = val.shiftRules.end || '';
+                    document.getElementById('gracePeriod').value = val.shiftRules.grace || '';
+                    document.getElementById('otRate').value = val.shiftRules.otRate || '';
+                    document.getElementById('autoDeduct').value = val.shiftRules.autoDeduct || 'quarter';
+                }
+
                 if (val.signatures) {
                     if (val.signatures.sig1) {
                         document.getElementById('sig1TitleAr').value = val.signatures.sig1.titleAr || '';
@@ -315,6 +486,7 @@
 
                 if (val.employees) {
                     renderEmployees(val.employees);
+                    generateOrgChart(val.employees);
                 }
             });
         }
@@ -329,10 +501,45 @@
                         <td><b>${emp['الاسم'] || emp['Name'] || '-'}</b></td>
                         <td>${emp['الوظيفة'] || emp['Title'] || '-'}</td>
                         <td>${emp['القسم'] || emp['Department'] || '-'}</td>
-                        <td>${emp['الرقم القومي'] || emp['National ID'] || '-'}</td>
                     </tr>
                 `;
             });
+        }
+
+        function generateOrgChart(emps) {
+            const container = document.getElementById('orgChartTree');
+            if(!emps || !emps.length) return;
+
+            // تجميع الموظفين حسب القسم تلقائياً
+            const depts = {};
+            emps.forEach(emp => {
+                const deptName = emp['القسم'] || emp['Department'] || 'عام';
+                if(!depts[deptName]) depts[deptName] = [];
+                depts[deptName].push(emp);
+            });
+
+            let html = `
+                <div class="org-node" style="background:#dbeafe;">
+                    <div class="title">إدارة المنشأة</div>
+                    <div class="name">${document.getElementById('compNameAr').value || 'الشركة'}</div>
+                </div>
+                <div class="org-children">
+            `;
+
+            Object.keys(depts).forEach(dept => {
+                html += `
+                    <div style="display:flex; flex-direction:column; align-items:center;">
+                        <div class="org-node">
+                            <div class="title">قسم</div>
+                            <div class="name">${dept}</div>
+                            <small style="font-size:0.7rem; color:#64748b;">(${depts[dept].length} موظف)</small>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
         }
 
         function updatePassword(e) {
