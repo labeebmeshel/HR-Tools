@@ -624,15 +624,24 @@
             reader.readAsArrayBuffer(fileInput.files[0]);
         }
 
+        /* دالة إضافة عمود مخصص وحفظه مباشرة في السيرفر بدون تعليق */
         function addNewCustomColumn() {
-            const name = document.getElementById('newColName').value.trim();
-            if (!name) return;
+            const input = document.getElementById('newColName');
+            const name = input.value.trim();
+            if (!name) return alert('يرجى كتابة اسم العمود أولاً');
+            
             if (!columnKeys.includes(name)) {
                 columnKeys.push(name);
                 visibleColumns[name] = true;
-                globalEmployees.forEach(emp => emp[name] = emp[name] || '');
-                document.getElementById('newColName').value = '';
+                globalEmployees.forEach(emp => {
+                    if (!emp.hasOwnProperty(name)) {
+                        emp[name] = '';
+                    }
+                });
+                input.value = '';
                 saveEmployeeData();
+            } else {
+                alert('هذا العمود موجود بالفعل!');
             }
         }
 
@@ -668,7 +677,6 @@
             saveEmployeeData();
         }
 
-        /* دالة الحذف القاطع والمباشر من السيرفر والمحلية */
         function deleteColumn(key) {
             if (confirm(`هل أنت تأكد من مسح العمود "${key}" بالكامل؟ سيتم مسح العنوان وجميع بياناته.`)) {
                 columnKeys = columnKeys.filter(k => k !== key);
@@ -792,14 +800,21 @@
             XLSX.writeFile(workbook, fileName);
         }
 
+        /* حفظ التعديل وحث الواجهة مباشرة بدون الانتظار في حلقة مفرغة */
         function saveEmployeeData() {
-            db.ref(`companyProfiles/${activeUser}/employees`).set(globalEmployees);
-            db.ref(`companyProfiles/${activeUser}/columnKeys`).set(columnKeys)
-                .then(() => renderAdvancedTable());
+            const empData = globalEmployees.length ? globalEmployees : [];
+            const colsData = columnKeys.length ? columnKeys : [];
+            
+            Promise.all([
+                db.ref(`companyProfiles/${activeUser}/employees`).set(empData),
+                db.ref(`companyProfiles/${activeUser}/columnKeys`).set(colsData)
+            ]).then(() => {
+                renderAdvancedTable();
+            });
         }
 
         function loadCompanyProfile() {
-            db.ref(`companyProfiles/${activeUser}`).on('value', snap => {
+            db.ref(`companyProfiles/${activeUser}`).once('value', snap => {
                 const val = snap.val();
                 if (!val) return;
 
