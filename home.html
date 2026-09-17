@@ -6,6 +6,11 @@
 <title>الرئيسية — الميثاق الذكي · PRAXI</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
 <style>
   :root{
     --ink:#0b2a5c;
@@ -32,7 +37,6 @@
     flex-direction:column;
   }
 
-  /* ── HERO ── */
   .hero{
     background: linear-gradient(145deg, #0b2a5c 0%, #0b4fb3 55%, #1a6dd4 100%);
     padding: 52px 32px 44px;
@@ -76,7 +80,6 @@
   }
   .social-row a:hover{ background:rgba(255,255,255,0.25); transform:translateY(-2px); }
 
-  /* ── TOOLS SECTION ── */
   .tools-section{ flex:1; padding:36px 28px 16px; max-width:1080px; margin:0 auto; width:100%; }
 
   .section-header{
@@ -112,7 +115,7 @@
   }
   .tool-card:hover{ transform:translateY(-6px); box-shadow:var(--shadow-lg); border-color:var(--blue); }
   .tool-card:hover::before{ opacity:1; }
-  .tool-card.hidden{ display:none; }
+  .tool-card.hidden{ display:none !important; }
 
   .tool-card .tc-icon{
     width:54px; height:54px; border-radius:14px;
@@ -134,37 +137,11 @@
     padding:2px 7px; border-radius:100px; text-transform:uppercase;
   }
 
-  /* ── FOOTER ── */
   footer{
     padding:18px 24px; text-align:center;
     color:var(--muted); font-size:0.82rem;
     border-top:1px solid var(--border);
     background:var(--surface);
-  }
-  .secret-trigger{ cursor:default; }
-
-  /* ── ADMIN PANEL ── */
-  #overlay{
-    display:none; position:fixed; inset:0;
-    background:rgba(11,42,92,0.55); z-index:999; backdrop-filter:blur(4px);
-  }
-  #adminPanel{
-    display:none; position:fixed; top:50%; left:50%;
-    transform:translate(-50%,-50%);
-    background:#fff; padding:30px; border-radius:20px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.25);
-    z-index:1000; width:340px; direction:rtl;
-  }
-  #adminPanel h3{ color:var(--blue); margin:0 0 20px; font-size:1.05rem; }
-  .admin-item{
-    display:flex; justify-content:space-between; align-items:center;
-    padding:10px 0; border-bottom:1px solid var(--border); font-size:0.9rem; font-weight:600;
-  }
-  .admin-item input[type="checkbox"]{ accent-color:var(--blue); width:17px; height:17px; cursor:pointer; }
-  .admin-close{
-    background:linear-gradient(135deg, var(--blue), var(--blue-mid));
-    color:#fff; border:none; padding:12px; width:100%; border-radius:10px;
-    cursor:pointer; font-family:'Cairo',sans-serif; font-weight:700; font-size:0.95rem; margin-top:16px;
   }
 
   @media(max-width:600px){
@@ -193,64 +170,64 @@
   </div>
   <div class="tools-grid" id="toolsGrid">
 
-    <div class="tool-card" id="tool-cv" onclick="window.parent.loadPage(null,'cv-frame',1)">
+    <div class="tool-card" id="tool-cv" data-perm="cv" onclick="window.parent.loadPage(null,'cv-frame',this)">
       <div class="tc-icon"><i class="fas fa-id-card"></i></div>
       <div class="tc-name">السيرة الذاتية</div>
       <div class="tc-sub">Professional Resume</div>
     </div>
 
-    <div class="tool-card" id="tool-tax" onclick="window.parent.loadPage(null,'tax-frame',2)">
+    <div class="tool-card" id="tool-tax" data-perm="tax" onclick="window.parent.loadPage(null,'tax-frame',this)">
       <div class="tc-icon"><i class="fas fa-calculator"></i></div>
       <div class="tc-name">حاسبة الضرائب</div>
       <div class="tc-sub">Gross ← Net Tax</div>
     </div>
 
-    <div class="tool-card gold-accent" id="tool-tax-rev" onclick="window.parent.loadDropdownPage(null,'tax-reverse-frame','حاسبة الضرائب الفردية (صافي ← إجمالي)')">
+    <div class="tool-card gold-accent" id="tool-tax-rev" data-perm="tax" onclick="window.parent.loadDropdownPage(null,'tax-reverse-frame','حاسبة الضرائب الفردية')">
       <div class="tc-badge">جديد</div>
       <div class="tc-icon"><i class="fas fa-arrows-rotate"></i></div>
       <div class="tc-name">عكس الضريبة — فردي</div>
       <div class="tc-sub">Net → Gross · Individual</div>
     </div>
 
-    <div class="tool-card gold-accent" id="tool-tax-bulk" onclick="window.parent.loadDropdownPage(null,'tax-reverse-bulk-frame','حاسبة الضرائب الجماعية (صافي ← إجمالي)')">
+    <div class="tool-card gold-accent" id="tool-tax-bulk" data-perm="tax" onclick="window.parent.loadDropdownPage(null,'tax-reverse-bulk-frame','حاسبة الضرائب الجماعية')">
       <div class="tc-badge">جديد</div>
       <div class="tc-icon"><i class="fas fa-users-gear"></i></div>
       <div class="tc-name">عكس الضريبة — جماعي</div>
       <div class="tc-sub">Net → Gross · Bulk Excel</div>
     </div>
 
-    <div class="tool-card" id="tool-s1" onclick="window.parent.loadPage(null,'s1-frame',3)">
+    <div class="tool-card" id="tool-s1" data-perm="s1" onclick="window.parent.loadPage(null,'s1-frame',this)">
       <div class="tc-icon"><i class="fas fa-file-contract"></i></div>
       <div class="tc-name">س1 تأمينات</div>
       <div class="tc-sub">أجر الاشتراك التأميني</div>
     </div>
 
-    <div class="tool-card gold-accent" id="tool-forms" onclick="window.parent.loadPage(null,'forms-print-frame',4)">
+    <div class="tool-card gold-accent" id="tool-forms" data-perm="forms" onclick="window.parent.loadPage(null,'forms-print-frame',this)">
       <div class="tc-badge">جديد</div>
       <div class="tc-icon"><i class="fas fa-print"></i></div>
       <div class="tc-name">طباعة النماذج</div>
       <div class="tc-sub">HR Forms & Contracts</div>
     </div>
 
-    <div class="tool-card" id="tool-tafqit" onclick="window.parent.loadPage(null,'tafqit-frame',5)">
+    <div class="tool-card" id="tool-tafqit" data-perm="tafqit" onclick="window.parent.loadPage(null,'tafqit-frame',this)">
       <div class="tc-icon"><i class="fas fa-spell-check"></i></div>
       <div class="tc-name">أداة التفقيط</div>
       <div class="tc-sub">Number to Words</div>
     </div>
 
-    <div class="tool-card" id="tool-feedback" onclick="window.parent.loadPage(null,'feedback-frame',6)">
+    <div class="tool-card" id="tool-feedback" data-perm="feedback" onclick="window.parent.loadPage(null,'feedback-frame',this)">
       <div class="tc-icon"><i class="fas fa-chart-line"></i></div>
       <div class="tc-name">قياس الأداء</div>
       <div class="tc-sub">Performance Feedback</div>
     </div>
 
-    <div class="tool-card" id="tool-disc" onclick="window.parent.loadPage(null,'disc-frame',7)">
+    <div class="tool-card" id="tool-disc" data-perm="disc" onclick="window.parent.loadPage(null,'disc-frame',this)">
       <div class="tc-icon"><i class="fas fa-user-gear"></i></div>
       <div class="tc-name">تحليل الشخصية</div>
       <div class="tc-sub">DISC Assessment</div>
     </div>
 
-    <div class="tool-card" id="tool-scan" onclick="window.parent.loadPage(null,'scan-frame',8)">
+    <div class="tool-card" id="tool-scan" data-perm="scan" onclick="window.parent.loadPage(null,'scan-frame',this)">
       <div class="tc-icon"><i class="fas fa-file-excel"></i></div>
       <div class="tc-name">استخراج البيانات</div>
       <div class="tc-sub">HR Scan → Excel</div>
@@ -259,64 +236,53 @@
   </div>
 </div>
 
-<div id="overlay" onclick="closeAdmin()"></div>
-<div id="adminPanel">
-  <h3><i class="fas fa-sliders" style="margin-left:8px;color:var(--gold)"></i>لوحة تحكم الأدوات</h3>
-  <div class="admin-item"><span>السيرة الذاتية</span><input type="checkbox" checked onchange="toggleTool('tool-cv',this.checked)"></div>
-  <div class="admin-item"><span>حاسبة الضرائب (إجمالي→صافي)</span><input type="checkbox" checked onchange="toggleTool('tool-tax',this.checked)"></div>
-  <div class="admin-item"><span>عكس الضريبة — فردي</span><input type="checkbox" checked onchange="toggleTool('tool-tax-rev',this.checked)"></div>
-  <div class="admin-item"><span>عكس الضريبة — جماعي</span><input type="checkbox" checked onchange="toggleTool('tool-tax-bulk',this.checked)"></div>
-  <div class="admin-item"><span>س1 تأمينات</span><input type="checkbox" checked onchange="toggleTool('tool-s1',this.checked)"></div>
-  <div class="admin-item"><span>طباعة النماذج</span><input type="checkbox" checked onchange="toggleTool('tool-forms',this.checked)"></div>
-  <div class="admin-item"><span>أداة التفقيط</span><input type="checkbox" checked onchange="toggleTool('tool-tafqit',this.checked)"></div>
-  <div class="admin-item"><span>قياس الأداء</span><input type="checkbox" checked onchange="toggleTool('tool-feedback',this.checked)"></div>
-  <div class="admin-item"><span>تحليل الشخصية</span><input type="checkbox" checked onchange="toggleTool('tool-disc',this.checked)"></div>
-  <div class="admin-item"><span>استخراج البيانات (OCR)</span><input type="checkbox" checked onchange="toggleTool('tool-scan',this.checked)"></div>
-  <button class="admin-close" onclick="closeAdmin()">حفظ وإغلاق</button>
-</div>
-
 <footer>
-  <span>جميع الحقوق محفوظة &copy; 2026 — </span>
-  <span class="secret-trigger" onclick="openAdmin()">أكاديمية براكسي PRAXI</span>
+  <span>جميع الحقوق محفوظة &copy; 2026 — أكاديمية براكسي PRAXI</span>
 </footer>
 
 <script>
-const ADMIN_PASS = "1234";
-const ALL_TOOLS = ['tool-cv','tool-tax','tool-tax-rev','tool-tax-bulk','tool-s1','tool-forms','tool-tafqit','tool-feedback','tool-disc','tool-scan'];
+  const firebaseConfig = {
+      apiKey: "AIzaSyBty7fK-7mchOETrE_vtOZx4dgWSHIuC8Y",
+      authDomain: "hr-platform-system.firebaseapp.com",
+      databaseURL: "https://hr-platform-system-default-rtdb.firebaseio.com",
+      projectId: "hr-platform-system",
+      storageBucket: "hr-platform-system.firebasestorage.app",
+      messagingSenderId: "994791756938",
+      appId: "1:994791756938:web:48303535285e25f1c80973"
+  };
 
-function openAdmin(){
-  let pass = prompt("أدخل كلمة المرور:");
-  if(pass === ADMIN_PASS){
-    document.getElementById('adminPanel').style.display = 'block';
-    document.getElementById('overlay').style.display = 'block';
-    syncCheckboxes();
-  } else { alert("كلمة مرور خاطئة!"); }
-}
-function closeAdmin(){
-  document.getElementById('adminPanel').style.display = 'none';
-  document.getElementById('overlay').style.display = 'none';
-}
-function toggleTool(id, visible){
-  const el = document.getElementById(id);
-  if(!el) return;
-  if(visible){ el.classList.remove('hidden'); localStorage.setItem(id,'visible'); }
-  else { el.classList.add('hidden'); localStorage.setItem(id,'hidden'); }
-}
-function loadSettings(){
-  ALL_TOOLS.forEach(id => {
-    if(localStorage.getItem(id) === 'hidden'){
-      const el = document.getElementById(id);
-      if(el) el.classList.add('hidden');
-    }
-  });
-}
-function syncCheckboxes(){
-  const cbs = document.querySelectorAll('#adminPanel input[type="checkbox"]');
-  ALL_TOOLS.forEach((id,i) => {
-    if(cbs[i]) cbs[i].checked = (localStorage.getItem(id) !== 'hidden');
-  });
-}
-window.onload = loadSettings;
+  try {
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+
+      function applyPermissions() {
+          const loggedUser = sessionStorage.getItem('LOGGED_USER');
+          const loggedRole = sessionStorage.getItem('USER_ROLE');
+
+          if (loggedRole === 'admin' || loggedUser === 'admin') {
+              document.querySelectorAll('.tool-card').forEach(el => el.classList.remove('hidden'));
+              return;
+          }
+
+          if (loggedUser) {
+              db.ref(`userPermissions/${loggedUser}`).on('value', (snapshot) => {
+                  const perms = snapshot.val() || {};
+                  document.querySelectorAll('.tool-card[data-perm]').forEach(el => {
+                      const permKey = el.getAttribute('data-perm');
+                      if (perms[permKey] === false) {
+                          el.classList.add('hidden');
+                      } else {
+                          el.classList.remove('hidden');
+                      }
+                  });
+              });
+          }
+      }
+
+      window.onload = applyPermissions;
+  } catch(e) {
+      console.error(e);
+  }
 </script>
 </body>
 </html>
