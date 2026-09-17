@@ -1,145 +1,803 @@
-/* 1. رفع شيت Excel واستخراج أسماء الأعمدة ديناميكياً */
-function uploadEmployeeExcel() {
-    const fileInput = document.getElementById('excelFileInput');
-    if (!fileInput.files.length) return alert('برجاء اختيار ملف Excel أولاً');
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة بروفايل الشركة الشامل</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- مكتبة Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+    <style>
+        :root {
+            --primary: #0b4fb3;
+            --primary-dark: #0b2a5c;
+            --bg: #f4f7fc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #cbd5e1;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
 
-        if (jsonData.length > 0) {
-            globalEmployees = jsonData;
-            // استخراج عناوين جميع الأعمدة الموجودة بالشيت تلقائياً
-            columnKeys = Object.keys(jsonData[0]);
-            visibleColumns = {};
-            columnKeys.forEach(k => visibleColumns[k] = true);
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 25px 15px; direction: rtl; max-width: 1100px; margin: 0 auto; }
 
-            db.ref(`companyProfiles/${activeUser}/employees`).set(jsonData);
-            db.ref(`companyProfiles/${activeUser}/columnKeys`).set(columnKeys);
+        .header-title { font-size: 1.4rem; color: var(--primary-dark); margin-bottom: 25px; font-weight: bold; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid var(--border); padding-bottom: 12px; }
+
+        .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 15px; overflow: hidden; transition: 0.3s; }
+        .card-header { padding: 16px 20px; background: #ffffff; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; transition: 0.2s; }
+        .card-header:hover { background: #f8fafc; }
+        .card-header h3 { font-size: 1.05rem; color: var(--primary); margin: 0; display: flex; align-items: center; gap: 10px; font-weight: 700; }
+        .card-header i.chevron { color: var(--primary); transition: transform 0.3s ease; font-size: 0.9rem; }
+        .card.active .card-header i.chevron { transform: rotate(180deg); }
+        
+        .card-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.3s ease; }
+        .card.active .card-body { padding: 20px; max-height: 5000px; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .form-row-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+        
+        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: #475569; }
+        input[type="text"], input[type="password"], input[type="file"], select, textarea {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-size: 0.9rem; transition: 0.2s; background: #fff;
+        }
+        input:focus, textarea:focus, select:focus { border-color: var(--primary); }
+
+        .btn { padding: 10px 18px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.88rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; padding: 6px 12px; font-size: 0.78rem; }
+        .btn-add { background: #e0e7ff; color: var(--primary); border: 1px dashed var(--primary); width: 100%; margin-top: 8px; }
+        .btn-add:hover { background: #c7d2fe; }
+
+        .dynamic-item-box { background: #f8fafc; border: 1px solid var(--border); padding: 15px; border-radius: 10px; margin-bottom: 15px; position: relative; }
+        .dynamic-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px dashed #cbd5e1; }
+
+        /* شاشة معاينة الورقة الرسمية A4 */
+        .paper-preview {
+            background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); min-height: 200px; display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .preview-header-zone { border-bottom: 1px dashed #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 50px; }
+        .preview-header-text { font-size: 0.8rem; color: #1e293b; font-weight: bold; }
+        .preview-logo-img { max-height: 45px; max-width: 100px; object-fit: contain; }
+        .preview-body-zone { color: #cbd5e1; text-align: center; padding: 25px 0; font-size: 0.8rem; font-style: italic; }
+        .preview-footer-zone { border-top: 1px dashed #e2e8f0; padding-top: 8px; font-size: 0.75rem; color: #64748b; }
+
+        /* أدوات التحكم المتقدم بجدول الموظفين */
+        .table-controls { background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); }
+        .column-toggle-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .col-chip { background: #fff; border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+        .col-chip input { cursor: pointer; }
+
+        .table-responsive { overflow-x: auto; max-height: 400px; border: 1px solid var(--border); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        th, td { padding: 8px 10px; border: 1px solid #e2e8f0; text-align: right; white-space: nowrap; }
+        th { background: #f8fafc; color: var(--primary-dark); font-weight: bold; position: sticky; top: 0; z-index: 10; }
+        .th-actions { display: inline-flex; gap: 4px; margin-right: 6px; }
+        .btn-icon { background: none; border: none; color: #64748b; cursor: pointer; font-size: 0.75rem; }
+        .btn-icon:hover { color: var(--primary); }
+        .filter-input { width: 100%; margin-top: 4px; padding: 4px 6px; font-size: 0.75rem; border: 1px solid var(--border); border-radius: 4px; }
+
+        @media (max-width: 768px) {
+            .form-row, .form-row-3, .form-row-4 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-title">
+        <i class="fas fa-building-user"></i> إدارة بروفايل الشركة والتوقيعات والأوراق الرسمية
+    </div>
+
+    <!-- 1. البيانات الأساسية -->
+    <div class="card active">
+        <div class="card-header" onclick="toggleAccordion(this)">
+            <h3><i class="fas fa-building"></i> البيانات الأساسية والشعار (Logo)</h3>
+            <i class="fas fa-chevron-down chevron"></i>
+        </div>
+        <div class="card-body">
+            <form onsubmit="saveCompanyData(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اسم الشركة (بالعربي):</label>
+                        <input type="text" id="compNameAr" placeholder="شركة ..." dir="rtl">
+                    </div>
+                    <div class="form-group">
+                        <label>Company Name (English):</label>
+                        <input type="text" id="compNameEn" placeholder="Company Co." dir="ltr">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>مجال الشركة (بالعربي):</label>
+                        <input type="text" id="compFieldAr" placeholder="مثال: استشارات الموارد البشرية" dir="rtl">
+                    </div>
+                    <div class="form-group">
+                        <label>Industry / Field (English):</label>
+                        <input type="text" id="compFieldEn" placeholder="e.g. HR Consultancy" dir="ltr">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>رقم الهاتف / التواصل:</label>
+                        <input type="text" id="compPhone" placeholder="01xxxxxxxxx">
+                    </div>
+                    <div class="form-group">
+                        <label>رفع الشعار (Logo):</label>
+                        <input type="file" accept="image/*" onchange="convertImageAndRefresh(this, 'compLogoBase64')">
+                        <input type="hidden" id="compLogoBase64">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                    <i class="fas fa-floppy-disk"></i> حفظ البيانات الأساسية
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. الفروع والسجل التجاري والبطاقة الضريبية -->
+    <div class="card">
+        <div class="card-header" onclick="toggleAccordion(this)">
+            <h3><i class="fas fa-code-branch"></i> الفروع والسجلات التجارية والبطاقات الضريبية</h3>
+            <i class="fas fa-chevron-down chevron"></i>
+        </div>
+        <div class="card-body">
+            <div id="branchesContainer"></div>
+            <button class="btn btn-add" onclick="addBranchItem()"><i class="fas fa-plus"></i> إضافة فرع جديد</button>
+            <button class="btn btn-primary" onclick="saveBranches()" style="width: 100%; margin-top: 15px;">
+                <i class="fas fa-save"></i> حفظ بيانات الفروع والسجلات
+            </button>
+        </div>
+    </div>
+
+    <!-- 3. ملفات التأمينات الاجتماعية والمنشآت المتعددة -->
+    <div class="card">
+        <div class="card-header" onclick="toggleAccordion(this)">
+            <h3><i class="fas fa-file-contract"></i> ملفات التأمينات الاجتماعية والمنشآت المتعددة</h3>
+            <i class="fas fa-chevron-down chevron"></i>
+        </div>
+        <div class="card-body">
+            <div id="insuranceContainer"></div>
+            <button class="btn btn-add" onclick="addInsuranceItem()"><i class="fas fa-plus"></i> إضافة ملف منشأة تأمينية جديد</button>
+            <button class="btn btn-primary" onclick="saveInsuranceSettings()" style="width: 100%; margin-top: 15px;">
+                <i class="fas fa-shield-halved"></i> حفظ بيانات التأمينات
+            </button>
+        </div>
+    </div>
+
+    <!-- 4. ديباجة الأوراق الرسمية -->
+    <div class="card">
+        <div class="card-header" onclick="toggleAccordion(this)">
+            <h3><i class="fas fa-heading"></i> ديباجة الأوراق الرسمية (رأس الصفحة وأسفل الصفحة)</h3>
+            <i class="fas fa-chevron-down chevron"></i>
+        </div>
+        <div class="card-body">
+            <div id="letterheadsContainer"></div>
+            <button class="btn btn-add" onclick="addLetterheadItem()"><i class="fas fa-plus"></i> إضافة نموذج ديباجة جديد</button>
+            <button class="btn btn-primary" onclick="saveLetterheads()" style="width: 100%; margin-top: 15px;">
+                <i class="fas fa-save"></i> حفظ جميع نماذج الديباجة
+            </button>
+        </div>
+    </div>
+
+    <!-- 5. التوقيعات المعتمدة المتعددة -->
+    <div class="card">
+        <div class="card-header" onclick="toggleAccordion(this)">
+            <h3><i class="fas fa-file-signature"></i> التوقيعات الرسمية المعتمدة</h3>
+            <i class="fas fa-chevron-down chevron"></i>
+        </div>
+        <div class="card-body">
+            <div id="signaturesContainer"></div>
+            <button class="btn btn-add" onclick="addSignatureItem()"><i class="fas fa-plus"></i> إضافة توقيع جديد</button>
+            <button class="btn btn-primary" onclick="saveSignatures()" style="width: 100%; margin-top: 15px;">
+                <i class="fas fa-file-pen"></i> حفظ التوقيعات المعتمدة
+            </button>
+        </div>
+    </div>
+
+    <!-- 6. جدول موظفي الشركة الذكي -->
+    <div class="card">
+        <div class="card-header" onclick="toggleAccordion(this)">
+            <h3><i class="fas fa-users-gear"></i> إدارة شيت موظفي الشركة (جدول تفاعلي متقدم)</h3>
+            <i class="fas fa-chevron-down chevron"></i>
+        </div>
+        <div class="card-body">
+            <div class="form-row" style="align-items: center; margin-bottom: 15px;">
+                <input type="file" id="excelFileInput" accept=".xlsx, .xls">
+                <button class="btn btn-success" onclick="uploadEmployeeExcel()">
+                    <i class="fas fa-cloud-arrow-up"></i> رفع شيت Excel
+                </button>
+            </div>
+
+            <!-- أدوات التحكم بالجدول والأعمدة -->
+            <div class="table-controls">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <strong style="font-size:0.85rem;"><i class="fas fa-columns"></i> إظهار/إخفاء الأعمدة:</strong>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="newColName" placeholder="اسم عمود جديد..." style="width:140px; padding:4px 8px; font-size:0.8rem;">
+                        <button class="btn btn-primary" onclick="addNewCustomColumn()" style="padding:4px 10px; font-size:0.78rem;"><i class="fas fa-plus"></i> إضافة عمود</button>
+                    </div>
+                </div>
+                <div class="column-toggle-list" id="columnToggleList"></div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="advancedEmpTable">
+                    <thead><tr id="tableHeadRow"></tr><tr id="tableFilterRow"></tr></thead>
+                    <tbody id="empTableBody">
+                        <tr><td colspan="10" style="text-align:center; color:#94a3b8;">لم يتم رفع موظفين بعد.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <button class="btn btn-primary" onclick="saveEmployeeData()" style="width: 100%; margin-top: 15px;">
+                <i class="fas fa-save"></i> حفظ التغيرات على شيت الموظفين
+            </button>
+        </div>
+    </div>
+
+    <!-- 7. الحساب وكلمة المرور -->
+    <div class="card">
+        <div class="card-header" onclick="toggleAccordion(this)">
+            <h3><i class="fas fa-user-lock"></i> تغيير كلمة المرور والحساب</h3>
+            <i class="fas fa-chevron-down chevron"></i>
+        </div>
+        <div class="card-body">
+            <form onsubmit="updatePassword(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>المستخدم الحالي:</label>
+                        <input type="text" id="currentUsername" readonly style="background: #f1f5f9;">
+                    </div>
+                    <div class="form-group">
+                        <label>كلمة المرور الجديدة:</label>
+                        <input type="password" id="newPassword" required placeholder="أدخل كلمة المرور الجديدة">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success" style="width: 100%;">
+                    <i class="fas fa-key"></i> تحديث كلمة المرور
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBty7fK-7mchOETrE_vtOZx4dgWSHIuC8Y",
+            authDomain: "hr-platform-system.firebaseapp.com",
+            databaseURL: "https://hr-platform-system-default-rtdb.firebaseio.com",
+            projectId: "hr-platform-system",
+            storageBucket: "hr-platform-system.firebasestorage.app",
+            messagingSenderId: "994791756938",
+            appId: "1:994791756938:web:48303535285e25f1c80973"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const activeUser = sessionStorage.getItem('LOGGED_USER') || 'demoUser';
+
+        let globalEmployees = [];
+        let columnKeys = ['كود', 'الاسم', 'الوظيفة', 'القسم', 'الرقم القومي'];
+        let visibleColumns = {};
+        let columnFilters = {};
+
+        window.onload = function() {
+            document.getElementById('currentUsername').value = activeUser;
+            loadCompanyProfile();
+        };
+
+        function toggleAccordion(headerEl) {
+            const card = headerEl.parentElement;
+            card.classList.toggle('active');
+        }
+
+        function convertImageAndRefresh(fileInput, targetHiddenId) {
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById(targetHiddenId).value = e.target.result;
+                    document.querySelectorAll('#letterheadsContainer .dynamic-item-box').forEach(box => {
+                        updatePreview(box.id);
+                    });
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }
+
+        /* 1. البيانات الأساسية */
+        function saveCompanyData(e) {
+            e.preventDefault();
+            const data = {
+                nameAr: document.getElementById('compNameAr').value,
+                nameEn: document.getElementById('compNameEn').value,
+                fieldAr: document.getElementById('compFieldAr').value,
+                fieldEn: document.getElementById('compFieldEn').value,
+                phone: document.getElementById('compPhone').value,
+                logo: document.getElementById('compLogoBase64').value
+            };
+            db.ref(`companyProfiles/${activeUser}/info`).update(data)
+                .then(() => alert('تم حفظ البيانات الأساسية وشعار الشركة بنجاح!'));
+        }
+
+        /* 2. الفروع والسجلات التجارية */
+        function addBranchItem(data = {}) {
+            const container = document.getElementById('branchesContainer');
+            const id = 'br_' + Date.now() + Math.random().toString(36).substr(2, 4);
+
+            const html = `
+                <div class="dynamic-item-box" id="${id}">
+                    <div class="dynamic-item-header">
+                        <strong style="color:var(--primary)">بيانات الفرع والسجل التجاري والبطاقة الضريبية</strong>
+                        <button class="btn btn-danger" onclick="document.getElementById('${id}').remove()"><i class="fas fa-trash"></i> حذف</button>
+                    </div>
+                    <div class="form-row-3">
+                        <input type="text" class="br-name" value="${data.name || ''}" placeholder="اسم الفرع (مثلاً: فرع القاهرة / الرئيسي)">
+                        <input type="text" class="br-cr" value="${data.cr || ''}" placeholder="رقم السجل التجاري">
+                        <input type="text" class="br-tax" value="${data.tax || ''}" placeholder="رقم البطاقة الضريبية">
+                    </div>
+                    <div class="form-row" style="margin-top:8px;">
+                        <input type="text" class="br-address" value="${data.address || ''}" placeholder="عنوان الفرع بالتفصيل">
+                        <input type="text" class="br-phone" value="${data.phone || ''}" placeholder="هاتف الفرع">
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        function saveBranches() {
+            const branches = [];
+            document.querySelectorAll('#branchesContainer .dynamic-item-box').forEach(box => {
+                branches.push({
+                    name: box.querySelector('.br-name').value,
+                    cr: box.querySelector('.br-cr').value,
+                    tax: box.querySelector('.br-tax').value,
+                    address: box.querySelector('.br-address').value,
+                    phone: box.querySelector('.br-phone').value
+                });
+            });
+
+            db.ref(`companyProfiles/${activeUser}/branches`).set(branches)
+                .then(() => alert('تم حفظ بيانات الفروع والسجلات بنجاح!'));
+        }
+
+        /* 3. ملفات التأمينات المتعددة */
+        function addInsuranceItem(data = {}) {
+            const container = document.getElementById('insuranceContainer');
+            const id = 'ins_' + Date.now() + Math.random().toString(36).substr(2, 4);
+
+            const html = `
+                <div class="dynamic-item-box" id="${id}">
+                    <div class="dynamic-item-header">
+                        <strong style="color:var(--primary)">بيانات المنشأة التأمينية</strong>
+                        <button class="btn btn-danger" onclick="document.getElementById('${id}').remove()"><i class="fas fa-trash"></i> حذف</button>
+                    </div>
+                    <div class="form-row">
+                        <input type="text" class="ins-comp-name" value="${data.compName || ''}" placeholder="اسم المنشأة كما هو في التأمينات">
+                        <input type="text" class="ins-num" value="${data.num || ''}" placeholder="رقم المنشأة التأميني">
+                    </div>
+                    <div class="form-row" style="margin-top:8px;">
+                        <input type="text" class="ins-office" value="${data.office || ''}" placeholder="اسم مكتب التأمينات التابع له">
+                        <input type="text" class="ins-manager" value="${data.manager || ''}" placeholder="المدير المسؤول في التأمينات">
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        function saveInsuranceSettings() {
+            const insList = [];
+            document.querySelectorAll('#insuranceContainer .dynamic-item-box').forEach(box => {
+                insList.push({
+                    compName: box.querySelector('.ins-comp-name').value,
+                    num: box.querySelector('.ins-num').value,
+                    office: box.querySelector('.ins-office').value,
+                    manager: box.querySelector('.ins-manager').value
+                });
+            });
+
+            db.ref(`companyProfiles/${activeUser}/insuranceList`).set(insList)
+                .then(() => alert('تم حفظ ملفات التأمينات بنجاح!'));
+        }
+
+        /* 4. إعدادات الديباجة مع المعاينة */
+        function addLetterheadItem(data = {}) {
+            const container = document.getElementById('letterheadsContainer');
+            const id = 'lh_' + Date.now() + Math.random().toString(36).substr(2, 4);
+            
+            const html = `
+                <div class="dynamic-item-box" id="${id}">
+                    <div class="dynamic-item-header">
+                        <input type="text" class="lh-name" value="${data.name || ''}" placeholder="اسم النموذج (مثلاً: الخطابات الرسمية / العقود)" style="font-weight:bold; width:60%;">
+                        <button class="btn btn-danger" onclick="document.getElementById('${id}').remove()"><i class="fas fa-trash"></i> حذف</button>
+                    </div>
+                    <div style="background:#fff; padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid #e2e8f0;">
+                        <small style="color:var(--primary); font-weight:bold;">رأس الصفحة وشعار الشركة (Header & Logo)</small>
+                        <div class="form-row-4" style="margin-top:5px;">
+                            <input type="text" class="lh-h-line1" value="${data.hLine1 || ''}" placeholder="السطر الأول" oninput="updatePreview('${id}')">
+                            <input type="text" class="lh-h-line2" value="${data.hLine2 || ''}" placeholder="السطر الثاني" oninput="updatePreview('${id}')">
+                            <select class="lh-h-align" onchange="updatePreview('${id}')">
+                                <option value="right" ${data.hAlign === 'right' ? 'selected' : ''}>نص رأس الصفحة: يمين</option>
+                                <option value="center" ${data.hAlign === 'center' ? 'selected' : ''}>نص رأس الصفحة: وسط</option>
+                                <option value="left" ${data.hAlign === 'left' ? 'selected' : ''}>نص رأس الصفحة: يسار</option>
+                            </select>
+                            <select class="lh-logo-pos" onchange="updatePreview('${id}')" style="font-weight:bold; color:var(--primary);">
+                                <option value="left" ${data.logoPos === 'left' ? 'selected' : ''}>مكان اللوجو: يسار</option>
+                                <option value="right" ${data.logoPos === 'right' ? 'selected' : ''}>مكان اللوجو: يمين</option>
+                                <option value="center" ${data.logoPos === 'center' ? 'selected' : ''}>مكان اللوجو: وسط</option>
+                                <option value="none" ${data.logoPos === 'none' ? 'selected' : ''}>بدون لوجو</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="background:#fff; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
+                        <small style="color:var(--primary); font-weight:bold;">أسفل الصفحة (Footer Text)</small>
+                        <div class="form-row-3" style="margin-top:5px;">
+                            <input type="text" class="lh-f-line1" value="${data.fLine1 || ''}" placeholder="السطر الأول" oninput="updatePreview('${id}')">
+                            <input type="text" class="lh-f-line2" value="${data.fLine2 || ''}" placeholder="السطر الثاني" oninput="updatePreview('${id}')">
+                            <select class="lh-f-align" onchange="updatePreview('${id}')">
+                                <option value="center" ${data.fAlign === 'center' ? 'selected' : ''}>محاذاة: وسط</option>
+                                <option value="right" ${data.fAlign === 'right' ? 'selected' : ''}>محاذاة: يمين</option>
+                                <option value="left" ${data.fAlign === 'left' ? 'selected' : ''}>محاذاة: يسار</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:10px;">
+                        <small style="font-weight:bold; color:#64748b;"><i class="fas fa-eye"></i> معاينة الورقة الرسمية A4:</small>
+                        <div class="paper-preview">
+                            <div class="preview-header-zone" id="${id}_prev_header"></div>
+                            <div class="preview-body-zone">[ محتوى التقرير / الخطاب الرسمي ]</div>
+                            <div class="preview-footer-zone" id="${id}_prev_footer"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+            updatePreview(id);
+        }
+
+        function updatePreview(id) {
+            const box = document.getElementById(id);
+            if (!box) return;
+
+            const hLine1 = box.querySelector('.lh-h-line1').value || 'السطر الأول لرأس الصفحة';
+            const hLine2 = box.querySelector('.lh-h-line2').value || 'السطر الثاني لرأس الصفحة';
+            const hAlign = box.querySelector('.lh-h-align').value;
+            const logoPos = box.querySelector('.lh-logo-pos').value;
+
+            const fLine1 = box.querySelector('.lh-f-line1').value || 'السطر الأول لأسفل الصفحة (العنوان / الفرع)';
+            const fLine2 = box.querySelector('.lh-f-line2').value || 'السطر الثاني لأسفل الصفحة (التواصل / البريد)';
+            const fAlign = box.querySelector('.lh-f-align').value;
+
+            const logoSrc = document.getElementById('compLogoBase64').value;
+            const logoHtml = (logoSrc && logoPos !== 'none') ? `<img src="${logoSrc}" class="preview-logo-img" alt="Logo">` : '';
+
+            const textHtml = `<div class="preview-header-text" style="text-align: ${hAlign};"><div>${hLine1}</div><div>${hLine2}</div></div>`;
+
+            const prevHeader = document.getElementById(`${id}_prev_header`);
+            const prevFooter = document.getElementById(`${id}_prev_footer`);
+
+            if (logoPos === 'right') {
+                prevHeader.style.flexDirection = 'row-reverse';
+                prevHeader.innerHTML = textHtml + logoHtml;
+            } else if (logoPos === 'left') {
+                prevHeader.style.flexDirection = 'row';
+                prevHeader.innerHTML = textHtml + logoHtml;
+            } else if (logoPos === 'center') {
+                prevHeader.style.flexDirection = 'column';
+                prevHeader.style.alignItems = 'center';
+                prevHeader.innerHTML = logoHtml + textHtml;
+            } else {
+                prevHeader.style.flexDirection = 'row';
+                prevHeader.innerHTML = textHtml;
+            }
+
+            prevFooter.style.textAlign = fAlign;
+            prevFooter.innerHTML = `<div>${fLine1}</div><div>${fLine2}</div>`;
+        }
+
+        function saveLetterheads() {
+            const items = [];
+            document.querySelectorAll('#letterheadsContainer .dynamic-item-box').forEach(box => {
+                items.push({
+                    name: box.querySelector('.lh-name').value,
+                    hLine1: box.querySelector('.lh-h-line1').value,
+                    hLine2: box.querySelector('.lh-h-line2').value,
+                    hAlign: box.querySelector('.lh-h-align').value,
+                    logoPos: box.querySelector('.lh-logo-pos').value,
+                    fLine1: box.querySelector('.lh-f-line1').value,
+                    fLine2: box.querySelector('.lh-f-line2').value,
+                    fAlign: box.querySelector('.lh-f-align').value
+                });
+            });
+
+            db.ref(`companyProfiles/${activeUser}/letterheads`).set(items)
+                .then(() => alert('تم حفظ نماذج الديباجة ومواقع اللوجو بنجاح!'));
+        }
+
+        /* 5. التوقيعات المتعددة */
+        function addSignatureItem(data = {}) {
+            const container = document.getElementById('signaturesContainer');
+            const id = 'sig_' + Date.now() + Math.random().toString(36).substr(2, 4);
+
+            const html = `
+                <div class="dynamic-item-box" id="${id}">
+                    <div class="dynamic-item-header">
+                        <strong style="color:var(--primary)">توقيع معتمد</strong>
+                        <button class="btn btn-danger" onclick="document.getElementById('${id}').remove()"><i class="fas fa-trash"></i> حذف</button>
+                    </div>
+                    <div class="form-row">
+                        <input type="text" class="sig-title-ar" value="${data.titleAr || ''}" placeholder="المسمى الوظيفي (عربي)">
+                        <input type="text" class="sig-title-en" value="${data.titleEn || ''}" placeholder="Title (English)" dir="ltr">
+                    </div>
+                    <div class="form-row" style="margin-top:6px;">
+                        <input type="text" class="sig-name-ar" value="${data.nameAr || ''}" placeholder="الاسم الكامل (عربي)">
+                        <input type="text" class="sig-name-en" value="${data.nameEn || ''}" placeholder="Full Name (English)" dir="ltr">
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        function saveSignatures() {
+            const sigs = [];
+            document.querySelectorAll('#signaturesContainer .dynamic-item-box').forEach(box => {
+                sigs.push({
+                    titleAr: box.querySelector('.sig-title-ar').value,
+                    titleEn: box.querySelector('.sig-title-en').value,
+                    nameAr: box.querySelector('.sig-name-ar').value,
+                    nameEn: box.querySelector('.sig-name-en').value
+                });
+            });
+
+            db.ref(`companyProfiles/${activeUser}/signatures`).set(sigs)
+                .then(() => alert('تم حفظ جميع التوقيعات المعتمدة بنجاح!'));
+        }
+
+        /* 6. تحكم جدول الموظفين الذكي (رفع، إخفاء العناوين والداتا، تعديل اسم العمود، والفلترة) */
+        function uploadEmployeeExcel() {
+            const fileInput = document.getElementById('excelFileInput');
+            if (!fileInput.files.length) return alert('برجاء اختيار ملف Excel أولاً');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                if (jsonData.length > 0) {
+                    globalEmployees = jsonData;
+                    columnKeys = Object.keys(jsonData[0]);
+                    visibleColumns = {};
+                    columnKeys.forEach(k => visibleColumns[k] = true);
+
+                    db.ref(`companyProfiles/${activeUser}/employees`).set(jsonData);
+                    db.ref(`companyProfiles/${activeUser}/columnKeys`).set(columnKeys);
+
+                    renderAdvancedTable();
+                    alert('تم رفع الشيت واستخراج جميع الأعمدة بنجاح!');
+                }
+            };
+            reader.readAsArrayBuffer(fileInput.files[0]);
+        }
+
+        function addNewCustomColumn() {
+            const name = document.getElementById('newColName').value.trim();
+            if (!name) return;
+            if (!columnKeys.includes(name)) {
+                columnKeys.push(name);
+                visibleColumns[name] = true;
+                globalEmployees.forEach(emp => emp[name] = emp[name] || '');
+                document.getElementById('newColName').value = '';
+                renderAdvancedTable();
+            }
+        }
+
+        function editColumnName(oldKey) {
+            const newKey = prompt('أدخل الاسم الجديد للعمود:', oldKey);
+            if (!newKey || newKey.trim() === '' || newKey === oldKey) return;
+
+            const trimmedNewKey = newKey.trim();
+            if (columnKeys.includes(trimmedNewKey)) {
+                return alert('هذا الاسم موجود بالفعل!');
+            }
+
+            const index = columnKeys.indexOf(oldKey);
+            if (index !== -1) {
+                columnKeys[index] = trimmedNewKey;
+            }
+
+            visibleColumns[trimmedNewKey] = visibleColumns[oldKey];
+            delete visibleColumns[oldKey];
+
+            if (columnFilters[oldKey]) {
+                columnFilters[trimmedNewKey] = columnFilters[oldKey];
+                delete columnFilters[oldKey];
+            }
+
+            globalEmployees.forEach(emp => {
+                if (emp.hasOwnProperty(oldKey)) {
+                    emp[trimmedNewKey] = emp[oldKey];
+                    delete emp[oldKey];
+                }
+            });
 
             renderAdvancedTable();
-            alert('تم رفع الشيت واستخراج الأعمدة بنجاح!');
+            saveEmployeeData();
         }
-    };
-    reader.readAsArrayBuffer(fileInput.files[0]);
-}
 
-/* 2. تعديل اسم العمود (Rename Column) */
-function editColumnName(oldKey) {
-    const newKey = prompt('أدخل الاسم الجديد للعمود:', oldKey);
-    if (!newKey || newKey.trim() === '' || newKey === oldKey) return;
-
-    const trimmedNewKey = newKey.trim();
-    if (columnKeys.includes(trimmedNewKey)) {
-        return alert('هذا الاسم موجود بالفعل!');
-    }
-
-    // تحديث مصفوفة الأعمدة
-    const index = columnKeys.indexOf(oldKey);
-    if (index !== -1) {
-        columnKeys[index] = trimmedNewKey;
-    }
-
-    // نقل حالة الظهور والفلتر
-    visibleColumns[trimmedNewKey] = visibleColumns[oldKey];
-    delete visibleColumns[oldKey];
-
-    if (columnFilters[oldKey]) {
-        columnFilters[trimmedNewKey] = columnFilters[oldKey];
-        delete columnFilters[oldKey];
-    }
-
-    // تعديل مفتاح العمود داخل جميع بيانات الموظفين
-    globalEmployees.forEach(emp => {
-        if (emp.hasOwnProperty(oldKey)) {
-            emp[trimmedNewKey] = emp[oldKey];
-            delete emp[oldKey];
-        }
-    });
-
-    renderAdvancedTable();
-    saveEmployeeData();
-}
-
-/* 3. إعادة بناء الجدول مع إصلاح مشكلة إخفاء العنوان والداتا */
-function renderAdvancedTable() {
-    // بناء شريط الـ Checkboxes للأعمدة
-    const toggleContainer = document.getElementById('columnToggleList');
-    toggleContainer.innerHTML = '';
-    columnKeys.forEach(key => {
-        if (visibleColumns[key] === undefined) visibleColumns[key] = true;
-        toggleContainer.innerHTML += `
-            <label class="col-chip">
-                <input type="checkbox" ${visibleColumns[key] ? 'checked' : ''} onchange="visibleColumns['${key}']=this.checked; renderAdvancedTable();">
-                ${key}
-            </label>
-        `;
-    });
-
-    // بناء ترويسة الجدول والفلتر (فقط للأعمدة المفعلة visibleColumns)
-    const headRow = document.getElementById('tableHeadRow');
-    const filterRow = document.getElementById('tableFilterRow');
-    headRow.innerHTML = '';
-    filterRow.innerHTML = '';
-
-    columnKeys.forEach((key, idx) => {
-        if (visibleColumns[key]) {
-            headRow.innerHTML += `
-                <th>
-                    <span>${key}</span>
-                    <div class="th-actions">
-                        <button class="btn-icon" onclick="editColumnName('${key}')" title="تعديل اسم العمود"><i class="fas fa-pen"></i></button>
-                        <button class="btn-icon" onclick="moveColumn(${idx}, -1)" title="تحريك لليمين"><i class="fas fa-arrow-right"></i></button>
-                        <button class="btn-icon" onclick="moveColumn(${idx}, 1)" title="تحريك لليسار"><i class="fas fa-arrow-left"></i></button>
-                    </div>
-                </th>
-            `;
-            filterRow.innerHTML += `
-                <td>
-                    <input type="text" class="filter-input" placeholder="فلترة..." value="${columnFilters[key] || ''}" oninput="columnFilters['${key}']=this.value.toLowerCase(); renderTableBody();">
-                </td>
-            `;
-        }
-    });
-
-    renderTableBody();
-}
-
-/* 4. عرض محتوى الخلايا للـ Active Columns فقط */
-function renderTableBody() {
-    const tbody = document.getElementById('empTableBody');
-    tbody.innerHTML = '';
-
-    const activeKeys = columnKeys.filter(k => visibleColumns[k]);
-
-    const filteredEmps = globalEmployees.filter(emp => {
-        return Object.keys(columnFilters).every(key => {
-            if (!columnFilters[key] || !visibleColumns[key]) return true;
-            const val = String(emp[key] || '').toLowerCase();
-            return val.includes(columnFilters[key]);
-        });
-    });
-
-    if (filteredEmps.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${activeKeys.length || 1}" style="text-align:center; color:#94a3b8;">لا توجد بيانات تطابق الفلترة.</td></tr>`;
-        return;
-    }
-
-    filteredEmps.forEach((emp, rIdx) => {
-        let rowHtml = '<tr>';
-        columnKeys.forEach(key => {
-            if (visibleColumns[key]) {
-                rowHtml += `
-                    <td contenteditable="true" onblur="globalEmployees[${rIdx}]['${key}']=this.innerText.trim();">
-                        ${emp[key] || ''}
-                    </td>
-                `;
+        function moveColumn(index, direction) {
+            const targetIndex = index + direction;
+            if (targetIndex >= 0 && targetIndex < columnKeys.length) {
+                const temp = columnKeys[index];
+                columnKeys[index] = columnKeys[targetIndex];
+                columnKeys[targetIndex] = temp;
+                renderAdvancedTable();
             }
-        });
-        rowHtml += '</tr>';
-        tbody.innerHTML += rowHtml;
-    });
-}
+        }
+
+        function renderAdvancedTable() {
+            const toggleContainer = document.getElementById('columnToggleList');
+            toggleContainer.innerHTML = '';
+            columnKeys.forEach(key => {
+                if (visibleColumns[key] === undefined) visibleColumns[key] = true;
+                toggleContainer.innerHTML += `
+                    <label class="col-chip">
+                        <input type="checkbox" ${visibleColumns[key] ? 'checked' : ''} onchange="visibleColumns['${key}']=this.checked; renderAdvancedTable();">
+                        ${key}
+                    </label>
+                `;
+            });
+
+            const headRow = document.getElementById('tableHeadRow');
+            const filterRow = document.getElementById('tableFilterRow');
+            headRow.innerHTML = '';
+            filterRow.innerHTML = '';
+
+            columnKeys.forEach((key, idx) => {
+                if (visibleColumns[key]) {
+                    headRow.innerHTML += `
+                        <th>
+                            <span>${key}</span>
+                            <div class="th-actions">
+                                <button class="btn-icon" onclick="editColumnName('${key}')" title="تعديل اسم العمود"><i class="fas fa-pen"></i></button>
+                                <button class="btn-icon" onclick="moveColumn(${idx}, -1)" title="تحريك لليمين"><i class="fas fa-arrow-right"></i></button>
+                                <button class="btn-icon" onclick="moveColumn(${idx}, 1)" title="تحريك لليسار"><i class="fas fa-arrow-left"></i></button>
+                            </div>
+                        </th>
+                    `;
+                    filterRow.innerHTML += `
+                        <td>
+                            <input type="text" class="filter-input" placeholder="فلترة..." value="${columnFilters[key] || ''}" oninput="columnFilters['${key}']=this.value.toLowerCase(); renderTableBody();">
+                        </td>
+                    `;
+                }
+            });
+
+            renderTableBody();
+        }
+
+        function renderTableBody() {
+            const tbody = document.getElementById('empTableBody');
+            tbody.innerHTML = '';
+
+            const activeKeys = columnKeys.filter(k => visibleColumns[k]);
+
+            const filteredEmps = globalEmployees.filter(emp => {
+                return Object.keys(columnFilters).every(key => {
+                    if (!columnFilters[key] || !visibleColumns[key]) return true;
+                    const val = String(emp[key] || '').toLowerCase();
+                    return val.includes(columnFilters[key]);
+                });
+            });
+
+            if (filteredEmps.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${activeKeys.length || 1}" style="text-align:center; color:#94a3b8;">لا توجد بيانات تطابق الفلترة.</td></tr>`;
+                return;
+            }
+
+            filteredEmps.forEach((emp, rIdx) => {
+                let rowHtml = '<tr>';
+                columnKeys.forEach(key => {
+                    if (visibleColumns[key]) {
+                        rowHtml += `
+                            <td contenteditable="true" onblur="globalEmployees[${rIdx}]['${key}']=this.innerText.trim();">
+                                ${emp[key] || ''}
+                            </td>
+                        `;
+                    }
+                });
+                rowHtml += '</tr>';
+                tbody.innerHTML += rowHtml;
+            });
+        }
+
+        function saveEmployeeData() {
+            db.ref(`companyProfiles/${activeUser}/employees`).set(globalEmployees);
+            db.ref(`companyProfiles/${activeUser}/columnKeys`).set(columnKeys)
+                .then(() => alert('تم حفظ بيانات وأعمدة الموظفين بنجاح!'));
+        }
+
+        /* تحميل البيانات السحابية الحية */
+        function loadCompanyProfile() {
+            db.ref(`companyProfiles/${activeUser}`).on('value', snap => {
+                const val = snap.val();
+                if (!val) return;
+
+                if (val.info) {
+                    document.getElementById('compNameAr').value = val.info.nameAr || '';
+                    document.getElementById('compNameEn').value = val.info.nameEn || '';
+                    document.getElementById('compFieldAr').value = val.info.fieldAr || '';
+                    document.getElementById('compFieldEn').value = val.info.fieldEn || '';
+                    document.getElementById('compPhone').value = val.info.phone || '';
+                    document.getElementById('compLogoBase64').value = val.info.logo || '';
+                }
+
+                if (val.branches && Array.isArray(val.branches)) {
+                    document.getElementById('branchesContainer').innerHTML = '';
+                    val.branches.forEach(b => addBranchItem(b));
+                } else {
+                    document.getElementById('branchesContainer').innerHTML = '';
+                    addBranchItem();
+                }
+
+                if (val.insuranceList && Array.isArray(val.insuranceList)) {
+                    document.getElementById('insuranceContainer').innerHTML = '';
+                    val.insuranceList.forEach(ins => addInsuranceItem(ins));
+                } else {
+                    document.getElementById('insuranceContainer').innerHTML = '';
+                    addInsuranceItem();
+                }
+
+                if (val.letterheads && Array.isArray(val.letterheads)) {
+                    document.getElementById('letterheadsContainer').innerHTML = '';
+                    val.letterheads.forEach(item => addLetterheadItem(item));
+                } else {
+                    document.getElementById('letterheadsContainer').innerHTML = '';
+                    addLetterheadItem();
+                }
+
+                if (val.signatures && Array.isArray(val.signatures)) {
+                    document.getElementById('signaturesContainer').innerHTML = '';
+                    val.signatures.forEach(item => addSignatureItem(item));
+                } else {
+                    document.getElementById('signaturesContainer').innerHTML = '';
+                    addSignatureItem();
+                }
+
+                if (val.columnKeys && Array.isArray(val.columnKeys)) {
+                    columnKeys = val.columnKeys;
+                }
+
+                if (val.employees && Array.isArray(val.employees)) {
+                    globalEmployees = val.employees;
+                    visibleColumns = {};
+                    columnKeys.forEach(k => visibleColumns[k] = true);
+                    renderAdvancedTable();
+                }
+            });
+        }
+
+        function updatePassword(e) {
+            e.preventDefault();
+            const newP = document.getElementById('newPassword').value;
+            db.ref(`system_users/${activeUser}/pass`).set(btoa(newP))
+                .then(() => alert('تم تحديث كلمة المرور بنجاح!'));
+        }
+    </script>
+</body>
+</html>
