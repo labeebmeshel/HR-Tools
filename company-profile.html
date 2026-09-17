@@ -30,7 +30,6 @@
 
         .header-title { font-size: 1.4rem; color: var(--primary-dark); margin-bottom: 25px; font-weight: bold; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid var(--border); padding-bottom: 12px; }
 
-        /* نظام الأكورديون والقوائم المنزلقة */
         .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 15px; overflow: hidden; transition: 0.3s; }
         .card-header { padding: 16px 20px; background: #ffffff; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; transition: 0.2s; }
         .card-header:hover { background: #f8fafc; }
@@ -39,7 +38,7 @@
         .card.active .card-header i.chevron { transform: rotate(180deg); }
         
         .card-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.3s ease; }
-        .card.active .card-body { padding: 20px; max-height: 2500px; }
+        .card.active .card-body { padding: 20px; max-height: 3500px; }
 
         .form-group { margin-bottom: 12px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -59,8 +58,17 @@
         .btn-add { background: #e0e7ff; color: var(--primary); border: 1px dashed var(--primary); width: 100%; margin-top: 8px; }
         .btn-add:hover { background: #c7d2fe; }
 
-        .dynamic-item-box { background: #f8fafc; border: 1px solid var(--border); padding: 15px; border-radius: 10px; margin-bottom: 12px; position: relative; }
+        .dynamic-item-box { background: #f8fafc; border: 1px solid var(--border); padding: 15px; border-radius: 10px; margin-bottom: 15px; position: relative; }
         .dynamic-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px dashed #cbd5e1; }
+
+        /* شاشة معاينة الورقة الرسمية A4 */
+        .paper-preview {
+            background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); min-height: 180px; display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .preview-header-zone { border-bottom: 1px dashed #e2e8f0; padding-bottom: 8px; font-size: 0.8rem; color: #1e293b; font-weight: bold; }
+        .preview-body-zone { color: #cbd5e1; text-align: center; padding: 25px 0; font-size: 0.8rem; font-style: italic; }
+        .preview-footer-zone { border-top: 1px dashed #e2e8f0; padding-top: 8px; font-size: 0.75rem; color: #64748b; }
 
         .table-responsive { overflow-x: auto; max-height: 250px; }
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
@@ -75,7 +83,7 @@
 <body>
 
     <div class="header-title">
-        <i class="fas fa-building-user"></i> إدارة بروفايل الشركة والتوقيعات والنصوص الرسمية
+        <i class="fas fa-building-user"></i> إدارة بروفايل الشركة والتوقيعات والأوراق الرسمية
     </div>
 
     <!-- 1. البيانات الأساسية -->
@@ -127,7 +135,37 @@
         </div>
     </div>
 
-    <!-- 2. رفع واستخراج شيت الموظفين -->
+    <!-- 2. ديباجة الأوراق الرسمية (مع المعاينة الحية) -->
+    <div class="card">
+        <div class="card-header" onclick="toggleAccordion(this)">
+            <h3><i class="fas fa-heading"></i> ديباجة الأوراق الرسمية (نصوص الهيدر والفوتر)</h3>
+            <i class="fas fa-chevron-down chevron"></i>
+        </div>
+        <div class="card-body">
+            <div id="letterheadsContainer"></div>
+            <button class="btn btn-add" onclick="addLetterheadItem()"><i class="fas fa-plus"></i> إضافة نموذج ديباجة جديد</button>
+            <button class="btn btn-primary" onclick="saveLetterheads()" style="width: 100%; margin-top: 15px;">
+                <i class="fas fa-save"></i> حفظ جميع نماذج الديباجة
+            </button>
+        </div>
+    </div>
+
+    <!-- 3. التوقيعات المعتمدة المتعددة -->
+    <div class="card">
+        <div class="card-header" onclick="toggleAccordion(this)">
+            <h3><i class="fas fa-file-signature"></i> التوقيعات الرسمية المعتمدة</h3>
+            <i class="fas fa-chevron-down chevron"></i>
+        </div>
+        <div class="card-body">
+            <div id="signaturesContainer"></div>
+            <button class="btn btn-add" onclick="addSignatureItem()"><i class="fas fa-plus"></i> إضافة توقيع جديد</button>
+            <button class="btn btn-primary" onclick="saveSignatures()" style="width: 100%; margin-top: 15px;">
+                <i class="fas fa-file-pen"></i> حفظ التوقيعات المعتمدة
+            </button>
+        </div>
+    </div>
+
+    <!-- 4. شيت الموظفين -->
     <div class="card">
         <div class="card-header" onclick="toggleAccordion(this)">
             <h3><i class="fas fa-file-excel"></i> رفع وإدارة شيت موظفي الشركة (Excel)</h3>
@@ -156,36 +194,6 @@
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
-
-    <!-- 3. نصوص الترويسة والتذييل -->
-    <div class="card">
-        <div class="card-header" onclick="toggleAccordion(this)">
-            <h3><i class="fas fa-heading"></i> نماذج نصوص الترويسة والتذييل (Header & Footer Texts)</h3>
-            <i class="fas fa-chevron-down chevron"></i>
-        </div>
-        <div class="card-body">
-            <div id="letterheadsContainer"></div>
-            <button class="btn btn-add" onclick="addLetterheadItem()"><i class="fas fa-plus"></i> إضافة نموذج ترويسة/تذييل جديد</button>
-            <button class="btn btn-primary" onclick="saveLetterheads()" style="width: 100%; margin-top: 15px;">
-                <i class="fas fa-save"></i> حفظ جميع نماذج الترويسة والتذييل
-            </button>
-        </div>
-    </div>
-
-    <!-- 4. التوقيعات المعتمدة المتعددة -->
-    <div class="card">
-        <div class="card-header" onclick="toggleAccordion(this)">
-            <h3><i class="fas fa-file-signature"></i> التوقيعات الرسمية المعتمدة (Multiple Signatures)</h3>
-            <i class="fas fa-chevron-down chevron"></i>
-        </div>
-        <div class="card-body">
-            <div id="signaturesContainer"></div>
-            <button class="btn btn-add" onclick="addSignatureItem()"><i class="fas fa-plus"></i> إضافة توقيع جديد</button>
-            <button class="btn btn-primary" onclick="saveSignatures()" style="width: 100%; margin-top: 15px;">
-                <i class="fas fa-file-pen"></i> حفظ التوقيعات المعتمدة
-            </button>
         </div>
     </div>
 
@@ -287,28 +295,7 @@
                 .then(() => alert('تم حفظ البيانات الأساسية بنجاح!'));
         }
 
-        /* 2. رفع وقراءة شيت الموظفين */
-        function uploadEmployeeExcel() {
-            const fileInput = document.getElementById('excelFileInput');
-            if (!fileInput.files.length) return alert('برجاء اختيار ملف Excel أولاً');
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-
-                db.ref(`companyProfiles/${activeUser}/employees`).set(jsonData)
-                    .then(() => {
-                        alert('تم رفع شيت الموظفين بنجاح! يمكن الإطلاع على الهيكل من التاب الخاص بالـ Org Chart.');
-                        renderEmployees(jsonData);
-                    });
-            };
-            reader.readAsArrayBuffer(fileInput.files[0]);
-        }
-
-        /* 3. إدارة الترويسات النصية */
+        /* 2. إضافة نموذج ديباجة مخصص مع المعاينة الحية */
         function addLetterheadItem(data = {}) {
             const container = document.getElementById('letterheadsContainer');
             const id = 'lh_' + Date.now() + Math.random().toString(36).substr(2, 4);
@@ -320,12 +307,13 @@
                         <button class="btn btn-danger" onclick="document.getElementById('${id}').remove()"><i class="fas fa-trash"></i> حذف</button>
                     </div>
                     
+                    <!-- إعدادات الجزء العلوي (Header) -->
                     <div style="background:#fff; padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid #e2e8f0;">
-                        <small style="color:var(--primary); font-weight:bold;">الترويسة العلوي (Header Text)</small>
+                        <small style="color:var(--primary); font-weight:bold;">الترويسة العلوية (Header Text)</small>
                         <div class="form-row-3" style="margin-top:5px;">
-                            <input type="text" class="lh-h-line1" value="${data.hLine1 || ''}" placeholder="السطر الأول (مثال: المملكة المغربية / مصر)">
-                            <input type="text" class="lh-h-line2" value="${data.hLine2 || ''}" placeholder="السطر الثاني (مثال: شركة الميثاق للحلول)">
-                            <select class="lh-h-align">
+                            <input type="text" class="lh-h-line1" value="${data.hLine1 || ''}" placeholder="السطر الأول" oninput="updatePreview('${id}')">
+                            <input type="text" class="lh-h-line2" value="${data.hLine2 || ''}" placeholder="السطر الثاني" oninput="updatePreview('${id}')">
+                            <select class="lh-h-align" onchange="updatePreview('${id}')">
                                 <option value="right" ${data.hAlign === 'right' ? 'selected' : ''}>محاذاة: يمين</option>
                                 <option value="center" ${data.hAlign === 'center' ? 'selected' : ''}>محاذاة: وسط</option>
                                 <option value="left" ${data.hAlign === 'left' ? 'selected' : ''}>محاذاة: يسار</option>
@@ -333,21 +321,55 @@
                         </div>
                     </div>
 
+                    <!-- إعدادات الجزء السفلي (Footer) -->
                     <div style="background:#fff; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
                         <small style="color:var(--primary); font-weight:bold;">التذييل السفلي (Footer Text)</small>
                         <div class="form-row-3" style="margin-top:5px;">
-                            <input type="text" class="lh-f-line1" value="${data.fLine1 || ''}" placeholder="السطر الأول (العنوان والفرع)">
-                            <input type="text" class="lh-f-line2" value="${data.fLine2 || ''}" placeholder="السطر الثاني (التواصل والبريد الإلكتروني)">
-                            <select class="lh-f-align">
+                            <input type="text" class="lh-f-line1" value="${data.fLine1 || ''}" placeholder="السطر الأول" oninput="updatePreview('${id}')">
+                            <input type="text" class="lh-f-line2" value="${data.fLine2 || ''}" placeholder="السطر الثاني" oninput="updatePreview('${id}')">
+                            <select class="lh-f-align" onchange="updatePreview('${id}')">
                                 <option value="center" ${data.fAlign === 'center' ? 'selected' : ''}>محاذاة: وسط</option>
                                 <option value="right" ${data.fAlign === 'right' ? 'selected' : ''}>محاذاة: يمين</option>
                                 <option value="left" ${data.fAlign === 'left' ? 'selected' : ''}>محاذاة: يسار</option>
                             </select>
                         </div>
                     </div>
+
+                    <!-- صندوق المعاينة الحية المباشرة -->
+                    <div style="margin-top:10px;">
+                        <small style="font-weight:bold; color:#64748b;"><i class="fas fa-eye"></i> معاينة الورقة الرسمية A4:</small>
+                        <div class="paper-preview">
+                            <div class="preview-header-zone" id="${id}_prev_header"></div>
+                            <div class="preview-body-zone">[ محتوى التقرير / الخطاب الرسمي ]</div>
+                            <div class="preview-footer-zone" id="${id}_prev_footer"></div>
+                        </div>
+                    </div>
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', html);
+            updatePreview(id);
+        }
+
+        function updatePreview(id) {
+            const box = document.getElementById(id);
+            if (!box) return;
+
+            const hLine1 = box.querySelector('.lh-h-line1').value || 'السطر الأول للترويسة';
+            const hLine2 = box.querySelector('.lh-h-line2').value || 'السطر الثاني للترويسة';
+            const hAlign = box.querySelector('.lh-h-align').value;
+
+            const fLine1 = box.querySelector('.lh-f-line1').value || 'السطر الأول للتذييل (العنوان / الفرع)';
+            const fLine2 = box.querySelector('.lh-f-line2').value || 'السطر الثاني للتذييل (التواصل / البريد)';
+            const fAlign = box.querySelector('.lh-f-align').value;
+
+            const prevHeader = document.getElementById(`${id}_prev_header`);
+            const prevFooter = document.getElementById(`${id}_prev_footer`);
+
+            prevHeader.style.textAlign = hAlign;
+            prevHeader.innerHTML = `<div>${hLine1}</div><div>${hLine2}</div>`;
+
+            prevFooter.style.textAlign = fAlign;
+            prevFooter.innerHTML = `<div>${fLine1}</div><div>${fLine2}</div>`;
         }
 
         function saveLetterheads() {
@@ -365,10 +387,10 @@
             });
 
             db.ref(`companyProfiles/${activeUser}/letterheads`).set(items)
-                .then(() => alert('تم حفظ نماذج الترويسة والتذييل بنجاح!'));
+                .then(() => alert('تم حفظ نماذج الديباجة بنجاح!'));
         }
 
-        /* 4. إدارة التوقيعات المتعددة */
+        /* 3. إدارة التوقيعات المتعددة */
         function addSignatureItem(data = {}) {
             const container = document.getElementById('signaturesContainer');
             const id = 'sig_' + Date.now() + Math.random().toString(36).substr(2, 4);
@@ -407,7 +429,7 @@
                 .then(() => alert('تم حفظ جميع التوقيعات المعتمدة بنجاح!'));
         }
 
-        /* 5. التأمينات */
+        /* 4. التأمينات */
         function saveInsuranceSettings(e) {
             e.preventDefault();
             const ins = {
@@ -416,6 +438,27 @@
             };
             db.ref(`companyProfiles/${activeUser}/insurance`).update(ins)
                 .then(() => alert('تم حفظ بيانات التأمينات بنجاح!'));
+        }
+
+        /* 5. رفع وقراءة شيت الموظفين */
+        function uploadEmployeeExcel() {
+            const fileInput = document.getElementById('excelFileInput');
+            if (!fileInput.files.length) return alert('برجاء اختيار ملف Excel أولاً');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                db.ref(`companyProfiles/${activeUser}/employees`).set(jsonData)
+                    .then(() => {
+                        alert('تم رفع شيت الموظفين بنجاح!');
+                        renderEmployees(jsonData);
+                    });
+            };
+            reader.readAsArrayBuffer(fileInput.files[0]);
         }
 
         /* تحميل البيانات */
