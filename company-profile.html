@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة بروفايل الشركة والحساب</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- مكتبة Excel لقراءة واستخراج بيانات الموظفين -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #0b4fb3;
+            --primary-dark: #0b2a5c;
+            --bg: #f4f7fc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #cbd5e1;
+            --success: #10b981;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 20px; direction: rtl; }
+
+        .header-title { font-size: 1.4rem; color: var(--primary-dark); margin-bottom: 20px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        
+        .grid-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        
+        .card { background: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .card h3 { font-size: 1.1rem; color: var(--primary); margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: #475569; }
+        input[type="text"], input[type="password"], input[type="file"], select {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-size: 0.9rem; transition: 0.2s;
+        }
+        input:focus { border-color: var(--primary); }
+
+        .btn { padding: 10px 18px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.9rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-success { background: var(--success); color: white; }
+
+        .sig-box { background: #f8fafc; border: 1px dashed var(--border); padding: 12px; border-radius: 8px; margin-bottom: 10px; }
+        
+        /* جدول الموظفين */
+        .table-responsive { overflow-x: auto; max-height: 250px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
+        th, td { padding: 8px 10px; border: 1px solid #e2e8f0; text-align: right; }
+        th { background: #f1f5f9; color: var(--primary-dark); font-weight: bold; }
+
+        @media (max-width: 900px) {
+            .grid-layout { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-title">
+        <i class="fas fa-building-user"></i> إدارة بروفايل الشركة والتوقيعات والموظفين
+    </div>
+
+    <div class="grid-layout">
+        <!-- القسم الأيمن: بيانات الشركة + التوقيعات + قاعدة بيانات الموظفين -->
+        <div>
+            <!-- بيانات الشركة ثنائية اللغة -->
+            <div class="card">
+                <h3><i class="fas fa-building"></i> البيانات الأساسية للشركة (عربي / English)</h3>
+                <form id="compProfileForm" onsubmit="saveCompanyData(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>اسم الشركة (بالعربي):</label>
+                            <input type="text" id="compNameAr" required placeholder="شركة ..." dir="rtl">
+                        </div>
+                        <div class="form-group">
+                            <label>Company Name (English):</label>
+                            <input type="text" id="compNameEn" required placeholder="Company Co." dir="ltr">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>مجال الشركة (بالعربي):</label>
+                            <input type="text" id="compFieldAr" placeholder="مثال: استشارات الموارد البشرية" dir="rtl">
+                        </div>
+                        <div class="form-group">
+                            <label>Industry / Field (English):</label>
+                            <input type="text" id="compFieldEn" placeholder="e.g. HR Consultancy" dir="ltr">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>رقم الهاتف / التواصل:</label>
+                            <input type="text" id="compPhone" placeholder="01xxxxxxxxx">
+                        </div>
+                        <div class="form-group">
+                            <label>رفع الشعار (Logo):</label>
+                            <input type="file" accept="image/*" onchange="convertImage(this, 'compLogoBase64')">
+                            <input type="hidden" id="compLogoBase64">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                        <i class="fas fa-floppy-disk"></i> حفظ البيانات الأساسية
+                    </button>
+                </form>
+            </div>
+
+            <!-- إعداد التوقيعات الرسمية -->
+            <div class="card">
+                <h3><i class="fas fa-file-signature"></i> اعتماد التوقيعات للنماذج والعقود</h3>
+                <form onsubmit="saveSignatures(event)">
+                    <!-- التوقيع الأول -->
+                    <div class="sig-box">
+                        <small style="font-weight: bold; color: var(--primary);">المعتمد الأول (مثل: مدير الموارد البشرية)</small>
+                        <div class="form-row" style="margin-top: 5px;">
+                            <input type="text" id="sig1TitleAr" placeholder="اللقب/الوظيفة (عربي)">
+                            <input type="text" id="sig1TitleEn" placeholder="Title (English)" dir="ltr">
+                        </div>
+                        <div class="form-row" style="margin-top: 5px;">
+                            <input type="text" id="sig1NameAr" placeholder="الاسم (عربي)">
+                            <input type="text" id="sig1NameEn" placeholder="Name (English)" dir="ltr">
+                        </div>
+                    </div>
+
+                    <!-- التوقيع الثاني -->
+                    <div class="sig-box">
+                        <small style="font-weight: bold; color: var(--primary);">المعتمد الثاني (مثل: المدير العام / رئيس مجلس الإدارة)</small>
+                        <div class="form-row" style="margin-top: 5px;">
+                            <input type="text" id="sig2TitleAr" placeholder="اللقب/الوظيفة (عربي)">
+                            <input type="text" id="sig2TitleEn" placeholder="Title (English)" dir="ltr">
+                        </div>
+                        <div class="form-row" style="margin-top: 5px;">
+                            <input type="text" id="sig2NameAr" placeholder="الاسم (عربي)">
+                            <input type="text" id="sig2NameEn" placeholder="Name (English)" dir="ltr">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-file-pen"></i> حفظ التوقيعات الرسمية
+                    </button>
+                </form>
+            </div>
+
+            <!-- رفع وإدارة موظفي الشركة -->
+            <div class="card">
+                <h3><i class="fas fa-users-viewfinder"></i> رفع وعرض شيت موظفي الشركة (Excel)</h3>
+                <div class="form-row" style="align-items: center;">
+                    <input type="file" id="excelFileInput" accept=".xlsx, .xls">
+                    <button class="btn btn-success" onclick="uploadEmployeeExcel()">
+                        <i class="fas fa-file-excel"></i> قراءة ورفع الشيت
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="empTable">
+                        <thead>
+                            <tr>
+                                <th>كود</th>
+                                <th>اسم الموظف</th>
+                                <th>الوظيفة</th>
+                                <th>القسم</th>
+                                <th>الرقم القومي</th>
+                            </tr>
+                        </thead>
+                        <tbody id="empTableBody">
+                            <tr><td colspan="5" style="text-align:center; color:#94a3b8;">لم يتم رفع موظفين بعد.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- القسم الأيسر: إعدادات الحساب وكلمة المرور -->
+        <div>
+            <div class="card">
+                <h3><i class="fas fa-user-lock"></i> تغيير كلمة المرور</h3>
+                <form onsubmit="updatePassword(event)">
+                    <div class="form-group">
+                        <label>المستخدم الحالي:</label>
+                        <input type="text" id="currentUsername" readonly style="background: #f1f5f9;">
+                    </div>
+                    <div class="form-group">
+                        <label>كلمة المرور الجديدة:</label>
+                        <input type="password" id="newPassword" required placeholder="أدخل كلمة المرور الجديدة">
+                    </div>
+                    <button type="submit" class="btn btn-success" style="width: 100%;">
+                        <i class="fas fa-key"></i> تحديث كلمة المرور
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBty7fK-7mchOETrE_vtOZx4dgWSHIuC8Y",
+            authDomain: "hr-platform-system.firebaseapp.com",
+            databaseURL: "https://hr-platform-system-default-rtdb.firebaseio.com",
+            projectId: "hr-platform-system",
+            storageBucket: "hr-platform-system.firebasestorage.app",
+            messagingSenderId: "994791756938",
+            appId: "1:994791756938:web:48303535285e25f1c80973"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const activeUser = sessionStorage.getItem('LOGGED_USER') || 'demoUser';
+
+        window.onload = function() {
+            document.getElementById('currentUsername').value = activeUser;
+            loadCompanyProfile();
+        };
+
+        function convertImage(fileInput, targetId) {
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => document.getElementById(targetId).value = e.target.result;
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }
+
+        function saveCompanyData(e) {
+            e.preventDefault();
+            const data = {
+                nameAr: document.getElementById('compNameAr').value,
+                nameEn: document.getElementById('compNameEn').value,
+                fieldAr: document.getElementById('compFieldAr').value,
+                fieldEn: document.getElementById('compFieldEn').value,
+                phone: document.getElementById('compPhone').value,
+                logo: document.getElementById('compLogoBase64').value
+            };
+            db.ref(`companyProfiles/${activeUser}/info`).update(data)
+                .then(() => alert('تم حفظ بيانات الشركة بنجاح!'));
+        }
+
+        function saveSignatures(e) {
+            e.preventDefault();
+            const sigs = {
+                sig1: {
+                    titleAr: document.getElementById('sig1TitleAr').value,
+                    titleEn: document.getElementById('sig1TitleEn').value,
+                    nameAr: document.getElementById('sig1NameAr').value,
+                    nameEn: document.getElementById('sig1NameEn').value
+                },
+                sig2: {
+                    titleAr: document.getElementById('sig2TitleAr').value,
+                    titleEn: document.getElementById('sig2TitleEn').value,
+                    nameAr: document.getElementById('sig2NameAr').value,
+                    nameEn: document.getElementById('sig2NameEn').value
+                }
+            };
+            db.ref(`companyProfiles/${activeUser}/signatures`).set(sigs)
+                .then(() => alert('تم حفظ التوقيعات الرسمية بنجاح!'));
+        }
+
+        function uploadEmployeeExcel() {
+            const fileInput = document.getElementById('excelFileInput');
+            if (!fileInput.files.length) return alert('برجاء اختيار ملف Excel أولاً');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                db.ref(`companyProfiles/${activeUser}/employees`).set(jsonData)
+                    .then(() => {
+                        alert('تم رفع شيت الموظفين بنجاح!');
+                        renderEmployees(jsonData);
+                    });
+            };
+            reader.readAsArrayBuffer(fileInput.files[0]);
+        }
+
+        function loadCompanyProfile() {
+            db.ref(`companyProfiles/${activeUser}`).on('value', snap => {
+                const val = snap.val();
+                if (!val) return;
+
+                if (val.info) {
+                    document.getElementById('compNameAr').value = val.info.nameAr || '';
+                    document.getElementById('compNameEn').value = val.info.nameEn || '';
+                    document.getElementById('compFieldAr').value = val.info.fieldAr || '';
+                    document.getElementById('compFieldEn').value = val.info.fieldEn || '';
+                    document.getElementById('compPhone').value = val.info.phone || '';
+                    document.getElementById('compLogoBase64').value = val.info.logo || '';
+                }
+
+                if (val.signatures) {
+                    if (val.signatures.sig1) {
+                        document.getElementById('sig1TitleAr').value = val.signatures.sig1.titleAr || '';
+                        document.getElementById('sig1TitleEn').value = val.signatures.sig1.titleEn || '';
+                        document.getElementById('sig1NameAr').value = val.signatures.sig1.nameAr || '';
+                        document.getElementById('sig1NameEn').value = val.signatures.sig1.nameEn || '';
+                    }
+                    if (val.signatures.sig2) {
+                        document.getElementById('sig2TitleAr').value = val.signatures.sig2.titleAr || '';
+                        document.getElementById('sig2TitleEn').value = val.signatures.sig2.titleEn || '';
+                        document.getElementById('sig2NameAr').value = val.signatures.sig2.nameAr || '';
+                        document.getElementById('sig2NameEn').value = val.signatures.sig2.nameEn || '';
+                    }
+                }
+
+                if (val.employees) {
+                    renderEmployees(val.employees);
+                }
+            });
+        }
+
+        function renderEmployees(emps) {
+            const tbody = document.getElementById('empTableBody');
+            tbody.innerHTML = '';
+            emps.forEach(emp => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${emp['كود'] || emp['Code'] || '-'}</td>
+                        <td><b>${emp['الاسم'] || emp['Name'] || '-'}</b></td>
+                        <td>${emp['الوظيفة'] || emp['Title'] || '-'}</td>
+                        <td>${emp['القسم'] || emp['Department'] || '-'}</td>
+                        <td>${emp['الرقم القومي'] || emp['National ID'] || '-'}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updatePassword(e) {
+            e.preventDefault();
+            const newP = document.getElementById('newPassword').value;
+            db.ref(`system_users/${activeUser}/pass`).set(btoa(newP))
+                .then(() => alert('تم تحديث كلمة المرور بنجاح!'));
+        }
+    </script>
+</body>
+</html>
