@@ -73,7 +73,7 @@
         .preview-body-zone { color: #cbd5e1; text-align: center; padding: 25px 0; font-size: 0.8rem; font-style: italic; }
         .preview-footer-zone { border-top: 1px dashed #e2e8f0; padding-top: 8px; font-size: 0.75rem; color: #64748b; }
 
-        /* أدوات التحكم المتقدم بجدول الموظفين */
+        /* أدوات التحكم بالجدول */
         .table-controls { background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); }
         .column-toggle-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
         .col-chip { background: #fff; border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
@@ -163,7 +163,7 @@
         </div>
     </div>
 
-    <!-- 3. ملفات التأمينات الاجتماعية والمنشآت المتعددة -->
+    <!-- 3. ملفات التأمينات الاجتماعية -->
     <div class="card">
         <div class="card-header" onclick="toggleAccordion(this)">
             <h3><i class="fas fa-file-contract"></i> ملفات التأمينات الاجتماعية والمنشآت المتعددة</h3>
@@ -193,7 +193,7 @@
         </div>
     </div>
 
-    <!-- 5. التوقيعات المعتمدة المتعددة -->
+    <!-- 5. التوقيعات المعتمدة -->
     <div class="card">
         <div class="card-header" onclick="toggleAccordion(this)">
             <h3><i class="fas fa-file-signature"></i> التوقيعات الرسمية المعتمدة</h3>
@@ -208,7 +208,7 @@
         </div>
     </div>
 
-    <!-- 6. جدول موظفي الشركة الذكي -->
+    <!-- 6. جدول الموظفين -->
     <div class="card">
         <div class="card-header" onclick="toggleAccordion(this)">
             <h3><i class="fas fa-users-gear"></i> إدارة شيت موظفي الشركة (جدول تفاعلي متقدم)</h3>
@@ -222,7 +222,6 @@
                 </button>
             </div>
 
-            <!-- أدوات التحكم بالجدول والأعمدة -->
             <div class="table-controls">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <strong style="font-size:0.85rem;"><i class="fas fa-columns"></i> إظهار/إخفاء الأعمدة:</strong>
@@ -249,7 +248,7 @@
         </div>
     </div>
 
-    <!-- 7. الحساب وكلمة المرور -->
+    <!-- 7. كلمة المرور -->
     <div class="card">
         <div class="card-header" onclick="toggleAccordion(this)">
             <h3><i class="fas fa-user-lock"></i> تغيير كلمة المرور والحساب</h3>
@@ -317,7 +316,6 @@
             }
         }
 
-        /* 1. البيانات الأساسية */
         function saveCompanyData(e) {
             e.preventDefault();
             const data = {
@@ -332,7 +330,6 @@
                 .then(() => alert('تم حفظ البيانات الأساسية وشعار الشركة بنجاح!'));
         }
 
-        /* 2. الفروع والسجلات التجارية */
         function addBranchItem(data = {}) {
             const container = document.getElementById('branchesContainer');
             const id = 'br_' + Date.now() + Math.random().toString(36).substr(2, 4);
@@ -344,7 +341,7 @@
                         <button class="btn btn-danger" onclick="document.getElementById('${id}').remove()"><i class="fas fa-trash"></i> حذف</button>
                     </div>
                     <div class="form-row-3">
-                        <input type="text" class="br-name" value="${data.name || ''}" placeholder="اسم الفرع (مثلاً: فرع القاهرة / الرئيسي)">
+                        <input type="text" class="br-name" value="${data.name || ''}" placeholder="اسم الفرع">
                         <input type="text" class="br-cr" value="${data.cr || ''}" placeholder="رقم السجل التجاري">
                         <input type="text" class="br-tax" value="${data.tax || ''}" placeholder="رقم البطاقة الضريبية">
                     </div>
@@ -373,7 +370,6 @@
                 .then(() => alert('تم حفظ بيانات الفروع والسجلات بنجاح!'));
         }
 
-        /* 3. ملفات التأمينات المتعددة */
         function addInsuranceItem(data = {}) {
             const container = document.getElementById('insuranceContainer');
             const id = 'ins_' + Date.now() + Math.random().toString(36).substr(2, 4);
@@ -385,11 +381,11 @@
                         <button class="btn btn-danger" onclick="document.getElementById('${id}').remove()"><i class="fas fa-trash"></i> حذف</button>
                     </div>
                     <div class="form-row">
-                        <input type="text" class="ins-comp-name" value="${data.compName || ''}" placeholder="اسم المنشأة كما هو في التأمينات">
+                        <input type="text" class="ins-comp-name" value="${data.compName || ''}" placeholder="اسم المنشأة في التأمينات">
                         <input type="text" class="ins-num" value="${data.num || ''}" placeholder="رقم المنشأة التأميني">
                     </div>
                     <div class="form-row" style="margin-top:8px;">
-                        <input type="text" class="ins-office" value="${data.office || ''}" placeholder="اسم مكتب التأمينات التابع له">
+                        <input type="text" class="ins-office" value="${data.office || ''}" placeholder="مكتب التأمينات التابع له">
                         <input type="text" class="ins-manager" value="${data.manager || ''}" placeholder="المدير المسؤول في التأمينات">
                     </div>
                 </div>
@@ -412,7 +408,6 @@
                 .then(() => alert('تم حفظ ملفات التأمينات بنجاح!'));
         }
 
-        /* 4. إعدادات الديباجة مع المعاينة */
         function addLetterheadItem(data = {}) {
             const container = document.getElementById('letterheadsContainer');
             const id = 'lh_' + Date.now() + Math.random().toString(36).substr(2, 4);
@@ -420,7 +415,7 @@
             const html = `
                 <div class="dynamic-item-box" id="${id}">
                     <div class="dynamic-item-header">
-                        <input type="text" class="lh-name" value="${data.name || ''}" placeholder="اسم النموذج (مثلاً: الخطابات الرسمية / العقود)" style="font-weight:bold; width:60%;">
+                        <input type="text" class="lh-name" value="${data.name || ''}" placeholder="اسم النموذج (مثلاً: الخطابات الرسمية)" style="font-weight:bold; width:60%;">
                         <button class="btn btn-danger" onclick="document.getElementById('${id}').remove()"><i class="fas fa-trash"></i> حذف</button>
                     </div>
                     <div style="background:#fff; padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid #e2e8f0;">
@@ -478,8 +473,8 @@
             const hAlign = box.querySelector('.lh-h-align').value;
             const logoPos = box.querySelector('.lh-logo-pos').value;
 
-            const fLine1 = box.querySelector('.lh-f-line1').value || 'السطر الأول لأسفل الصفحة (العنوان / الفرع)';
-            const fLine2 = box.querySelector('.lh-f-line2').value || 'السطر الثاني لأسفل الصفحة (التواصل / البريد)';
+            const fLine1 = box.querySelector('.lh-f-line1').value || 'السطر الأول لأسفل الصفحة';
+            const fLine2 = box.querySelector('.lh-f-line2').value || 'السطر الثاني لأسفل الصفحة';
             const fAlign = box.querySelector('.lh-f-align').value;
 
             const logoSrc = document.getElementById('compLogoBase64').value;
@@ -528,7 +523,6 @@
                 .then(() => alert('تم حفظ نماذج الديباجة ومواقع اللوجو بنجاح!'));
         }
 
-        /* 5. التوقيعات المتعددة */
         function addSignatureItem(data = {}) {
             const container = document.getElementById('signaturesContainer');
             const id = 'sig_' + Date.now() + Math.random().toString(36).substr(2, 4);
@@ -567,7 +561,6 @@
                 .then(() => alert('تم حفظ جميع التوقيعات المعتمدة بنجاح!'));
         }
 
-        /* 6. تحكم جدول الموظفين الذكي (رفع، إخفاء العناوين والداتا، تعديل اسم العمود، والفلترة) */
         function uploadEmployeeExcel() {
             const fileInput = document.getElementById('excelFileInput');
             if (!fileInput.files.length) return alert('برجاء اختيار ملف Excel أولاً');
@@ -732,7 +725,6 @@
                 .then(() => alert('تم حفظ بيانات وأعمدة الموظفين بنجاح!'));
         }
 
-        /* تحميل البيانات السحابية الحية */
         function loadCompanyProfile() {
             db.ref(`companyProfiles/${activeUser}`).on('value', snap => {
                 const val = snap.val();
