@@ -131,7 +131,7 @@
 </head>
 <body>
 
-    <!-- الهيدر الخاص بالشاشات الصغيرة (الموبايل) مع زر الخروج المباشر -->
+    <!-- الهيدر الخاص بالشاشات الصغيرة (الموبايل) -->
     <div class="mobile-header">
         <span style="font-weight: bold; font-size: 0.95rem;"><i class="fas fa-layer-group"></i> المنظومة الشاملة</span>
         <div style="display: flex; align-items: center;">
@@ -387,25 +387,29 @@
         function applyUserPermissions(username) {
             const role = sessionStorage.getItem('USER_ROLE');
             
-            // مدير النظام يرى جميع التابات تلقائياً
             if (role === 'admin' || username === 'admin') {
                 document.querySelectorAll('.nav-item[data-perm]').forEach(el => el.style.display = 'block');
                 return;
             }
 
-            // للمستخدمين العاديين: جلب الصلاحيات المسجلة له في Firebase
             firebase.database().ref(`userPermissions/${username}`).on('value', (snapshot) => {
                 const perms = snapshot.val() || {};
                 
+                // 1. التحكم في القائمة الجانبية
                 document.querySelectorAll('.nav-item[data-perm]').forEach(el => {
                     const permKey = el.getAttribute('data-perm');
-                    // إخفاء التاب إذا كانت صلاحيتها false
                     if (perms[permKey] === false) {
                         el.style.display = 'none';
                     } else {
                         el.style.display = 'block';
                     }
                 });
+
+                // 2. تحديث كروت الأدوات المتاحة في الشاشة الرئيسية (home.html)
+                const homeIframe = document.getElementById('home-frame');
+                if (homeIframe && homeIframe.contentWindow && homeIframe.contentWindow.applyPermissions) {
+                    homeIframe.contentWindow.applyPermissions();
+                }
             });
         }
 
