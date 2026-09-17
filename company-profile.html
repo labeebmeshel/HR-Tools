@@ -585,7 +585,7 @@
                 .then(() => alert('تم حفظ جميع التوقيعات المعتمدة بنجاح!'));
         }
 
-        /* 6. تحكم جدول الموظفين (قراءة العناوين من الصف الأول مباشرة بدون اشتراط صفوف بيانات) */
+        /* 6. تحكم جدول الموظفين */
         function uploadEmployeeExcel(headersOnly = false) {
             const fileInput = document.getElementById('excelFileInput');
             if (!fileInput.files.length) return alert('برجاء اختيار ملف Excel أولاً');
@@ -596,7 +596,6 @@
                 const workbook = XLSX.read(data, { type: 'array' });
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
 
-                // قراءة الصف الأول كاملاً للحصول على أسماء الأعمدة حتى لو كانت الصفوف أو الخانات أسفلها فارغة
                 const rawRows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
                 if (rawRows.length > 0 && rawRows[0].length > 0) {
@@ -613,13 +612,10 @@
                         const jsonData = XLSX.utils.sheet_to_json(firstSheet);
                         if (jsonData.length > 0) {
                             globalEmployees = [...globalEmployees, ...jsonData];
-                            db.ref(`companyProfiles/${activeUser}/employees`).set(globalEmployees);
                         }
                     }
 
-                    db.ref(`companyProfiles/${activeUser}/columnKeys`).set(columnKeys);
-
-                    renderAdvancedTable();
+                    saveEmployeeData();
                     alert(headersOnly ? 'تم استخراج الأعمدة وإضافتها بنجاح!' : 'تم رفع الملف والبيانات بنجاح!');
                 } else {
                     alert('الملف فارغ أو لا يحتوي على عناوين في الصف الأول!');
@@ -636,7 +632,6 @@
                 visibleColumns[name] = true;
                 globalEmployees.forEach(emp => emp[name] = emp[name] || '');
                 document.getElementById('newColName').value = '';
-                renderAdvancedTable();
                 saveEmployeeData();
             }
         }
@@ -670,11 +665,10 @@
                 }
             });
 
-            renderAdvancedTable();
             saveEmployeeData();
         }
 
-        /* دالة مسح العمود بالكامل (العناوين، البيانات، والتأكيدات) */
+        /* دالة الحذف القاطع والمباشر من السيرفر والمحلية */
         function deleteColumn(key) {
             if (confirm(`هل أنت تأكد من مسح العمود "${key}" بالكامل؟ سيتم مسح العنوان وجميع بياناته.`)) {
                 columnKeys = columnKeys.filter(k => k !== key);
@@ -683,7 +677,6 @@
 
                 globalEmployees.forEach(emp => delete emp[key]);
 
-                renderAdvancedTable();
                 saveEmployeeData();
             }
         }
@@ -694,7 +687,6 @@
                 const temp = columnKeys[index];
                 columnKeys[index] = columnKeys[targetIndex];
                 columnKeys[targetIndex] = temp;
-                renderAdvancedTable();
                 saveEmployeeData();
             }
         }
@@ -803,7 +795,7 @@
         function saveEmployeeData() {
             db.ref(`companyProfiles/${activeUser}/employees`).set(globalEmployees);
             db.ref(`companyProfiles/${activeUser}/columnKeys`).set(columnKeys)
-                .then(() => alert('تم حفظ بيانات وأعمدة الموظفين بنجاح!'));
+                .then(() => renderAdvancedTable());
         }
 
         function loadCompanyProfile() {
@@ -858,10 +850,11 @@
 
                 if (val.employees && Array.isArray(val.employees)) {
                     globalEmployees = val.employees;
-                    visibleColumns = {};
-                    columnKeys.forEach(k => visibleColumns[k] = true);
-                    renderAdvancedTable();
                 }
+
+                visibleColumns = {};
+                columnKeys.forEach(k => visibleColumns[k] = true);
+                renderAdvancedTable();
             });
         }
 
