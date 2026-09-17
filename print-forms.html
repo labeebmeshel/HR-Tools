@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منظومة طباعة وتصميم الخطابات والنماذج الرسمية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #0b4fb3;
+            --primary-dark: #0b2a5c;
+            --bg: #e2e8f0;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #cbd5e1;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 20px; direction: rtl; }
+
+        .app-container { display: grid; grid-template-columns: 360px 1fr; gap: 20px; max-width: 1400px; margin: 0 auto; }
+
+        /* شريط التحكم الجانبي */
+        .sidebar { background: #fff; padding: 20px; border-radius: 12px; border: 1px solid var(--border); height: fit-content; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .sidebar h2 { font-size: 1.1rem; color: var(--primary-dark); margin-bottom: 15px; border-bottom: 2px solid var(--border); padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-size: 0.82rem; font-weight: bold; margin-bottom: 4px; color: #475569; }
+        select, input[type="text"] { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; outline: none; font-size: 0.85rem; background: #fff; }
+
+        .btn { padding: 8px 14px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-success { background: #10b981; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-secondary { background: #64748b; color: white; }
+
+        /* شريط أدوات المحرر */
+        .editor-toolbar { display: flex; flex-wrap: wrap; gap: 4px; background: #f8fafc; padding: 8px; border: 1px solid var(--border); border-radius: 8px 8px 0 0; margin-bottom: -1px; }
+        .tool-btn { background: #fff; border: 1px solid var(--border); padding: 5px 9px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; color: #334155; }
+        .tool-btn:hover { background: #e2e8f0; color: var(--primary); }
+
+        /* منطقة الورقة الرسمية A4 */
+        .paper-wrapper { display: flex; justify-content: center; align-items: flex-start; }
+        .page-a4 {
+            width: 210mm; min-height: 297mm; background: #ffffff; padding: 20mm 15mm 15mm 15mm;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15); border-radius: 2px; position: relative;
+            display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-border;
+        }
+
+        /* رأس الصفحة */
+        .page-header { border-bottom: 2px solid #0b4fb3; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; min-height: 70px; }
+        .header-text { font-size: 0.9rem; font-weight: bold; line-height: 1.4; }
+        .header-logo { max-height: 65px; max-width: 140px; object-fit: contain; }
+
+        /* جسم الخطاب للمحرر */
+        .page-body { flex-grow: 1; outline: none; font-size: 1rem; line-height: 1.8; color: #0f172a; text-align: justify; padding: 10px 0; }
+        .page-body[contenteditable="true"]:empty:before { content: "اكتب محتوى الخطاب أو النموذج هنا..."; color: #94a3b8; }
+
+        /* التوقيعات */
+        .page-signatures { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; margin-bottom: 20px; padding: 0 10px; }
+        .sig-box { text-align: center; min-width: 180px; }
+        .sig-box .sig-title { font-weight: bold; font-size: 0.9rem; color: #334155; margin-bottom: 45px; }
+        .sig-box .sig-name { font-weight: bold; font-size: 0.95rem; color: var(--primary-dark); border-top: 1px dashed #cbd5e1; padding-top: 4px; }
+
+        /* أسفل الصفحة */
+        .page-footer { border-top: 1px solid #cbd5e1; padding-top: 8px; font-size: 0.78rem; color: #64748b; margin-top: auto; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .sidebar, .editor-toolbar, .no-print { display: none !important; }
+            .app-container { display: block; }
+            .paper-wrapper { width: 100%; }
+            .page-a4 { box-shadow: none; border: none; width: 100%; height: 100vh; padding: 15mm 15mm 10mm 15mm; page-break-after: always; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- شريط التحكم والإعدادات الجانبي -->
+        <div class="sidebar no-print">
+            <h2><i class="fas fa-print"></i> إعدادات طباعة النموذج</h2>
+            
+            <div class="form-group">
+                <label><i class="fas fa-heading"></i> اختيار نموذج رأس الصفحة (Letterhead):</label>
+                <select id="selectLetterhead" onchange="applyLetterhead()"></select>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-code-branch"></i> اختيار الفرع / السجل التجاري:</label>
+                <select id="selectBranch" onchange="applyBranch()"></select>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-file-signature"></i> التوقيع المعتمد الأول:</label>
+                <select id="selectSig1" onchange="applySignatures()"></select>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-file-signature"></i> التوقيع المعتمد الثاني (اختياري):</label>
+                <select id="selectSig2" onchange="applySignatures()"></select>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-user-tie"></i> جلب بيانات موظف (ملء تلقائي):</label>
+                <select id="selectEmployee" onchange="insertEmployeeData()"></select>
+            </div>
+
+            <hr style="margin: 15px 0; border: none; border-top: 1px solid var(--border);">
+
+            <h2><i class="fas fa-bookmark"></i> إدارة نماذج الخطابات</h2>
+
+            <div class="form-group">
+                <label>النماذج المحفوظة والمثبتة:</label>
+                <select id="savedTemplatesList" onchange="loadSelectedTemplate()"></select>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="templateNameInput" placeholder="اسم النموذج الجديد (مثال: خطاب مفاصاة / إنهاء خدمة)...">
+            </div>
+
+            <div style="display: flex; gap: 6px; margin-bottom: 15px;">
+                <button class="btn btn-success" onclick="saveCurrentTemplate()" style="flex:1;"><i class="fas fa-thumbtack"></i> حفظ وتثبيت</button>
+                <button class="btn btn-danger" onclick="deleteCurrentTemplate()"><i class="fas fa-trash"></i></button>
+            </div>
+
+            <button class="btn btn-primary" onclick="window.print()" style="width: 100%; padding: 12px; font-size: 1rem;">
+                <i class="fas fa-print"></i> معاينة وطباعة A4
+            </button>
+        </div>
+
+        <!-- منطقة المحرر والورقة الرسمية -->
+        <div>
+            <!-- شريط أدوات التنسيق للمحرر -->
+            <div class="editor-toolbar no-print">
+                <button class="tool-btn" onclick="formatDoc('bold')" title="غامق"><i class="fas fa-bold"></i></button>
+                <button class="tool-btn" onclick="formatDoc('italic')" title="مائل"><i class="fas fa-italic"></i></button>
+                <button class="tool-btn" onclick="formatDoc('underline')" title="تحته خط"><i class="fas fa-underline"></i></button>
+                <button class="tool-btn" onclick="formatDoc('justifyRight')" title="محاذاة يمين"><i class="fas fa-align-right"></i></button>
+                <button class="tool-btn" onclick="formatDoc('justifyCenter')" title="محاذاة وسط"><i class="fas fa-align-center"></i></button>
+                <button class="tool-btn" onclick="formatDoc('justifyLeft')" title="محاذاة يسار"><i class="fas fa-align-left"></i></button>
+                <button class="tool-btn" onclick="formatDoc('insertUnorderedList')" title="قائمة نقطية"><i class="fas fa-list-ul"></i></button>
+                <button class="tool-btn" onclick="formatDoc('insertOrderedList')" title="قائمة رقمية"><i class="fas fa-list-ol"></i></button>
+                <button class="tool-btn" onclick="insertTable()" title="إدراج جدول"><i class="fas fa-table"></i></button>
+                <button class="tool-btn" onclick="formatDoc('removeFormat')" title="إزالة التنسيق"><i class="fas fa-eraser"></i></button>
+            </div>
+
+            <!-- الورقة الرسمية A4 للطباعة والمعاينة -->
+            <div class="paper-wrapper">
+                <div class="page-a4" id="printablePage">
+                    <!-- رأس الصفحة (Dynamic Header) -->
+                    <div class="page-header" id="pageHeader">
+                        <div class="header-text" id="headerTextContainer"></div>
+                        <img id="headerLogoImg" class="header-logo" src="" alt="Logo" style="display:none;">
+                    </div>
+
+                    <!-- محتوى الخطاب (Editable Rich Body) -->
+                    <div class="page-body" id="pageBodyContent" contenteditable="true">
+                        <p style="text-align: center; font-weight: bold; font-size: 1.2rem; margin-bottom: 20px;">شهادة خبرة / خطاب رسمي</p>
+                        <p>تشهد شركة <b class="comp-name-placeholder">[اسم الشركة]</b> بأن السيد / <b class="emp-name-placeholder">........................</b> قد عمل لدينا بوظيفة <b class="emp-title-placeholder">........................</b> وذلك خلال الفترة من <b class="emp-date-placeholder">--/--/----</b> حتى تاريخه.</p>
+                        <p>وقد عرف عنه خلال فترة عمله الكفاءة وحسن السلوك والالتزام بالتعليمات.</p>
+                        <p>وقد أُعطيت له هذه الشهادة بناءً على طلبه دون أدنى مسؤولية على الشركة تجاه حقوق الغير.</p>
+                    </div>
+
+                    <!-- قسم التوقيعات المعتمدة -->
+                    <div class="page-signatures" id="pageSignatures">
+                        <div class="sig-box" id="sigBox1">
+                            <div class="sig-title" id="sigTitle1">المسمى الوظيفي</div>
+                            <div class="sig-name" id="sigName1">الاسم الكريم</div>
+                        </div>
+                        <div class="sig-box" id="sigBox2" style="display:none;">
+                            <div class="sig-title" id="sigTitle2">المسمى الوظيفي</div>
+                            <div class="sig-name" id="sigName2">الاسم الكريم</div>
+                        </div>
+                    </div>
+
+                    <!-- أسفل الصفحة (Dynamic Footer) -->
+                    <div class="page-footer" id="pageFooter"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBty7fK-7mchOETrE_vtOZx4dgWSHIuC8Y",
+            authDomain: "hr-platform-system.firebaseapp.com",
+            databaseURL: "https://hr-platform-system-default-rtdb.firebaseio.com",
+            projectId: "hr-platform-system",
+            storageBucket: "hr-platform-system.firebasestorage.app",
+            messagingSenderId: "994791756938",
+            appId: "1:994791756938:web:48303535285e25f1c80973"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const activeUser = sessionStorage.getItem('LOGGED_USER') || 'demoUser';
+
+        let companyInfo = {};
+        let letterheadsList = [];
+        let branchesList = [];
+        let signaturesList = [];
+        let employeesList = [];
+        let savedTemplates = {};
+
+        window.onload = function() {
+            loadCompanyData();
+        };
+
+        /* تحميل بيانات بروفايل الشركة والتوقيعات والديباجة */
+        function loadCompanyData() {
+            db.ref(`companyProfiles/${activeUser}`).once('value', snap => {
+                const data = snap.val() || {};
+                
+                companyInfo = data.info || {};
+                letterheadsList = data.letterheads || [];
+                branchesList = data.branches || [];
+                signaturesList = data.signatures || [];
+                employeesList = data.employees || [];
+                savedTemplates = data.templates || {};
+
+                populateDropdowns();
+                applyLetterhead();
+                applySignatures();
+                loadTemplatesDropdown();
+            });
+        }
+
+        /* ملء القوائم المنسدلة */
+        function populateDropdowns() {
+            // 1. الديباجة
+            const lhSelect = document.getElementById('selectLetterhead');
+            lhSelect.innerHTML = letterheadsList.map((lh, i) => `<option value="${i}">${lh.name || 'نموذج ديباجة ' + (i+1)}</option>`).join('');
+
+            // 2. الفروع
+            const brSelect = document.getElementById('selectBranch');
+            brSelect.innerHTML = '<option value="">-- بدون تحديد فرع --</option>' + 
+                branchesList.map((b, i) => `<option value="${i}">${b.name || 'فرع ' + (i+1)}</option>`).join('');
+
+            // 3. التوقيعات
+            const s1 = document.getElementById('selectSig1');
+            const s2 = document.getElementById('selectSig2');
+            const sigOptions = signaturesList.map((s, i) => `<option value="${i}">${s.titleAr || s.nameAr || 'توقيع ' + (i+1)}</option>`).join('');
+            
+            s1.innerHTML = '<option value="">-- اختار التوقيع الأول --</option>' + sigOptions;
+            s2.innerHTML = '<option value="">-- بدون توقيع ثانٍ --</option>' + sigOptions;
+            if (signaturesList.length > 0) s1.value = "0";
+
+            // 4. الموظفين
+            const empSelect = document.getElementById('selectEmployee');
+            empSelect.innerHTML = '<option value="">-- اختار موظف لملء البيانات --</option>' + 
+                employeesList.map((e, i) => `<option value="${i}">${e['الاسم'] || e['Name'] || 'موظف ' + (i+1)}</option>`).join('');
+        }
+
+        /* تطبيق رأس وأسفل الصفحة */
+        function applyLetterhead() {
+            const idx = document.getElementById('selectLetterhead').value;
+            const lh = letterheadsList[idx] || {};
+
+            const headerText = document.getElementById('headerTextContainer');
+            const logoImg = document.getElementById('headerLogoImg');
+            const headerZone = document.getElementById('pageHeader');
+            const footerZone = document.getElementById('pageFooter');
+
+            const hLine1 = lh.hLine1 || companyInfo.nameAr || '';
+            const hLine2 = lh.hLine2 || companyInfo.fieldAr || '';
+            headerText.style.textAlign = lh.hAlign || 'right';
+            headerText.innerHTML = `<div>${hLine1}</div><div>${hLine2}</div>`;
+
+            if (companyInfo.logo && lh.logoPos !== 'none') {
+                logoImg.src = companyInfo.logo;
+                logoImg.style.display = 'block';
+            } else {
+                logoImg.style.display = 'none';
+            }
+
+            if (lh.logoPos === 'right') {
+                headerZone.style.flexDirection = 'row-reverse';
+            } else {
+                headerZone.style.flexDirection = 'row';
+            }
+
+            const fLine1 = lh.fLine1 || '';
+            const fLine2 = lh.fLine2 || '';
+            footerZone.style.textAlign = lh.fAlign || 'center';
+            footerZone.innerHTML = `<div>${fLine1}</div><div>${fLine2}</div>`;
+        }
+
+        /* تطبيق الفرع والسجل التجاري */
+        function applyBranch() {
+            const idx = document.getElementById('selectBranch').value;
+            if (idx === "") return;
+            const br = branchesList[idx];
+            if (!br) return;
+
+            const footerZone = document.getElementById('pageFooter');
+            footerZone.innerHTML += `<div style="font-weight:bold; margin-top:3px;">${br.name} - س.ت: ${br.cr} - ب.ض: ${br.tax} - العنوان: ${br.address}</div>`;
+        }
+
+        /* تطبيق التوقيعات */
+        function applySignatures() {
+            const idx1 = document.getElementById('selectSig1').value;
+            const idx2 = document.getElementById('selectSig2').value;
+
+            const box1 = document.getElementById('sigBox1');
+            const box2 = document.getElementById('sigBox2');
+
+            if (idx1 !== "" && signaturesList[idx1]) {
+                box1.style.display = 'block';
+                document.getElementById('sigTitle1').innerText = signaturesList[idx1].titleAr || '';
+                document.getElementById('sigName1').innerText = signaturesList[idx1].nameAr || '';
+            } else {
+                box1.style.display = 'none';
+            }
+
+            if (idx2 !== "" && signaturesList[idx2]) {
+                box2.style.display = 'block';
+                document.getElementById('sigTitle2').innerText = signaturesList[idx2].titleAr || '';
+                document.getElementById('sigName2').innerText = signaturesList[idx2].nameAr || '';
+            } else {
+                box2.style.display = 'none';
+            }
+        }
+
+        /* ملء بيانات الموظف المح محدد */
+        function insertEmployeeData() {
+            const idx = document.getElementById('selectEmployee').value;
+            if (idx === "") return;
+            const emp = employeesList[idx];
+            if (!emp) return;
+
+            let bodyHtml = document.getElementById('pageBodyContent').innerHTML;
+
+            const name = emp['الاسم'] || emp['Name'] || '';
+            const title = emp['الوظيفة'] || emp['Title'] || '';
+
+            bodyHtml = bodyHtml.replace(/ class="emp-name-placeholder">.*?<\/b>/g, ` class="emp-name-placeholder">${name}</b>`);
+            bodyHtml = bodyHtml.replace(/ class="emp-title-placeholder">.*?<\/b>/g, ` class="emp-title-placeholder">${title}</b>`);
+
+            document.getElementById('pageBodyContent').innerHTML = bodyHtml;
+        }
+
+        /* أدوات المحرر النصي */
+        function formatDoc(cmd, value = null) {
+            document.execCommand(cmd, false, value);
+        }
+
+        function insertTable() {
+            const rows = prompt('عدد الصفوف:', '3');
+            const cols = prompt('عدد الأعمدة:', '3');
+            if (!rows || !cols) return;
+
+            let tableHtml = '<table border="1" style="width:100%; border-collapse:collapse; margin:15px 0;">';
+            for (let r = 0; r < rows; r++) {
+                tableHtml += '<tr>';
+                for (let c = 0; c < cols; c++) {
+                    tableHtml += '<td style="padding:6px; border:1px solid #cbd5e1;">خلية</td>';
+                }
+                tableHtml += '</tr>';
+            }
+            tableHtml += '</table><p></p>';
+            document.execCommand('insertHTML', false, tableHtml);
+        }
+
+        /* حفظ وتثبيت نموذج جديد في Firebase */
+        function saveCurrentTemplate() {
+            const nameInput = document.getElementById('templateNameInput');
+            const name = nameInput.value.trim();
+            if (!name) return alert('برجاء كتابة اسم للنموذج أولاً (مثل: خطاب إنهاء خدمة)');
+
+            const bodyContent = document.getElementById('pageBodyContent').innerHTML;
+
+            db.ref(`companyProfiles/${activeUser}/templates/${name}`).set({
+                name: name,
+                content: bodyContent
+            }).then(() => {
+                alert('تم حفظ وتثبيت النموذج بنجاح!');
+                nameInput.value = '';
+                loadCompanyData();
+            });
+        }
+
+        /* تحميل النماذج لقائمة الاختيار */
+        function loadTemplatesDropdown() {
+            const tSelect = document.getElementById('savedTemplatesList');
+            tSelect.innerHTML = '<option value="">-- اختار نموذج مثبّت --</option>';
+
+            if (savedTemplates) {
+                Object.keys(savedTemplates).forEach(k => {
+                    tSelect.innerHTML += `<option value="${k}">${k}</option>`;
+                });
+            }
+        }
+
+        function loadSelectedTemplate() {
+            const key = document.getElementById('savedTemplatesList').value;
+            if (!key || !savedTemplates[key]) return;
+
+            document.getElementById('pageBodyContent').innerHTML = savedTemplates[key].content;
+        }
+
+        function deleteCurrentTemplate() {
+            const key = document.getElementById('savedTemplatesList').value;
+            if (!key) return alert('اختر النموذج المراد حذفه أولاً');
+
+            if (confirm(`هل أنت تأكد من حذف النموذج "${key}"؟`)) {
+                db.ref(`companyProfiles/${activeUser}/templates/${key}`).remove()
+                    .then(() => {
+                        alert('تم حذف النموذج بنجاح!');
+                        loadCompanyData();
+                    });
+            }
+        }
+    </script>
+</body>
+</html>
