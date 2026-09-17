@@ -103,12 +103,6 @@
         .page-frame { width: 100%; height: 100%; border: none; display: none; }
         .page-frame.active { display: block; }
 
-        .inner-view { padding: 25px; height: 100%; overflow-y: auto; background: var(--bg-light); }
-        .card-panel { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .card-panel h3 { color: var(--primary-dark); margin-bottom: 15px; font-size: 1.1rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
-        
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
         .status-badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
         .status-online { background: #d1fae5; color: #065f46; }
         .status-offline { background: #fee2e2; color: #991b1b; }
@@ -124,8 +118,6 @@
             }
             .sidebar.mobile-open { transform: translateX(0); }
             .main-wrapper { margin-top: 55px; height: calc(100vh - 55px); }
-            .grid-2 { grid-template-columns: 1fr; }
-            .inner-view { padding: 15px; }
         }
     </style>
 </head>
@@ -271,6 +263,7 @@
 
     <main class="main-wrapper">
         <iframe id="home-frame" class="page-frame active" src="home.html"></iframe>
+        <iframe id="profile-view-frame" class="page-frame" src="company-profile.html"></iframe>
         <iframe id="cv-frame" class="page-frame" src="cv.html"></iframe>
         <iframe id="tax-frame" class="page-frame" src="./Tax/tax.html"></iframe>
         <iframe id="tax-reverse-frame" class="page-frame" src="./Tax/tax-reverse.html"></iframe>
@@ -286,42 +279,6 @@
         <iframe id="scan-frame" class="page-frame" src="scan-to-excel.html"></iframe>
         
         <iframe id="admin-dashboard-frame" class="page-frame" src="admin-dashboard.html"></iframe>
-
-        <!-- بروفايل الحساب والشركة -->
-        <div id="profile-view-frame" class="page-frame inner-view">
-            <h2><i class="fas fa-building-user"></i> إدارة بروفايل الشركة والحساب الشخصي</h2>
-            <br>
-            <div class="grid-2">
-                <div class="card-panel">
-                    <h3><i class="fas fa-building"></i> تعديل بيانات الشركة والشعار</h3>
-                    <form onsubmit="saveCompanyProfile(event)">
-                        <label>اسم الشركة:</label>
-                        <input type="text" id="profCompName" class="form-input" placeholder="أدخل اسم الشركة" required>
-                        <label>مجال الشركة:</label>
-                        <input type="text" id="profCompField" class="form-input" placeholder="أدخل المجال" required>
-                        <label>رقم الهاتف:</label>
-                        <input type="text" id="profCompPhone" class="form-input" placeholder="رقم التواصل">
-                        <label>رابط الشعار / رفع اللوجو:</label>
-                        <input type="file" accept="image/*" class="form-input" onchange="convertImageToBase64(this, 'profCompLogo')">
-                        <input type="hidden" id="profCompLogo">
-                        <label>اسم المسؤول:</label>
-                        <input type="text" id="profCompAdmin" class="form-input" placeholder="اسم المسؤول">
-                        <button type="submit" class="btn-action" style="margin-top: 10px;">حفظ التغييرات</button>
-                    </form>
-                </div>
-
-                <div class="card-panel">
-                    <h3><i class="fas fa-key"></i> تغيير كلمة المرور</h3>
-                    <form onsubmit="updateUserPassword(event)">
-                        <label>اسم المستخدم الحالي:</label>
-                        <input type="text" id="profUsername" class="form-input" readonly style="background: #f1f5f9;">
-                        <label>كلمة المرور الجديدة:</label>
-                        <input type="password" id="profNewPass" class="form-input" required placeholder="أدخل كلمة المرور الجديدة">
-                        <button type="submit" class="btn-action" style="background: #10b981; margin-top: 10px;">تحديث كلمة المرور</button>
-                    </form>
-                </div>
-            </div>
-        </div>
     </main>
 
     <script>
@@ -372,16 +329,6 @@
 
         function toggleMobileSidebar() {
             document.getElementById('appSidebar').classList.toggle('mobile-open');
-        }
-
-        function convertImageToBase64(fileInput, hiddenInputId) {
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById(hiddenInputId).value = e.target.result;
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            }
         }
 
         function applyUserPermissions(username) {
@@ -445,7 +392,6 @@
 
             document.getElementById('activeUsername').innerText = loggedUser;
             document.getElementById('activeUserRole').innerText = loggedRole === 'admin' ? 'مدير نظام' : 'مستخدم';
-            document.getElementById('profUsername').value = loggedUser;
 
             if (loggedRole === 'admin') {
                 document.getElementById('adminTabItem').style.display = 'block';
@@ -455,61 +401,40 @@
         }
 
         function updateCompanyUI(username) {
-            const userObj = dbUsers[username];
-            if (userObj && userObj.companyId && dbCompanies[userObj.companyId]) {
-                const comp = dbCompanies[userObj.companyId];
-                document.getElementById('sidebarCompName').innerText = comp.name || '';
-                document.getElementById('sidebarCompField').innerText = comp.field || '';
-                
-                const logoImg = document.getElementById('sidebarLogo');
-                if (comp.logo) {
-                    logoImg.src = comp.logo;
-                    logoImg.style.display = 'inline-block';
+            // جلب البيانات أولاً من ملف البروفايل الخاص
+            firebase.database().ref(`companyProfiles/${username}/info`).on('value', (snap) => {
+                const profData = snap.val();
+                if (profData && profData.nameAr) {
+                    document.getElementById('sidebarCompName').innerText = profData.nameAr;
+                    document.getElementById('sidebarCompField').innerText = profData.fieldAr || '';
+                    const logoImg = document.getElementById('sidebarLogo');
+                    if (profData.logo) {
+                        logoImg.src = profData.logo;
+                        logoImg.style.display = 'inline-block';
+                    } else {
+                        logoImg.style.display = 'none';
+                    }
                 } else {
-                    logoImg.style.display = 'none';
+                    const userObj = dbUsers[username];
+                    if (userObj && userObj.companyId && dbCompanies[userObj.companyId]) {
+                        const comp = dbCompanies[userObj.companyId];
+                        document.getElementById('sidebarCompName').innerText = comp.name || '';
+                        document.getElementById('sidebarCompField').innerText = comp.field || '';
+                        
+                        const logoImg = document.getElementById('sidebarLogo');
+                        if (comp.logo) {
+                            logoImg.src = comp.logo;
+                            logoImg.style.display = 'inline-block';
+                        } else {
+                            logoImg.style.display = 'none';
+                        }
+                    } else {
+                        document.getElementById('sidebarCompName').innerText = username === 'admin' ? 'لوحة مدير النظام' : 'بدون شركة';
+                        document.getElementById('sidebarCompField').innerText = username === 'admin' ? 'إدارة المنظومة' : '-';
+                        document.getElementById('sidebarLogo').style.display = 'none';
+                    }
                 }
-
-                document.getElementById('profCompName').value = comp.name || '';
-                document.getElementById('profCompField').value = comp.field || '';
-                document.getElementById('profCompLogo').value = comp.logo || '';
-            } else {
-                document.getElementById('sidebarCompName').innerText = username === 'admin' ? 'لوحة مدير النظام' : 'بدون شركة';
-                document.getElementById('sidebarCompField').innerText = username === 'admin' ? 'إدارة المنظومة' : '-';
-                document.getElementById('sidebarLogo').style.display = 'none';
-            }
-        }
-
-        function saveCompanyProfile(e) {
-            e.preventDefault();
-            const loggedUser = sessionStorage.getItem('LOGGED_USER');
-            const userObj = dbUsers[loggedUser];
-            
-            if (userObj && userObj.companyId) {
-                const updatedComp = {
-                    name: document.getElementById('profCompName').value,
-                    field: document.getElementById('profCompField').value,
-                    phone: document.getElementById('profCompPhone').value || '',
-                    logo: document.getElementById('profCompLogo').value || '',
-                    adminName: document.getElementById('profCompAdmin').value || ''
-                };
-
-                firebase.database().ref(`system_companies/${userObj.companyId}`).update(updatedComp)
-                    .then(() => alert('تم تحديث بروفايل وشعار الشركة بنجاح!'));
-            }
-        }
-
-        function updateUserPassword(e) {
-            e.preventDefault();
-            const loggedUser = sessionStorage.getItem('LOGGED_USER');
-            const newPass = document.getElementById('profNewPass').value;
-
-            if (dbUsers[loggedUser]) {
-                firebase.database().ref(`system_users/${loggedUser}/pass`).set(btoa(newPass))
-                    .then(() => {
-                        alert('تم تحديث كلمة المرور بنجاح!');
-                        document.getElementById('profNewPass').value = '';
-                    });
-            }
+            });
         }
 
         function loadPage(evt, frameId, btnElement) {
