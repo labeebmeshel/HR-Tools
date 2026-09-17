@@ -120,7 +120,7 @@
             .sidebar {
                 position: fixed; top: 55px; bottom: 0; right: 0; width: 260px;
                 transform: translateX(100%); z-index: 10000;
-                height: calc(100% - 55px); /* إصلاح ارتفاع القائمة ليظهر زر الخروج */
+                height: calc(100% - 55px);
             }
             .sidebar.mobile-open { transform: translateX(0); }
             .main-wrapper { margin-top: 55px; height: calc(100vh - 55px); }
@@ -162,7 +162,7 @@
         </div>
     </div>
 
-    <!-- القائمة الجانبية -->
+    <!-- القائمة الجانبية المربوطة بالصلاحيات -->
     <aside class="sidebar" id="appSidebar">
         <div class="sidebar-header">
             <img id="sidebarLogo" src="" class="company-logo-img" alt="لوجو الشركة">
@@ -179,18 +179,18 @@
                     <i class="fas fa-house"></i> الرئيسية
                 </button>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" data-perm="profile">
                 <button class="nav-link" onclick="loadPage(event, 'profile-view-frame', this)">
                     <i class="fas fa-building-user"></i> بروفايل الشركة والحساب
                 </button>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" data-perm="cv">
                 <button class="nav-link" onclick="loadPage(event, 'cv-frame', this)">
                     <i class="fas fa-id-card"></i> السيرة الذاتية
                 </button>
             </li>
 
-            <li class="nav-item">
+            <li class="nav-item" data-perm="tax">
                 <button class="nav-link" onclick="toggleSubmenu('taxSubmenu')">
                     <i class="fas fa-calculator"></i> حاسبات الضرائب ▾
                 </button>
@@ -201,41 +201,41 @@
                 </ul>
             </li>
 
-            <li class="nav-item">
+            <li class="nav-item" data-perm="s1">
                 <button class="nav-link" onclick="loadPage(event, 's1-frame', this)">
                     <i class="fas fa-file-contract"></i> س1 تأمينات
                 </button>
             </li>
             
-            <li class="nav-item">
+            <li class="nav-item" data-perm="forms">
                 <button class="nav-link" onclick="loadPage(event, 'forms-print-frame', this)">
                     <i class="fas fa-print"></i> طباعة النماذج الرسمية
                 </button>
             </li>
 
-            <li class="nav-item">
+            <li class="nav-item" data-perm="labels">
                 <button class="nav-link" onclick="loadPage(event, 'labels-frame', this)">
                     <i class="fas fa-tags"></i> ملصقات الموظفين (A4 Labels)
                 </button>
             </li>
 
-            <li class="nav-item">
+            <li class="nav-item" data-perm="team">
                 <button class="nav-link" onclick="loadPage(event, 'team-frame', this)">
                     <i class="fas fa-users-gear"></i> فريق الإعداد
                 </button>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" data-perm="tafqit">
                 <button class="nav-link" onclick="loadPage(event, 'tafqit-frame', this)">
                     <i class="fas fa-spell-check"></i> أداة التفقيط
                 </button>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" data-perm="feedback">
                 <button class="nav-link" onclick="loadPage(event, 'feedback-frame', this)">
                     <i class="fas fa-chart-line"></i> قياس الأداء
                 </button>
             </li>
 
-            <li class="nav-item">
+            <li class="nav-item" data-perm="disc">
                 <button class="nav-link" onclick="toggleSubmenu('discSubmenu')">
                     <i class="fas fa-user-gear"></i> تحليل الشخصية (DISC) ▾
                 </button>
@@ -245,7 +245,7 @@
                 </ul>
             </li>
 
-            <li class="nav-item">
+            <li class="nav-item" data-perm="scan">
                 <button class="nav-link" onclick="loadPage(event, 'scan-frame', this)">
                     <i class="fas fa-file-excel"></i> HR Scan → Excel
                 </button>
@@ -384,6 +384,31 @@
             }
         }
 
+        function applyUserPermissions(username) {
+            const role = sessionStorage.getItem('USER_ROLE');
+            
+            // مدير النظام يرى جميع التابات تلقائياً
+            if (role === 'admin' || username === 'admin') {
+                document.querySelectorAll('.nav-item[data-perm]').forEach(el => el.style.display = 'block');
+                return;
+            }
+
+            // للمستخدمين العاديين: جلب الصلاحيات المسجلة له في Firebase
+            firebase.database().ref(`userPermissions/${username}`).on('value', (snapshot) => {
+                const perms = snapshot.val() || {};
+                
+                document.querySelectorAll('.nav-item[data-perm]').forEach(el => {
+                    const permKey = el.getAttribute('data-perm');
+                    // إخفاء التاب إذا كانت صلاحيتها false
+                    if (perms[permKey] === false) {
+                        el.style.display = 'none';
+                    } else {
+                        el.style.display = 'block';
+                    }
+                });
+            });
+        }
+
         function handleLogin(e) {
             e.preventDefault();
             const u = document.getElementById('loginUsername').value.trim();
@@ -412,6 +437,7 @@
             const loggedRole = sessionStorage.getItem('USER_ROLE');
 
             updateCompanyUI(loggedUser);
+            applyUserPermissions(loggedUser);
 
             document.getElementById('activeUsername').innerText = loggedUser;
             document.getElementById('activeUserRole').innerText = loggedRole === 'admin' ? 'مدير نظام' : 'مستخدم';
@@ -501,7 +527,6 @@
                 }
             }
 
-            // إغلاق القائمة الجانبية تلقائياً على شاشات الهواتف عند اختيار أداة
             document.getElementById('appSidebar').classList.remove('mobile-open');
         }
 
