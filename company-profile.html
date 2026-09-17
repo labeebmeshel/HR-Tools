@@ -56,13 +56,13 @@
         .btn-primary:hover { background: var(--primary-dark); }
         .btn-success { background: var(--success); color: white; }
         .btn-danger { background: var(--danger); color: white; padding: 6px 12px; font-size: 0.78rem; }
+        .btn-secondary { background: #64748b; color: white; }
         .btn-add { background: #e0e7ff; color: var(--primary); border: 1px dashed var(--primary); width: 100%; margin-top: 8px; }
         .btn-add:hover { background: #c7d2fe; }
 
         .dynamic-item-box { background: #f8fafc; border: 1px solid var(--border); padding: 15px; border-radius: 10px; margin-bottom: 15px; position: relative; }
         .dynamic-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px dashed #cbd5e1; }
 
-        /* شاشة معاينة الورقة الرسمية A4 */
         .paper-preview {
             background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin-top: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05); min-height: 200px; display: flex; flex-direction: column; justify-content: space-between;
@@ -73,20 +73,23 @@
         .preview-body-zone { color: #cbd5e1; text-align: center; padding: 25px 0; font-size: 0.8rem; font-style: italic; }
         .preview-footer-zone { border-top: 1px dashed #e2e8f0; padding-top: 8px; font-size: 0.75rem; color: #64748b; }
 
-        /* أدوات التحكم بالجدول */
+        /* أدوات الجدول والحقول المفصلة */
         .table-controls { background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); }
         .column-toggle-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
         .col-chip { background: #fff; border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
-        .col-chip input { cursor: pointer; }
-
-        .table-responsive { overflow-x: auto; max-height: 400px; border: 1px solid var(--border); border-radius: 8px; }
+        
+        .table-responsive { overflow-x: auto; max-height: 450px; border: 1px solid var(--border); border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
         th, td { padding: 8px 10px; border: 1px solid #e2e8f0; text-align: right; white-space: nowrap; }
         th { background: #f8fafc; color: var(--primary-dark); font-weight: bold; position: sticky; top: 0; z-index: 10; }
-        .th-actions { display: inline-flex; gap: 4px; margin-right: 6px; }
-        .btn-icon { background: none; border: none; color: #64748b; cursor: pointer; font-size: 0.75rem; }
+        
+        .th-container { display: flex; flex-direction: column; gap: 4px; }
+        .th-top-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .th-actions { display: inline-flex; gap: 3px; }
+        .btn-icon { background: none; border: none; color: #64748b; cursor: pointer; font-size: 0.75rem; padding: 2px; }
         .btn-icon:hover { color: var(--primary); }
-        .filter-input { width: 100%; margin-top: 4px; padding: 4px 6px; font-size: 0.75rem; border: 1px solid var(--border); border-radius: 4px; }
+        .btn-icon.danger:hover { color: var(--danger); }
+        .filter-input { width: 100%; padding: 4px 6px; font-size: 0.75rem; border: 1px solid var(--border); border-radius: 4px; font-weight: normal; }
 
         @media (max-width: 768px) {
             .form-row, .form-row-3, .form-row-4 { grid-template-columns: 1fr; }
@@ -208,20 +211,41 @@
         </div>
     </div>
 
-    <!-- 6. جدول الموظفين -->
+    <!-- 6. جدول الموظفين المتطور والديناميكي -->
     <div class="card">
         <div class="card-header" onclick="toggleAccordion(this)">
             <h3><i class="fas fa-users-gear"></i> إدارة شيت موظفي الشركة (جدول تفاعلي متقدم)</h3>
             <i class="fas fa-chevron-down chevron"></i>
         </div>
         <div class="card-body">
+            
+            <!-- أزرار رفع واستخراج وقوالب الـ Excel -->
             <div class="form-row" style="align-items: center; margin-bottom: 15px;">
-                <input type="file" id="excelFileInput" accept=".xlsx, .xls">
-                <button class="btn btn-success" onclick="uploadEmployeeExcel()">
-                    <i class="fas fa-cloud-arrow-up"></i> رفع شيت Excel
+                <div>
+                    <label style="font-size:0.8rem;">اختيار شيت Excel (بيانات أو عناوين فقط):</label>
+                    <input type="file" id="excelFileInput" accept=".xlsx, .xls">
+                </div>
+                <div style="display:flex; gap:8px; align-self: flex-end;">
+                    <button class="btn btn-success" onclick="uploadEmployeeExcel(false)" title="رفع الشيت مع البيانات بدون مسح القديم">
+                        <i class="fas fa-cloud-arrow-up"></i> رفع دمج الشيت
+                    </button>
+                    <button class="btn btn-secondary" onclick="uploadEmployeeExcel(true)" title="إضافة عناوين جديدة فقط من الشيت">
+                        <i class="fas fa-file-import"></i> رفع عناوين فقط
+                    </button>
+                </div>
+            </div>
+
+            <!-- أزرار تنزيل شيت الموظفين -->
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; background: #eef2ff; padding: 10px; border-radius: 8px;">
+                <button class="btn btn-primary" onclick="downloadExcel(false)" style="font-size:0.8rem;">
+                    <i class="fas fa-download"></i> تحميل شيت الموظفين (مليان)
+                </button>
+                <button class="btn btn-secondary" onclick="downloadExcel(true)" style="font-size:0.8rem;">
+                    <i class="fas fa-file-excel"></i> تحميل نموذج فارغ (فاضي)
                 </button>
             </div>
 
+            <!-- أدوات التحكم بالأعمدة -->
             <div class="table-controls">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <strong style="font-size:0.85rem;"><i class="fas fa-columns"></i> إظهار/إخفاء الأعمدة:</strong>
@@ -235,7 +259,7 @@
 
             <div class="table-responsive">
                 <table id="advancedEmpTable">
-                    <thead><tr id="tableHeadRow"></tr><tr id="tableFilterRow"></tr></thead>
+                    <thead><tr id="tableHeadRow"></tr></thead>
                     <tbody id="empTableBody">
                         <tr><td colspan="10" style="text-align:center; color:#94a3b8;">لم يتم رفع موظفين بعد.</td></tr>
                     </tbody>
@@ -561,7 +585,8 @@
                 .then(() => alert('تم حفظ جميع التوقيعات المعتمدة بنجاح!'));
         }
 
-        function uploadEmployeeExcel() {
+        /* 6. تحكم جدول الموظفين الديناميكي والمطور */
+        function uploadEmployeeExcel(headersOnly = false) {
             const fileInput = document.getElementById('excelFileInput');
             if (!fileInput.files.length) return alert('برجاء اختيار ملف Excel أولاً');
 
@@ -573,16 +598,26 @@
                 const jsonData = XLSX.utils.sheet_to_json(firstSheet);
 
                 if (jsonData.length > 0) {
-                    globalEmployees = jsonData;
-                    columnKeys = Object.keys(jsonData[0]);
-                    visibleColumns = {};
-                    columnKeys.forEach(k => visibleColumns[k] = true);
+                    const newKeys = Object.keys(jsonData[0]);
+                    
+                    // إدراج الأعمدة الجديدة دون مسح الأعمدة القديمة
+                    newKeys.forEach(nk => {
+                        if (!columnKeys.includes(nk)) {
+                            columnKeys.push(nk);
+                            visibleColumns[nk] = true;
+                        }
+                    });
 
-                    db.ref(`companyProfiles/${activeUser}/employees`).set(jsonData);
+                    if (!headersOnly) {
+                        // دمج الموظفين الجدد بالبيانات
+                        globalEmployees = [...globalEmployees, ...jsonData];
+                        db.ref(`companyProfiles/${activeUser}/employees`).set(globalEmployees);
+                    }
+
                     db.ref(`companyProfiles/${activeUser}/columnKeys`).set(columnKeys);
 
                     renderAdvancedTable();
-                    alert('تم رفع الشيت واستخراج جميع الأعمدة بنجاح!');
+                    alert(headersOnly ? 'تم استخراج الأعمدة الجديدة بنجاح!' : 'تم دمج شيت الموظفين والأعمدة بنجاح!');
                 }
             };
             reader.readAsArrayBuffer(fileInput.files[0]);
@@ -633,6 +668,19 @@
             saveEmployeeData();
         }
 
+        function deleteColumn(key) {
+            if (confirm(`هل أنت تأكد من مسح العمود "${key}" بالكامل؟`)) {
+                columnKeys = columnKeys.filter(k => k !== key);
+                delete visibleColumns[key];
+                delete columnFilters[key];
+
+                globalEmployees.forEach(emp => delete emp[key]);
+
+                renderAdvancedTable();
+                saveEmployeeData();
+            }
+        }
+
         function moveColumn(index, direction) {
             const targetIndex = index + direction;
             if (targetIndex >= 0 && targetIndex < columnKeys.length) {
@@ -657,26 +705,25 @@
             });
 
             const headRow = document.getElementById('tableHeadRow');
-            const filterRow = document.getElementById('tableFilterRow');
             headRow.innerHTML = '';
-            filterRow.innerHTML = '';
 
             columnKeys.forEach((key, idx) => {
                 if (visibleColumns[key]) {
                     headRow.innerHTML += `
                         <th>
-                            <span>${key}</span>
-                            <div class="th-actions">
-                                <button class="btn-icon" onclick="editColumnName('${key}')" title="تعديل اسم العمود"><i class="fas fa-pen"></i></button>
-                                <button class="btn-icon" onclick="moveColumn(${idx}, -1)" title="تحريك لليمين"><i class="fas fa-arrow-right"></i></button>
-                                <button class="btn-icon" onclick="moveColumn(${idx}, 1)" title="تحريك لليسار"><i class="fas fa-arrow-left"></i></button>
+                            <div class="th-container">
+                                <input type="text" class="filter-input" placeholder="فلترة ${key}..." value="${columnFilters[key] || ''}" oninput="columnFilters['${key}']=this.value.toLowerCase(); renderTableBody();">
+                                <div class="th-top-row">
+                                    <span>${key}</span>
+                                    <div class="th-actions">
+                                        <button class="btn-icon" onclick="editColumnName('${key}')" title="تعديل الاسم"><i class="fas fa-pen"></i></button>
+                                        <button class="btn-icon" onclick="moveColumn(${idx}, -1)" title="تحريك لليمين"><i class="fas fa-arrow-right"></i></button>
+                                        <button class="btn-icon" onclick="moveColumn(${idx}, 1)" title="تحريك لليسار"><i class="fas fa-arrow-left"></i></button>
+                                        <button class="btn-icon danger" onclick="deleteColumn('${key}')" title="مسح العمود"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>
                             </div>
                         </th>
-                    `;
-                    filterRow.innerHTML += `
-                        <td>
-                            <input type="text" class="filter-input" placeholder="فلترة..." value="${columnFilters[key] || ''}" oninput="columnFilters['${key}']=this.value.toLowerCase(); renderTableBody();">
-                        </td>
                     `;
                 }
             });
@@ -717,6 +764,32 @@
                 rowHtml += '</tr>';
                 tbody.innerHTML += rowHtml;
             });
+        }
+
+        function downloadExcel(emptyTemplate = false) {
+            const activeKeys = columnKeys.filter(k => visibleColumns[k]);
+            if (activeKeys.length === 0) return alert('برجاء تفعيل عمود واحد على الأقل للتنزيل');
+
+            let exportData = [];
+
+            if (emptyTemplate) {
+                let emptyObj = {};
+                activeKeys.forEach(k => emptyObj[k] = '');
+                exportData.push(emptyObj);
+            } else {
+                exportData = globalEmployees.map(emp => {
+                    let filteredObj = {};
+                    activeKeys.forEach(k => filteredObj[k] = emp[k] || '');
+                    return filteredObj;
+                });
+            }
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "الموظفين");
+            
+            const fileName = emptyTemplate ? "نموذج_أعمدة_الموظفين_فارغ.xlsx" : "بيانات_موظفي_الشركة.xlsx";
+            XLSX.writeFile(workbook, fileName);
         }
 
         function saveEmployeeData() {
