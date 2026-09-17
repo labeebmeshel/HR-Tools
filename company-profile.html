@@ -73,7 +73,7 @@
         .preview-body-zone { color: #cbd5e1; text-align: center; padding: 25px 0; font-size: 0.8rem; font-style: italic; }
         .preview-footer-zone { border-top: 1px dashed #e2e8f0; padding-top: 8px; font-size: 0.75rem; color: #64748b; }
 
-        /* أدوات الجدول والحقول المفصلة */
+        /* أدوات الجدول */
         .table-controls { background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); }
         .column-toggle-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
         .col-chip { background: #fff; border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
@@ -83,10 +83,10 @@
         th, td { padding: 8px 10px; border: 1px solid #e2e8f0; text-align: right; white-space: nowrap; }
         th { background: #f8fafc; color: var(--primary-dark); font-weight: bold; position: sticky; top: 0; z-index: 10; }
         
-        .th-container { display: flex; flex-direction: column; gap: 4px; }
+        .th-container { display: flex; flex-direction: column; gap: 6px; }
         .th-top-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-        .th-actions { display: inline-flex; gap: 3px; }
-        .btn-icon { background: none; border: none; color: #64748b; cursor: pointer; font-size: 0.75rem; padding: 2px; }
+        .th-actions { display: inline-flex; gap: 4px; }
+        .btn-icon { background: none; border: none; color: #64748b; cursor: pointer; font-size: 0.8rem; padding: 2px; }
         .btn-icon:hover { color: var(--primary); }
         .btn-icon.danger:hover { color: var(--danger); }
         .filter-input { width: 100%; padding: 4px 6px; font-size: 0.75rem; border: 1px solid var(--border); border-radius: 4px; font-weight: normal; }
@@ -219,17 +219,17 @@
         </div>
         <div class="card-body">
             
-            <!-- أزرار رفع واستخراج وقوالب الـ Excel -->
+            <!-- أزرار رفع واستخراج الـ Excel -->
             <div class="form-row" style="align-items: center; margin-bottom: 15px;">
                 <div>
-                    <label style="font-size:0.8rem;">اختيار شيت Excel (بيانات أو عناوين فقط):</label>
+                    <label style="font-size:0.8rem;">اختيار ملف Excel (بيانات أو عناوين فقط):</label>
                     <input type="file" id="excelFileInput" accept=".xlsx, .xls">
                 </div>
                 <div style="display:flex; gap:8px; align-self: flex-end;">
-                    <button class="btn btn-success" onclick="uploadEmployeeExcel(false)" title="رفع الشيت مع البيانات بدون مسح القديم">
-                        <i class="fas fa-cloud-arrow-up"></i> رفع دمج الشيت
+                    <button class="btn btn-success" onclick="uploadEmployeeExcel(false)" type="button">
+                        <i class="fas fa-cloud-arrow-up"></i> رفع الملف كامل
                     </button>
-                    <button class="btn btn-secondary" onclick="uploadEmployeeExcel(true)" title="إضافة عناوين جديدة فقط من الشيت">
+                    <button class="btn btn-secondary" onclick="uploadEmployeeExcel(true)" type="button">
                         <i class="fas fa-file-import"></i> رفع عناوين فقط
                     </button>
                 </div>
@@ -237,10 +237,10 @@
 
             <!-- أزرار تنزيل شيت الموظفين -->
             <div style="display: flex; gap: 10px; margin-bottom: 15px; background: #eef2ff; padding: 10px; border-radius: 8px;">
-                <button class="btn btn-primary" onclick="downloadExcel(false)" style="font-size:0.8rem;">
+                <button class="btn btn-primary" onclick="downloadExcel(false)" type="button" style="font-size:0.8rem;">
                     <i class="fas fa-download"></i> تحميل شيت الموظفين (مليان)
                 </button>
-                <button class="btn btn-secondary" onclick="downloadExcel(true)" style="font-size:0.8rem;">
+                <button class="btn btn-secondary" onclick="downloadExcel(true)" type="button" style="font-size:0.8rem;">
                     <i class="fas fa-file-excel"></i> تحميل نموذج فارغ (فاضي)
                 </button>
             </div>
@@ -251,7 +251,7 @@
                     <strong style="font-size:0.85rem;"><i class="fas fa-columns"></i> إظهار/إخفاء الأعمدة:</strong>
                     <div style="display:flex; gap:8px;">
                         <input type="text" id="newColName" placeholder="اسم عمود جديد..." style="width:140px; padding:4px 8px; font-size:0.8rem;">
-                        <button class="btn btn-primary" onclick="addNewCustomColumn()" style="padding:4px 10px; font-size:0.78rem;"><i class="fas fa-plus"></i> إضافة عمود</button>
+                        <button class="btn btn-primary" onclick="addNewCustomColumn()" type="button" style="padding:4px 10px; font-size:0.78rem;"><i class="fas fa-plus"></i> إضافة عمود</button>
                     </div>
                 </div>
                 <div class="column-toggle-list" id="columnToggleList"></div>
@@ -266,7 +266,7 @@
                 </table>
             </div>
 
-            <button class="btn btn-primary" onclick="saveEmployeeData()" style="width: 100%; margin-top: 15px;">
+            <button class="btn btn-primary" onclick="saveEmployeeData()" type="button" style="width: 100%; margin-top: 15px;">
                 <i class="fas fa-save"></i> حفظ التغيرات على شيت الموظفين
             </button>
         </div>
@@ -585,7 +585,7 @@
                 .then(() => alert('تم حفظ جميع التوقيعات المعتمدة بنجاح!'));
         }
 
-        /* 6. تحكم جدول الموظفين الديناميكي والمطور */
+        /* 6. تحكم جدول الموظفين */
         function uploadEmployeeExcel(headersOnly = false) {
             const fileInput = document.getElementById('excelFileInput');
             if (!fileInput.files.length) return alert('برجاء اختيار ملف Excel أولاً');
@@ -600,7 +600,6 @@
                 if (jsonData.length > 0) {
                     const newKeys = Object.keys(jsonData[0]);
                     
-                    // إدراج الأعمدة الجديدة دون مسح الأعمدة القديمة
                     newKeys.forEach(nk => {
                         if (!columnKeys.includes(nk)) {
                             columnKeys.push(nk);
@@ -609,7 +608,6 @@
                     });
 
                     if (!headersOnly) {
-                        // دمج الموظفين الجدد بالبيانات
                         globalEmployees = [...globalEmployees, ...jsonData];
                         db.ref(`companyProfiles/${activeUser}/employees`).set(globalEmployees);
                     }
@@ -617,7 +615,7 @@
                     db.ref(`companyProfiles/${activeUser}/columnKeys`).set(columnKeys);
 
                     renderAdvancedTable();
-                    alert(headersOnly ? 'تم استخراج الأعمدة الجديدة بنجاح!' : 'تم دمج شيت الموظفين والأعمدة بنجاح!');
+                    alert(headersOnly ? 'تم إضافة العناوين الجديدة بنجاح!' : 'تم رفع الشيت المكتمل ودمجه بنجاح!');
                 }
             };
             reader.readAsArrayBuffer(fileInput.files[0]);
@@ -668,14 +666,22 @@
             saveEmployeeData();
         }
 
+        /* دالة مسح العمود بالكامل بشكل حقيقي */
         function deleteColumn(key) {
-            if (confirm(`هل أنت تأكد من مسح العمود "${key}" بالكامل؟`)) {
+            if (confirm(`هل أنت تأكد من حذف العمود "${key}" والعناوين والداتا التابعة له بالكامل؟`)) {
+                // 1. مسح المفتاح من مصفوفة الأعمدة
                 columnKeys = columnKeys.filter(k => k !== key);
+                
+                // 2. مسح إعدادات الظهور والفلتر
                 delete visibleColumns[key];
                 delete columnFilters[key];
 
-                globalEmployees.forEach(emp => delete emp[key]);
+                // 3. مسح القيمة التابعة للعمود من كل كائنات الموظفين
+                globalEmployees.forEach(emp => {
+                    delete emp[key];
+                });
 
+                // 4. إعادة بناء الجدول وتحديث التخزين السحابي
                 renderAdvancedTable();
                 saveEmployeeData();
             }
@@ -716,10 +722,10 @@
                                 <div class="th-top-row">
                                     <span>${key}</span>
                                     <div class="th-actions">
-                                        <button class="btn-icon" onclick="editColumnName('${key}')" title="تعديل الاسم"><i class="fas fa-pen"></i></button>
-                                        <button class="btn-icon" onclick="moveColumn(${idx}, -1)" title="تحريك لليمين"><i class="fas fa-arrow-right"></i></button>
-                                        <button class="btn-icon" onclick="moveColumn(${idx}, 1)" title="تحريك لليسار"><i class="fas fa-arrow-left"></i></button>
-                                        <button class="btn-icon danger" onclick="deleteColumn('${key}')" title="مسح العمود"><i class="fas fa-trash"></i></button>
+                                        <button class="btn-icon" onclick="editColumnName('${key}')" type="button" title="تعديل الاسم"><i class="fas fa-pen"></i></button>
+                                        <button class="btn-icon" onclick="moveColumn(${idx}, -1)" type="button" title="تحريك لليمين"><i class="fas fa-arrow-right"></i></button>
+                                        <button class="btn-icon" onclick="moveColumn(${idx}, 1)" type="button" title="تحريك لليسار"><i class="fas fa-arrow-left"></i></button>
+                                        <button class="btn-icon danger" onclick="deleteColumn('${key}')" type="button" title="مسح العمود بالكامل"><i class="fas fa-trash"></i></button>
                                     </div>
                                 </div>
                             </div>
