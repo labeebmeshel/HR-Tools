@@ -585,7 +585,7 @@
                 .then(() => alert('تم حفظ جميع التوقيعات المعتمدة بنجاح!'));
         }
 
-        /* 6. تحكم جدول الموظفين */
+        /* 6. تحكم جدول الموظفين (قراءة العناوين من الصف الأول مباشرة بدون اشتراط صفوف بيانات) */
         function uploadEmployeeExcel(headersOnly = false) {
             const fileInput = document.getElementById('excelFileInput');
             if (!fileInput.files.length) return alert('برجاء اختيار ملف Excel أولاً');
@@ -595,12 +595,14 @@
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, { type: 'array' });
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
 
-                if (jsonData.length > 0) {
-                    const newKeys = Object.keys(jsonData[0]);
-                    
-                    newKeys.forEach(nk => {
+                // قراءة الصف الأول كاملاً للحصول على أسماء الأعمدة حتى لو كانت الصفوف أو الخانات أسفلها فارغة
+                const rawRows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                if (rawRows.length > 0 && rawRows[0].length > 0) {
+                    const extractedHeaders = rawRows[0].map(h => String(h || '').trim()).filter(h => h !== '');
+
+                    extractedHeaders.forEach(nk => {
                         if (!columnKeys.includes(nk)) {
                             columnKeys.push(nk);
                             visibleColumns[nk] = true;
@@ -608,14 +610,19 @@
                     });
 
                     if (!headersOnly) {
-                        globalEmployees = [...globalEmployees, ...jsonData];
-                        db.ref(`companyProfiles/${activeUser}/employees`).set(globalEmployees);
+                        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                        if (jsonData.length > 0) {
+                            globalEmployees = [...globalEmployees, ...jsonData];
+                            db.ref(`companyProfiles/${activeUser}/employees`).set(globalEmployees);
+                        }
                     }
 
                     db.ref(`companyProfiles/${activeUser}/columnKeys`).set(columnKeys);
 
                     renderAdvancedTable();
-                    alert(headersOnly ? 'تم إضافة العناوين الجديدة بنجاح!' : 'تم رفع الشيت المكتمل ودمجه بنجاح!');
+                    alert(headersOnly ? 'تم استخراج الأعمدة وإضافتها بنجاح!' : 'تم رفع الملف والبيانات بنجاح!');
+                } else {
+                    alert('الملف فارغ أو لا يحتوي على عناوين في الصف الأول!');
                 }
             };
             reader.readAsArrayBuffer(fileInput.files[0]);
@@ -630,6 +637,7 @@
                 globalEmployees.forEach(emp => emp[name] = emp[name] || '');
                 document.getElementById('newColName').value = '';
                 renderAdvancedTable();
+                saveEmployeeData();
             }
         }
 
@@ -666,22 +674,15 @@
             saveEmployeeData();
         }
 
-        /* دالة مسح العمود بالكامل بشكل حقيقي */
+        /* دالة مسح العمود بالكامل (العناوين، البيانات، والتأكيدات) */
         function deleteColumn(key) {
-            if (confirm(`هل أنت تأكد من حذف العمود "${key}" والعناوين والداتا التابعة له بالكامل؟`)) {
-                // 1. مسح المفتاح من مصفوفة الأعمدة
+            if (confirm(`هل أنت تأكد من مسح العمود "${key}" بالكامل؟ سيتم مسح العنوان وجميع بياناته.`)) {
                 columnKeys = columnKeys.filter(k => k !== key);
-                
-                // 2. مسح إعدادات الظهور والفلتر
                 delete visibleColumns[key];
                 delete columnFilters[key];
 
-                // 3. مسح القيمة التابعة للعمود من كل كائنات الموظفين
-                globalEmployees.forEach(emp => {
-                    delete emp[key];
-                });
+                globalEmployees.forEach(emp => delete emp[key]);
 
-                // 4. إعادة بناء الجدول وتحديث التخزين السحابي
                 renderAdvancedTable();
                 saveEmployeeData();
             }
@@ -694,6 +695,7 @@
                 columnKeys[index] = columnKeys[targetIndex];
                 columnKeys[targetIndex] = temp;
                 renderAdvancedTable();
+                saveEmployeeData();
             }
         }
 
