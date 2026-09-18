@@ -46,7 +46,7 @@
         .multi-select-box { max-height: 120px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; background: #fff; }
         .multi-select-box label { display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; padding: 2px 0; border-bottom: 1px dashed #f1f5f9; font-size: 0.8rem; }
 
-        /* شريط أدوات المحرر العلوي المرتفع */
+        /* شريط أدوات المحرر العلوي */
         .editor-toolbar-container { position: sticky; top: 0px; z-index: 99999; margin-bottom: 20px; background: var(--bg); padding-top: 5px; padding-bottom: 5px; }
         .editor-toolbar { display: flex; flex-wrap: wrap; gap: 6px; background: #ffffff; padding: 8px 12px; border: 1px solid #94a3b8; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); align-items: center; }
         .tool-btn { background: #f8fafc; border: 1px solid #cbd5e1; padding: 5px 9px; border-radius: 4px; cursor: pointer; font-size: 0.82rem; color: #334155; }
@@ -86,10 +86,11 @@
         .recipient-block { font-weight: bold; font-size: 1.05rem; margin-bottom: 12px; color: #1e293b; }
         .date-display-block { font-weight: bold; font-size: 0.9rem; margin-bottom: 12px; color: #334155; }
 
-        .signatures-area { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 35px; padding: 0 10px; page-break-inside: avoid; }
-        .sig-box { text-align: center; min-width: 160px; }
-        .sig-box .sig-title { font-weight: bold; font-size: 0.88rem; color: #334155; margin-bottom: 40px; }
-        .sig-box .sig-name { font-weight: bold; font-size: 0.9rem; color: var(--primary-dark); border-top: 1px dashed #cbd5e1; padding-top: 4px; }
+        /* منطقة التوقيعات الثلاثة بمرونة متكاملة */
+        .signatures-area { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 35px; padding: 0 10px; page-break-inside: avoid; gap: 10px; }
+        .sig-col { flex: 1; text-align: center; min-width: 120px; }
+        .sig-title { font-weight: bold; font-size: 0.88rem; color: #334155; margin-bottom: 40px; }
+        .sig-name { font-weight: bold; font-size: 0.9rem; color: var(--primary-dark); border-top: 1px dashed #cbd5e1; padding-top: 4px; }
 
         @page {
             size: A4;
@@ -114,6 +115,12 @@
     <div class="app-container">
         <!-- شريط التحكم الجانبي -->
         <div class="sidebar no-print">
+            <h2><i class="fas fa-eye"></i> إظهار وإخفاء العناوين الرئيسية</h2>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                <label style="cursor:pointer;"><input type="checkbox" id="showHeaderChk" checked onchange="renderAllPages()"> إظهار الهيدر</label>
+                <label style="cursor:pointer;"><input type="checkbox" id="showFooterChk" checked onchange="renderAllPages()"> إظهار الفوتر</label>
+            </div>
+
             <h2><i class="fas fa-globe"></i> لغة الخطاب والتنسيق</h2>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
                 <div class="form-group">
@@ -164,12 +171,14 @@
                 <div class="form-group">
                     <label>شكل الخط:</label>
                     <select id="lineStyle" onchange="renderAllPages()">
-                        <option value="solid">مستقيم (Solid)</option>
+                        <option value="solid">صلب (Solid)</option>
                         <option value="double">مزدوج (Double)</option>
                         <option value="dashed">متقطع (Dashed)</option>
                         <option value="dotted">منقط (Dotted)</option>
                         <option value="groove">بارز (Groove)</option>
                         <option value="ridge">محفور (Ridge)</option>
+                        <option value="inset">غائر (Inset)</option>
+                        <option value="outset">مجسّم (Outset)</option>
                         <option value="none">بدون خط</option>
                     </select>
                 </div>
@@ -180,41 +189,18 @@
                 <input type="date" id="customDateInput" onchange="renderAllPages()">
             </div>
 
-            <h2><i class="fas fa-file-signature"></i> التوقيعات (3 توقيعات ومواقعها)</h2>
+            <h2><i class="fas fa-file-signature"></i> التوقيعات الثلاثة ومواضعها</h2>
             <div class="form-group">
-                <label>التوقيع الأول:</label>
-                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:4px;">
-                    <select id="selectSig1" onchange="renderAllPages()"></select>
-                    <select id="posSig1" onchange="renderAllPages()">
-                        <option value="right">يمين</option>
-                        <option value="center">وسط</option>
-                        <option value="left">يسار</option>
-                    </select>
-                </div>
+                <label>التوقيع الأول (يمين):</label>
+                <select id="selectSig1" onchange="renderAllPages()"></select>
             </div>
-
             <div class="form-group">
-                <label>التوقيع الثاني:</label>
-                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:4px;">
-                    <select id="selectSig2" onchange="renderAllPages()"></select>
-                    <select id="posSig2" onchange="renderAllPages()">
-                        <option value="center" selected>وسط</option>
-                        <option value="right">يمين</option>
-                        <option value="left">يسار</option>
-                    </select>
-                </div>
+                <label>التوقيع الثاني (وسط):</label>
+                <select id="selectSig2" onchange="renderAllPages()"></select>
             </div>
-
             <div class="form-group">
-                <label>التوقيع الثالث:</label>
-                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:4px;">
-                    <select id="selectSig3" onchange="renderAllPages()"></select>
-                    <select id="posSig3" onchange="renderAllPages()">
-                        <option value="left" selected>يسار</option>
-                        <option value="right">يمين</option>
-                        <option value="center">وسط</option>
-                    </select>
-                </div>
+                <label>التوقيع الثالث (يسار):</label>
+                <select id="selectSig3" onchange="renderAllPages()"></select>
             </div>
 
             <h2><i class="fas fa-file-word"></i> استيراد وورد والديباجة</h2>
@@ -515,7 +501,6 @@
             saveSelection();
             const editableArea = document.querySelector('.page-body-content[contenteditable="true"]');
             if (editableArea) {
-                // حفظ الهيكل الداخلي بدون التأثير على المتغيرات الحية
                 currentEditorRawContent = editableArea.innerHTML;
             }
         }
@@ -539,6 +524,9 @@
         }
 
         function createSinglePageDocument(bodyHtml, isEditable) {
+            const showHeader = document.getElementById('showHeaderChk').checked;
+            const showFooter = document.getElementById('showFooterChk').checked;
+
             const docLang = document.getElementById('docLang').value;
             const isEnglish = (docLang === 'en');
             const textDir = isEnglish ? 'ltr' : 'rtl';
@@ -588,37 +576,38 @@
                 }
             }
 
-            // 4. التوقيعات الثلاثة بمرونة في الأماكن
+            // 4. التوقيعات الثلاثة المرتبة بجانب بعضها
             const s1Idx = document.getElementById('selectSig1').value;
             const s2Idx = document.getElementById('selectSig2').value;
             const s3Idx = document.getElementById('selectSig3').value;
 
-            const p1 = document.getElementById('posSig1').value;
-            const p2 = document.getElementById('posSig2').value;
-            const p3 = document.getElementById('posSig3').value;
-
-            let sigsArr = [
-                { idx: s1Idx, pos: p1 },
-                { idx: s2Idx, pos: p2 },
-                { idx: s3Idx, pos: p3 }
-            ].filter(item => item.idx !== "" && signaturesList[item.idx]);
+            let sig1 = (s1Idx !== "" && signaturesList[s1Idx]) ? signaturesList[s1Idx] : null;
+            let sig2 = (s2Idx !== "" && signaturesList[s2Idx]) ? signaturesList[s2Idx] : null;
+            let sig3 = (s3Idx !== "" && signaturesList[s3Idx]) ? signaturesList[s3Idx] : null;
 
             let sigHtml = '';
-            if (sigsArr.length > 0) {
+            if (sig1 || sig2 || sig3) {
                 sigHtml = `<div class="signatures-area">`;
-                sigsArr.forEach(item => {
-                    const sig = signaturesList[item.idx];
-                    sigHtml += `<div class="sig-box" style="align-self:${item.pos === 'center' ? 'center' : (item.pos === 'left' ? 'flex-end' : 'flex-start')}">
-                        <div class="sig-title">${sig.titleAr || ''}</div>
-                        <div class="sig-name">${sig.nameAr || ''}</div>
-                    </div>`;
-                });
+                
+                sigHtml += `<div class="sig-col">
+                    ${sig1 ? `<div class="sig-title">${sig1.titleAr || ''}</div><div class="sig-name">${sig1.nameAr || ''}</div>` : ''}
+                </div>`;
+
+                sigHtml += `<div class="sig-col">
+                    ${sig2 ? `<div class="sig-title">${sig2.titleAr || ''}</div><div class="sig-name">${sig2.nameAr || ''}</div>` : ''}
+                </div>`;
+
+                sigHtml += `<div class="sig-col">
+                    ${sig3 ? `<div class="sig-title">${sig3.titleAr || ''}</div><div class="sig-name">${sig3.nameAr || ''}</div>` : ''}
+                </div>`;
+
                 sigHtml += `</div>`;
             }
 
             return `
                 <div class="print-document" dir="${textDir}">
                     <table class="page-table">
+                        ${showHeader ? `
                         <thead>
                             <tr>
                                 <td>
@@ -633,6 +622,7 @@
                                 </td>
                             </tr>
                         </thead>
+                        ` : ''}
                         <tbody>
                             <tr>
                                 <td>
@@ -647,6 +637,7 @@
                                 </td>
                             </tr>
                         </tbody>
+                        ${showFooter ? `
                         <tfoot>
                             <tr>
                                 <td>
@@ -658,6 +649,7 @@
                                 </td>
                             </tr>
                         </tfoot>
+                        ` : ''}
                     </table>
                 </div>
             `;
