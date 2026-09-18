@@ -40,6 +40,7 @@
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-dark); }
         .btn-success { background: #10b981; color: white; }
+        .btn-success:hover { background: #059669; }
         .btn-danger { background: #ef4444; color: white; }
         .btn-secondary { background: #64748b; color: white; }
         .btn-warning { background: #f59e0b; color: white; }
@@ -83,6 +84,28 @@
         }
         .editable-text-area:empty:before { content: "اكتب محتوى الخطاب هنا أو قم برفع ملف Word..."; color: #94a3b8; }
 
+        /* تنسيقات الجداول المتقدمة ورسم أبعاد الخلايا بالمؤشر */
+        .editable-text-area table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            table-layout: fixed;
+        }
+
+        .editable-text-area td, .editable-text-area th {
+            padding: 8px;
+            border: 1px solid #cbd5e1;
+            position: relative;
+            resize: both;
+            overflow: auto;
+            min-width: 40px;
+            min-height: 25px;
+        }
+
+        .editable-text-area td.border-hidden, .editable-text-area th.border-hidden {
+            border-color: transparent !important;
+        }
+
         .document-title { text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 12px; color: var(--primary-dark); }
         .recipient-block { font-weight: bold; font-size: 1.05rem; margin-bottom: 12px; color: #1e293b; }
         .date-display-block { font-weight: bold; font-size: 0.9rem; margin-bottom: 12px; color: #334155; }
@@ -104,6 +127,7 @@
             .app-container { display: block; }
             .paper-wrapper { width: 100%; }
             .print-document { box-shadow: none; width: 100%; margin: 0; page-break-after: always; min-height: 100vh; }
+            .editable-text-area td, .editable-text-area th { resize: none !important; overflow: visible !important; }
         }
     </style>
 </head>
@@ -112,6 +136,46 @@
     <div class="app-container">
         <!-- شريط التحكم الجانبي -->
         <div class="sidebar no-print">
+            <!-- قسم التحكم الاحترافي بالجداول -->
+            <h2><i class="fas fa-table"></i> إعدادات واحترافيات الجداول</h2>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:6px;">
+                <button class="btn btn-primary" onclick="insertCustomTable()"><i class="fas fa-plus"></i> إدراج جدول جديد</button>
+                <button class="btn btn-secondary" onclick="toggleSelectedTableBorders()"><i class="fas fa-eye-slash"></i> إخفاء/إظهار الحدود</button>
+            </div>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+                <div class="form-group">
+                    <label>عرض الخلية / الجدول:</label>
+                    <input type="text" id="tblWidthInput" placeholder="مثال: 150px أو 50%" oninput="applyCellDimensions()">
+                </div>
+                <div class="form-group">
+                    <label>ارتفاع الخلية (px):</label>
+                    <input type="text" id="tblHeightInput" placeholder="مثال: 40px" oninput="applyCellDimensions()">
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
+                <div class="form-group">
+                    <label>لون الحدود:</label>
+                    <input type="color" id="tblBorderColor" value="#cbd5e1" onchange="applyTableBorderStyle()">
+                </div>
+                <div class="form-group">
+                    <label>السمك (px):</label>
+                    <input type="number" id="tblBorderWidth" value="1" min="0" max="10" oninput="applyTableBorderStyle()">
+                </div>
+                <div class="form-group">
+                    <label>الشكل:</label>
+                    <select id="tblBorderStyle" onchange="applyTableBorderStyle()">
+                        <option value="solid">صلب</option>
+                        <option value="dashed">متقطع</option>
+                        <option value="dotted">منقط</option>
+                        <option value="double">مزدوج</option>
+                        <option value="none">بدون</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn btn-danger" onclick="eraseCellBorder()" style="width:100%; margin-bottom:10px;"><i class="fas fa-eraser"></i> مسح حدود الخلية الحالية</button>
+
             <h2><i class="fas fa-sliders"></i> أبعاد الهيدر والفوتر والخط الفاصل</h2>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
                 <label style="cursor:pointer;"><input type="checkbox" id="showHeaderChk" checked onchange="renderAllPages()"> إظهار الهيدر</label>
@@ -278,7 +342,7 @@
                     
                     <button class="tool-btn" onclick="formatDoc('insertUnorderedList')" title="قائمة نقطية"><i class="fas fa-list-ul"></i></button>
                     <button class="tool-btn" onclick="formatDoc('insertOrderedList')" title="ترقيم"><i class="fas fa-list-ol"></i></button>
-                    <button class="tool-btn" onclick="insertTable()" title="جدول"><i class="fas fa-table"></i></button>
+                    <button class="tool-btn" onclick="insertCustomTable()" title="جدول احترافي"><i class="fas fa-table"></i></button>
                     <button class="tool-btn" onclick="formatDoc('removeFormat')" title="مسح التنسيق"><i class="fas fa-eraser"></i></button>
                 </div>
             </div>
@@ -312,6 +376,7 @@
         let savedTemplates = {};
         let savedRecipients = [];
         let savedSelectionRange = null;
+        let selectedCell = null;
 
         let currentEditorRawContent = `<p>تشهد شركة <b>{اسم الشركة}</b> بأن السيد / <b>{الاسم}</b> (كود: <b>{كود}</b>) الحامل للرقم القومي <b>{الرقم القومي}</b> يعمل لدينا بوظيفة <b>{الوظيفة}</b> في قسم <b>{القسم}</b>.</p>
 <p>وقد حررت له هذه الشهادة بناءً على طلبه لتقديمها إلى من يهمه الأمر دون أدنى مسؤولية على الشركة.</p>`;
@@ -319,6 +384,15 @@
         window.onload = function() {
             document.getElementById('customDateInput').valueAsDate = new Date();
             loadDataFromFirebase();
+
+            // تتبع الخلية المحددة داخل الجداول
+            document.addEventListener('click', function(e) {
+                if (e.target.tagName === 'TD' || e.target.tagName === 'TH') {
+                    selectedCell = e.target;
+                    document.getElementById('tblWidthInput').value = selectedCell.style.width || '';
+                    document.getElementById('tblHeightInput').value = selectedCell.style.height || '';
+                }
+            });
         };
 
         function loadDataFromFirebase() {
@@ -369,6 +443,71 @@
 
             renderTemplatesCheckboxes();
             renderEmployeesCheckboxes(employeesList);
+        }
+
+        /* دوان الجداول الاحترافية الجديدة */
+        function insertCustomTable() {
+            const rows = prompt('عدد الصفوف:', '3');
+            const cols = prompt('عدد الأعمدة:', '3');
+            if (!rows || !cols) return;
+
+            let tableHtml = '<table border="1" style="width:100%; border-collapse:collapse; margin:15px 0;">';
+            for (let r = 0; r < rows; r++) {
+                tableHtml += '<tr>';
+                for (let c = 0; c < cols; c++) {
+                    tableHtml += '<td style="padding:8px; border:1px solid #cbd5e1;">خلية</td>';
+                }
+                tableHtml += '</tr>';
+            }
+            tableHtml += '</table><p></p>';
+            document.execCommand('insertHTML', false, tableHtml);
+        }
+
+        function applyCellDimensions() {
+            if (!selectedCell) return;
+            const w = document.getElementById('tblWidthInput').value;
+            const h = document.getElementById('tblHeightInput').value;
+
+            if (w) selectedCell.style.width = w.includes('px') || w.includes('%') ? w : w + 'px';
+            if (h) selectedCell.style.height = h.includes('px') ? h : h + 'px';
+            saveSelectionAndContent();
+        }
+
+        function applyTableBorderStyle() {
+            const color = document.getElementById('tblBorderColor').value;
+            const width = document.getElementById('tblBorderWidth').value + 'px';
+            const style = document.getElementById('tblBorderStyle').value;
+
+            if (selectedCell) {
+                const table = selectedCell.closest('table');
+                if (table) {
+                    table.querySelectorAll('td, th').forEach(cell => {
+                        cell.style.borderColor = color;
+                        cell.style.borderWidth = width;
+                        cell.style.borderStyle = style;
+                    });
+                }
+            }
+            saveSelectionAndContent();
+        }
+
+        function toggleSelectedTableBorders() {
+            if (selectedCell) {
+                const table = selectedCell.closest('table');
+                if (table) {
+                    table.querySelectorAll('td, th').forEach(cell => {
+                        cell.classList.toggle('border-hidden');
+                    });
+                }
+            }
+            saveSelectionAndContent();
+        }
+
+        function eraseCellBorder() {
+            if (selectedCell) {
+                selectedCell.style.border = 'none';
+            }
+            saveSelectionAndContent();
         }
 
         function populateRecipientsDropdown() {
@@ -721,23 +860,6 @@
 
         function formatDoc(cmd, value = null) {
             document.execCommand(cmd, false, value);
-        }
-
-        function insertTable() {
-            const rows = prompt('عدد الصفوف:', '3');
-            const cols = prompt('عدد الأعمدة:', '3');
-            if (!rows || !cols) return;
-
-            let tableHtml = '<table border="1" style="width:100%; border-collapse:collapse; margin:15px 0;">';
-            for (let r = 0; r < rows; r++) {
-                tableHtml += '<tr>';
-                for (let c = 0; c < cols; c++) {
-                    tableHtml += '<td style="padding:6px; border:1px solid #cbd5e1;">خلية</td>';
-                }
-                tableHtml += '</tr>';
-            }
-            tableHtml += '</table><p></p>';
-            document.execCommand('insertHTML', false, tableHtml);
         }
 
         function saveCurrentTemplate() {
