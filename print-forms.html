@@ -147,16 +147,18 @@
                     </div>
                 </div>
 
-                <h2><i class="fas fa-calendar-days"></i> التاريخ وإعداده</h2>
+                <h2><i class="fas fa-calendar-days"></i> إعدادات التاريخ والموقع</h2>
+                <div style="margin-bottom:6px;">
+                    <label style="cursor:pointer;"><input type="checkbox" id="showDateChk" checked onchange="renderAllPages()"> إظهار التاريخ في الخطاب</label>
+                </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
                     <div class="form-group">
                         <input type="date" id="customDateInput" onchange="renderAllPages()">
                     </div>
                     <div class="form-group">
-                        <select id="enDatePos" onchange="renderAllPages()">
-                            <option value="right" selected>يمين (أسفل العنوان)</option>
-                            <option value="left">يسار</option>
-                            <option value="center">وسط</option>
+                        <select id="dateAlignPos" onchange="renderAllPages()">
+                            <option value="right">يمين (تحت العنوان)</option>
+                            <option value="left" selected>يسار (تحت العنوان)</option>
                         </select>
                     </div>
                 </div>
@@ -212,7 +214,7 @@
                 <h2><i class="fas fa-save"></i> حفظ وتفريغ</h2>
                 <div class="form-group">
                     <input type="text" id="templateNameInput" placeholder="اسم النموذج الجديد...">
-                    <button class="btn btn-success" onclick="saveCurrentTemplate()" style="width:100%; margin-top:4px;"><i class="fas fa-thumbtack"></i> حفظ وحفظ النموذج</button>
+                    <button class="btn btn-success" onclick="saveAndClearTemplate()" style="width:100%; margin-top:4px;"><i class="fas fa-check-double"></i> حفظ وتفريغ النموذج</button>
                 </div>
                 <button class="btn btn-danger" onclick="resetFormControls()" style="width:100%; padding:8px;"><i class="fas fa-rotate-right"></i> مسح الإعدادات</button>
             </div>
@@ -237,7 +239,7 @@
 
             <hr style="margin: 12px 0; border: none; border-top: 1px solid #cbd5e1;">
 
-            <!-- الموظفين والمتغيرات (مشتركة) -->
+            <!-- الموظفين والمتغيرات -->
             <h2><i class="fas fa-users"></i> اختيار الموظفين للطباعة</h2>
             <div style="display:flex; gap:6px; margin-bottom:6px;">
                 <button class="btn btn-secondary" onclick="selectAllEmployees(true)" style="flex:1;">تحديد الكل</button>
@@ -530,6 +532,7 @@
         function createSinglePageDocument(bodyHtml, isEditable) {
             const showHeader = document.getElementById('showHeaderChk').checked;
             const showFooter = document.getElementById('showFooterChk').checked;
+            const showDate = document.getElementById('showDateChk').checked;
 
             const docLang = document.getElementById('docLang').value;
             const isEnglish = (docLang === 'en');
@@ -565,18 +568,14 @@
             const recipientStr = document.getElementById('recipientInput').value.trim();
             let recipientBlock = recipientStr ? `<div class="recipient-block">${isEnglish ? 'To:' : 'موجه إلى:'} ${recipientStr}</div>` : '';
 
+            // ضبط التاريخ دائماً تحت العنوان بمحاذاة ديناميكية
             const formattedDate = getFormattedDateStr(isEnglish);
-            let topDateBlock = '';
-            let bottomDateBlock = '';
+            let dateBlock = '';
 
-            if (formattedDate) {
-                if (isEnglish) {
-                    const pos = document.getElementById('enDatePos').value;
-                    const alignCss = pos === 'left' ? 'left' : (pos === 'center' ? 'center' : 'right');
-                    bottomDateBlock = `<div class="date-display-block" style="text-align:${alignCss};">Date: ${formattedDate}</div>`;
-                } else {
-                    topDateBlock = `<div class="date-display-block" style="text-align:left;">التاريخ: ${formattedDate}</div>`;
-                }
+            if (showDate && formattedDate) {
+                const alignPos = document.getElementById('dateAlignPos').value;
+                const dateLabel = isEnglish ? 'Date:' : 'التاريخ:';
+                dateBlock = `<div class="date-display-block" style="text-align:${alignPos};">${dateLabel} ${formattedDate}</div>`;
             }
 
             const s1Idx = document.getElementById('selectSig1').value;
@@ -596,6 +595,9 @@
                 sigHtml += `</div>`;
             }
 
+            // الحفاظ على موقع المكونات عند إخفاء الهيدر باستخدام Padding علوي
+            const topPaddingStyle = showHeader ? '' : `padding-top: ${parseInt(headerH) + 15}px;`;
+
             return `
                 <div class="print-document" id="docToExport" dir="${textDir}">
                     ${showHeader ? `
@@ -607,16 +609,15 @@
                     </div>
                     ` : ''}
 
-                    <div class="body-section" dir="${textDir}">
+                    <div class="body-section" dir="${textDir}" style="${topPaddingStyle}">
                         ${titleBlock}
-                        ${topDateBlock}
+                        ${dateBlock}
                         ${recipientBlock}
                         
                         <div class="editable-text-area" ${isEditable ? 'contenteditable="true" oninput="currentEditorRawContent=this.innerHTML;"' : ''}>
                             ${bodyHtml}
                         </div>
 
-                        ${bottomDateBlock}
                         ${sigHtml}
                     </div>
 
@@ -641,6 +642,8 @@
             document.getElementById('lineStyle').value = "solid";
             document.getElementById('showHeaderChk').checked = true;
             document.getElementById('showFooterChk').checked = true;
+            document.getElementById('showDateChk').checked = true;
+            document.getElementById('dateAlignPos').value = "left";
             
             document.getElementById('selectSig1').value = "";
             document.getElementById('selectSig2').value = "";
@@ -648,7 +651,7 @@
             currentEditorRawContent = "";
 
             renderAllPages();
-            alert('تم تفريغ كافة الإعدادات والافتراضيات بنجاح!');
+            alert('تم تفريغ كافة الإعدادات بنجاح!');
         }
 
         function downloadBackupWord() {
@@ -741,7 +744,7 @@
             document.execCommand('insertHTML', false, tableHtml);
         }
 
-        function saveCurrentTemplate() {
+        function saveAndClearTemplate() {
             const nameInput = document.getElementById('templateNameInput');
             const name = nameInput.value.trim();
             if (!name) return alert('برجاء كتابة اسم النموذج أولاً');
@@ -750,8 +753,9 @@
                 name: name,
                 content: currentEditorRawContent
             }).then(() => {
-                alert('تم حفظ وتثبيت النموذج بنجاح!');
+                alert('تم حفظ النموذج بنجاح وتفريغ الحقول إعداداً لنموذج جديد!');
                 nameInput.value = '';
+                resetFormControls();
                 loadDataFromFirebase();
             });
         }
