@@ -42,50 +42,45 @@
         .btn-success { background: #10b981; color: white; }
         .btn-danger { background: #ef4444; color: white; }
         .btn-secondary { background: #64748b; color: white; }
-        
-        .chip-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; max-height: 100px; overflow-y: auto; background: #f8fafc; padding: 6px; border: 1px solid #e2e8f0; border-radius: 6px; }
-        .chip { background: #e0e7ff; color: var(--primary-dark); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
-        .chip:hover { background: #c7d2fe; }
 
         .multi-select-box { max-height: 120px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; background: #fff; }
         .multi-select-box label { display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; padding: 2px 0; border-bottom: 1px dashed #f1f5f9; }
 
-        /* شريط أدوات المحرر */
-        .editor-toolbar { display: flex; flex-wrap: wrap; gap: 4px; background: #f8fafc; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px 8px 0 0; margin-bottom: -1px; }
-        .tool-btn { background: #fff; border: 1px solid #cbd5e1; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 0.82rem; color: #334155; }
-        .tool-btn:hover { background: #e2e8f0; color: var(--primary); }
+        /* شريط أدوات المحرر العلوي الثابت */
+        .editor-toolbar-container { position: sticky; top: 10px; z-index: 9999; margin-bottom: 15px; }
+        .editor-toolbar { display: flex; flex-wrap: wrap; gap: 6px; background: #ffffff; padding: 10px; border: 1px solid #94a3b8; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+        .tool-btn { background: #f8fafc; border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; color: #334155; }
+        .tool-btn:hover { background: #e0e7ff; color: var(--primary); }
 
-        /* الورقة الرسمية بتقنية تكرار الهيدر والفوتر في كل الصفحات */
+        /* الورقة الرسمية */
         .paper-wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; }
         
         .print-document {
             width: 210mm; background: #ffffff; padding: 0; box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-            box-sizing: border-box; margin-bottom: 25px; page-break-after: always;
+            box-sizing: border-box; margin-bottom: 25px; position: relative;
         }
 
-        /* الجدول الأساسي لضمان تكرار الهيدر والفوتر عبر الصفحات */
         .page-table { width: 100%; border-collapse: collapse; }
-        
         .page-header-space { height: 110px; }
         .page-footer-space { height: 90px; }
 
         .header-content {
             position: fixed; top: 0; width: 210mm; background: #fff;
             padding: 15mm 15mm 5mm 15mm; border-bottom: 2px solid var(--primary);
-            display: flex; justify-content: space-between; align-items: center; box-sizing: border-border;
+            display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; z-index: 100;
         }
 
         .footer-content {
             position: fixed; bottom: 0; width: 210mm; background: #fff;
             padding: 5mm 15mm 10mm 15mm; border-top: 1px solid #cbd5e1;
-            font-size: 0.78rem; color: #64748b; box-sizing: border-border;
+            font-size: 0.78rem; color: #64748b; box-sizing: border-box; z-index: 100;
         }
 
         .header-text { font-size: 0.88rem; font-weight: bold; line-height: 1.4; }
         .header-logo { max-height: 55px; max-width: 130px; object-fit: contain; }
 
         .page-body-content {
-            padding: 10mm 15mm; font-size: 1rem; line-height: 1.8; color: #0f172a; text-align: justify;
+            padding: 10mm 15mm; font-size: 1rem; line-height: 1.8; color: #0f172a; text-align: justify; outline: none; min-height: 300px;
         }
         .page-body-content[contenteditable="true"]:empty:before { content: "اكتب محتوى الخطاب أو قم برفع ملف Word..."; color: #94a3b8; }
 
@@ -96,14 +91,12 @@
 
         @media print {
             body { background: white; padding: 0; }
-            .sidebar, .editor-toolbar, .no-print { display: none !important; }
+            .sidebar, .editor-toolbar-container, .no-print { display: none !important; }
             .app-container { display: block; }
             .paper-wrapper { width: 100%; }
             .print-document { box-shadow: none; width: 100%; margin: 0; page-break-after: always; }
-            
             .header-content { position: fixed; top: 0; }
             .footer-content { position: fixed; bottom: 0; }
-            
             thead { display: table-header-group; }
             tfoot { display: table-footer-group; }
         }
@@ -122,7 +115,7 @@
                 <input type="file" id="wordFileInput" accept=".docx" onchange="importWordFile(this)">
             </div>
 
-            <!-- 2. النماذج الديباجة والفرع والتوقيعات -->
+            <!-- 2. قوالب الهيدر والفوتر والفرع -->
             <div class="form-group">
                 <label>نموذج رأس الصفحة (Header):</label>
                 <select id="selectLetterhead" onchange="renderAllPages()"></select>
@@ -143,10 +136,10 @@
 
             <hr style="margin: 10px 0; border: none; border-top: 1px solid #cbd5e1;">
 
-            <!-- 3. النماذج المحفوظة والمثبتة متعددة الاختيار -->
+            <!-- 3. النماذج المثبتة -->
             <h2><i class="fas fa-layer-group"></i> النماذج المراد طباعتها</h2>
             <div class="form-group">
-                <label>اختر النماذج المثبتة (يمكن اختيار أكثر من نموذج):</label>
+                <label>اختر النماذج المثبتة (مستندات متعددة):</label>
                 <div class="multi-select-box" id="templatesMultiSelect"></div>
             </div>
 
@@ -157,7 +150,7 @@
 
             <hr style="margin: 10px 0; border: none; border-top: 1px solid #cbd5e1;">
 
-            <!-- 4. تحديد نطاق الموظفين للدمج والطباعة -->
+            <!-- 4. النطاق والموظفين -->
             <h2><i class="fas fa-users"></i> الموظفين المستهدفين للطباعة</h2>
             
             <div class="form-group">
@@ -174,10 +167,12 @@
                 <div class="multi-select-box" id="employeesMultiSelect"></div>
             </div>
 
-            <!-- 5. الحقول القابلة للدمج -->
+            <!-- 5. قائمة المتغيرات المنبثقة -->
             <div class="form-group">
-                <label>إدراج متغيرات الشيت في النمذج:</label>
-                <div class="chip-list" id="availableVariables"></div>
+                <label style="color:var(--primary); font-weight:bold;"><i class="fas fa-code"></i> إدراج متغيرات الشيت في النص:</label>
+                <select id="variableDropdown" onchange="insertSelectedVariable(this)">
+                    <option value="">-- اختر الحقل لإدراجه بمكان المؤشر --</option>
+                </select>
             </div>
 
             <button class="btn btn-primary" onclick="window.print()" style="width: 100%; padding: 12px; font-size: 1rem; margin-top: 10px;">
@@ -187,20 +182,22 @@
 
         <!-- منطقة العرض والطباعة -->
         <div>
-            <!-- أدوات تنسيق المحرر -->
-            <div class="editor-toolbar no-print">
-                <button class="tool-btn" onclick="formatDoc('bold')" title="غامق"><i class="fas fa-bold"></i></button>
-                <button class="tool-btn" onclick="formatDoc('italic')" title="مائل"><i class="fas fa-italic"></i></button>
-                <button class="tool-btn" onclick="formatDoc('underline')" title="تحته خط"><i class="fas fa-underline"></i></button>
-                <button class="tool-btn" onclick="formatDoc('justifyRight')" title="يمين"><i class="fas fa-align-right"></i></button>
-                <button class="tool-btn" onclick="formatDoc('justifyCenter')" title="وسط"><i class="fas fa-align-center"></i></button>
-                <button class="tool-btn" onclick="formatDoc('justifyLeft')" title="يسار"><i class="fas fa-align-left"></i></button>
-                <button class="tool-btn" onclick="formatDoc('insertUnorderedList')" title="قائمة"><i class="fas fa-list-ul"></i></button>
-                <button class="tool-btn" onclick="insertTable()" title="جدول"><i class="fas fa-table"></i></button>
-                <button class="tool-btn" onclick="formatDoc('removeFormat')" title="مسح التنسيق"><i class="fas fa-eraser"></i></button>
+            <!-- شريط أدوات المحرر العلوي المرتفع فوق الصفحة -->
+            <div class="editor-toolbar-container no-print">
+                <div class="editor-toolbar">
+                    <button class="tool-btn" onclick="formatDoc('bold')" title="غامق"><i class="fas fa-bold"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('italic')" title="مائل"><i class="fas fa-italic"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('underline')" title="تحته خط"><i class="fas fa-underline"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('justifyRight')" title="يمين"><i class="fas fa-align-right"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('justifyCenter')" title="وسط"><i class="fas fa-align-center"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('justifyLeft')" title="يسار"><i class="fas fa-align-left"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('insertUnorderedList')" title="قائمة"><i class="fas fa-list-ul"></i></button>
+                    <button class="tool-btn" onclick="insertTable()" title="جدول"><i class="fas fa-table"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('removeFormat')" title="مسح التنسيق"><i class="fas fa-eraser"></i></button>
+                </div>
             </div>
 
-            <!-- حاوية جميع الأوراق المولّدة للطباعة -->
+            <!-- حاوية الورقة للطباعة -->
             <div class="paper-wrapper" id="papersContainer"></div>
         </div>
     </div>
@@ -227,6 +224,7 @@
         let employeesList = [];
         let columnKeys = [];
         let savedTemplates = {};
+        let savedSelectionRange = null;
 
         let currentEditorContent = `<p style="text-align: center; font-weight: bold; font-size: 1.2rem; margin-bottom: 20px;">خطاب رسمي / نموذج عمل</p>
 <p>تشهد شركة <b>{اسم الشركة}</b> بأن السيد / <b>{الاسم}</b> (كود: <b>{كود}</b>) الحامل للرقم القومي <b>{الرقم القومي}</b> يعمل لدينا بوظيفة <b>{الوظيفة}</b> في قسم <b>{القسم}</b>.</p>
@@ -268,11 +266,15 @@
             s2.innerHTML = '<option value="">-- توقيع 2 --</option>' + sigOptions;
             if (signaturesList.length > 0) s1.value = "0";
 
-            // 2. متغيرات الشيت
-            const varContainer = document.getElementById('availableVariables');
-            varContainer.innerHTML = columnKeys.map(k => `<span class="chip" onclick="insertVariable('{${k}}')">{${k}}</span>`).join('') +
-                `<span class="chip" onclick="insertVariable('{اسم الشركة}')">{اسم الشركة}</span>
-                 <span class="chip" onclick="insertVariable('{التاريخ}')">{التاريخ}</span>`;
+            // 2. قائمة المتغيرات المنسدلة
+            const varDropdown = document.getElementById('variableDropdown');
+            varDropdown.innerHTML = '<option value="">-- اختر الحقل لإدراجه بمكان المؤشر --</option>';
+            
+            columnKeys.forEach(k => {
+                varDropdown.innerHTML += `<option value="{${k}}">{${k}}</option>`;
+            });
+            varDropdown.innerHTML += `<option value="{اسم الشركة}">{اسم الشركة}</option>`;
+            varDropdown.innerHTML += `<option value="{التاريخ}">{التاريخ}</option>`;
 
             // 3. النماذج المثبتة
             renderTemplatesCheckboxes();
@@ -284,8 +286,6 @@
         function renderTemplatesCheckboxes() {
             const box = document.getElementById('templatesMultiSelect');
             box.innerHTML = '';
-            
-            // إضافة النموذج الحالي المحرر
             box.innerHTML += `<label><input type="checkbox" class="template-chk" value="__CURRENT__" checked onchange="renderAllPages()"> النموذج المحرر الحالي</label>`;
 
             Object.keys(savedTemplates).forEach(k => {
@@ -311,21 +311,17 @@
                 const idx = parseInt(chk.value);
                 const emp = employeesList[idx];
                 const code = parseInt(emp['كود'] || emp['Code'] || (idx + 1));
-
                 chk.checked = (code >= from && code <= to);
             });
 
             renderAllPages();
         }
 
-        /* توليد وعرض جميع الأوراق المطلوب طباعتها */
         function renderAllPages() {
             const container = document.getElementById('papersContainer');
             container.innerHTML = '';
 
-            // 1. معرفة النماذج المحددة
             const selectedTemplateKeys = Array.from(document.querySelectorAll('.template-chk:checked')).map(c => c.value);
-            // 2. معرفة الموظفين المحددين
             const selectedEmpIndexes = Array.from(document.querySelectorAll('.emp-chk:checked')).map(c => parseInt(c.value));
 
             if (selectedEmpIndexes.length === 0) {
@@ -333,36 +329,33 @@
                 return;
             }
 
-            // تكرار الطباعة لكل موظف ولكل نموذج محدد
             selectedEmpIndexes.forEach(empIdx => {
                 const emp = employeesList[empIdx] || {};
 
                 selectedTemplateKeys.forEach(tKey => {
                     let rawHtml = (tKey === '__CURRENT__') ? currentEditorContent : (savedTemplates[tKey] ? savedTemplates[tKey].content : '');
-                    
-                    // استبدال المتغيرات
                     let mergedHtml = mergeEmployeeData(rawHtml, emp);
-
-                    // بناء الورقة للطباعة
                     const docHtml = createSinglePageDocument(mergedHtml, tKey === '__CURRENT__');
                     container.insertAdjacentHTML('beforeend', docHtml);
                 });
             });
+
+            // تتبع مكان المؤشر عند الكتابة
+            const editableArea = document.querySelector('.page-body-content[contenteditable="true"]');
+            if (editableArea) {
+                editableArea.addEventListener('keyup', saveSelection);
+                editableArea.addEventListener('mouseup', saveSelection);
+            }
         }
 
         function mergeEmployeeData(htmlContent, emp) {
             let res = htmlContent;
-            
-            // دمج كافة أعمدة شيت الموظف
             columnKeys.forEach(key => {
                 const regex = new RegExp(`\\{${key}\\}`, 'g');
                 res = res.replace(regex, emp[key] || '');
             });
-
-            // دمج المتغيرات العامة
             res = res.replace(/\{اسم الشركة\}/g, companyInfo.nameAr || '');
             res = res.replace(/\{التاريخ\}/g, new Date().toLocaleDateString('ar-EG'));
-
             return res;
         }
 
@@ -376,18 +369,15 @@
             const s1Idx = document.getElementById('selectSig1').value;
             const s2Idx = document.getElementById('selectSig2').value;
 
-            // رأس الصفحة
             const hLine1 = lh.hLine1 || companyInfo.nameAr || '';
             const hLine2 = lh.hLine2 || companyInfo.fieldAr || '';
             const logoHtml = (companyInfo.logo && lh.logoPos !== 'none') ? `<img src="${companyInfo.logo}" class="header-logo" alt="Logo">` : '';
 
-            // أسفل الصفحة
             let fLine = `<div>${lh.fLine1 || ''}</div><div>${lh.fLine2 || ''}</div>`;
             if (br) {
                 fLine += `<div style="font-weight:bold; margin-top:2px;">${br.name} - س.ت: ${br.cr} - ب.ض: ${br.tax}</div>`;
             }
 
-            // التوقيعات
             let sigHtml = '';
             if ((s1Idx !== "" && signaturesList[s1Idx]) || (s2Idx !== "" && signaturesList[s2Idx])) {
                 sigHtml = `<div class="signatures-area">`;
@@ -443,7 +433,35 @@
             `;
         }
 
-        /* قراءة ملف Word واستخراج النصوص منه للمحرر */
+        /* حفظ واسترجاع موقع المؤشر داخل النص */
+        function saveSelection() {
+            if (window.getSelection) {
+                const sel = window.getSelection();
+                if (sel.getRangeAt && sel.rangeCount) {
+                    savedSelectionRange = sel.getRangeAt(0);
+                }
+            }
+        }
+
+        function insertSelectedVariable(selectEl) {
+            const varTag = selectEl.value;
+            if (!varTag) return;
+
+            const editableArea = document.querySelector('.page-body-content[contenteditable="true"]');
+            if (editableArea) {
+                editableArea.focus();
+                if (savedSelectionRange) {
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(savedSelectionRange);
+                }
+                document.execCommand('insertText', false, varTag);
+                currentEditorContent = editableArea.innerHTML;
+            }
+
+            selectEl.value = '';
+        }
+
         function importWordFile(input) {
             if (!input.files.length) return;
             const file = input.files[0];
@@ -462,10 +480,6 @@
                     });
             };
             reader.readAsArrayBuffer(file);
-        }
-
-        function insertVariable(varTag) {
-            document.execCommand('insertText', false, varTag);
         }
 
         function formatDoc(cmd, value = null) {
