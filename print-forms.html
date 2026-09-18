@@ -26,29 +26,29 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: var(--bg); color: var(--text); padding: 15px; direction: rtl; }
 
-        .app-container { display: grid; grid-template-columns: 380px 1fr; gap: 20px; max-width: 1500px; margin: 0 auto; }
+        .app-container { display: grid; grid-template-columns: 380px 1fr; gap: 20px; max-width: 1550px; margin: 0 auto; }
 
         /* شريط التحكم الجانبي */
         .sidebar { background: #fff; padding: 18px; border-radius: 12px; border: 1px solid var(--border); height: fit-content; box-shadow: 0 4px 12px rgba(0,0,0,0.08); max-height: 95vh; overflow-y: auto; }
-        .sidebar h2 { font-size: 1rem; color: var(--primary-dark); margin-bottom: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+        .sidebar h2 { font-size: 0.98rem; color: var(--primary-dark); margin-bottom: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; display: flex; align-items: center; gap: 8px; margin-top: 12px; }
 
         .form-group { margin-bottom: 10px; }
         label { display: block; font-size: 0.78rem; font-weight: bold; margin-bottom: 3px; color: #475569; }
         select, input[type="text"], input[type="number"], input[type="date"], input[type="file"], input[type="color"] { width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 0.82rem; background: #fff; }
 
-        .btn { padding: 8px 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.82rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn { padding: 7px 11px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.8rem; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-dark); }
         .btn-success { background: #10b981; color: white; }
         .btn-danger { background: #ef4444; color: white; }
         .btn-secondary { background: #64748b; color: white; }
 
-        .multi-select-box { max-height: 110px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; background: #fff; }
+        .multi-select-box { max-height: 120px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; background: #fff; }
         .multi-select-box label { display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; padding: 2px 0; border-bottom: 1px dashed #f1f5f9; font-size: 0.8rem; }
 
-        /* شريط أدوات المحرر العلوي الثابت */
-        .editor-toolbar-container { position: sticky; top: 10px; z-index: 9999; margin-bottom: 15px; }
-        .editor-toolbar { display: flex; flex-wrap: wrap; gap: 6px; background: #ffffff; padding: 8px; border: 1px solid #94a3b8; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+        /* شريط أدوات المحرر العلوي المرتفع */
+        .editor-toolbar-container { position: sticky; top: 0px; z-index: 99999; margin-bottom: 20px; background: var(--bg); padding-top: 5px; padding-bottom: 5px; }
+        .editor-toolbar { display: flex; flex-wrap: wrap; gap: 6px; background: #ffffff; padding: 8px 12px; border: 1px solid #94a3b8; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); align-items: center; }
         .tool-btn { background: #f8fafc; border: 1px solid #cbd5e1; padding: 5px 9px; border-radius: 4px; cursor: pointer; font-size: 0.82rem; color: #334155; }
         .tool-btn:hover { background: #e0e7ff; color: var(--primary); }
 
@@ -78,19 +78,19 @@
         .header-logo { max-height: 55px; max-width: 130px; object-fit: contain; }
 
         .page-body-content {
-            padding: 10mm 15mm; font-size: 1rem; line-height: 1.8; color: #0f172a; text-align: justify; outline: none; min-height: 300px;
+            padding: 10mm 15mm; font-size: 1rem; line-height: 1.8; color: #0f172a; outline: none; min-height: 300px;
         }
         .page-body-content[contenteditable="true"]:empty:before { content: "اكتب محتوى الخطاب أو قم برفع ملف Word..."; color: #94a3b8; }
 
-        .recipient-block { font-weight: bold; font-size: 1.05rem; margin-bottom: 12px; color: var(--primary-dark); }
-        .date-display-block { font-weight: bold; font-size: 0.9rem; margin-bottom: 10px; color: #334155; }
+        .document-title { text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 12px; color: var(--primary-dark); }
+        .recipient-block { font-weight: bold; font-size: 1.05rem; margin-bottom: 12px; color: #1e293b; }
+        .date-display-block { font-weight: bold; font-size: 0.9rem; margin-bottom: 12px; color: #334155; }
 
-        .signatures-area { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; padding: 0 10px; page-break-inside: avoid; }
-        .sig-box { text-align: center; min-width: 170px; }
+        .signatures-area { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 35px; padding: 0 10px; page-break-inside: avoid; }
+        .sig-box { text-align: center; min-width: 160px; }
         .sig-box .sig-title { font-weight: bold; font-size: 0.88rem; color: #334155; margin-bottom: 40px; }
         .sig-box .sig-name { font-weight: bold; font-size: 0.9rem; color: var(--primary-dark); border-top: 1px dashed #cbd5e1; padding-top: 4px; }
 
-        /* إخفاء الهيدر والفوتر التلقائي للمتصفح بالكامل أثناء الطباعة */
         @page {
             size: A4;
             margin: 0mm;
@@ -114,9 +114,33 @@
     <div class="app-container">
         <!-- شريط التحكم الجانبي -->
         <div class="sidebar no-print">
-            <h2><i class="fas fa-sliders"></i> الأبعاد والتنسيق البصري</h2>
+            <h2><i class="fas fa-globe"></i> لغة الخطاب والتنسيق</h2>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+                <div class="form-group">
+                    <label>لغة الخطاب:</label>
+                    <select id="docLang" onchange="renderAllPages()">
+                        <option value="ar" selected>عربي (RTL)</option>
+                        <option value="en">English (LTR)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>عنوان الخطاب:</label>
+                    <input type="text" id="docTitleInput" value="خطاب رسمي / نموذج عمل" placeholder="عنوان الخطاب..." oninput="renderAllPages()">
+                </div>
+            </div>
 
-            <!-- التحكم بمساحة الهيدر والفوتر والخط الفاصل -->
+            <h2><i class="fas fa-user-tag"></i> إعدادات التوجيه (موجه إلى)</h2>
+            <div class="form-group">
+                <select id="savedRecipientsList" onchange="applySavedRecipient(this)">
+                    <option value="">-- اختر توجيه محفوظ --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="text" id="recipientInput" placeholder="مثال: السيد المهندس / مدير عام الهيئة..." oninput="renderAllPages()">
+                <button class="btn btn-secondary" onclick="saveRecipientToDb()" style="width:100%; margin-top:4px;"><i class="fas fa-bookmark"></i> حفظ التوجيه في القائمة</button>
+            </div>
+
+            <h2><i class="fas fa-sliders"></i> أبعاد الهيدر والفوتر والخط الفاصل</h2>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
                 <div class="form-group">
                     <label>ارتفاع الهيدر (px):</label>
@@ -134,71 +158,74 @@
                     <input type="color" id="lineColor" value="#0b4fb3" onchange="renderAllPages()">
                 </div>
                 <div class="form-group">
-                    <label>سمك الخط (px):</label>
+                    <label>السمك (px):</label>
                     <input type="number" id="lineWidth" value="2" min="0" max="10" oninput="renderAllPages()">
                 </div>
                 <div class="form-group">
                     <label>شكل الخط:</label>
                     <select id="lineStyle" onchange="renderAllPages()">
                         <option value="solid">مستقيم (Solid)</option>
+                        <option value="double">مزدوج (Double)</option>
                         <option value="dashed">متقطع (Dashed)</option>
                         <option value="dotted">منقط (Dotted)</option>
+                        <option value="groove">بارز (Groove)</option>
+                        <option value="ridge">محفور (Ridge)</option>
                         <option value="none">بدون خط</option>
                     </select>
                 </div>
             </div>
 
-            <h2><i class="fas fa-calendar-days"></i> إعدادات التاريخ</h2>
+            <h2><i class="fas fa-calendar-days"></i> التاريخ وتعديله</h2>
             <div class="form-group">
                 <input type="date" id="customDateInput" onchange="renderAllPages()">
             </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
-                <div class="form-group">
-                    <label>لغة التاريخ:</label>
-                    <select id="dateLang" onchange="renderAllPages()">
-                        <option value="ar">عربي</option>
-                        <option value="en">إنجليزي</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>مكان التاريخ:</label>
-                    <select id="datePos" onchange="renderAllPages()">
-                        <option value="right">أعلى الخطاب (يمين)</option>
-                        <option value="left" selected>أعلى الخطاب (يسار)</option>
-                        <option value="center">أعلى الخطاب (وسط)</option>
-                        <option value="none">إخفاء (استخدام متغير {التاريخ})</option>
+
+            <h2><i class="fas fa-file-signature"></i> التوقيعات (3 توقيعات ومواقعها)</h2>
+            <div class="form-group">
+                <label>التوقيع الأول:</label>
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:4px;">
+                    <select id="selectSig1" onchange="renderAllPages()"></select>
+                    <select id="posSig1" onchange="renderAllPages()">
+                        <option value="right">يمين</option>
+                        <option value="center">وسط</option>
+                        <option value="left">يسار</option>
                     </select>
                 </div>
             </div>
 
-            <h2><i class="fas fa-user-tag"></i> إعدادات التوجيه (موجه إلى)</h2>
             <div class="form-group">
-                <label>اختر من التوجيهات المحفوظة سابقا:</label>
-                <select id="savedRecipientsList" onchange="applySavedRecipient(this)">
-                    <option value="">-- اختر توجيه محفوظ --</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>كتابة موجه إلى (الاسم / الوظيفة / الجهة):</label>
-                <input type="text" id="recipientInput" placeholder="مثال: السيد المهندس / مدير عام الهيئة..." oninput="renderAllPages()">
-                <button class="btn btn-secondary" onclick="saveRecipientToDb()" style="width:100%; margin-top:4px;"><i class="fas fa-bookmark"></i> حفظ التوجيه في القائمة</button>
+                <label>التوقيع الثاني:</label>
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:4px;">
+                    <select id="selectSig2" onchange="renderAllPages()"></select>
+                    <select id="posSig2" onchange="renderAllPages()">
+                        <option value="center" selected>وسط</option>
+                        <option value="right">يمين</option>
+                        <option value="left">يسار</option>
+                    </select>
+                </div>
             </div>
 
-            <h2><i class="fas fa-file-word"></i> استيراد ملف وورد</h2>
+            <div class="form-group">
+                <label>التوقيع الثالث:</label>
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:4px;">
+                    <select id="selectSig3" onchange="renderAllPages()"></select>
+                    <select id="posSig3" onchange="renderAllPages()">
+                        <option value="left" selected>يسار</option>
+                        <option value="right">يمين</option>
+                        <option value="center">وسط</option>
+                    </select>
+                </div>
+            </div>
+
+            <h2><i class="fas fa-file-word"></i> استيراد وورد والديباجة</h2>
             <div class="form-group">
                 <input type="file" id="wordFileInput" accept=".docx" onchange="importWordFile(this)">
             </div>
-
-            <h2><i class="fas fa-heading"></i> الديباجة والفرع والتوقيعات</h2>
             <div class="form-group">
                 <select id="selectLetterhead" onchange="renderAllPages()"></select>
             </div>
             <div class="form-group">
                 <select id="selectBranch" onchange="renderAllPages()"></select>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
-                <select id="selectSig1" onchange="renderAllPages()"></select>
-                <select id="selectSig2" onchange="renderAllPages()"></select>
             </div>
 
             <h2><i class="fas fa-layer-group"></i> النماذج المثبتة</h2>
@@ -210,7 +237,11 @@
                 <button class="btn btn-success" onclick="saveCurrentTemplate()" style="width:100%; margin-top:4px;"><i class="fas fa-thumbtack"></i> حفظ وتثبيت النموذج الحالي</button>
             </div>
 
-            <h2><i class="fas fa-users"></i> الموظفين المستهدفين</h2>
+            <h2><i class="fas fa-users"></i> الموظفين المستهدفين للطباعة</h2>
+            <div style="display:flex; gap:6px; margin-bottom:6px;">
+                <button class="btn btn-secondary" onclick="selectAllEmployees(true)" style="flex:1;">تحديد الكل</button>
+                <button class="btn btn-secondary" onclick="selectAllEmployees(false)" style="flex:1;">إلغاء الكل</button>
+            </div>
             <div class="form-group">
                 <div style="display:flex; gap:6px;">
                     <input type="number" id="codeFrom" placeholder="من كود">
@@ -236,16 +267,29 @@
 
         <!-- منطقة العرض والطباعة -->
         <div>
-            <!-- شريط أدوات المحرر العلوي -->
+            <!-- شريط أدوات المحرر العلوي الثابت الطافي -->
             <div class="editor-toolbar-container no-print">
                 <div class="editor-toolbar">
                     <button class="tool-btn" onclick="formatDoc('bold')" title="غامق"><i class="fas fa-bold"></i></button>
                     <button class="tool-btn" onclick="formatDoc('italic')" title="مائل"><i class="fas fa-italic"></i></button>
                     <button class="tool-btn" onclick="formatDoc('underline')" title="تحته خط"><i class="fas fa-underline"></i></button>
+                    
+                    <select class="tool-btn" onchange="formatDoc('fontSize', this.value)" title="حجم الخط">
+                        <option value="3">حجم الخط عادي</option>
+                        <option value="1">صغير جداً</option>
+                        <option value="2">صغير</option>
+                        <option value="4">متوسط</option>
+                        <option value="5">كبير</option>
+                        <option value="6">كبير جداً</option>
+                        <option value="7">ضخم</option>
+                    </select>
+
                     <button class="tool-btn" onclick="formatDoc('justifyRight')" title="يمين"><i class="fas fa-align-right"></i></button>
                     <button class="tool-btn" onclick="formatDoc('justifyCenter')" title="وسط"><i class="fas fa-align-center"></i></button>
                     <button class="tool-btn" onclick="formatDoc('justifyLeft')" title="يسار"><i class="fas fa-align-left"></i></button>
-                    <button class="tool-btn" onclick="formatDoc('insertUnorderedList')" title="قائمة"><i class="fas fa-list-ul"></i></button>
+                    
+                    <button class="tool-btn" onclick="formatDoc('insertUnorderedList')" title="قائمة نقطية"><i class="fas fa-list-ul"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('insertOrderedList')" title="ترقيم"><i class="fas fa-list-ol"></i></button>
                     <button class="tool-btn" onclick="insertTable()" title="جدول"><i class="fas fa-table"></i></button>
                     <button class="tool-btn" onclick="formatDoc('removeFormat')" title="مسح التنسيق"><i class="fas fa-eraser"></i></button>
                 </div>
@@ -281,12 +325,10 @@
         let savedRecipients = [];
         let savedSelectionRange = null;
 
-        let currentEditorContent = `<p style="text-align: center; font-weight: bold; font-size: 1.2rem; margin-bottom: 20px;">خطاب رسمي / نموذج عمل</p>
-<p>تشهد شركة <b>{اسم الشركة}</b> بأن السيد / <b>{الاسم}</b> (كود: <b>{كود}</b>) الحامل للرقم القومي <b>{الرقم القومي}</b> يعمل لدينا بوظيفة <b>{الوظيفة}</b> في قسم <b>{القسم}</b>.</p>
+        let currentEditorRawContent = `<p>تشهد شركة <b>{اسم الشركة}</b> بأن السيد / <b>{الاسم}</b> (كود: <b>{كود}</b>) الحامل للرقم القومي <b>{الرقم القومي}</b> يعمل لدينا بوظيفة <b>{الوظيفة}</b> في قسم <b>{القسم}</b>.</p>
 <p>وقد حررت له هذه الشهادة بناءً على طلبه لتقديمها إلى من يهمه الأمر دون أدنى مسؤولية على الشركة.</p>`;
 
         window.onload = function() {
-            // تعيين تاريخ اليوم كافتراضي
             document.getElementById('customDateInput').valueAsDate = new Date();
             loadDataFromFirebase();
         };
@@ -309,7 +351,7 @@
         }
 
         function populateControls() {
-            // 1. الديباجة والفرع والتوقيعات
+            // 1. الديباجة والفرع
             const lhSelect = document.getElementById('selectLetterhead');
             lhSelect.innerHTML = letterheadsList.map((lh, i) => `<option value="${i}">${lh.name || 'ديباجة ' + (i+1)}</option>`).join('');
 
@@ -317,17 +359,23 @@
             brSelect.innerHTML = '<option value="">-- بدون تحديد فرع --</option>' + 
                 branchesList.map((b, i) => `<option value="${i}">${b.name || 'فرع ' + (i+1)}</option>`).join('');
 
+            // 2. التوقيعات الثلاثة
             const s1 = document.getElementById('selectSig1');
             const s2 = document.getElementById('selectSig2');
-            const sigOptions = signaturesList.map((s, i) => `<option value="${i}">${s.titleAr || s.nameAr || 'توقيع ' + (i+1)}</option>`).join('');
-            s1.innerHTML = '<option value="">-- توقيع 1 --</option>' + sigOptions;
-            s2.innerHTML = '<option value="">-- توقيع 2 --</option>' + sigOptions;
-            if (signaturesList.length > 0) s1.value = "0";
+            const s3 = document.getElementById('selectSig3');
+            const sigOptions = '<option value="">-- بدون توقيع --</option>' + signaturesList.map((s, i) => `<option value="${i}">${s.titleAr || s.nameAr || 'توقيع ' + (i+1)}</option>`).join('');
+            
+            s1.innerHTML = sigOptions;
+            s2.innerHTML = sigOptions;
+            s3.innerHTML = sigOptions;
 
-            // 2. قائمة التوجيهات
+            if (signaturesList.length > 0) s1.value = "0";
+            if (signaturesList.length > 1) s2.value = "1";
+
+            // 3. التوجيهات
             populateRecipientsDropdown();
 
-            // 3. قائمة المتغيرات المنسدلة
+            // 4. قائمة المتغيرات
             const varDropdown = document.getElementById('variableDropdown');
             varDropdown.innerHTML = '<option value="">-- اختر الحقل لإدراجه بمكان المؤشر --</option>';
             columnKeys.forEach(k => { varDropdown.innerHTML += `<option value="{${k}}">{${k}}</option>`; });
@@ -335,7 +383,6 @@
             varDropdown.innerHTML += `<option value="{التاريخ}">{التاريخ}</option>`;
             varDropdown.innerHTML += `<option value="{الموجه إليه}">{الموجه إليه}</option>`;
 
-            // 4. النماذج والموظفين
             renderTemplatesCheckboxes();
             renderEmployeesCheckboxes(employeesList);
         }
@@ -363,7 +410,7 @@
                 savedRecipients.push(val);
                 db.ref(`companyProfiles/${activeUser}/recipients`).set(savedRecipients)
                     .then(() => {
-                        alert('تم حفظ التوجيه بنجاح في القائمة المنسدلة');
+                        alert('تم حفظ التوجيه بنجاح');
                         populateRecipientsDropdown();
                     });
             }
@@ -373,8 +420,23 @@
             const box = document.getElementById('templatesMultiSelect');
             box.innerHTML = `<label><input type="checkbox" class="template-chk" value="__CURRENT__" checked onchange="renderAllPages()"> النموذج المحرر الحالي</label>`;
             Object.keys(savedTemplates).forEach(k => {
-                box.innerHTML += `<label><input type="checkbox" class="template-chk" value="${k}" onchange="renderAllPages()"> ${k}</label>`;
+                box.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed #f1f5f9;">
+                        <label style="border:none;"><input type="checkbox" class="template-chk" value="${k}" onchange="renderAllPages()"> ${k}</label>
+                        <button class="btn btn-danger" onclick="deleteSavedTemplate('${k}')" style="padding:1px 5px; font-size:0.75rem;"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
             });
+        }
+
+        function deleteSavedTemplate(templateKey) {
+            if (confirm(`هل أنت تأكد من حذف النموذج "${templateKey}" نهائياً؟`)) {
+                db.ref(`companyProfiles/${activeUser}/templates/${templateKey}`).remove()
+                    .then(() => {
+                        alert('تم مسح النموذج بنجاح!');
+                        loadDataFromFirebase();
+                    });
+            }
         }
 
         function renderEmployeesCheckboxes(list) {
@@ -385,6 +447,11 @@
                 const name = e['الاسم'] || e['Name'] || 'موظف ' + (i+1);
                 box.innerHTML += `<label><input type="checkbox" class="emp-chk" value="${i}" ${i === 0 ? 'checked' : ''} onchange="renderAllPages()"> [${code}] ${name}</label>`;
             });
+        }
+
+        function selectAllEmployees(status) {
+            document.querySelectorAll('.emp-chk').forEach(chk => chk.checked = status);
+            renderAllPages();
         }
 
         function filterByCodeRange() {
@@ -401,14 +468,13 @@
             renderAllPages();
         }
 
-        function getFormattedDateStr() {
+        function getFormattedDateStr(isEnglish) {
             const dateVal = document.getElementById('customDateInput').value;
             if (!dateVal) return '';
 
             const dateObj = new Date(dateVal);
-            const lang = document.getElementById('dateLang').value;
 
-            if (lang === 'en') {
+            if (isEnglish) {
                 return dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             } else {
                 return dateObj.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -431,7 +497,7 @@
                 const emp = employeesList[empIdx] || {};
 
                 selectedTemplateKeys.forEach(tKey => {
-                    let rawHtml = (tKey === '__CURRENT__') ? currentEditorContent : (savedTemplates[tKey] ? savedTemplates[tKey].content : '');
+                    let rawHtml = (tKey === '__CURRENT__') ? currentEditorRawContent : (savedTemplates[tKey] ? savedTemplates[tKey].content : '');
                     let mergedHtml = mergeEmployeeData(rawHtml, emp);
                     const docHtml = createSinglePageDocument(mergedHtml, tKey === '__CURRENT__');
                     container.insertAdjacentHTML('beforeend', docHtml);
@@ -440,13 +506,24 @@
 
             const editableArea = document.querySelector('.page-body-content[contenteditable="true"]');
             if (editableArea) {
-                editableArea.addEventListener('keyup', saveSelection);
-                editableArea.addEventListener('mouseup', saveSelection);
+                editableArea.addEventListener('keyup', saveSelectionAndContent);
+                editableArea.addEventListener('mouseup', saveSelectionAndContent);
+            }
+        }
+
+        function saveSelectionAndContent() {
+            saveSelection();
+            const editableArea = document.querySelector('.page-body-content[contenteditable="true"]');
+            if (editableArea) {
+                // حفظ الهيكل الداخلي بدون التأثير على المتغيرات الحية
+                currentEditorRawContent = editableArea.innerHTML;
             }
         }
 
         function mergeEmployeeData(htmlContent, emp) {
             let res = htmlContent;
+            const docLang = document.getElementById('docLang').value;
+            const isEnglish = (docLang === 'en');
             const recipientStr = document.getElementById('recipientInput').value.trim();
 
             columnKeys.forEach(key => {
@@ -455,13 +532,17 @@
             });
 
             res = res.replace(/\{اسم الشركة\}/g, companyInfo.nameAr || '');
-            res = res.replace(/\{التاريخ\}/g, getFormattedDateStr());
+            res = res.replace(/\{التاريخ\}/g, getFormattedDateStr(isEnglish));
             res = res.replace(/\{الموجه إليه\}/g, recipientStr);
 
             return res;
         }
 
         function createSinglePageDocument(bodyHtml, isEditable) {
+            const docLang = document.getElementById('docLang').value;
+            const isEnglish = (docLang === 'en');
+            const textDir = isEnglish ? 'ltr' : 'rtl';
+
             const headerH = document.getElementById('headerHeight').value || 110;
             const footerH = document.getElementById('footerHeight').value || 90;
 
@@ -477,9 +558,6 @@
             const brIdx = document.getElementById('selectBranch').value;
             const br = branchesList[brIdx];
 
-            const s1Idx = document.getElementById('selectSig1').value;
-            const s2Idx = document.getElementById('selectSig2').value;
-
             const hLine1 = lh.hLine1 || companyInfo.nameAr || '';
             const hLine2 = lh.hLine2 || companyInfo.fieldAr || '';
             const logoHtml = (companyInfo.logo && lh.logoPos !== 'none') ? `<img src="${companyInfo.logo}" class="header-logo" alt="Logo">` : '';
@@ -489,34 +567,57 @@
                 fLine += `<div style="font-weight:bold; margin-top:2px;">${br.name} - س.ت: ${br.cr} - ب.ض: ${br.tax}</div>`;
             }
 
-            // قسم التاريخ والتوجيه العلوي
-            const datePos = document.getElementById('datePos').value;
-            const formattedDate = getFormattedDateStr();
-            let dateBlock = '';
-            if (datePos !== 'none' && formattedDate) {
-                dateBlock = `<div class="date-display-block" style="text-align:${datePos};">التاريخ: ${formattedDate}</div>`;
+            // 1. عنوان الخطاب
+            const docTitle = document.getElementById('docTitleInput').value.trim();
+            let titleBlock = docTitle ? `<div class="document-title">${docTitle}</div>` : '';
+
+            // 2. موجه إلى تحت العنوان مباشرة
+            const recipientStr = document.getElementById('recipientInput').value.trim();
+            let recipientBlock = recipientStr ? `<div class="recipient-block">${isEnglish ? 'To:' : 'موجه إلى:'} ${recipientStr}</div>` : '';
+
+            // 3. ضبط التاريخ حسب اللغة (عربي: شمال تحت العنوان / إنجليزي: Date تحت الخطاب يمين)
+            const formattedDate = getFormattedDateStr(isEnglish);
+            let topDateBlock = '';
+            let bottomDateBlock = '';
+
+            if (formattedDate) {
+                if (isEnglish) {
+                    bottomDateBlock = `<div class="date-display-block" style="text-align:right;">Date: ${formattedDate}</div>`;
+                } else {
+                    topDateBlock = `<div class="date-display-block" style="text-align:left;">التاريخ: ${formattedDate}</div>`;
+                }
             }
 
-            const recipientStr = document.getElementById('recipientInput').value.trim();
-            let recipientBlock = '';
-            if (recipientStr) {
-                recipientBlock = `<div class="recipient-block">موجه إلى: ${recipientStr}</div>`;
-            }
+            // 4. التوقيعات الثلاثة بمرونة في الأماكن
+            const s1Idx = document.getElementById('selectSig1').value;
+            const s2Idx = document.getElementById('selectSig2').value;
+            const s3Idx = document.getElementById('selectSig3').value;
+
+            const p1 = document.getElementById('posSig1').value;
+            const p2 = document.getElementById('posSig2').value;
+            const p3 = document.getElementById('posSig3').value;
+
+            let sigsArr = [
+                { idx: s1Idx, pos: p1 },
+                { idx: s2Idx, pos: p2 },
+                { idx: s3Idx, pos: p3 }
+            ].filter(item => item.idx !== "" && signaturesList[item.idx]);
 
             let sigHtml = '';
-            if ((s1Idx !== "" && signaturesList[s1Idx]) || (s2Idx !== "" && signaturesList[s2Idx])) {
+            if (sigsArr.length > 0) {
                 sigHtml = `<div class="signatures-area">`;
-                if (s1Idx !== "" && signaturesList[s1Idx]) {
-                    sigHtml += `<div class="sig-box"><div class="sig-title">${signaturesList[s1Idx].titleAr || ''}</div><div class="sig-name">${signaturesList[s1Idx].nameAr || ''}</div></div>`;
-                }
-                if (s2Idx !== "" && signaturesList[s2Idx]) {
-                    sigHtml += `<div class="sig-box"><div class="sig-title">${signaturesList[s2Idx].titleAr || ''}</div><div class="sig-name">${signaturesList[s2Idx].nameAr || ''}</div></div>`;
-                }
+                sigsArr.forEach(item => {
+                    const sig = signaturesList[item.idx];
+                    sigHtml += `<div class="sig-box" style="align-self:${item.pos === 'center' ? 'center' : (item.pos === 'left' ? 'flex-end' : 'flex-start')}">
+                        <div class="sig-title">${sig.titleAr || ''}</div>
+                        <div class="sig-name">${sig.nameAr || ''}</div>
+                    </div>`;
+                });
                 sigHtml += `</div>`;
             }
 
             return `
-                <div class="print-document">
+                <div class="print-document" dir="${textDir}">
                     <table class="page-table">
                         <thead>
                             <tr>
@@ -535,10 +636,12 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    <div class="page-body-content" ${isEditable ? 'contenteditable="true" oninput="currentEditorContent=this.innerHTML;"' : ''}>
-                                        ${dateBlock}
+                                    <div class="page-body-content" dir="${textDir}" ${isEditable ? 'contenteditable="true" oninput="currentEditorRawContent=this.innerHTML;"' : ''}>
+                                        ${titleBlock}
+                                        ${topDateBlock}
                                         ${recipientBlock}
                                         ${bodyHtml}
+                                        ${bottomDateBlock}
                                         ${sigHtml}
                                     </div>
                                 </td>
@@ -582,7 +685,7 @@
                     sel.addRange(savedSelectionRange);
                 }
                 document.execCommand('insertText', false, varTag);
-                currentEditorContent = editableArea.innerHTML;
+                currentEditorRawContent = editableArea.innerHTML;
             }
 
             selectEl.value = '';
@@ -597,7 +700,7 @@
                 const arrayBuffer = e.target.result;
                 mammoth.convertToHtml({ arrayBuffer: arrayBuffer })
                     .then(function(result) {
-                        currentEditorContent = result.value;
+                        currentEditorRawContent = result.value;
                         renderAllPages();
                         alert('تم استيراد محتوى ملف Word بنجاح إلى المحرر!');
                     })
@@ -636,7 +739,7 @@
 
             db.ref(`companyProfiles/${activeUser}/templates/${name}`).set({
                 name: name,
-                content: currentEditorContent
+                content: currentEditorRawContent
             }).then(() => {
                 alert('تم حفظ وتثبيت النموذج بنجاح!');
                 nameInput.value = '';
