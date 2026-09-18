@@ -26,11 +26,24 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: var(--bg); color: var(--text); padding: 15px; direction: rtl; }
 
-        .app-container { display: grid; grid-template-columns: 380px 1fr; gap: 20px; max-width: 1550px; margin: 0 auto; }
+        .app-container { display: grid; grid-template-columns: 380px 1fr; gap: 20px; max-width: 1550px; margin: 0 auto; align-items: start; }
 
-        /* شريط التحكم الجانبي */
-        .sidebar { background: #fff; padding: 18px; border-radius: 12px; border: 1px solid var(--border); height: fit-content; box-shadow: 0 4px 12px rgba(0,0,0,0.08); max-height: 95vh; overflow-y: auto; }
-        .sidebar h2 { font-size: 0.95rem; color: var(--primary-dark); margin-bottom: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+        /* الشريط الجانبي الثابت */
+        .sidebar { 
+            background: #fff; padding: 18px; border-radius: 12px; border: 1px solid var(--border); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); max-height: calc(100vh - 30px); overflow-y: auto; 
+            position: sticky; top: 15px; z-index: 1000;
+        }
+        
+        /* تبويبات الشريط الجانبي */
+        .tab-buttons { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 12px; }
+        .tab-btn { flex: 1; padding: 8px 4px; font-weight: bold; border: none; background: none; cursor: pointer; color: #64748b; font-size: 0.8rem; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: #eff6ff; border-radius: 6px 6px 0 0; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .sidebar h2 { font-size: 0.92rem; color: var(--primary-dark); margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; display: flex; align-items: center; gap: 8px; margin-top: 12px; }
 
         .form-group { margin-bottom: 10px; }
         label { display: block; font-size: 0.78rem; font-weight: bold; margin-bottom: 3px; color: #475569; }
@@ -40,7 +53,6 @@
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-dark); }
         .btn-success { background: #10b981; color: white; }
-        .btn-success:hover { background: #059669; }
         .btn-danger { background: #ef4444; color: white; }
         .btn-secondary { background: #64748b; color: white; }
         .btn-warning { background: #f59e0b; color: white; }
@@ -84,42 +96,19 @@
         }
         .editable-text-area:empty:before { content: "اكتب محتوى الخطاب هنا أو قم برفع ملف Word..."; color: #94a3b8; }
 
-        /* تنسيقات الجداول المتقدمة ورسم أبعاد الخلايا بالمؤشر */
-        .editable-text-area table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-            table-layout: fixed;
-        }
-
-        .editable-text-area td, .editable-text-area th {
-            padding: 8px;
-            border: 1px solid #cbd5e1;
-            position: relative;
-            resize: both;
-            overflow: auto;
-            min-width: 40px;
-            min-height: 25px;
-        }
-
-        .editable-text-area td.border-hidden, .editable-text-area th.border-hidden {
-            border-color: transparent !important;
-        }
+        .editable-text-area table { width: 100%; border-collapse: collapse; margin: 15px 0; table-layout: fixed; }
+        .editable-text-area td, .editable-text-area th { padding: 8px; border: 1px solid #cbd5e1; position: relative; resize: both; overflow: auto; min-width: 40px; min-height: 25px; }
 
         .document-title { text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 12px; color: var(--primary-dark); }
         .recipient-block { font-weight: bold; font-size: 1.05rem; margin-bottom: 12px; color: #1e293b; }
         .date-display-block { font-weight: bold; font-size: 0.9rem; margin-bottom: 12px; color: #334155; }
 
-        /* التوقيعات الثلاثة */
         .signatures-area { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 35px; padding: 0 10px; gap: 10px; }
         .sig-col { flex: 1; text-align: center; min-width: 120px; }
         .sig-title { font-weight: bold; font-size: 0.88rem; color: #334155; margin-bottom: 35px; }
         .sig-name { font-weight: bold; font-size: 0.9rem; color: var(--primary-dark); border-top: 1px dashed #cbd5e1; padding-top: 4px; }
 
-        @page {
-            size: A4;
-            margin: 0mm;
-        }
+        @page { size: A4; margin: 0mm; }
 
         @media print {
             html, body { background: white; padding: 0; margin: 0; }
@@ -134,183 +123,136 @@
 <body>
 
     <div class="app-container">
-        <!-- شريط التحكم الجانبي -->
+        <!-- الشريط الجانبي الثابت المقسم إلى تبويبات -->
         <div class="sidebar no-print">
-            <!-- قسم التحكم الاحترافي بالجداول -->
-            <h2><i class="fas fa-table"></i> إعدادات واحترافيات الجداول</h2>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:6px;">
-                <button class="btn btn-primary" onclick="insertCustomTable()"><i class="fas fa-plus"></i> إدراج جدول جديد</button>
-                <button class="btn btn-secondary" onclick="toggleSelectedTableBorders()"><i class="fas fa-eye-slash"></i> إخفاء/إظهار الحدود</button>
-            </div>
-            
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
-                <div class="form-group">
-                    <label>عرض الخلية / الجدول:</label>
-                    <input type="text" id="tblWidthInput" placeholder="مثال: 150px أو 50%" oninput="applyCellDimensions()">
-                </div>
-                <div class="form-group">
-                    <label>ارتفاع الخلية (px):</label>
-                    <input type="text" id="tblHeightInput" placeholder="مثال: 40px" oninput="applyCellDimensions()">
-                </div>
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('tab-create')"><i class="fas fa-edit"></i> تحرير نموذج جديد</button>
+                <button class="tab-btn" onclick="switchTab('tab-select')"><i class="fas fa-folder-open"></i> نماذج محفوظة</button>
             </div>
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
+            <!-- تبويب 1: تحرير نموذج جديد -->
+            <div id="tab-create" class="tab-content active">
+                <h2><i class="fas fa-globe"></i> لغة الخطاب والتنسيق</h2>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+                    <div class="form-group">
+                        <label>لغة الخطاب:</label>
+                        <select id="docLang" onchange="renderAllPages()">
+                            <option value="ar" selected>عربي (RTL)</option>
+                            <option value="en">English (LTR)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>عنوان الخطاب:</label>
+                        <input type="text" id="docTitleInput" placeholder="اكتب عنوان الخطاب..." oninput="renderAllPages()">
+                    </div>
+                </div>
+
+                <h2><i class="fas fa-calendar-days"></i> التاريخ وإعداده</h2>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+                    <div class="form-group">
+                        <input type="date" id="customDateInput" onchange="renderAllPages()">
+                    </div>
+                    <div class="form-group">
+                        <select id="enDatePos" onchange="renderAllPages()">
+                            <option value="right" selected>يمين (أسفل العنوان)</option>
+                            <option value="left">يسار</option>
+                            <option value="center">وسط</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h2><i class="fas fa-user-tag"></i> التوجيه (موجه إلى)</h2>
                 <div class="form-group">
-                    <label>لون الحدود:</label>
-                    <input type="color" id="tblBorderColor" value="#cbd5e1" onchange="applyTableBorderStyle()">
+                    <div style="display:flex; gap:4px;">
+                        <select id="savedRecipientsList" onchange="applySavedRecipient(this)" style="flex:1;">
+                            <option value="">-- اختر توجيه محفوظ --</option>
+                        </select>
+                        <button class="btn btn-danger" onclick="deleteSavedRecipient()" title="مسح التوجيه المحدد"><i class="fas fa-trash"></i></button>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>السمك (px):</label>
-                    <input type="number" id="tblBorderWidth" value="1" min="0" max="10" oninput="applyTableBorderStyle()">
+                    <input type="text" id="recipientInput" placeholder="موجه إلى..." oninput="renderAllPages()">
+                    <button class="btn btn-secondary" onclick="saveRecipientToDb()" style="width:100%; margin-top:4px;"><i class="fas fa-bookmark"></i> حفظ التوجيه</button>
                 </div>
+
+                <h2><i class="fas fa-sliders"></i> الأبعاد والخط الفاصل</h2>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
+                    <label style="cursor:pointer;"><input type="checkbox" id="showHeaderChk" checked onchange="renderAllPages()"> إظهار الهيدر</label>
+                    <label style="cursor:pointer;"><input type="checkbox" id="showFooterChk" checked onchange="renderAllPages()"> إظهار الفوتر</label>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+                    <div class="form-group">
+                        <label>ارتفاع الهيدر (px):</label>
+                        <input type="number" id="headerHeight" value="110" oninput="renderAllPages()">
+                    </div>
+                    <div class="form-group">
+                        <label>ارتفاع الفوتر (px):</label>
+                        <input type="number" id="footerHeight" value="90" oninput="renderAllPages()">
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
+                    <div class="form-group"><label>اللون:</label><input type="color" id="lineColor" value="#0b4fb3" onchange="renderAllPages()"></div>
+                    <div class="form-group"><label>السمك:</label><input type="number" id="lineWidth" value="2" min="0" oninput="renderAllPages()"></div>
+                    <div class="form-group">
+                        <label>الشكل:</label>
+                        <select id="lineStyle" onchange="renderAllPages()">
+                            <option value="solid">صلب</option>
+                            <option value="double">مزدوج</option>
+                            <option value="dashed">متقطع</option>
+                            <option value="none">بدون</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h2><i class="fas fa-file-signature"></i> التوقيعات الثلاثة</h2>
+                <div class="form-group"><select id="selectSig1" onchange="renderAllPages()"></select></div>
+                <div class="form-group"><select id="selectSig2" onchange="renderAllPages()"></select></div>
+                <div class="form-group"><select id="selectSig3" onchange="renderAllPages()"></select></div>
+
+                <h2><i class="fas fa-save"></i> حفظ وتفريغ</h2>
                 <div class="form-group">
-                    <label>الشكل:</label>
-                    <select id="tblBorderStyle" onchange="applyTableBorderStyle()">
-                        <option value="solid">صلب</option>
-                        <option value="dashed">متقطع</option>
-                        <option value="dotted">منقط</option>
-                        <option value="double">مزدوج</option>
-                        <option value="none">بدون</option>
-                    </select>
+                    <input type="text" id="templateNameInput" placeholder="اسم النموذج الجديد...">
+                    <button class="btn btn-success" onclick="saveCurrentTemplate()" style="width:100%; margin-top:4px;"><i class="fas fa-thumbtack"></i> حفظ وحفظ النموذج</button>
                 </div>
+                <button class="btn btn-danger" onclick="resetFormControls()" style="width:100%; padding:8px;"><i class="fas fa-rotate-right"></i> مسح الإعدادات</button>
             </div>
-            <button class="btn btn-danger" onclick="eraseCellBorder()" style="width:100%; margin-bottom:10px;"><i class="fas fa-eraser"></i> مسح حدود الخلية الحالية</button>
 
-            <h2><i class="fas fa-sliders"></i> أبعاد الهيدر والفوتر والخط الفاصل</h2>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
-                <label style="cursor:pointer;"><input type="checkbox" id="showHeaderChk" checked onchange="renderAllPages()"> إظهار الهيدر</label>
-                <label style="cursor:pointer;"><input type="checkbox" id="showFooterChk" checked onchange="renderAllPages()"> إظهار الفوتر</label>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+            <!-- تبويب 2: اختيار نموذج محفوظ من قبل -->
+            <div id="tab-select" class="tab-content">
+                <h2><i class="fas fa-layer-group"></i> اختيار النماذج المثبتة</h2>
                 <div class="form-group">
-                    <label>ارتفاع الهيدر (px):</label>
-                    <input type="number" id="headerHeight" value="110" oninput="renderAllPages()">
+                    <div class="multi-select-box" id="templatesMultiSelect"></div>
                 </div>
+
+                <h2><i class="fas fa-file-word"></i> استيراد وتصدير Word</h2>
                 <div class="form-group">
-                    <label>ارتفاع الفوتر (px):</label>
-                    <input type="number" id="footerHeight" value="90" oninput="renderAllPages()">
+                    <input type="file" id="wordFileInput" accept=".docx" onchange="importWordFile(this)">
                 </div>
+                <button class="btn btn-warning" onclick="downloadBackupWord()" style="width:100%; margin-bottom:10px;"><i class="fas fa-download"></i> تصدير النسخة المكتملة (.doc)</button>
+
+                <h2><i class="fas fa-building"></i> الديباجة والفرع</h2>
+                <div class="form-group"><select id="selectLetterhead" onchange="renderAllPages()"></select></div>
+                <div class="form-group"><select id="selectBranch" onchange="renderAllPages()"></select></div>
             </div>
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
-                <div class="form-group">
-                    <label>لون الخط:</label>
-                    <input type="color" id="lineColor" value="#0b4fb3" onchange="renderAllPages()">
-                </div>
-                <div class="form-group">
-                    <label>السمك (px):</label>
-                    <input type="number" id="lineWidth" value="2" min="0" max="10" oninput="renderAllPages()">
-                </div>
-                <div class="form-group">
-                    <label>شكل الخط:</label>
-                    <select id="lineStyle" onchange="renderAllPages()">
-                        <option value="solid">صلب (Solid)</option>
-                        <option value="double">مزدوج (Double)</option>
-                        <option value="dashed">متقطع (Dashed)</option>
-                        <option value="dotted">منقط (Dotted)</option>
-                        <option value="groove">بارز (Groove)</option>
-                        <option value="ridge">محفور (Ridge)</option>
-                        <option value="none">بدون خط</option>
-                    </select>
-                </div>
-            </div>
+            <hr style="margin: 12px 0; border: none; border-top: 1px solid #cbd5e1;">
 
-            <h2><i class="fas fa-globe"></i> لغة الخطاب والتنسيق</h2>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
-                <div class="form-group">
-                    <label>لغة الخطاب:</label>
-                    <select id="docLang" onchange="renderAllPages()">
-                        <option value="ar" selected>عربي (RTL)</option>
-                        <option value="en">English (LTR)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>عنوان الخطاب:</label>
-                    <input type="text" id="docTitleInput" value="خطاب رسمي / نموذج عمل" placeholder="عنوان الخطاب..." oninput="renderAllPages()">
-                </div>
-            </div>
-
-            <h2><i class="fas fa-calendar-days"></i> التاريخ وتعديله</h2>
-            <div class="form-group">
-                <input type="date" id="customDateInput" onchange="renderAllPages()">
-            </div>
-
-            <h2><i class="fas fa-user-tag"></i> إعدادات التوجيه (موجه إلى)</h2>
-            <div class="form-group">
-                <select id="savedRecipientsList" onchange="applySavedRecipient(this)">
-                    <option value="">-- اختر توجيه محفوظ --</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <input type="text" id="recipientInput" placeholder="مثال: السيد المهندس / مدير عام الهيئة..." oninput="renderAllPages()">
-                <button class="btn btn-secondary" onclick="saveRecipientToDb()" style="width:100%; margin-top:4px;"><i class="fas fa-bookmark"></i> حفظ التوجيه في القائمة</button>
-            </div>
-
-            <h2><i class="fas fa-file-signature"></i> التوقيعات الثلاثة ومواضعها</h2>
-            <div class="form-group">
-                <label>التوقيع الأول (يمين):</label>
-                <select id="selectSig1" onchange="renderAllPages()"></select>
-            </div>
-            <div class="form-group">
-                <label>التوقيع الثاني (وسط):</label>
-                <select id="selectSig2" onchange="renderAllPages()"></select>
-            </div>
-            <div class="form-group">
-                <label>التوقيع الثالث (يسار):</label>
-                <select id="selectSig3" onchange="renderAllPages()"></select>
-            </div>
-
-            <h2><i class="fas fa-file-word"></i> الملفات والنسخ الاحتياطي</h2>
-            <div class="form-group">
-                <label>استيراد من ملف Word (.docx):</label>
-                <input type="file" id="wordFileInput" accept=".docx" onchange="importWordFile(this)">
-            </div>
-            <button class="btn btn-warning" onclick="downloadBackupWord()" style="width:100%; margin-bottom:10px;"><i class="fas fa-download"></i> تصدير الخطاب الحالي كنسخة Word (.docx)</button>
-
-            <div class="form-group">
-                <label>ديباجة رأس الصفحة:</label>
-                <select id="selectLetterhead" onchange="renderAllPages()"></select>
-            </div>
-            <div class="form-group">
-                <label>الفرع / السجل التجاري:</label>
-                <select id="selectBranch" onchange="renderAllPages()"></select>
-            </div>
-
-            <h2><i class="fas fa-layer-group"></i> النماذج المثبتة</h2>
-            <div class="form-group">
-                <div class="multi-select-box" id="templatesMultiSelect"></div>
-            </div>
-            <div class="form-group">
-                <input type="text" id="templateNameInput" placeholder="اسم النموذج الجديد لتثبيته...">
-                <button class="btn btn-success" onclick="saveCurrentTemplate()" style="width:100%; margin-top:4px;"><i class="fas fa-thumbtack"></i> حفظ وتثبيت النموذج الحالي</button>
-            </div>
-
-            <h2><i class="fas fa-users"></i> الموظفين المستهدفين للطباعة</h2>
+            <!-- الموظفين والمتغيرات (مشتركة) -->
+            <h2><i class="fas fa-users"></i> اختيار الموظفين للطباعة</h2>
             <div style="display:flex; gap:6px; margin-bottom:6px;">
                 <button class="btn btn-secondary" onclick="selectAllEmployees(true)" style="flex:1;">تحديد الكل</button>
                 <button class="btn btn-secondary" onclick="selectAllEmployees(false)" style="flex:1;">إلغاء الكل</button>
             </div>
             <div class="form-group">
-                <div style="display:flex; gap:6px;">
-                    <input type="number" id="codeFrom" placeholder="من كود">
-                    <input type="number" id="codeTo" placeholder="إلى كود">
-                    <button class="btn btn-secondary" onclick="filterByCodeRange()">تطبيق</button>
-                </div>
-            </div>
-            <div class="form-group">
                 <div class="multi-select-box" id="employeesMultiSelect"></div>
             </div>
 
-            <h2><i class="fas fa-code"></i> إدراج المتغيرات</h2>
+            <h2><i class="fas fa-code"></i> إدراج حقول المتغيرات</h2>
             <div class="form-group">
                 <select id="variableDropdown" onchange="insertSelectedVariable(this)">
                     <option value="">-- اختر الحقل لإدراجه بمكان المؤشر --</option>
                 </select>
             </div>
-
-            <button class="btn btn-danger" onclick="resetFormControls()" style="width: 100%; padding: 8px; margin-top: 10px;">
-                <i class="fas fa-rotate-right"></i> مسح وتفريغ الإعدادات الحالية
-            </button>
 
             <button class="btn btn-primary" onclick="window.print()" style="width: 100%; padding: 12px; font-size: 1rem; margin-top: 8px;">
                 <i class="fas fa-print"></i> طباعة النماذج المحددة (A4)
@@ -347,7 +289,6 @@
                 </div>
             </div>
 
-            <!-- حاوية الورقة للطباعة -->
             <div class="paper-wrapper" id="papersContainer"></div>
         </div>
     </div>
@@ -376,24 +317,21 @@
         let savedTemplates = {};
         let savedRecipients = [];
         let savedSelectionRange = null;
-        let selectedCell = null;
 
-        let currentEditorRawContent = `<p>تشهد شركة <b>{اسم الشركة}</b> بأن السيد / <b>{الاسم}</b> (كود: <b>{كود}</b>) الحامل للرقم القومي <b>{الرقم القومي}</b> يعمل لدينا بوظيفة <b>{الوظيفة}</b> في قسم <b>{القسم}</b>.</p>
-<p>وقد حررت له هذه الشهادة بناءً على طلبه لتقديمها إلى من يهمه الأمر دون أدنى مسؤولية على الشركة.</p>`;
+        let currentEditorRawContent = "";
 
         window.onload = function() {
             document.getElementById('customDateInput').valueAsDate = new Date();
             loadDataFromFirebase();
-
-            // تتبع الخلية المحددة داخل الجداول
-            document.addEventListener('click', function(e) {
-                if (e.target.tagName === 'TD' || e.target.tagName === 'TH') {
-                    selectedCell = e.target;
-                    document.getElementById('tblWidthInput').value = selectedCell.style.width || '';
-                    document.getElementById('tblHeightInput').value = selectedCell.style.height || '';
-                }
-            });
         };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.currentTarget.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
 
         function loadDataFromFirebase() {
             db.ref(`companyProfiles/${activeUser}`).once('value', snap => {
@@ -420,17 +358,10 @@
             brSelect.innerHTML = '<option value="">-- بدون تحديد فرع --</option>' + 
                 branchesList.map((b, i) => `<option value="${i}">${b.name || 'فرع ' + (i+1)}</option>`).join('');
 
-            const s1 = document.getElementById('selectSig1');
-            const s2 = document.getElementById('selectSig2');
-            const s3 = document.getElementById('selectSig3');
             const sigOptions = '<option value="">-- بدون توقيع --</option>' + signaturesList.map((s, i) => `<option value="${i}">${s.titleAr || s.nameAr || 'توقيع ' + (i+1)}</option>`).join('');
-            
-            s1.innerHTML = sigOptions;
-            s2.innerHTML = sigOptions;
-            s3.innerHTML = sigOptions;
-
-            if (signaturesList.length > 0) s1.value = "0";
-            if (signaturesList.length > 1) s2.value = "1";
+            document.getElementById('selectSig1').innerHTML = sigOptions;
+            document.getElementById('selectSig2').innerHTML = sigOptions;
+            document.getElementById('selectSig3').innerHTML = sigOptions;
 
             populateRecipientsDropdown();
 
@@ -443,71 +374,6 @@
 
             renderTemplatesCheckboxes();
             renderEmployeesCheckboxes(employeesList);
-        }
-
-        /* دوان الجداول الاحترافية الجديدة */
-        function insertCustomTable() {
-            const rows = prompt('عدد الصفوف:', '3');
-            const cols = prompt('عدد الأعمدة:', '3');
-            if (!rows || !cols) return;
-
-            let tableHtml = '<table border="1" style="width:100%; border-collapse:collapse; margin:15px 0;">';
-            for (let r = 0; r < rows; r++) {
-                tableHtml += '<tr>';
-                for (let c = 0; c < cols; c++) {
-                    tableHtml += '<td style="padding:8px; border:1px solid #cbd5e1;">خلية</td>';
-                }
-                tableHtml += '</tr>';
-            }
-            tableHtml += '</table><p></p>';
-            document.execCommand('insertHTML', false, tableHtml);
-        }
-
-        function applyCellDimensions() {
-            if (!selectedCell) return;
-            const w = document.getElementById('tblWidthInput').value;
-            const h = document.getElementById('tblHeightInput').value;
-
-            if (w) selectedCell.style.width = w.includes('px') || w.includes('%') ? w : w + 'px';
-            if (h) selectedCell.style.height = h.includes('px') ? h : h + 'px';
-            saveSelectionAndContent();
-        }
-
-        function applyTableBorderStyle() {
-            const color = document.getElementById('tblBorderColor').value;
-            const width = document.getElementById('tblBorderWidth').value + 'px';
-            const style = document.getElementById('tblBorderStyle').value;
-
-            if (selectedCell) {
-                const table = selectedCell.closest('table');
-                if (table) {
-                    table.querySelectorAll('td, th').forEach(cell => {
-                        cell.style.borderColor = color;
-                        cell.style.borderWidth = width;
-                        cell.style.borderStyle = style;
-                    });
-                }
-            }
-            saveSelectionAndContent();
-        }
-
-        function toggleSelectedTableBorders() {
-            if (selectedCell) {
-                const table = selectedCell.closest('table');
-                if (table) {
-                    table.querySelectorAll('td, th').forEach(cell => {
-                        cell.classList.toggle('border-hidden');
-                    });
-                }
-            }
-            saveSelectionAndContent();
-        }
-
-        function eraseCellBorder() {
-            if (selectedCell) {
-                selectedCell.style.border = 'none';
-            }
-            saveSelectionAndContent();
         }
 
         function populateRecipientsDropdown() {
@@ -537,6 +403,21 @@
                         populateRecipientsDropdown();
                     });
             }
+        }
+
+        function deleteSavedRecipient() {
+            const selectEl = document.getElementById('savedRecipientsList');
+            const val = selectEl.value;
+            if (!val) return alert('برجاء اختيار توجيه من القائمة لمسحه أولاً');
+
+            savedRecipients = savedRecipients.filter(item => item !== val);
+            db.ref(`companyProfiles/${activeUser}/recipients`).set(savedRecipients)
+                .then(() => {
+                    alert('تم مسح التوجيه بنجاح!');
+                    document.getElementById('recipientInput').value = '';
+                    populateRecipientsDropdown();
+                    renderAllPages();
+                });
         }
 
         function renderTemplatesCheckboxes() {
@@ -574,20 +455,6 @@
 
         function selectAllEmployees(status) {
             document.querySelectorAll('.emp-chk').forEach(chk => chk.checked = status);
-            renderAllPages();
-        }
-
-        function filterByCodeRange() {
-            const from = parseInt(document.getElementById('codeFrom').value) || 0;
-            const to = parseInt(document.getElementById('codeTo').value) || 999999;
-
-            document.querySelectorAll('.emp-chk').forEach(chk => {
-                const idx = parseInt(chk.value);
-                const emp = employeesList[idx];
-                const code = parseInt(emp['كود'] || emp['Code'] || (idx + 1));
-                chk.checked = (code >= from && code <= to);
-            });
-
             renderAllPages();
         }
 
@@ -704,7 +571,9 @@
 
             if (formattedDate) {
                 if (isEnglish) {
-                    bottomDateBlock = `<div class="date-display-block" style="text-align:right;">Date: ${formattedDate}</div>`;
+                    const pos = document.getElementById('enDatePos').value;
+                    const alignCss = pos === 'left' ? 'left' : (pos === 'center' ? 'center' : 'right');
+                    bottomDateBlock = `<div class="date-display-block" style="text-align:${alignCss};">Date: ${formattedDate}</div>`;
                 } else {
                     topDateBlock = `<div class="date-display-block" style="text-align:left;">التاريخ: ${formattedDate}</div>`;
                 }
@@ -721,24 +590,14 @@
             let sigHtml = '';
             if (sig1 || sig2 || sig3) {
                 sigHtml = `<div class="signatures-area">`;
-                
-                sigHtml += `<div class="sig-col">
-                    ${sig1 ? `<div class="sig-title">${sig1.titleAr || ''}</div><div class="sig-name">${sig1.nameAr || ''}</div>` : ''}
-                </div>`;
-
-                sigHtml += `<div class="sig-col">
-                    ${sig2 ? `<div class="sig-title">${sig2.titleAr || ''}</div><div class="sig-name">${sig2.nameAr || ''}</div>` : ''}
-                </div>`;
-
-                sigHtml += `<div class="sig-col">
-                    ${sig3 ? `<div class="sig-title">${sig3.titleAr || ''}</div><div class="sig-name">${sig3.nameAr || ''}</div>` : ''}
-                </div>`;
-
+                sigHtml += `<div class="sig-col">${sig1 ? `<div class="sig-title">${sig1.titleAr || ''}</div><div class="sig-name">${sig1.nameAr || ''}</div>` : ''}</div>`;
+                sigHtml += `<div class="sig-col">${sig2 ? `<div class="sig-title">${sig2.titleAr || ''}</div><div class="sig-name">${sig2.nameAr || ''}</div>` : ''}</div>`;
+                sigHtml += `<div class="sig-col">${sig3 ? `<div class="sig-title">${sig3.titleAr || ''}</div><div class="sig-name">${sig3.nameAr || ''}</div>` : ''}</div>`;
                 sigHtml += `</div>`;
             }
 
             return `
-                <div class="print-document" dir="${textDir}">
+                <div class="print-document" id="docToExport" dir="${textDir}">
                     ${showHeader ? `
                     <div class="header-section" style="height:${headerH}px; border-bottom:${borderCss}; flex-direction:${lh.logoPos === 'right' ? 'row-reverse' : 'row'};">
                         <div class="header-text" style="text-align:${lh.hAlign || 'right'}">
@@ -771,7 +630,7 @@
         }
 
         function resetFormControls() {
-            document.getElementById('docTitleInput').value = "خطاب رسمي / نموذج عمل";
+            document.getElementById('docTitleInput').value = "";
             document.getElementById('recipientInput').value = "";
             document.getElementById('customDateInput').valueAsDate = new Date();
             document.getElementById('docLang').value = "ar";
@@ -783,20 +642,25 @@
             document.getElementById('showHeaderChk').checked = true;
             document.getElementById('showFooterChk').checked = true;
             
-            if (signaturesList.length > 0) document.getElementById('selectSig1').value = "0";
-            if (signaturesList.length > 1) document.getElementById('selectSig2').value = "1";
+            document.getElementById('selectSig1').value = "";
+            document.getElementById('selectSig2').value = "";
             document.getElementById('selectSig3').value = "";
+            currentEditorRawContent = "";
 
             renderAllPages();
-            alert('تم إعادة تفريغ الإعدادات الحالية بنجاح دون التأثير على الخطابات المسجلة!');
+            alert('تم تفريغ كافة الإعدادات والافتراضيات بنجاح!');
         }
 
         function downloadBackupWord() {
+            const docElement = document.getElementById('docToExport');
+            if (!docElement) return alert('لا يوجد مستند متاح للتصدير حالياً');
+
+            const fullHtmlContent = docElement.outerHTML;
             const docContent = `
                 <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
                 <head><meta charset='utf-8'><title>Backup Document</title></head>
                 <body dir='rtl' style='font-family:Arial;'>
-                    ${currentEditorRawContent}
+                    ${fullHtmlContent}
                 </body>
                 </html>
             `;
@@ -804,7 +668,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `خطاب_نسخة_احتياطية_${new Date().toISOString().slice(0,10)}.doc`;
+            a.download = `خطاب_كامل_نسخة_احتياطية_${new Date().toISOString().slice(0,10)}.doc`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -858,8 +722,23 @@
             reader.readAsArrayBuffer(file);
         }
 
-        function formatDoc(cmd, value = null) {
-            document.execCommand(cmd, false, value);
+        function formatDoc(cmd, value = null) { document.execCommand(cmd, false, value); }
+
+        function insertCustomTable() {
+            const rows = prompt('عدد الصفوف:', '3');
+            const cols = prompt('عدد الأعمدة:', '3');
+            if (!rows || !cols) return;
+
+            let tableHtml = '<table border="1" style="width:100%; border-collapse:collapse; margin:15px 0;">';
+            for (let r = 0; r < rows; r++) {
+                tableHtml += '<tr>';
+                for (let c = 0; c < cols; c++) {
+                    tableHtml += '<td style="padding:8px; border:1px solid #cbd5e1;">خلية</td>';
+                }
+                tableHtml += '</tr>';
+            }
+            tableHtml += '</table><p></p>';
+            document.execCommand('insertHTML', false, tableHtml);
         }
 
         function saveCurrentTemplate() {
