@@ -56,8 +56,8 @@
         .btn-secondary { background: #64748b; color: white; }
         .btn-warning { background: #f59e0b; color: white; }
 
-        .multi-select-box { max-height: 120px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; background: #fff; }
-        .multi-select-box label { display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; padding: 2px 0; border-bottom: 1px dashed #f1f5f9; font-size: 0.8rem; }
+        .multi-select-box { max-height: 180px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; background: #fff; }
+        .multi-select-box label { display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; padding: 4px 0; border-bottom: 1px dashed #f1f5f9; font-size: 0.8rem; }
 
         .editor-toolbar-container { position: sticky; top: 0px; z-index: 999; margin-bottom: 20px; background: var(--bg); padding-top: 5px; padding-bottom: 5px; }
         .editor-toolbar { display: flex; flex-wrap: wrap; gap: 6px; background: #ffffff; padding: 8px 12px; border: 1px solid #94a3b8; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); align-items: center; }
@@ -66,7 +66,6 @@
 
         .paper-wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; }
         
-        /* تنسيق طباعة وحاوية الصفحات المتعددة */
         .print-document {
             width: 210mm; background: #ffffff; padding: 0; box-shadow: 0 8px 20px rgba(0,0,0,0.12);
             box-sizing: border-box; margin-bottom: 25px; position: relative;
@@ -127,7 +126,7 @@
 <body>
 
     <div class="app-container">
-        <!-- الشريط الجانبي الثابت المقسم إلى 3 تبويبات -->
+        <!-- الشريط الجانبي الثابت -->
         <div class="sidebar no-print">
             <div class="tab-buttons">
                 <button class="tab-btn active" onclick="switchTab('tab-create')"><i class="fas fa-edit"></i> تحرير نموذج</button>
@@ -234,7 +233,7 @@
                 <button class="btn btn-danger" onclick="resetFormControls()" style="width:100%; padding:8px;"><i class="fas fa-rotate-right"></i> مسح الإعدادات</button>
             </div>
 
-            <!-- تبويب 2: اختيار نموذج محفوظ من قبل -->
+            <!-- تبويب 2: اختيار نموذج محفوظ -->
             <div id="tab-select" class="tab-content">
                 <h2><i class="fas fa-layer-group"></i> اختيار النماذج المثبتة</h2>
                 <div class="form-group">
@@ -272,12 +271,18 @@
 
             <!-- الموظفين والمتغيرات -->
             <h2><i class="fas fa-users"></i> اختيار الموظفين للطباعة</h2>
+            
+            <!-- مربع البحث والفلترة المباشرة -->
+            <div class="form-group" style="margin-bottom: 8px;">
+                <input type="text" id="empSearchFilter" placeholder="🔍 بحث/فلترة بالكود، الاسم، أو القسم..." oninput="filterEmployeesList(this.value)">
+            </div>
+
             <div style="display:flex; gap:6px; margin-bottom:6px;">
-                <button class="btn btn-secondary" onclick="selectAllEmployees(true)" style="flex:1;">تحديد الكل</button>
-                <button class="btn btn-secondary" onclick="selectAllEmployees(false)" style="flex:1;">إلغاء الكل</button>
+                <button class="btn btn-secondary" type="button" onclick="selectAllEmployees(true)" style="flex:1;">تحديد الكل</button>
+                <button class="btn btn-secondary" type="button" onclick="selectAllEmployees(false)" style="flex:1;">إلغاء الكل</button>
             </div>
             <div class="form-group">
-                <div class="multi-select-box" id="employeesMultiSelect"></div>
+                <div class="multi-select-box" id="employeesMultiSelect" style="max-height: 200px;"></div>
             </div>
 
             <h2><i class="fas fa-code"></i> إدراج حقول المتغيرات</h2>
@@ -339,7 +344,13 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const activeUser = sessionStorage.getItem('LOGGED_USER') || 'demoUser';
+
+        function cleanFirebaseKey(str) {
+            if (!str) return '';
+            return String(str).replace(/[\.\#\$\/\[\]]/g, '-').trim();
+        }
+
+        const activeUser = cleanFirebaseKey(sessionStorage.getItem('LOGGED_USER') || 'demoUser');
 
         let companyInfo = {};
         let letterheadsList = [];
@@ -492,18 +503,53 @@
             }
         }
 
+        /* دالة عرض الموظفين الشاملة (الكود، الاسم، القسم) مع دعم خانة الفلترة */
         function renderEmployeesCheckboxes(list) {
             const box = document.getElementById('employeesMultiSelect');
             box.innerHTML = '';
+
+            if (!list || list.length === 0) {
+                box.innerHTML = '<div style="font-size:0.8rem; color:#94a3b8; text-align:center; padding:10px;">لا يوجد موظفين مسجلين.</div>';
+                return;
+            }
+
             list.forEach((e, i) => {
-                const code = e['كود'] || e['Code'] || (i+1);
-                const name = e['الاسم'] || e['Name'] || 'موظف ' + (i+1);
-                box.innerHTML += `<label><input type="checkbox" class="emp-chk" value="${i}" ${i === 0 ? 'checked' : ''} onchange="renderAllPages()"> [${code}] ${name}</label>`;
+                const code = e['كود'] || e['Code'] || e['Attendance ID'] || e['Attendance_ID'] || (i + 1);
+                const name = e['الاسم'] || e['الاسم عربي'] || e['الاسم_عربي'] || e['الاسم إنجليزي'] || e['Name'] || 'موظف ' + (i + 1);
+                const dept = e['القسم'] || e['Department'] || '';
+                const deptStr = dept ? ` - <span style="color:#0b4fb3; font-weight:600;">(${dept})</span>` : '';
+
+                box.innerHTML += `
+                    <label class="emp-item-label" data-search="${String(code).toLowerCase()} ${String(name).toLowerCase()} ${String(dept).toLowerCase()}">
+                        <input type="checkbox" class="emp-chk" value="${i}" ${i === 0 ? 'checked' : ''} onchange="renderAllPages()">
+                        <span><b>[${code}]</b> ${name} ${deptStr}</span>
+                    </label>
+                `;
+            });
+        }
+
+        /* دالة البحث المباشرة لتصفية قائمة الموظفين */
+        function filterEmployeesList(query) {
+            const q = query.trim().toLowerCase();
+            const labels = document.querySelectorAll('#employeesMultiSelect .emp-item-label');
+            
+            labels.forEach(label => {
+                const searchStr = label.getAttribute('data-search') || '';
+                if (searchStr.includes(q)) {
+                    label.style.display = 'flex';
+                } else {
+                    label.style.display = 'none';
+                }
             });
         }
 
         function selectAllEmployees(status) {
-            document.querySelectorAll('.emp-chk').forEach(chk => chk.checked = status);
+            document.querySelectorAll('#employeesMultiSelect .emp-item-label').forEach(label => {
+                if (label.style.display !== 'none') {
+                    const chk = label.querySelector('.emp-chk');
+                    if (chk) chk.checked = status;
+                }
+            });
             renderAllPages();
         }
 
@@ -576,7 +622,6 @@
             return res;
         }
 
-        /* تقسيم المحتوى متعدد الصفحات تلقائياً بداخل صفحات A4 مع كود الهيدر والفوتر الثابت بكل صفحة */
         function createSinglePageDocument(bodyHtml, isEditable) {
             const showHeader = document.getElementById('showHeaderChk').checked;
             const showFooter = document.getElementById('showFooterChk').checked;
@@ -659,7 +704,6 @@
 
             const topPaddingStyle = showHeader ? '' : `padding-top: ${parseInt(headerH) + 15}px;`;
 
-            // تقسيم المجموعات بحسب فاصل الصفحة القياسي إن وجد في ملف Word أو تم تقسيمه
             let contentPages = bodyHtml.split(/<hr[^>]*class="[^"]*page-break[^"]*"[^>]*>|<div[^>]*style="[^"]*page-break-before:\s*always[^"]*"[^>]*><\/div>/gi);
 
             let pagesHtml = '';
@@ -701,12 +745,14 @@
             document.getElementById('showFooterChk').checked = true;
             document.getElementById('showDateChk').checked = true;
             document.getElementById('dateAlignPos').value = "left";
+            document.getElementById('empSearchFilter').value = "";
             
             document.getElementById('selectSig1').value = "";
             document.getElementById('selectSig2').value = "";
             document.getElementById('selectSig3').value = "";
             currentEditorRawContent = "";
 
+            filterEmployeesList("");
             renderAllPages();
             alert('تم تفريغ كافة الإعدادات بنجاح!');
         }
