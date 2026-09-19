@@ -313,7 +313,7 @@
         const activeUser = sessionStorage.getItem('LOGGED_USER') || 'demoUser';
 
         let globalEmployees = [];
-        let columnKeys = ['كود', 'الاسم', 'الوظيفة', 'القسم', 'الرقم القومي'];
+        let columnKeys = [];
         let visibleColumns = {};
         let columnFilters = {};
 
@@ -585,7 +585,7 @@
                 .then(() => alert('تم حفظ جميع التوقيعات المعتمدة بنجاح!'));
         }
 
-        /* 6. دالة معالجة النسخ واللصق المباشر من الأكسيل */
+        /* 6. دالة معالجة النسخ واللصق المباشر من الأكسيل بنسبة 100% بترتيب الأكسيل الأصلي */
         function handleExcelPaste(e) {
             e.preventDefault();
             const clipboardData = (e.clipboardData || window.clipboardData).getData('text');
@@ -597,15 +597,18 @@
                 return;
             }
 
+            // استخراج عناوين شيت الأكسيل بالترتيب المنسوخ تماماً وإلغاء الأعمدة القديمة
             const extractedHeaders = rows[0].split('\t').map(h => h.trim()).filter(h => h !== "");
             
+            columnKeys = [...extractedHeaders];
+            visibleColumns = {};
+            columnFilters = {};
+            
             extractedHeaders.forEach(head => {
-                if (!columnKeys.includes(head)) {
-                    columnKeys.push(head);
-                }
                 visibleColumns[head] = true;
             });
 
+            // قراءة بيانات الموظفين بحسب ترتيب الأعمدة الجديد
             const newEmployees = [];
             for (let i = 1; i < rows.length; i++) {
                 const values = rows[i].split('\t');
@@ -619,6 +622,7 @@
             }
 
             globalEmployees = newEmployees;
+
             document.getElementById('pasteStatusBadge').innerText = `تم استيراد ${extractedHeaders.length} عموداً و ${newEmployees.length} موظفاً بنجاح!`;
             document.getElementById('pasteExcelInput').value = '';
 
@@ -626,18 +630,23 @@
             saveEmployeeData();
         }
 
+        /* دالة مسح وتفريغ الجدول والداتا بالكامل */
         function clearPastedSheet() {
-            if (confirm('هل أنت تأكد من مسح جميع بيانات الجدول والأعمدة نهائياً؟')) {
+            if (confirm('هل أنت تأكد من مسح جميع بيانات الجدول والأعمدة بالكامل؟')) {
                 globalEmployees = [];
-                columnKeys = ['كود', 'الاسم', 'الوظيفة', 'القسم', 'الرقم القومي'];
+                columnKeys = [];
                 visibleColumns = {};
-                columnKeys.forEach(k => visibleColumns[k] = true);
                 columnFilters = {};
                 
-                document.getElementById('pasteStatusBadge').innerText = 'تم مسح جميع بيانات الجدول بالكامل.';
+                document.getElementById('pasteStatusBadge').innerText = 'تم مسح الجدول والبيانات بالكامل.';
                 document.getElementById('pasteExcelInput').value = '';
                 
-                saveEmployeeData();
+                Promise.all([
+                    db.ref(`companyProfiles/${activeUser}/employees`).set([]),
+                    db.ref(`companyProfiles/${activeUser}/columnKeys`).set([])
+                ]).then(() => {
+                    renderAdvancedTable();
+                });
             }
         }
 
