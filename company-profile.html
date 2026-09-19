@@ -211,7 +211,7 @@
         </div>
     </div>
 
-    <!-- 6. جدول الموظفين المتطور والديناميكي (بالنسخ واللصق المباشر) -->
+    <!-- 6. جدول الموظفين المتطور والديناميكي -->
     <div class="card">
         <div class="card-header" onclick="toggleAccordion(this)">
             <h3><i class="fas fa-paste"></i> إدارة شيت موظفي الشركة (استيراد مباشر Copy & Paste)</h3>
@@ -310,7 +310,14 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const activeUser = sessionStorage.getItem('LOGGED_USER') || 'demoUser';
+        
+        // تنظيف اسم المستخدم لمنع أخطاء الرموز الخاصة في مسار Firebase
+        function getSafeUserKey() {
+            const rawUser = sessionStorage.getItem('LOGGED_USER') || 'demoUser';
+            return rawUser.replace(/[\.\#\$\/\[\]]/g, '_');
+        }
+
+        const activeUser = getSafeUserKey();
 
         let globalEmployees = [];
         let columnKeys = [];
@@ -318,7 +325,7 @@
         let columnFilters = {};
 
         window.onload = function() {
-            document.getElementById('currentUsername').value = activeUser;
+            document.getElementById('currentUsername').value = sessionStorage.getItem('LOGGED_USER') || 'demoUser';
             loadCompanyProfile();
         };
 
@@ -597,7 +604,8 @@
                 return;
             }
 
-            const extractedHeaders = rows[0].split('\t').map(h => h.trim()).filter(h => h !== "");
+            // تنظيف أسماء الأعمدة من الرموز التي تسبب أخطاء في Firebase
+            const extractedHeaders = rows[0].split('\t').map(h => h.replace(/[\.\#\$\/\[\]]/g, '_').trim()).filter(h => h !== "");
             
             columnKeys = [...extractedHeaders];
             visibleColumns = {};
@@ -650,7 +658,7 @@
 
         function addNewCustomColumn() {
             const input = document.getElementById('newColName');
-            const name = input.value.trim();
+            let name = input.value.trim().replace(/[\.\#\$\/\[\]]/g, '_');
             if (!name) return alert('يرجى كتابة اسم العمود أولاً');
             
             if (!columnKeys.includes(name)) {
@@ -672,7 +680,7 @@
             const newKey = prompt('أدخل الاسم الجديد للعمود:', oldKey);
             if (!newKey || newKey.trim() === '' || newKey === oldKey) return;
 
-            const trimmedNewKey = newKey.trim();
+            const trimmedNewKey = newKey.trim().replace(/[\.\#\$\/\[\]]/g, '_');
             if (columnKeys.includes(trimmedNewKey)) {
                 return alert('هذا الاسم موجود بالفعل!');
             }
@@ -786,7 +794,7 @@
                 columnKeys.forEach(key => {
                     if (visibleColumns[key]) {
                         rowHtml += `
-                            <td contenteditable="true" data-row="${rIdx}" data-key="${key}" onblur="updateSingleCellValue(this)">
+                            <td contenteditable="true" data-row="${rIdx}" data-key="${key}">
                                 ${emp[key] || ''}
                             </td>
                         `;
@@ -795,15 +803,6 @@
                 rowHtml += '</tr>';
                 tbody.innerHTML += rowHtml;
             });
-        }
-
-        /* دالة تحديث قيمة الخلية فور التعديل عليها بداخل المصفوفة */
-        function updateSingleCellValue(tdEl) {
-            const rIdx = tdEl.getAttribute('data-row');
-            const key = tdEl.getAttribute('data-key');
-            if (rIdx !== null && key && globalEmployees[rIdx]) {
-                globalEmployees[rIdx][key] = tdEl.innerText.trim();
-            }
         }
 
         function downloadExcel(emptyTemplate = false) {
@@ -832,30 +831,49 @@
             XLSX.writeFile(workbook, fileName);
         }
 
-        /* دالة حفظ التغيرات المحدثة والمباشرة إلى قاعدة البيانات */
+        /* دالة حفظ التغيرات السحابية المؤكدة والمضمونة */
         function saveEmployeeData() {
-            // تنظيف البيانات لضمان عدم وجود قيم undefined أو بنية غير مدعومة في Firebase
-            const cleanEmployees = globalEmployees.map(emp => {
-                let cleanedEmp = {};
-                columnKeys.forEach(key => {
-                    cleanedEmp[key] = (emp[key] !== undefined && emp[key] !== null) ? String(emp[key]).trim() : "";
+            try {
+                // 1. قراءة أحدث القيم المكتوبة مباشرة من خلايا الجدول الظاهرة
+                const rows = document.querySelectorAll('#empTableBody tr');
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td[data-key]');
+                    cells.forEach(cell => {
+                        const rIdx = cell.getAttribute('data-row');
+                        const key = cell.getAttribute('data-key');
+                        if (rIdx !== null && key && globalEmployees[rIdx]) {
+                            globalEmployees[rIdx][key] = cell.innerText.trim();
+                        }
+                    });
                 });
-                return cleanedEmp;
-            });
 
-            const cleanColumns = columnKeys.filter(k => k && k.trim() !== "");
+                // 2. تصفية البيانات والحرص على عدم وجود قيم undefined أو مفاتيح تسبب رفض من Firebase
+                const cleanColumns = columnKeys.map(k => String(k).replace(/[\.\#\$\/\[\]]/g, '_').trim()).filter(k => k !== "");
 
-            Promise.all([
-                db.ref(`companyProfiles/${activeUser}/employees`).set(cleanEmployees),
-                db.ref(`companyProfiles/${activeUser}/columnKeys`).set(cleanColumns)
-            ]).then(() => {
-                alert('تم حفظ جميع التغيرات سحابياً في قاعدة البيانات بنجاح!');
-                globalEmployees = cleanEmployees;
-                columnKeys = cleanColumns;
-                renderAdvancedTable();
-            }).catch(err => {
-                alert('حدث خطأ أثناء الاتصال بقاعدة البيانات: ' + err.message);
-            });
+                const cleanEmployees = globalEmployees.map(emp => {
+                    let cleanObj = {};
+                    cleanColumns.forEach(col => {
+                        cleanObj[col] = (emp[col] !== undefined && emp[col] !== null) ? String(emp[col]).trim() : "";
+                    });
+                    return cleanObj;
+                });
+
+                // 3. الحفظ المباشر في Firebase مع إظهار رسالة التنبيه بنجاح
+                Promise.all([
+                    db.ref(`companyProfiles/${activeUser}/employees`).set(cleanEmployees),
+                    db.ref(`companyProfiles/${activeUser}/columnKeys`).set(cleanColumns)
+                ]).then(() => {
+                    alert('تم حفظ جميع البيانات والتغيرات في قاعدة البيانات سحابياً بنجاح! ✅');
+                    globalEmployees = cleanEmployees;
+                    columnKeys = cleanColumns;
+                    renderAdvancedTable();
+                }).catch(err => {
+                    alert('خطأ أثناء إرسال البيانات للرابط السحابي: ' + err.message);
+                });
+
+            } catch (err) {
+                alert('حدث خطأ في قراءة الجدول: ' + err.message);
+            }
         }
 
         function loadCompanyProfile() {
