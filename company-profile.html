@@ -211,37 +211,37 @@
         </div>
     </div>
 
-    <!-- 6. جدول الموظفين المتطور والديناميكي -->
+    <!-- 6. جدول الموظفين المتطور والديناميكي (بالنسخ واللصق المباشر) -->
     <div class="card">
         <div class="card-header" onclick="toggleAccordion(this)">
-            <h3><i class="fas fa-users-gear"></i> إدارة شيت موظفي الشركة (جدول تفاعلي متقدم)</h3>
+            <h3><i class="fas fa-paste"></i> إدارة شيت موظفي الشركة (استيراد مباشر Copy & Paste)</h3>
             <i class="fas fa-chevron-down chevron"></i>
         </div>
         <div class="card-body">
             
-            <!-- أزرار رفع واستخراج الـ Excel -->
-            <div class="form-row" style="align-items: center; margin-bottom: 15px;">
-                <div>
-                    <label style="font-size:0.8rem;">اختيار ملف Excel (بيانات أو عناوين فقط):</label>
-                    <input type="file" id="excelFileInput" accept=".xlsx, .xls">
-                </div>
-                <div style="display:flex; gap:8px; align-self: flex-end;">
-                    <button class="btn btn-success" onclick="uploadEmployeeExcel(false)" type="button">
-                        <i class="fas fa-cloud-arrow-up"></i> رفع الملف كامل
-                    </button>
-                    <button class="btn btn-secondary" onclick="uploadEmployeeExcel(true)" type="button">
-                        <i class="fas fa-file-import"></i> رفع عناوين فقط
-                    </button>
+            <!-- منطقة النسخ واللصق من Excel -->
+            <div style="background: #f0f7ff; border: 2px dashed var(--primary); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <label style="font-size: 0.88rem; font-weight: bold; color: var(--primary-dark); margin-bottom: 6px;">
+                    <i class="fas fa-file-excel" style="color:#10b981;"></i> لصق بيانات شيت الأكسيل المباشر:
+                </label>
+                <p style="font-size:0.78rem; color:#64748b; margin-bottom: 8px;">
+                    حدد الخانات في أكسيل واضغط <b>Ctrl + C</b>، ثم اضغط داخل المربع بالأسفل واضغط <b>Ctrl + V</b> (تأكد أن الصف الأول يحتوي على عناوين الأعمدة):
+                </p>
+                <textarea id="pasteExcelInput" onpaste="handleExcelPaste(event)" placeholder="اضغط هنا واضغط Ctrl + V للصق الجدول فوراً من الأكسيل..." style="width:100%; height:90px; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:0.85rem; outline:none; resize:vertical; background:#fff;"></textarea>
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; flex-wrap:wrap; gap:8px;">
+                    <span id="pasteStatusBadge" style="font-size:0.8rem; font-weight:bold; color:var(--primary);">لم يتم لصق بيانات جديدة بعد.</span>
+                    <button class="btn btn-danger" onclick="clearPastedSheet()" type="button" style="padding:4px 10px; font-size:0.78rem;"><i class="fas fa-eraser"></i> تفريغ الجدول بالكامل</button>
                 </div>
             </div>
 
             <!-- أزرار تنزيل شيت الموظفين -->
             <div style="display: flex; gap: 10px; margin-bottom: 15px; background: #eef2ff; padding: 10px; border-radius: 8px;">
                 <button class="btn btn-primary" onclick="downloadExcel(false)" type="button" style="font-size:0.8rem;">
-                    <i class="fas fa-download"></i> تحميل شيت الموظفين (مليان)
+                    <i class="fas fa-download"></i> تحميل شيت الموظفين الحالي (.xlsx)
                 </button>
                 <button class="btn btn-secondary" onclick="downloadExcel(true)" type="button" style="font-size:0.8rem;">
-                    <i class="fas fa-file-excel"></i> تحميل نموذج فارغ (فاضي)
+                    <i class="fas fa-file-excel"></i> تحميل نموذج فارغ بالعناوين (.xlsx)
                 </button>
             </div>
 
@@ -261,13 +261,13 @@
                 <table id="advancedEmpTable">
                     <thead><tr id="tableHeadRow"></tr></thead>
                     <tbody id="empTableBody">
-                        <tr><td colspan="10" style="text-align:center; color:#94a3b8;">لم يتم رفع موظفين بعد.</td></tr>
+                        <tr><td colspan="10" style="text-align:center; color:#94a3b8;">لم يتم إضافة موظفين بعد.</td></tr>
                     </tbody>
                 </table>
             </div>
 
             <button class="btn btn-primary" onclick="saveEmployeeData()" type="button" style="width: 100%; margin-top: 15px;">
-                <i class="fas fa-save"></i> حفظ التغيرات على شيت الموظفين
+                <i class="fas fa-save"></i> حفظ التغيرات سحابياً في قاعدة البيانات
             </button>
         </div>
     </div>
@@ -585,46 +585,54 @@
                 .then(() => alert('تم حفظ جميع التوقيعات المعتمدة بنجاح!'));
         }
 
-        /* 6. تحكم جدول الموظفين */
-        function uploadEmployeeExcel(headersOnly = false) {
-            const fileInput = document.getElementById('excelFileInput');
-            if (!fileInput.files.length) return alert('برجاء اختيار ملف Excel أولاً');
+        /* 6. دالة معالجة النسخ واللصق المباشر من الأكسيل */
+        function handleExcelPaste(e) {
+            e.preventDefault();
+            const clipboardData = (e.clipboardData || window.clipboardData).getData('text');
+            if (!clipboardData) return;
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = clipboardData.trim().split(/\r\n|\n|\r/);
+            if (rows.length < 2) {
+                alert('البيانات المنسوخة غير كافية! يرجى النسخ مع صف العناوين الرئيسي.');
+                return;
+            }
 
-                const rawRows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-
-                if (rawRows.length > 0 && rawRows[0].length > 0) {
-                    const extractedHeaders = rawRows[0].map(h => String(h || '').trim()).filter(h => h !== '');
-
-                    extractedHeaders.forEach(nk => {
-                        if (!columnKeys.includes(nk)) {
-                            columnKeys.push(nk);
-                            visibleColumns[nk] = true;
-                        }
-                    });
-
-                    if (!headersOnly) {
-                        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                        if (jsonData.length > 0) {
-                            globalEmployees = [...globalEmployees, ...jsonData];
-                        }
-                    }
-
-                    saveEmployeeData();
-                    alert(headersOnly ? 'تم استخراج الأعمدة وإضافتها بنجاح!' : 'تم رفع الملف والبيانات بنجاح!');
-                } else {
-                    alert('الملف فارغ أو لا يحتوي على عناوين في الصف الأول!');
+            const extractedHeaders = rows[0].split('\t').map(h => h.trim()).filter(h => h !== "");
+            
+            extractedHeaders.forEach(head => {
+                if (!columnKeys.includes(head)) {
+                    columnKeys.push(head);
                 }
-            };
-            reader.readAsArrayBuffer(fileInput.files[0]);
+                visibleColumns[head] = true;
+            });
+
+            const newEmployees = [];
+            for (let i = 1; i < rows.length; i++) {
+                const values = rows[i].split('\t');
+                if (values.length === 0 || (values.length === 1 && values[0].trim() === "")) continue;
+
+                let empObj = {};
+                extractedHeaders.forEach((head, colIdx) => {
+                    empObj[head] = values[colIdx] ? values[colIdx].trim() : "";
+                });
+                newEmployees.push(empObj);
+            }
+
+            globalEmployees = newEmployees;
+            document.getElementById('pasteStatusBadge').innerText = `تم استيراد ${extractedHeaders.length} عموداً و ${newEmployees.length} موظفاً بنجاح!`;
+            document.getElementById('pasteExcelInput').value = '';
+
+            saveEmployeeData();
         }
 
-        /* دالة إضافة عمود مخصص وحفظه مباشرة في السيرفر بدون تعليق */
+        function clearPastedSheet() {
+            if (confirm('هل أنت تأكد من تفريغ كافة بيانات الجدول والأعمدة؟')) {
+                globalEmployees = [];
+                document.getElementById('pasteStatusBadge').innerText = 'تم تفريغ الجدول بالكامل.';
+                saveEmployeeData();
+            }
+        }
+
         function addNewCustomColumn() {
             const input = document.getElementById('newColName');
             const name = input.value.trim();
@@ -800,7 +808,6 @@
             XLSX.writeFile(workbook, fileName);
         }
 
-        /* حفظ التعديل وحث الواجهة مباشرة بدون الانتظار في حلقة مفرغة */
         function saveEmployeeData() {
             const empData = globalEmployees.length ? globalEmployees : [];
             const colsData = columnKeys.length ? columnKeys : [];
