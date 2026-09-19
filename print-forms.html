@@ -35,9 +35,8 @@
             position: sticky; top: 15px; z-index: 1000;
         }
         
-        /* تبويبات الشريط الجانبي */
-        .tab-buttons { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 12px; }
-        .tab-btn { flex: 1; padding: 8px 4px; font-weight: bold; border: none; background: none; cursor: pointer; color: #64748b; font-size: 0.8rem; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+        .tab-buttons { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 12px; gap: 2px; }
+        .tab-btn { flex: 1; padding: 8px 2px; font-weight: bold; border: none; background: none; cursor: pointer; color: #64748b; font-size: 0.75rem; border-bottom: 2px solid transparent; margin-bottom: -2px; text-align: center; }
         .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: #eff6ff; border-radius: 6px 6px 0 0; }
 
         .tab-content { display: none; }
@@ -60,18 +59,22 @@
         .multi-select-box { max-height: 120px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; background: #fff; }
         .multi-select-box label { display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; padding: 2px 0; border-bottom: 1px dashed #f1f5f9; font-size: 0.8rem; }
 
-        /* شريط أدوات المحرر العلوي */
         .editor-toolbar-container { position: sticky; top: 0px; z-index: 999; margin-bottom: 20px; background: var(--bg); padding-top: 5px; padding-bottom: 5px; }
         .editor-toolbar { display: flex; flex-wrap: wrap; gap: 6px; background: #ffffff; padding: 8px 12px; border: 1px solid #94a3b8; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); align-items: center; }
         .tool-btn { background: #f8fafc; border: 1px solid #cbd5e1; padding: 5px 9px; border-radius: 4px; cursor: pointer; font-size: 0.82rem; color: #334155; }
         .tool-btn:hover { background: #e0e7ff; color: var(--primary); }
 
-        /* الورقة الرسمية A4 */
         .paper-wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; }
         
+        /* تنسيق طباعة وحاوية الصفحات المتعددة */
         .print-document {
-            width: 210mm; min-height: 297mm; background: #ffffff; padding: 0; box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-            box-sizing: border-box; margin-bottom: 25px; position: relative; display: flex; flex-direction: column; justify-content: space-between;
+            width: 210mm; background: #ffffff; padding: 0; box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            box-sizing: border-box; margin-bottom: 25px; position: relative;
+        }
+
+        .page-node {
+            width: 210mm; min-height: 297mm; display: flex; flex-direction: column; justify-content: space-between;
+            box-sizing: border-box; background: #ffffff; page-break-after: always; position: relative;
         }
 
         .header-section {
@@ -115,7 +118,8 @@
             .sidebar, .editor-toolbar-container, .no-print { display: none !important; }
             .app-container { display: block; }
             .paper-wrapper { width: 100%; }
-            .print-document { box-shadow: none; width: 100%; margin: 0; page-break-after: always; min-height: 100vh; }
+            .print-document { box-shadow: none; width: 100%; margin: 0; }
+            .page-node { page-break-after: always; height: 297mm; min-height: 297mm; }
             .editable-text-area td, .editable-text-area th { resize: none !important; overflow: visible !important; }
         }
     </style>
@@ -123,15 +127,26 @@
 <body>
 
     <div class="app-container">
-        <!-- الشريط الجانبي الثابت المقسم إلى تبويبات -->
+        <!-- الشريط الجانبي الثابت المقسم إلى 3 تبويبات -->
         <div class="sidebar no-print">
             <div class="tab-buttons">
-                <button class="tab-btn active" onclick="switchTab('tab-create')"><i class="fas fa-edit"></i> تحرير نموذج جديد</button>
+                <button class="tab-btn active" onclick="switchTab('tab-create')"><i class="fas fa-edit"></i> تحرير نموذج</button>
                 <button class="tab-btn" onclick="switchTab('tab-select')"><i class="fas fa-folder-open"></i> نماذج محفوظة</button>
+                <button class="tab-btn" onclick="switchTab('tab-org')"><i class="fas fa-sitemap"></i> Org chart</button>
             </div>
 
             <!-- تبويب 1: تحرير نموذج جديد -->
             <div id="tab-create" class="tab-content active">
+                <h2><i class="fas fa-building"></i> الديباجة والفرع</h2>
+                <div class="form-group">
+                    <label>ديباجة رأس الصفحة:</label>
+                    <select class="select-letterhead-ctrl" onchange="syncAndRenderLetterhead(this)"></select>
+                </div>
+                <div class="form-group">
+                    <label>الفرع / السجل التجاري:</label>
+                    <select class="select-branch-ctrl" onchange="syncAndRenderBranch(this)"></select>
+                </div>
+
                 <h2><i class="fas fa-globe"></i> لغة الخطاب والتنسيق</h2>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
                     <div class="form-group">
@@ -226,15 +241,31 @@
                     <div class="multi-select-box" id="templatesMultiSelect"></div>
                 </div>
 
+                <h2><i class="fas fa-building"></i> الديباجة والفرع</h2>
+                <div class="form-group">
+                    <label>ديباجة رأس الصفحة:</label>
+                    <select class="select-letterhead-ctrl" onchange="syncAndRenderLetterhead(this)"></select>
+                </div>
+                <div class="form-group">
+                    <label>الفرع / السجل التجاري:</label>
+                    <select class="select-branch-ctrl" onchange="syncAndRenderBranch(this)"></select>
+                </div>
+
                 <h2><i class="fas fa-file-word"></i> استيراد وتصدير Word</h2>
                 <div class="form-group">
                     <input type="file" id="wordFileInput" accept=".docx" onchange="importWordFile(this)">
                 </div>
                 <button class="btn btn-warning" onclick="downloadBackupWord()" style="width:100%; margin-bottom:10px;"><i class="fas fa-download"></i> تصدير النسخة المكتملة (.doc)</button>
+            </div>
 
-                <h2><i class="fas fa-building"></i> الديباجة والفرع</h2>
-                <div class="form-group"><select id="selectLetterhead" onchange="renderAllPages()"></select></div>
-                <div class="form-group"><select id="selectBranch" onchange="renderAllPages()"></select></div>
+            <!-- تبويب 3: Org chart -->
+            <div id="tab-org" class="tab-content">
+                <h2><i class="fas fa-sitemap"></i> الهيكل التنظيمي (Org Chart)</h2>
+                <p style="font-size:0.8rem; color:#64748b; margin-bottom:12px;">الانتقال إلى صفحة إدارة وعرض الهيكل التنظيمي للمؤسسة:</p>
+                
+                <a href="org-chart.html" target="_blank" class="btn btn-primary" style="width:100%; text-decoration:none; padding:10px; margin-bottom:10px;">
+                    <i class="fas fa-external-link-alt"></i> فتح org-chart.html في نافذة جديدة
+                </a>
             </div>
 
             <hr style="margin: 12px 0; border: none; border-top: 1px solid #cbd5e1;">
@@ -353,12 +384,16 @@
         }
 
         function populateControls() {
-            const lhSelect = document.getElementById('selectLetterhead');
-            lhSelect.innerHTML = letterheadsList.map((lh, i) => `<option value="${i}">${lh.name || 'ديباجة ' + (i+1)}</option>`).join('');
+            const lhOptionsHtml = letterheadsList.map((lh, i) => `<option value="${i}">${lh.name || 'ديباجة ' + (i+1)}</option>`).join('');
+            document.querySelectorAll('.select-letterhead-ctrl').forEach(select => {
+                select.innerHTML = lhOptionsHtml;
+            });
 
-            const brSelect = document.getElementById('selectBranch');
-            brSelect.innerHTML = '<option value="">-- بدون تحديد فرع --</option>' + 
+            const brOptionsHtml = '<option value="">-- بدون تحديد فرع --</option>' + 
                 branchesList.map((b, i) => `<option value="${i}">${b.name || 'فرع ' + (i+1)}</option>`).join('');
+            document.querySelectorAll('.select-branch-ctrl').forEach(select => {
+                select.innerHTML = brOptionsHtml;
+            });
 
             const sigOptions = '<option value="">-- بدون توقيع --</option>' + signaturesList.map((s, i) => `<option value="${i}">${s.titleAr || s.nameAr || 'توقيع ' + (i+1)}</option>`).join('');
             document.getElementById('selectSig1').innerHTML = sigOptions;
@@ -376,6 +411,18 @@
 
             renderTemplatesCheckboxes();
             renderEmployeesCheckboxes(employeesList);
+        }
+
+        function syncAndRenderLetterhead(sourceSelect) {
+            const val = sourceSelect.value;
+            document.querySelectorAll('.select-letterhead-ctrl').forEach(s => s.value = val);
+            renderAllPages();
+        }
+
+        function syncAndRenderBranch(sourceSelect) {
+            const val = sourceSelect.value;
+            document.querySelectorAll('.select-branch-ctrl').forEach(s => s.value = val);
+            renderAllPages();
         }
 
         function populateRecipientsDropdown() {
@@ -529,6 +576,7 @@
             return res;
         }
 
+        /* تقسيم المحتوى متعدد الصفحات تلقائياً بداخل صفحات A4 مع كود الهيدر والفوتر الثابت بكل صفحة */
         function createSinglePageDocument(bodyHtml, isEditable) {
             const showHeader = document.getElementById('showHeaderChk').checked;
             const showFooter = document.getElementById('showFooterChk').checked;
@@ -547,10 +595,12 @@
 
             const borderCss = (lineStyle === 'none' || lineWidth == 0) ? 'none' : `${lineWidth}px ${lineStyle} ${lineColor}`;
 
-            const lhIdx = document.getElementById('selectLetterhead').value;
+            const lhSelect = document.querySelector('.select-letterhead-ctrl');
+            const lhIdx = lhSelect ? lhSelect.value : "0";
             const lh = letterheadsList[lhIdx] || {};
 
-            const brIdx = document.getElementById('selectBranch').value;
+            const brSelect = document.querySelector('.select-branch-ctrl');
+            const brIdx = brSelect ? brSelect.value : "";
             const br = branchesList[brIdx];
 
             const hLine1 = lh.hLine1 || companyInfo.nameAr || '';
@@ -568,7 +618,6 @@
             const recipientStr = document.getElementById('recipientInput').value.trim();
             let recipientBlock = recipientStr ? `<div class="recipient-block">${isEnglish ? 'To:' : 'موجه إلى:'} ${recipientStr}</div>` : '';
 
-            // ضبط التاريخ دائماً تحت العنوان بمحاذاة ديناميكية
             const formattedDate = getFormattedDateStr(isEnglish);
             let dateBlock = '';
 
@@ -595,39 +644,47 @@
                 sigHtml += `</div>`;
             }
 
-            // الحفاظ على موقع المكونات عند إخفاء الهيدر باستخدام Padding علوي
+            const headerMarkup = showHeader ? `
+                <div class="header-section" style="height:${headerH}px; border-bottom:${borderCss}; flex-direction:${lh.logoPos === 'right' ? 'row-reverse' : 'row'};">
+                    <div class="header-text" style="text-align:${lh.hAlign || 'right'}">
+                        <div>${hLine1}</div><div>${hLine2}</div>
+                    </div>
+                    ${logoHtml}
+                </div>` : '';
+
+            const footerMarkup = showFooter ? `
+                <div class="footer-section" style="height:${footerH}px; border-top:${borderCss}; text-align:${lh.fAlign || 'center'}">
+                    ${fLine}
+                </div>` : '';
+
             const topPaddingStyle = showHeader ? '' : `padding-top: ${parseInt(headerH) + 15}px;`;
 
-            return `
-                <div class="print-document" id="docToExport" dir="${textDir}">
-                    ${showHeader ? `
-                    <div class="header-section" style="height:${headerH}px; border-bottom:${borderCss}; flex-direction:${lh.logoPos === 'right' ? 'row-reverse' : 'row'};">
-                        <div class="header-text" style="text-align:${lh.hAlign || 'right'}">
-                            <div>${hLine1}</div><div>${hLine2}</div>
+            // تقسيم المجموعات بحسب فاصل الصفحة القياسي إن وجد في ملف Word أو تم تقسيمه
+            let contentPages = bodyHtml.split(/<hr[^>]*class="[^"]*page-break[^"]*"[^>]*>|<div[^>]*style="[^"]*page-break-before:\s*always[^"]*"[^>]*><\/div>/gi);
+
+            let pagesHtml = '';
+            contentPages.forEach((pageContent, idx) => {
+                let isFirst = (idx === 0);
+                let isLast = (idx === contentPages.length - 1);
+
+                pagesHtml += `
+                    <div class="page-node" dir="${textDir}">
+                        ${headerMarkup}
+                        <div class="body-section" dir="${textDir}" style="${topPaddingStyle}">
+                            ${isFirst ? titleBlock + dateBlock + recipientBlock : ''}
+                            
+                            <div class="editable-text-area" ${isEditable ? 'contenteditable="true" oninput="currentEditorRawContent=this.innerHTML;"' : ''}>
+                                ${pageContent}
+                            </div>
+
+                            ${isLast ? sigHtml : ''}
                         </div>
-                        ${logoHtml}
+                        ${footerMarkup}
                     </div>
-                    ` : ''}
+                `;
+            });
 
-                    <div class="body-section" dir="${textDir}" style="${topPaddingStyle}">
-                        ${titleBlock}
-                        ${dateBlock}
-                        ${recipientBlock}
-                        
-                        <div class="editable-text-area" ${isEditable ? 'contenteditable="true" oninput="currentEditorRawContent=this.innerHTML;"' : ''}>
-                            ${bodyHtml}
-                        </div>
-
-                        ${sigHtml}
-                    </div>
-
-                    ${showFooter ? `
-                    <div class="footer-section" style="height:${footerH}px; border-top:${borderCss}; text-align:${lh.fAlign || 'center'}">
-                        ${fLine}
-                    </div>
-                    ` : ''}
-                </div>
-            `;
+            return `<div class="print-document" id="docToExport">${pagesHtml}</div>`;
         }
 
         function resetFormControls() {
