@@ -267,7 +267,7 @@
             </div>
 
             <button class="btn btn-primary" onclick="saveEmployeeData()" type="button" style="width: 100%; margin-top: 15px;">
-                <i class="fas fa-save"></i> حفظ التغيرات سحابياً في قاعدة البيانات
+                <i class="fas fa-floppy-disk"></i> حفظ التغيرات سحابياً في قاعدة البيانات
             </button>
         </div>
     </div>
@@ -585,7 +585,7 @@
                 .then(() => alert('تم حفظ جميع التوقيعات المعتمدة بنجاح!'));
         }
 
-        /* 6. دالة معالجة النسخ واللصق المباشر من الأكسيل بنسبة 100% بترتيب الأكسيل الأصلي */
+        /* 6. دالة معالجة النسخ واللصق المباشر من الأكسيل */
         function handleExcelPaste(e) {
             e.preventDefault();
             const clipboardData = (e.clipboardData || window.clipboardData).getData('text');
@@ -597,7 +597,6 @@
                 return;
             }
 
-            // استخراج عناوين شيت الأكسيل بالترتيب المنسوخ تماماً وإلغاء الأعمدة القديمة
             const extractedHeaders = rows[0].split('\t').map(h => h.trim()).filter(h => h !== "");
             
             columnKeys = [...extractedHeaders];
@@ -608,7 +607,6 @@
                 visibleColumns[head] = true;
             });
 
-            // قراءة بيانات الموظفين بحسب ترتيب الأعمدة الجديد
             const newEmployees = [];
             for (let i = 1; i < rows.length; i++) {
                 const values = rows[i].split('\t');
@@ -788,7 +786,7 @@
                 columnKeys.forEach(key => {
                     if (visibleColumns[key]) {
                         rowHtml += `
-                            <td contenteditable="true" onblur="globalEmployees[${rIdx}]['${key}']=this.innerText.trim();">
+                            <td contenteditable="true" data-row="${rIdx}" data-key="${key}" onblur="globalEmployees[${rIdx}]['${key}']=this.innerText.trim();">
                                 ${emp[key] || ''}
                             </td>
                         `;
@@ -825,7 +823,21 @@
             XLSX.writeFile(workbook, fileName);
         }
 
+        /* دالة حفظ البيانات المحدثة التي تجمع البيانات المكتوبة في الجدول مجهزة للحفظ السحابي المباشر */
         function saveEmployeeData() {
+            // تجميع أي تعديلات مباشرة تمت كتابتها بداخل خلايا الجدول قبل الإرسال
+            const rows = document.querySelectorAll('#empTableBody tr');
+            rows.forEach((row, rIdx) => {
+                const cells = row.querySelectorAll('td[contenteditable="true"]');
+                cells.forEach(cell => {
+                    const key = cell.getAttribute('data-key');
+                    const empIndex = cell.getAttribute('data-row');
+                    if (key && empIndex !== null && globalEmployees[empIndex]) {
+                        globalEmployees[empIndex][key] = cell.innerText.trim();
+                    }
+                });
+            });
+
             const empData = globalEmployees.length ? globalEmployees : [];
             const colsData = columnKeys.length ? columnKeys : [];
             
@@ -833,7 +845,10 @@
                 db.ref(`companyProfiles/${activeUser}/employees`).set(empData),
                 db.ref(`companyProfiles/${activeUser}/columnKeys`).set(colsData)
             ]).then(() => {
+                alert('تم حفظ جميع التغيرات سحابياً في قاعدة البيانات بنجاح!');
                 renderAdvancedTable();
+            }).catch(err => {
+                alert('حدث خطأ أثناء الحفظ في قاعدة البيانات: ' + err.message);
             });
         }
 
