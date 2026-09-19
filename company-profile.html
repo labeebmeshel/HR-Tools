@@ -786,7 +786,7 @@
                 columnKeys.forEach(key => {
                     if (visibleColumns[key]) {
                         rowHtml += `
-                            <td contenteditable="true" data-row="${rIdx}" data-key="${key}" onblur="globalEmployees[${rIdx}]['${key}']=this.innerText.trim();">
+                            <td contenteditable="true" data-row="${rIdx}" data-key="${key}" onblur="updateSingleCellValue(this)">
                                 ${emp[key] || ''}
                             </td>
                         `;
@@ -795,6 +795,15 @@
                 rowHtml += '</tr>';
                 tbody.innerHTML += rowHtml;
             });
+        }
+
+        /* دالة تحديث قيمة الخلية فور التعديل عليها بداخل المصفوفة */
+        function updateSingleCellValue(tdEl) {
+            const rIdx = tdEl.getAttribute('data-row');
+            const key = tdEl.getAttribute('data-key');
+            if (rIdx !== null && key && globalEmployees[rIdx]) {
+                globalEmployees[rIdx][key] = tdEl.innerText.trim();
+            }
         }
 
         function downloadExcel(emptyTemplate = false) {
@@ -823,32 +832,29 @@
             XLSX.writeFile(workbook, fileName);
         }
 
-        /* دالة حفظ البيانات المحدثة التي تجمع البيانات المكتوبة في الجدول مجهزة للحفظ السحابي المباشر */
+        /* دالة حفظ التغيرات المحدثة والمباشرة إلى قاعدة البيانات */
         function saveEmployeeData() {
-            // تجميع أي تعديلات مباشرة تمت كتابتها بداخل خلايا الجدول قبل الإرسال
-            const rows = document.querySelectorAll('#empTableBody tr');
-            rows.forEach((row, rIdx) => {
-                const cells = row.querySelectorAll('td[contenteditable="true"]');
-                cells.forEach(cell => {
-                    const key = cell.getAttribute('data-key');
-                    const empIndex = cell.getAttribute('data-row');
-                    if (key && empIndex !== null && globalEmployees[empIndex]) {
-                        globalEmployees[empIndex][key] = cell.innerText.trim();
-                    }
+            // تنظيف البيانات لضمان عدم وجود قيم undefined أو بنية غير مدعومة في Firebase
+            const cleanEmployees = globalEmployees.map(emp => {
+                let cleanedEmp = {};
+                columnKeys.forEach(key => {
+                    cleanedEmp[key] = (emp[key] !== undefined && emp[key] !== null) ? String(emp[key]).trim() : "";
                 });
+                return cleanedEmp;
             });
 
-            const empData = globalEmployees.length ? globalEmployees : [];
-            const colsData = columnKeys.length ? columnKeys : [];
-            
+            const cleanColumns = columnKeys.filter(k => k && k.trim() !== "");
+
             Promise.all([
-                db.ref(`companyProfiles/${activeUser}/employees`).set(empData),
-                db.ref(`companyProfiles/${activeUser}/columnKeys`).set(colsData)
+                db.ref(`companyProfiles/${activeUser}/employees`).set(cleanEmployees),
+                db.ref(`companyProfiles/${activeUser}/columnKeys`).set(cleanColumns)
             ]).then(() => {
                 alert('تم حفظ جميع التغيرات سحابياً في قاعدة البيانات بنجاح!');
+                globalEmployees = cleanEmployees;
+                columnKeys = cleanColumns;
                 renderAdvancedTable();
             }).catch(err => {
-                alert('حدث خطأ أثناء الحفظ في قاعدة البيانات: ' + err.message);
+                alert('حدث خطأ أثناء الاتصال بقاعدة البيانات: ' + err.message);
             });
         }
 
