@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إعدادات بروفايل الشركة - HR System</title>
+    <title>منظومة إدارة الموارد البشرية والشركات الشاملة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDKs -->
+    <!-- مكتبات قراءة ملفات Excel السريعة -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- مكتبات Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -14,112 +17,465 @@
         :root {
             --primary: #0b4fb3;
             --primary-dark: #0b2a5c;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
+            --bg-light: #f4f7fc;
+            --sidebar-width: 270px;
+            --white: #ffffff;
             --text: #1e293b;
-            --border: #cbd5e1;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 20px; direction: rtl; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-light); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
 
-        .main-layout { display: grid; grid-template-columns: 260px 1fr; gap: 20px; max-width: 1500px; margin: 0 auto; }
-
-        /* الشريط الجانبي الرئيسي */
-        .sidebar-nav { background: #fff; padding: 15px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05); height: fit-content; }
-        .sidebar-nav h3 { font-size: 1rem; color: var(--primary-dark); margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
-
-        .nav-tab-btn {
-            width: 100%; text-align: right; padding: 12px 14px; margin-bottom: 8px; border: none; background: #f1f5f9;
-            border-radius: 8px; font-weight: bold; color: #475569; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; font-size: 0.9rem;
+        /* شاشة تسجيل الدخول */
+        #loginScreen {
+            position: fixed; inset: 0; background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 15px;
         }
-        .nav-tab-btn:hover { background: #e0e7ff; color: var(--primary); }
-        .nav-tab-btn.active { background: var(--primary); color: white; }
+        .login-card {
+            background: white; width: 100%; max-width: 420px; padding: 30px 25px; border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); text-align: center;
+        }
+        .login-card h2 { color: var(--primary-dark); margin-bottom: 20px; font-size: 1.3rem; }
+        .form-input { width: 100%; padding: 11px 14px; margin-bottom: 12px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-size: 0.95rem; }
+        .btn-action { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
+        .btn-action:hover { background: var(--primary-dark); }
+        .login-error { color: var(--danger); font-size: 0.85rem; margin-top: 10px; display: none; }
 
-        /* منطقة المحتوى الرئيسي */
-        .content-area { background: #fff; padding: 25px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .main-tab-content { display: none; }
-        .main-tab-content.active { display: block; }
+        .public-disc-link {
+            margin-top: 18px; padding-top: 15px; border-top: 1px dashed #cbd5e1;
+            display: flex; flex-direction: column; gap: 8px; align-items: center;
+        }
+        .btn-public-disc {
+            background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;
+            padding: 10px 16px; border-radius: 8px; font-weight: bold; text-decoration: none;
+            font-size: 0.88rem; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; transition: 0.2s;
+        }
+        .btn-public-disc:hover { background: #fde68a; }
 
-        .main-tab-content h2 { font-size: 1.2rem; color: var(--primary-dark); margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+        /* الهيدر العلوي للموبايل */
+        .mobile-header {
+            display: none; height: 55px; background: var(--primary-dark); color: white;
+            align-items: center; justify-content: space-between; padding: 0 15px;
+            position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+        }
+        .mobile-menu-btn { background: none; border: none; color: white; font-size: 1.3rem; cursor: pointer; }
+        .mobile-logout-btn { background: none; border: none; color: #fca5a5; font-size: 1.2rem; cursor: pointer; margin-left: 15px; }
+
+        /* القائمة الجانبية */
+        .sidebar {
+            width: var(--sidebar-width); background: var(--primary-dark); color: white;
+            display: flex; flex-direction: column; height: 100vh; z-index: 1000; flex-shrink: 0;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1); transition: transform 0.3s ease;
+        }
+        .sidebar-header { padding: 20px 15px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .company-logo-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-bottom: 8px; border: 2px solid #fcd34d; background: #fff; display: none; }
+        .sidebar-header h3 { font-size: 0.95rem; color: #fff; font-weight: bold; }
+        .sidebar-header p { font-size: 0.75rem; color: #fcd34d; margin-top: 2px; }
+
+        .nav-list { flex: 1; overflow-y: auto; padding: 15px 10px; list-style: none; }
+        .nav-item { margin-bottom: 4px; }
+        .nav-link {
+            display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+            color: rgba(255,255,255,0.8); text-decoration: none; border-radius: 8px;
+            cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: 0.2s; border: none; background: none; width: 100%; text-align: right;
+        }
+        .nav-link:hover, .nav-link.active { background: var(--primary); color: white; }
+        .nav-link i { width: 20px; text-align: center; font-size: 1.05rem; }
+
+        .submenu { display: none; list-style: none; padding-right: 25px; margin-top: 4px; }
+        .submenu.active { display: block; }
+        .submenu-btn {
+            display: block; width: 100%; text-align: right; padding: 8px 12px;
+            color: rgba(255,255,255,0.7); border: none; background: none; cursor: pointer;
+            font-size: 0.85rem; border-radius: 6px; transition: 0.2s;
+        }
+        .submenu-btn:hover, .submenu-btn.active { color: #fcd34d; background: rgba(255,255,255,0.05); }
+
+        .sidebar-footer { padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .user-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+        .btn-logout { background: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+
+        /* الشاشات الرئيسية */
+        .main-wrapper { flex: 1; height: 100vh; position: relative; overflow: hidden; }
+        .page-frame { width: 100%; height: 100%; border: none; display: none; }
+        .page-frame.active { display: block; }
+
+        .status-badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
+        .status-online { background: #d1fae5; color: #065f46; }
+        .status-offline { background: #fee2e2; color: #991b1b; }
+
+        /* التوافق مع الهواتف الذكية */
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .mobile-header { display: flex; }
+            .sidebar {
+                position: fixed; top: 55px; bottom: 0; right: 0; width: 260px;
+                transform: translateX(100%); z-index: 10000;
+                height: calc(100% - 55px);
+            }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .main-wrapper { margin-top: 55px; height: calc(100vh - 55px); }
+        }
     </style>
 </head>
 <body>
 
-    <div class="main-layout">
-        <!-- القائمة الجانبية الرئيسية -->
-        <div class="sidebar-nav">
-            <h3><i class="fas fa-building-user"></i> لوحة تحكم الشركة</h3>
-            
-            <button class="nav-tab-btn active" onclick="switchMainTab('companyInfoTab')">
-                <i class="fas fa-id-card"></i> بروفايل الشركة
-            </button>
-            <button class="nav-tab-btn" onclick="switchMainTab('taxInsuranceTab')">
-                <i class="fas fa-calculator"></i> الضرائب والتأمينات
-            </button>
-            <button class="nav-tab-btn" onclick="switchMainTab('letterheadTab')">
-                <i class="fas fa-heading"></i> إعدادات الديباجة
-            </button>
-            <button class="nav-tab-btn" onclick="switchMainTab('signaturesTab')">
-                <i class="fas fa-file-signature"></i> اعتماد التوقيعات
-            </button>
-
-            <!-- التبويب الجديد المطلوب -->
-            <button class="nav-tab-btn" onclick="switchMainTab('orgChartTab')">
-                <i class="fas fa-sitemap"></i> Org chart
-            </button>
+    <!-- الهيدر الخاص بالشاشات الصغيرة (الموبايل) -->
+    <div class="mobile-header">
+        <span style="font-weight: bold; font-size: 0.95rem;"><i class="fas fa-layer-group"></i> المنظومة الشاملة</span>
+        <div style="display: flex; align-items: center;">
+            <button class="mobile-logout-btn" onclick="logout()" title="تسجيل الخروج"><i class="fas fa-right-from-bracket"></i></button>
+            <button class="mobile-menu-btn" onclick="toggleMobileSidebar()"><i class="fas fa-bars"></i></button>
         </div>
+    </div>
 
-        <!-- منطقة المحتوى -->
-        <div class="content-area">
-            <!-- 1. بروفايل الشركة -->
-            <div id="companyInfoTab" class="main-tab-content active">
-                <h2><i class="fas fa-id-card"></i> معلومات بروفايل الشركة الأساسية</h2>
-                <p>بيانات الشركة الأساسية والشعار...</p>
-            </div>
+    <!-- شاشة تسجيل الدخول -->
+    <div id="loginScreen">
+        <div class="login-card">
+            <i class="fas fa-user-shield fa-3x" style="color: var(--primary); margin-bottom: 15px;"></i>
+            <h2>تسجيل الدخول للنظام</h2>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <input type="text" id="loginUsername" class="form-input" placeholder="اسم المستخدم (Username)" required>
+                <input type="password" id="loginPassword" class="form-input" placeholder="كلمة المرور (Password)" required>
+                <button type="submit" class="btn-action">دخول للنظام</button>
+            </form>
+            <div id="loginError" class="login-error">اسم المستخدم أو كلمة المرور غير صحيحة!</div>
 
-            <!-- 2. الضرائب والتأمينات -->
-            <div id="taxInsuranceTab" class="main-tab-content">
-                <h2><i class="fas fa-calculator"></i> إعدادات الضرائب والتأمينات الاجتماعية</h2>
-                <p>شرائح الضرائب ونسب التأمينات...</p>
-            </div>
-
-            <!-- 3. إعدادات الديباجة -->
-            <div id="letterheadTab" class="main-tab-content">
-                <h2><i class="fas fa-heading"></i> تصميم وإدارة ديباجة المراسلات</h2>
-                <p>إعداد هيدر وفوتر الخطابات...</p>
-            </div>
-
-            <!-- 4. التوقيعات -->
-            <div id="signaturesTab" class="main-tab-content">
-                <h2><i class="fas fa-file-signature"></i> إدارة التوقيعات المعتمدة</h2>
-                <p>أسماء وصفات الموقّعين...</p>
-            </div>
-
-            <!-- 5. الهيكل التنظيمي (Org chart) - التبويب الجديد -->
-            <div id="orgChartTab" class="main-tab-content">
-                <h2><i class="fas fa-sitemap"></i> الهيكل التنظيمي للمؤسسة (Org Chart)</h2>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <p style="color: #64748b; font-size: 0.9rem;">عرض وإدارة الهيكل الوظيفي والتبعيات الإدارية بشكل تفاعلي:</p>
-                    <a href="org-chart.html" target="_blank" style="padding: 8px 15px; background: var(--primary); color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 0.85rem;">
-                        <i class="fas fa-external-link-alt"></i> فتح في نافذة جديدة
-                    </a>
-                </div>
-
-                <!-- تضمين ملف org-chart.html مباشرة داخل الواجهة -->
-                <iframe src="org-chart.html" style="width: 100%; height: 750px; border: 1px solid var(--border); border-radius: 8px; background: #fff;"></iframe>
+            <!-- رابط مباشر لاختبار DISC بدون كلمة سر -->
+            <div class="public-disc-link">
+                <small style="color: #64748b; font-size: 0.8rem;">هل تريد إجراء تحليل الشخصية مباشرة؟</small>
+                <a href="./DISC/disc.html" target="_blank" class="btn-public-disc">
+                    <i class="fas fa-user-gear"></i> إجراء تقييم DISC المباشر (مفتوح)
+                </a>
             </div>
         </div>
     </div>
 
-    <script>
-        function switchMainTab(tabId) {
-            document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.main-tab-content').forEach(content => content.classList.remove('active'));
+    <!-- القائمة الجانبية المربوطة بالصلاحيات -->
+    <aside class="sidebar" id="appSidebar">
+        <div class="sidebar-header">
+            <img id="sidebarLogo" src="" class="company-logo-img" alt="لوجو الشركة">
+            <h3 id="sidebarCompName">اسم الشركة</h3>
+            <p id="sidebarCompField">مجال الشركة</p>
+            <div style="margin-top: 6px;">
+                <span id="dbConnectionStatus" class="status-badge status-offline">جاري الاتصال...</span>
+            </div>
+        </div>
+        
+        <ul class="nav-list" id="mainNav">
+            <li class="nav-item">
+                <button class="nav-link active" onclick="loadPage(event, 'home-frame', this)">
+                    <i class="fas fa-house"></i> الرئيسية
+                </button>
+            </li>
+            <li class="nav-item" data-perm="profile">
+                <button class="nav-link" onclick="loadPage(event, 'profile-view-frame', this)">
+                    <i class="fas fa-building-user"></i> بروفايل الشركة والحساب
+                </button>
+            </li>
+            <li class="nav-item" data-perm="cv">
+                <button class="nav-link" onclick="loadPage(event, 'cv-frame', this)">
+                    <i class="fas fa-id-card"></i> السيرة الذاتية
+                </button>
+            </li>
 
-            event.currentTarget.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
+            <li class="nav-item" data-perm="tax">
+                <button class="nav-link" onclick="toggleSubmenu('taxSubmenu')">
+                    <i class="fas fa-calculator"></i> حاسبات الضرائب ▾
+                </button>
+                <ul class="submenu" id="taxSubmenu">
+                    <li><button class="submenu-btn" onclick="loadDropdownPage(event, 'tax-frame', 'إجمالي ← صافي', this)">إجمالي ← صافي</button></li>
+                    <li><button class="submenu-btn" onclick="loadDropdownPage(event, 'tax-reverse-frame', 'عكس الضريبة فردي', this)">صافي ← إجمالي (فردي)</button></li>
+                    <li><button class="submenu-btn" onclick="loadDropdownPage(event, 'tax-reverse-bulk-frame', 'عكس الضريبة جماعي', this)">صافي ← إجمالي (جماعي)</button></li>
+                </ul>
+            </li>
+
+            <li class="nav-item" data-perm="s1">
+                <button class="nav-link" onclick="loadPage(event, 's1-frame', this)">
+                    <i class="fas fa-file-contract"></i> س1 تأمينات
+                </button>
+            </li>
+            
+            <li class="nav-item" data-perm="forms">
+                <button class="nav-link" onclick="loadPage(event, 'forms-print-frame', this)">
+                    <i class="fas fa-print"></i> طباعة النماذج الرسمية
+                </button>
+            </li>
+
+            <li class="nav-item" data-perm="labels">
+                <button class="nav-link" onclick="loadPage(event, 'labels-frame', this)">
+                    <i class="fas fa-tags"></i> ملصقات الموظفين (A4 Labels)
+                </button>
+            </li>
+
+            <li class="nav-item" data-perm="team">
+                <button class="nav-link" onclick="loadPage(event, 'team-frame', this)">
+                    <i class="fas fa-users-gear"></i> فريق الإعداد
+                </button>
+            </li>
+            <li class="nav-item" data-perm="tafqit">
+                <button class="nav-link" onclick="loadPage(event, 'tafqit-frame', this)">
+                    <i class="fas fa-spell-check"></i> أداة التفقيط
+                </button>
+            </li>
+            <li class="nav-item" data-perm="feedback">
+                <button class="nav-link" onclick="loadPage(event, 'feedback-frame', this)">
+                    <i class="fas fa-chart-line"></i> قياس الأداء
+                </button>
+            </li>
+
+            <li class="nav-item" data-perm="disc">
+                <button class="nav-link" onclick="toggleSubmenu('discSubmenu')">
+                    <i class="fas fa-user-gear"></i> تحليل الشخصية (DISC) ▾
+                </button>
+                <ul class="submenu" id="discSubmenu">
+                    <li><button class="submenu-btn" onclick="loadDropdownPage(event, 'disc-frame', 'تقييم DISC', this)">إجراء تقييم DISC</button></li>
+                    <li><button class="submenu-btn" onclick="loadDropdownPage(event, 'disc-dash-frame', 'لوحة نتائج DISC', this)">لوحة نتائج DISC</button></li>
+                </ul>
+            </li>
+
+            <li class="nav-item" data-perm="scan">
+                <button class="nav-link" onclick="loadPage(event, 'scan-frame', this)">
+                    <i class="fas fa-file-excel"></i> HR Scan → Excel
+                </button>
+            </li>
+            
+            <li class="nav-item" id="adminTabItem" style="display: none;">
+                <button class="nav-link" style="color: #fcd34d;" onclick="loadPage(event, 'admin-dashboard-frame', this)">
+                    <i class="fas fa-user-shield"></i> لوحة تحكم الأدمن الرئيسية
+                </button>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div>
+                    <strong id="activeUsername">User</strong><br>
+                    <small id="activeUserRole" style="color: #cbd5e1;">Role</small>
+                </div>
+                <button class="btn-logout" onclick="logout()"><i class="fas fa-right-from-bracket"></i> خروج</button>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-wrapper">
+        <iframe id="home-frame" class="page-frame active" src="home.html"></iframe>
+        <iframe id="profile-view-frame" class="page-frame" src="company-profile.html"></iframe>
+        <iframe id="cv-frame" class="page-frame" src="cv.html"></iframe>
+        <iframe id="tax-frame" class="page-frame" src="./Tax/tax.html"></iframe>
+        <iframe id="tax-reverse-frame" class="page-frame" src="./Tax/tax-reverse.html"></iframe>
+        <iframe id="tax-reverse-bulk-frame" class="page-frame" src="./Tax/tax-reverse-bulk.html"></iframe>
+        <iframe id="s1-frame" class="page-frame" src="s1.html"></iframe>
+        <iframe id="forms-print-frame" class="page-frame" src="print-forms.html"></iframe>
+        <iframe id="labels-frame" class="page-frame" src="./labels/index.html"></iframe>
+        <iframe id="team-frame" class="page-frame" src="./Team/team.html"></iframe>
+        <iframe id="tafqit-frame" class="page-frame" src="tafqit.html"></iframe>
+        <iframe id="feedback-frame" class="page-frame" src="feedback.html"></iframe>
+        <iframe id="disc-frame" class="page-frame" src="./DISC/disc.html"></iframe>
+        <iframe id="disc-dash-frame" class="page-frame" src="./DISC/disc-dashboard.html"></iframe>
+        <iframe id="scan-frame" class="page-frame" src="scan-to-excel.html"></iframe>
+        
+        <iframe id="admin-dashboard-frame" class="page-frame" src="admin-dashboard.html"></iframe>
+    </main>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBty7fK-7mchOETrE_vtOZx4dgWSHIuC8Y",
+            authDomain: "hr-platform-system.firebaseapp.com",
+            databaseURL: "https://hr-platform-system-default-rtdb.firebaseio.com",
+            projectId: "hr-platform-system",
+            storageBucket: "hr-platform-system.firebasestorage.app",
+            messagingSenderId: "994791756938",
+            appId: "1:994791756938:web:48303535285e25f1c80973",
+            measurementId: "G-7PBDNQ52E9"
+        };
+
+        let dbUsers = {};
+        let dbCompanies = {};
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.database();
+
+            db.ref('.info/connected').on('value', (snap) => {
+                const statusBadge = document.getElementById('dbConnectionStatus');
+                if (snap.val() === true) {
+                    statusBadge.innerText = '● متصل حياً بـ Firebase';
+                    statusBadge.className = 'status-badge status-online';
+                } else {
+                    statusBadge.innerText = '○ غير متصل';
+                    statusBadge.className = 'status-badge status-offline';
+                }
+            });
+
+            db.ref('system_companies').on('value', (snapshot) => {
+                dbCompanies = snapshot.val() || {};
+                const loggedUser = sessionStorage.getItem('LOGGED_USER');
+                if(loggedUser) updateCompanyUI(loggedUser);
+            });
+
+            db.ref('system_users').on('value', (snapshot) => {
+                dbUsers = snapshot.val() || {};
+                const loggedUser = sessionStorage.getItem('LOGGED_USER');
+                if(loggedUser) updateCompanyUI(loggedUser);
+            });
+
+        } catch (e) {
+            console.error("Firebase Connection Error:", e);
         }
+
+        function toggleMobileSidebar() {
+            document.getElementById('appSidebar').classList.toggle('mobile-open');
+        }
+
+        function applyUserPermissions(username) {
+            const role = sessionStorage.getItem('USER_ROLE');
+            
+            if (role === 'admin' || username === 'admin') {
+                document.querySelectorAll('.nav-item[data-perm]').forEach(el => el.style.display = 'block');
+                return;
+            }
+
+            firebase.database().ref(`userPermissions/${username}`).on('value', (snapshot) => {
+                const perms = snapshot.val() || {};
+                
+                // 1. التحكم في القائمة الجانبية
+                document.querySelectorAll('.nav-item[data-perm]').forEach(el => {
+                    const permKey = el.getAttribute('data-perm');
+                    if (perms[permKey] === false) {
+                        el.style.display = 'none';
+                    } else {
+                        el.style.display = 'block';
+                    }
+                });
+
+                // 2. تحديث كروت الأدوات المتاحة في الشاشة الرئيسية (home.html)
+                const homeIframe = document.getElementById('home-frame');
+                if (homeIframe && homeIframe.contentWindow && homeIframe.contentWindow.applyPermissions) {
+                    homeIframe.contentWindow.applyPermissions();
+                }
+            });
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUsername').value.trim();
+            const p = document.getElementById('loginPassword').value.trim();
+            const encryptedInputPass = btoa(p);
+
+            const foundUser = dbUsers[u];
+
+            if (foundUser && (foundUser.pass === encryptedInputPass || foundUser.pass === p)) {
+                sessionStorage.setItem('LOGGED_USER', foundUser.username);
+                sessionStorage.setItem('USER_ROLE', foundUser.role);
+                document.getElementById('loginScreen').style.display = 'none';
+                initSystemUI();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+
+        function logout() {
+            sessionStorage.clear();
+            location.reload();
+        }
+
+        function initSystemUI() {
+            const loggedUser = sessionStorage.getItem('LOGGED_USER');
+            const loggedRole = sessionStorage.getItem('USER_ROLE');
+
+            updateCompanyUI(loggedUser);
+            applyUserPermissions(loggedUser);
+
+            document.getElementById('activeUsername').innerText = loggedUser;
+            document.getElementById('activeUserRole').innerText = loggedRole === 'admin' ? 'مدير نظام' : 'مستخدم';
+
+            if (loggedRole === 'admin') {
+                document.getElementById('adminTabItem').style.display = 'block';
+            } else {
+                document.getElementById('adminTabItem').style.display = 'none';
+            }
+        }
+
+        function updateCompanyUI(username) {
+            // جلب البيانات أولاً من ملف البروفايل الخاص
+            firebase.database().ref(`companyProfiles/${username}/info`).on('value', (snap) => {
+                const profData = snap.val();
+                if (profData && profData.nameAr) {
+                    document.getElementById('sidebarCompName').innerText = profData.nameAr;
+                    document.getElementById('sidebarCompField').innerText = profData.fieldAr || '';
+                    const logoImg = document.getElementById('sidebarLogo');
+                    if (profData.logo) {
+                        logoImg.src = profData.logo;
+                        logoImg.style.display = 'inline-block';
+                    } else {
+                        logoImg.style.display = 'none';
+                    }
+                } else {
+                    const userObj = dbUsers[username];
+                    if (userObj && userObj.companyId && dbCompanies[userObj.companyId]) {
+                        const comp = dbCompanies[userObj.companyId];
+                        document.getElementById('sidebarCompName').innerText = comp.name || '';
+                        document.getElementById('sidebarCompField').innerText = comp.field || '';
+                        
+                        const logoImg = document.getElementById('sidebarLogo');
+                        if (comp.logo) {
+                            logoImg.src = comp.logo;
+                            logoImg.style.display = 'inline-block';
+                        } else {
+                            logoImg.style.display = 'none';
+                        }
+                    } else {
+                        document.getElementById('sidebarCompName').innerText = username === 'admin' ? 'لوحة مدير النظام' : 'بدون شركة';
+                        document.getElementById('sidebarCompField').innerText = username === 'admin' ? 'إدارة المنظومة' : '-';
+                        document.getElementById('sidebarLogo').style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        function loadPage(evt, frameId, btnElement) {
+            if (evt && evt.preventDefault) evt.preventDefault();
+            
+            document.querySelectorAll('.page-frame').forEach(f => f.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.submenu-btn').forEach(b => b.classList.remove('active'));
+            
+            const targetFrame = document.getElementById(frameId);
+            if (targetFrame) targetFrame.classList.add('active');
+
+            if (btnElement) {
+                if (typeof btnElement === 'string') {
+                    const btn = document.querySelector(btnElement);
+                    if (btn) btn.classList.add('active');
+                } else if (btnElement.classList) {
+                    btnElement.classList.add('active');
+                }
+            }
+
+            document.getElementById('appSidebar').classList.remove('mobile-open');
+        }
+
+        function toggleSubmenu(id) {
+            const el = document.getElementById(id);
+            if(el) el.classList.toggle('active');
+        }
+
+        function loadDropdownPage(evt, frameId, title, btnElement) {
+            if (evt && evt.stopPropagation) evt.stopPropagation();
+            loadPage(evt, frameId, btnElement);
+        }
+
+        window.onload = function() {
+            const logged = sessionStorage.getItem('LOGGED_USER');
+            if (logged) {
+                document.getElementById('loginScreen').style.display = 'none';
+                initSystemUI();
+            }
+        };
     </script>
 </body>
 </html>
