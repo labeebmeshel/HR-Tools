@@ -231,7 +231,7 @@
                 
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; flex-wrap:wrap; gap:8px;">
                     <span id="pasteStatusBadge" style="font-size:0.8rem; font-weight:bold; color:var(--primary);">لم يتم لصق بيانات جديدة بعد.</span>
-                    <button class="btn btn-danger" onclick="clearPastedSheet()" type="button" style="padding:4px 10px; font-size:0.78rem;"><i class="fas fa-eraser"></i> تفريغ الجدول بالكامل</button>
+                    <button class="btn btn-danger" onclick="clearPastedSheet()" type="button" style="padding:6px 12px; font-size:0.8rem;"><i class="fas fa-trash"></i> تفريغ الجدول ومسح البيانات بالكامل</button>
                 </div>
             </div>
 
@@ -622,13 +622,21 @@
             document.getElementById('pasteStatusBadge').innerText = `تم استيراد ${extractedHeaders.length} عموداً و ${newEmployees.length} موظفاً بنجاح!`;
             document.getElementById('pasteExcelInput').value = '';
 
+            renderAdvancedTable();
             saveEmployeeData();
         }
 
         function clearPastedSheet() {
-            if (confirm('هل أنت تأكد من تفريغ كافة بيانات الجدول والأعمدة؟')) {
+            if (confirm('هل أنت تأكد من مسح جميع بيانات الجدول والأعمدة نهائياً؟')) {
                 globalEmployees = [];
-                document.getElementById('pasteStatusBadge').innerText = 'تم تفريغ الجدول بالكامل.';
+                columnKeys = ['كود', 'الاسم', 'الوظيفة', 'القسم', 'الرقم القومي'];
+                visibleColumns = {};
+                columnKeys.forEach(k => visibleColumns[k] = true);
+                columnFilters = {};
+                
+                document.getElementById('pasteStatusBadge').innerText = 'تم مسح جميع بيانات الجدول بالكامل.';
+                document.getElementById('pasteExcelInput').value = '';
+                
                 saveEmployeeData();
             }
         }
