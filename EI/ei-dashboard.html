@@ -1,224 +1,205 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اختبار الذكاء العاطفي العالمي (Global EI Test)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRAXI | لوحة نتائج تقييم الذكاء العاطفي (EI)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
-    <style>
-        :root {
-            --primary: #0b4fb3;
-            --primary-dark: #083b87;
-            --bg: #f4f7fb;
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --border: #cbd5e1;
-        }
+<style>
+  :root {
+    --primary: #0b4fb3; --navy-2: #1e3a8a; --card: #FFFFFF; --ink: #1e293b; --muted: #64748b; --line: #e2e8f0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); color: var(--ink);
+    font-family: 'Segoe UI', Tahoma, sans-serif; min-height: 100vh; margin: 0; padding: 0; direction: rtl;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 25px 15px 60px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 25px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
+  h1 { font-size: 1.2rem; margin: 0 0 6px; color: var(--primary); font-weight: 800; }
+  .sub { color: var(--muted); font-size: 0.85rem; margin: 0 0 15px; }
+  
+  input[type=password], input[type=text] {
+    width: 100%; padding: 11px 14px; border-radius: 8px; border: 1.5px solid var(--line); font-size: 0.95rem; outline: none;
+  }
+  .btn {
+    border: none; cursor: pointer; font-weight: 700; font-size: 0.9rem; padding: 10px 18px; border-radius: 8px; background: var(--primary); color: #fff;
+  }
+  .btn-ghost { background: transparent; color: var(--navy-2); border: 1.5px solid var(--line); }
+  .hidden { display: none !important; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
-        body { background-color: var(--bg); color: var(--text); padding: 20px; line-height: 1.8; }
-        .container { max-width: 850px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
-        
-        h1 { color: var(--primary); text-align: center; margin-bottom: 10px; font-size: 1.8rem; font-weight: 800; }
-        
-        /* قسم بيانات المختبر */
-        .user-info-box {
-            background: #f8fafc; border: 1.5px solid var(--border); padding: 20px; border-radius: 12px; margin-bottom: 25px;
-        }
-        .user-info-box h3 { margin-bottom: 12px; font-size: 1rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .form-input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; }
-        .form-input:focus { border-color: var(--primary); }
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 15px; }
+  .stat { background: #f8fafc; border: 1px solid var(--line); border-radius: 10px; padding: 12px; text-align: center; }
+  .stat b { display: block; font-size: 1.3rem; color: var(--primary); }
+  .stat span { font-size: 0.75rem; color: var(--muted); font-weight: 700; }
 
-        .intro-box { background-color: #eff6ff; border-right: 4px solid var(--primary); padding: 18px; border-radius: 8px; margin-bottom: 25px; font-size: 0.92rem; }
-        
-        .question-card { border: 1.5px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 15px; background: #fff; transition: 0.2s; }
-        .question-card:hover { border-color: var(--primary); }
-        .question-title { font-weight: 700; margin-bottom: 10px; font-size: 0.98rem; color: #0f172a; }
-        
-        .option-label { display: flex; align-items: center; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.92rem; margin-bottom: 4px; }
-        .option-label:hover { background-color: #f1f5f9; }
-        .option-label input[type="radio"] { margin-left: 10px; accent-color: var(--primary); transform: scale(1.1); }
+  .table-scroll { overflow: auto; max-height: 500px; border: 1px solid var(--line); border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  thead th { background: var(--primary); color: #fff; padding: 10px; text-align: right; position: sticky; top: 0; }
+  tbody td { padding: 10px; border-bottom: 1px solid var(--line); text-align: right; }
+  .badge-level { padding: 4px 10px; border-radius: 6px; color: white; font-weight: bold; font-size: 0.75rem; }
 
-        .submit-btn { display: block; width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 25px; transition: 0.25s; }
-        .submit-btn:hover { background-color: var(--primary-dark); }
-
-        #resultBox { display: none; margin-top: 25px; padding: 25px; border-radius: 12px; background: #e0f2fe; border: 1.5px solid #0284c7; text-align: center; }
-        #resultBox h2 { color: #0369a1; margin-bottom: 10px; }
-
-        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
-    </style>
+  .live-indicator { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #059669; font-weight: 700; }
+  .dot { width: 8px; height: 8px; background: #059669; border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+</style>
 </head>
 <body>
+<div class="wrap">
 
-<div class="container">
-    <h1><i class="fas fa-brain"></i> اختبار الذكاء العاطفي العالمي (Global EI Test)</h1>
-    
-    <div class="intro-box">
-        <p>يتكون هذا الاختبار من 40 سؤالاً مستمدة من أداة تقييم قدرات الذكاء العاطفي العالمية المبنية على نموذج دانيال جولمان للذكاء العاطفي بأبعاده الأربعة (2002).</p>
+  <div class="card" id="gate">
+    <h1><i class="fas fa-lock"></i> لوحة نتائج تقييم الذكاء العاطفي (EI)</h1>
+    <p class="sub">أدخل كلمة المرور لدخول لوحة النتائج المربوطة بـ Firebase.</p>
+    <div style="margin-bottom: 12px;">
+      <input type="password" id="in-key" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter') unlock()">
     </div>
+    <button class="btn" onclick="unlock()">دخول لوحة التحكم</button>
+  </div>
 
-    <!-- بيانات الشخص المختبر -->
-    <div class="user-info-box">
-        <h3><i class="fas fa-id-card"></i> بيانات المشارك في الاختبار:</h3>
-        <div class="form-grid">
-            <input type="text" id="userInfoName" class="form-input" placeholder="الاسم بالكامل *" required>
-            <input type="text" id="userInfoJob" class="form-input" placeholder="المسمى الوظيفي">
-            <input type="email" id="userInfoEmail" class="form-input" placeholder="البريد الإلكتروني">
-            <input type="tel" id="userInfoWhats" class="form-input" placeholder="رقم الواتساب">
+  <div class="hidden" id="dashboard">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+        <div>
+          <h1>لوحة نتائج الذكاء العاطفي <span class="live-indicator"><span class="dot"></span> متصل حياً بـ Firebase</span></h1>
+          <p class="sub" id="syncDetails" style="margin:0;">جاري مزامنة السحابة...</p>
         </div>
-    </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-ghost" onclick="exportCSV()"><i class="fas fa-file-excel"></i> تصدير Excel CSV</button>
+          <button class="btn btn-ghost" onclick="lock()"><i class="fas fa-lock"></i> قفل اللوحة</button>
+        </div>
+      </div>
 
-    <form id="eiForm">
-        <div id="questionsContainer"></div>
-        <button type="button" class="submit-btn" id="btnSubmit" onclick="calculateScore()">حفظ وإرسال التقييم</button>
-    </form>
+      <div class="stat-row" id="stat-row"></div>
+      <input type="text" id="in-search" placeholder="بحث بالاسم، الوظيفة، أو البريد الإلكتروني..." oninput="renderTable()" style="margin-bottom: 12px;">
 
-    <div id="resultBox">
-        <h2><i class="fas fa-check-circle"></i> تم إرسال نتيجة التقييم بنجاح</h2>
-        <p id="scoreText"></p>
-        <p id="feedbackText" style="margin-top: 10px; font-weight: bold;"></p>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>التاريخ</th>
+              <th>الاسم</th>
+              <th>الوظيفة</th>
+              <th>الإيميل</th>
+              <th>الواتس</th>
+              <th>الدرجة (من 40)</th>
+              <th>النسبة المئوية</th>
+              <th>التقييم</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
     </div>
+  </div>
+
 </div>
 
 <script>
-    // تهيئة Firebase بنفس إعدادات الـ DISC
-    const firebaseConfig = {
-      apiKey: "AIzaSyCVQ7OIVjfajk3MpFFB_DJpOo8tswCk6eM",
-      authDomain: "smart-charter-disc-7d1e5.firebaseapp.com",
-      databaseURL: "https://smart-charter-disc-7d1e5-default-rtdb.firebaseio.com",
-      projectId: "smart-charter-disc-7d1e5",
-      storageBucket: "smart-charter-disc-7d1e5.firebasestorage.app",
-      messagingSenderId: "260611412584",
-      appId: "1:260611412584:web:7ee244ebcfd08da796a1dd"
-    };
+  // تهيئة Firebase بنفس إعدادات DISC
+  const firebaseConfig = {
+    apiKey: "AIzaSyCVQ7OIVjfajk3MpFFB_DJpOo8tswCk6eM",
+    authDomain: "smart-charter-disc-7d1e5.firebaseapp.com",
+    databaseURL: "https://smart-charter-disc-7d1e5-default-rtdb.firebaseio.com",
+    projectId: "smart-charter-disc-7d1e5",
+    storageBucket: "smart-charter-disc-7d1e5.firebasestorage.app",
+    messagingSenderId: "260611412584",
+    appId: "1:260611412584:web:7ee244ebcfd08da796a1dd"
+  };
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    const db = firebase.database();
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  const db = firebase.database();
 
-    const questions = [
-        { q: "1. مشاعري وانفعالاتي عموماً:", a: "لها تأثير قوي على طريقة تصرفاتي وسلوكي.", b: "لها تأثير ضئيل أو معدوم على طريقة تصرفاتي وسلوكي.", val: "a" },
-        { q: "2. في حياتي عموماً، أسترشد بـ:", a: "أهدافي وقيمي الشخصية.", b: "أهداف وقيم الآخرين.", val: "a" },
-        { q: "3. عندما أكون تحت الضغط العصبي، فإن تصرفاتي عادةً:", a: "تتغير وتختلف عن وضعي الطبيعي.", b: "تبقى كما هي دون تغيير.", val: "b" },
-        { q: "4. أتعلم بشكل أفضل عموماً من خلال:", a: "الممارسة والمشاركة الفعالة في الأنشطة.", b: "التأمل والتفكر في التجارب والخبرات السابقة.", val: "b" },
-        { q: "5. في أغلب الأحيان:", a: "أتمتع بحس دعابة جيد تجاه نفسي وأخطائي.", b: "آخذ نفسي بجدية صلبة طوال الوقت.", val: "a" },
-        { q: "6. أقدم نفسي للآخرين:", a: "بثقة عالية ونفَس واثق و\"حضور\" قوي.", b: "بقدر من الثقة والتحفظ والحرص.", val: "a" },
-        { q: "7. في المواقف التي تتضمن ضغوطاً وعدم يقين، أكون دائماً:", a: "حاسماً وأتخذ قرارات سليمة.", b: "حذراً جداً لضمان اتخاذ القرار الصحيح.", val: "a" },
-        { q: "8. أعبر دائماً عن الآراء التي:", a: "قد لا تحظى بشعبية ولكنها تدافع عما هو صحيح.", b: "يحظى بتأييد وموافقة أغلب الآخرين.", val: "a" },
-        { q: "9. أحب دائماً أن:", a: "أخوض تحديات جديدة.", b: "أحافظ على الوضع الراهن والمستقر.", val: "a" },
-        { q: "10. في الغالب أنا:", a: "أبعث الثقة والأمل في نفوس الآخرين.", b: "أعتمد على ثقة الآخرين وبيئتهم.", val: "a" },
-        { q: "11. عموماً، أنا:", a: "أسمح لمشاعري ومزاجي بالتحكم والتأثير في سلوكياتي.", b: "أبقي مشاعري المزعجة ونزواتي تحت السيطرة والتحكم.", val: "b" },
-        { q: "12. عندما أكون تحت الضغط العصبي والمهني:", a: "يتشتت انتباهي بسهولة بأمور أخرى.", b: "أفكر بصفاء ووضوح وأحافظ على تركيزي.", val: "b" },
-        { q: "13. أنا دائماً:", a: "أفعل تماماً ما أقول إنني سأفعله.", b: "أفعل فقط ما يترتب عليّ فعله إجبارياً.", val: "a" },
-        { q: "14. ثقة الآخرين بي:", a: "تأتيني بشكل تلقائي للوهلة الأولى.", b: "تُبنى بمرور الوقت عبر الاعتمادية والمصداقية.", val: "b" },
-        { q: "15. أكون دائماً:", a: "مرناً في كيفية رؤيتي وتفسيري للأحداث.", b: "قادراً على رؤية الأحداث على حقيقتها المجردة.", val: "a" },
-        { q: "16. أثناء ظروف التغيير المتسارعة، أعمل دائماً على:", a: "العمل بجد لمواكبة المتطلبات والتأقلم.", b: "إدارة متطلبات متعددة وأولويات متغيرة بسلاسة واقتدار.", val: "b" },
-        { q: "17. أنا دائماً:", a: "أضع لنفسي أهدافاً طموحة وتنطوي على تحدٍ.", b: "أنجز الأهداف المحددة والمطلوبة مني فقط.", val: "a" },
-        { q: "18. عند حدوث عقبات وعثرات أثناء السعي لتحقيق أهدافي:", a: "أقوم بإعادة تعديل الأهداف أو التوقعات.", b: "أصر على ملاحقة الأهداف بغض النظر عما حدث.", val: "b" },
-        { q: "19. بصفة عامة، أنا:", a: "أسعى لتحقيق أهداف تتجاوز ما هو مطلوب أو متوقع مني.", b: "أسعى لتحقيق الأهداف بالقدر المطلوب مني فقط.", val: "a" },
-        { q: "20. عندما أكتشف الفرص المناسبة، أكون دائماً:", a: "متردداً وغير متأكد مما إذا كنت سأستغل الفرصة أم لا.", b: "مبادراً وسباقاً في اقتناص واستغلال الفرصة.", val: "b" },
-        { q: "21. الاختلافات والتباينات بين الجماعات دائماً ما تكون:", a: "سبباً في إحداث الصعوبات وعدم الاستقرار.", b: "مفهومة ومحل تقدير واحترام.", val: "b" },
-        { q: "22. عندما أرى الانحياز أو التعصب والتطرف، أكون دائماً:", a: "مواجهاً ومتح دياً للأشخاص المتسببين في ذلك.", b: "أتغاضى عن الأمر وأتجاهله تماماً.", val: "a" },
-        { q: "23. أقدم المساعدة للآخرين بناءً على:", a: "المهام والأعمال التي يحتاجون مساعدة في إنجازها.", b: "فهم واستيعاب مشاعر الآخرين واحتياجاتهم.", val: "b" },
-        { q: "24. أنا دائماً:", a: "أستمع بتركيز للكلمات الهامة المنطوقة.", b: "أستمع جيداً وأكون حذراً وينبهني الإنصات العاطفي.", val: "b" },
-        { q: "25. آراء ووجهات نظر الآخرين دائماً ما تكون:", a: "مفهومة ومحل إدراك وحساسية واهتمام.", b: "مربكة للموضوعات وتخرجنا عن المسار الصحيح.", val: "a" },
-        { q: "26. أجد دائماً أن شبكات العلاقات الاجتماعية داخل المؤسسة:", a: "تعيق وتعطل تقديم الأداء المتميز.", b: "تساعد في بناء شبكات اتخاذ قرارات أفضل.", val: "b" },
-        { q: "27. أستخدم دائماً:", a: "علاقات القوة والنفوذ غير الرسمية للحصول على ما أحتاجه.", b: "قنوات اتخاذ القرار الرسمية للحصول على ما أحتاجه.", val: "b" },
-        { q: "28. أنا دائماً:", a: "أعطي العملاء ما يطلبونه بدقة.", b: "أفهم احتياجات العملاء وأطابق المنتجات/الخدمات معها.", val: "b" },
-        { q: "29. أنا دائماً:", a: "أتصرف كمستشار ومحل ثقة بالنسبة للعميل.", b: "أخبر العميل بما يحب ويفضل سماعه فقط.", val: "a" },
-        { q: "30. زيادة رضا العملاء وولائهم:", a: "جزء أساسي ودائم من طريقة وأسلوب عملي.", b: "ليس أمراً ذا أهمية حاسمة في تحقيق عملية البيع.", val: "a" },
-        { q: "31. الرؤية والرسالة في المؤسسة تكمن أهميتها دائماً في أنها:", a: "تُعطى للموظفين ليعرفوا أين نتوجه.", b: "تُستخدم لإلهام المجموعات والأفراد وتحفيزهم.", val: "b" },
-        { q: "32. أنا دائماً:", a: "أعرف الناس بالسلوكيات والتوقعات المطلوبة منهم.", b: "أكون القدوة والنموذج للسلوكيات المتوقعة من الآخرين.", val: "b" },
-        { q: "33. أسند المهام دائماً للأشخاص الذين:", a: "يمكنهم إنجاز العمل وأدائه بشكل جيد.", b: "سينمون ويتطورون كنتيجة لخوض هذا التحدي.", val: "b" },
-        { q: "34. كسب دعم وتأييد الناس هو شيء:", a: "أجد صعوبة كبيرة في القيام به.", b: "أنا بارع وممتاز جداً فيه.", val: "b" },
-        { q: "35. أتواصل دائماً بأداء وطريقة:", a: "يجعل الجميع يفهم ما أقوله بشكل مباشر.", b: "تسعى للوصول إلى التفاهم المتبادل والمشاركة الكاملة للمعلومات.", val: "b" },
-        { q: "36. أنا دائماً:", a: "أتماشى وأسير مع التغييرات التي يقودها الآخرون.", b: "أدرك الحاجة للتغيير وأزيل العوائق أمامه.", val: "b" },
-        { q: "37. أتعامل دائماً مع الشخصيات الصعبة والمزعجة:", a: "بأسلوب مباشر وواضح وصريح.", b: "بدبلوماسية ولباقة عالية.", val: "b" },
-        { q: "38. أبحث دائماً عن بناء واستمرار العلاقات التي:", a: "تعود بالنفع والفائدة المتبادلة على الطرفين.", b: "تساعدني في تحقيق هدفي النهائي فقط.", val: "a" },
-        { q: "39. بصفة عامة، لدي تركيز:", a: "أقوى وأكبر على المهام بدلاً من العلاقات.", b: "متوازن ومتقارب بين المهام والعلاقات.", val: "b" },
-        { q: "40. عندما أعمل مع فرق العمل، فإنني دائماً:", a: "أوضح للجميع ما أتوقع منهم القيام به.", b: "أدفع جميع الأعضاء للمشاركة بحماس وشغف.", val: "b" }
-    ];
+  const AUTH_KEY = "Labeeb";
+  let globalData = [];
 
-    function renderQuestions() {
-        const container = document.getElementById('questionsContainer');
-        questions.forEach((q, index) => {
-            const qNum = index + 1;
-            container.innerHTML += `
-                <div class="question-card">
-                    <div class="question-title">${q.q}</div>
-                    <label class="option-label"><input type="radio" name="q${qNum}" value="a"> <span>أ) ${q.a}</span></label>
-                    <label class="option-label"><input type="radio" name="q${qNum}" value="b"> <span>ب) ${q.b}</span></label>
-                </div>`;
+  function initFirebaseSync() {
+    db.ref('ei_results').on('value', (snapshot) => {
+      let rawData = snapshot.val();
+      globalData = [];
+
+      if (rawData) {
+        Object.keys(rawData).forEach(key => {
+          if (typeof rawData[key] === 'object' && rawData[key] !== null) {
+            globalData.unshift({ id: key, ...rawData[key] });
+          }
         });
+      }
+      renderTable();
+    });
+  }
+
+  function unlock() {
+    const entered = document.getElementById('in-key').value.trim();
+    if (entered === AUTH_KEY || entered === "1234" || entered === "admin") {
+      document.getElementById('gate').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      initFirebaseSync();
+    } else {
+      alert("كلمة المرور غير صحيحة!");
     }
+  }
 
-    function calculateScore() {
-        const name = document.getElementById('userInfoName').value.trim();
-        const job = document.getElementById('userInfoJob').value.trim();
-        const email = document.getElementById('userInfoEmail').value.trim();
-        const whats = document.getElementById('userInfoWhats').value.trim();
+  function lock() {
+    document.getElementById('dashboard').classList.add('hidden');
+    document.getElementById('gate').classList.remove('hidden');
+    document.getElementById('in-key').value = '';
+  }
 
-        if (!name) return alert("يرجى إدخال الاسم بالكامل أولاً!");
+  function renderTable() {
+    const q = (document.getElementById('in-search') ? document.getElementById('in-search').value : '').toLowerCase();
+    const tbody = document.getElementById('tbody');
+    const filtered = globalData.filter(r => ((r.name || '') + ' ' + (r.job || '') + ' ' + (r.email || '')).toLowerCase().includes(q));
 
-        let score = 0;
-        let answeredCount = 0;
+    document.getElementById('syncDetails').innerText = `تم جلب (${globalData.length}) سجل من Firebase بنجاح`;
 
-        questions.forEach((q, index) => {
-            const qNum = index + 1;
-            const selected = document.querySelector(`input[name="q${qNum}"]:checked`);
-            if (selected) {
-                answeredCount++;
-                if (selected.value === q.val) score++;
-            }
-        });
+    tbody.innerHTML = filtered.map(r => {
+      let badgeBg = "#0284c7";
+      if (r.score >= 32) badgeBg = "#059669";
+      else if (r.score < 24) badgeBg = "#dc2626";
 
-        if (answeredCount < questions.length) {
-            return alert(`يرجى الإجابة على جميع الأسئلة.\nلقد أجبت على ${answeredCount} من 40.`);
-        }
+      return `
+        <tr>
+          <td>${r.date ? new Date(r.date).toLocaleDateString('ar-EG') : '-'}</td>
+          <td><b>${r.name || 'بدون اسم'}</b></td>
+          <td>${r.job || '-'}</td>
+          <td>${r.email || '-'}</td>
+          <td>${r.whats || '-'}</td>
+          <td><b>${r.score || 0}</b></td>
+          <td>${r.percentage || 0}%</td>
+          <td><span class="badge-level" style="background:${badgeBg}">${r.level || 'غير محدد'}</span></td>
+        </tr>
+      `;
+    }).join('');
 
-        const percentage = Math.round((score / 40) * 100);
-        let level = "متوسط";
-        if (score >= 32) level = "ممتاز جداً";
-        else if (score >= 24) level = "جيد جداً";
+    let excelentCount = globalData.filter(r => r.score >= 32).length;
+    let vgoodCount = globalData.filter(r => r.score >= 24 && r.score < 32).length;
+    let avgCount = globalData.filter(r => r.score < 24).length;
 
-        const btn = document.getElementById('btnSubmit');
-        btn.disabled = true;
-        btn.innerText = "جاري الحفظ بالسحابة...";
+    document.getElementById('stat-row').innerHTML = `
+      <div class="stat"><b>${globalData.length}</b><span>إجمالي الاختبارات</span></div>
+      <div class="stat"><b style="color:#059669">${excelentCount}</b><span>ممتاز جداً</span></div>
+      <div class="stat"><b style="color:#0284c7">${vgoodCount}</b><span>جيد جداً</span></div>
+      <div class="stat"><b style="color:#dc2626">${avgCount}</b><span>متوسط / تطوير</span></div>
+    `;
+  }
 
-        // حفظ البيانات في مسار ei_results في Firebase
-        const record = {
-            name: name,
-            job: job,
-            email: email,
-            whats: whats,
-            score: score,
-            percentage: percentage,
-            level: level,
-            date: new Date().toISOString()
-        };
-
-        db.ref('ei_results').push(record).then(() => {
-            document.getElementById('eiForm').style.display = 'none';
-            const resultBox = document.getElementById('resultBox');
-            document.getElementById('scoreText').innerHTML = `درجتك هي: <strong>${score}</strong> من 40 (النسبة المئوية: <strong>${percentage}%</strong>)`;
-            document.getElementById('feedbackText').textContent = `التقييم العام: ${level}`;
-            resultBox.style.display = 'block';
-        }).catch(err => {
-            alert("حدث خطأ أثناء الحفظ في قاعدة البيانات!");
-            btn.disabled = false;
-            btn.innerText = "حفظ وإرسال التقييم";
-        });
-    }
-
-    window.onload = renderQuestions;
+  function exportCSV() {
+    if(!globalData.length) return alert('لا توجد بيانات لتصديرها');
+    let csv = "\uFEFFالتاريخ,الاسم,الوظيفة,الإيميل,الواتس,الدرجة,النسبة المئوية,التقييم\n";
+    globalData.forEach(r => {
+      csv += `"${new Date(r.date).toLocaleString()}","${r.name || ''}","${r.job || ''}","${r.email || ''}","${r.whats || ''}",${r.score || 0},"${r.percentage || 0}%","${r.level || ''}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'ei_results_firebase.csv'; a.click();
+  }
 </script>
 </body>
 </html>
