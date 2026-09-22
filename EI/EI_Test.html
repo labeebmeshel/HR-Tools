@@ -4,179 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>اختبار الذكاء العاطفي العالمي (Global EI Test)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
     <style>
         :root {
-            --primary-color: #0b4fb3;
-            --primary-hover: #083b87;
-            --bg-color: #f4f7fb;
+            --primary: #0b4fb3;
+            --primary-dark: #083b87;
+            --bg: #f4f7fb;
             --card-bg: #ffffff;
-            --text-color: #1e293b;
-            --border-color: #cbd5e1;
+            --text: #1e293b;
+            --border: #cbd5e1;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Cairo', sans-serif;
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding: 20px; line-height: 1.8; }
+        .container { max-width: 850px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        
+        h1 { color: var(--primary); text-align: center; margin-bottom: 10px; font-size: 1.8rem; font-weight: 800; }
+        
+        /* قسم بيانات المختبر */
+        .user-info-box {
+            background: #f8fafc; border: 1.5px solid var(--border); padding: 20px; border-radius: 12px; margin-bottom: 25px;
         }
+        .user-info-box h3 { margin-bottom: 12px; font-size: 1rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; }
+        .form-input:focus { border-color: var(--primary); }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding: 20px;
-            line-height: 1.8;
-        }
+        .intro-box { background-color: #eff6ff; border-right: 4px solid var(--primary); padding: 18px; border-radius: 8px; margin-bottom: 25px; font-size: 0.92rem; }
+        
+        .question-card { border: 1.5px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 15px; background: #fff; transition: 0.2s; }
+        .question-card:hover { border-color: var(--primary); }
+        .question-title { font-weight: 700; margin-bottom: 10px; font-size: 0.98rem; color: #0f172a; }
+        
+        .option-label { display: flex; align-items: center; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.92rem; margin-bottom: 4px; }
+        .option-label:hover { background-color: #f1f5f9; }
+        .option-label input[type="radio"] { margin-left: 10px; accent-color: var(--primary); transform: scale(1.1); }
 
-        .container {
-            max-width: 850px;
-            margin: 0 auto;
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        }
+        .submit-btn { display: block; width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 25px; transition: 0.25s; }
+        .submit-btn:hover { background-color: var(--primary-dark); }
 
-        h1 {
-            color: var(--primary-color);
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 1.8rem;
-        }
+        #resultBox { display: none; margin-top: 25px; padding: 25px; border-radius: 12px; background: #e0f2fe; border: 1.5px solid #0284c7; text-align: center; }
+        #resultBox h2 { color: #0369a1; margin-bottom: 10px; }
 
-        .intro-box {
-            background-color: #eff6ff;
-            border-right: 4px solid var(--primary-color);
-            padding: 18px;
-            border-radius: 6px;
-            margin-bottom: 25px;
-            font-size: 0.95rem;
-        }
-
-        .instructions-title {
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-top: 10px;
-            margin-bottom: 5px;
-        }
-
-        .question-card {
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 16px 20px;
-            margin-bottom: 15px;
-            background-color: #fff;
-            transition: border-color 0.2s;
-        }
-
-        .question-card:hover {
-            border-color: var(--primary-color);
-        }
-
-        .question-title {
-            font-weight: 700;
-            margin-bottom: 10px;
-            font-size: 1rem;
-            color: #0f172a;
-        }
-
-        .option-label {
-            display: flex;
-            align-items: center;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.2s;
-            font-size: 0.92rem;
-            margin-bottom: 4px;
-        }
-
-        .option-label:hover {
-            background-color: #f1f5f9;
-        }
-
-        .option-label input[type="radio"] {
-            margin-left: 10px;
-            accent-color: var(--primary-color);
-            transform: scale(1.1);
-        }
-
-        .submit-btn {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 25px;
-            transition: background 0.2s;
-        }
-
-        .submit-btn:hover {
-            background-color: var(--primary-hover);
-        }
-
-        #resultBox {
-            display: none;
-            margin-top: 25px;
-            padding: 20px;
-            border-radius: 8px;
-            background: #e0f2fe;
-            border: 1px solid #0284c7;
-            text-align: center;
-        }
-
-        #resultBox h2 {
-            color: #0369a1;
-            margin-bottom: 10px;
-        }
-
-        #resultBox p {
-            font-size: 1.05rem;
-        }
-
-        .thanks-note {
-            font-size: 0.85rem;
-            color: #64748b;
-            text-align: center;
-            margin-top: 15px;
-        }
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>اختبار الذكاء العاطفي العالمي (Global EI Test)</h1>
+    <h1><i class="fas fa-brain"></i> اختبار الذكاء العاطفي العالمي (Global EI Test)</h1>
     
     <div class="intro-box">
         <p>يتكون هذا الاختبار من 40 سؤالاً مستمدة من أداة تقييم قدرات الذكاء العاطفي العالمية المبنية على نموذج دانيال جولمان للذكاء العاطفي بأبعاده الأربعة (2002).</p>
-        
-        <div class="instructions-title">تعليمات الاختبار المجاني:</div>
-        <p>هذا الاختبار يعتمد على الخيار الإجباري؛ حيث يتطلب منك اختيار العبارة التي تصفك بشكل أفضل من بين كل زوج من العبارات. لا تفرط في تحليل الأسئلة أو البحث عن "استثناءات للقاعدة"، بل كن تلقائياً واختر العبارة الأقرب لطبيعتك الواقعية.</p>
-        <p>يستغرق الاختبار عادة حوالي 10 دقائق. عند الانتهاء، اضغط على زر <strong>"احتساب النتيجة"</strong> لتقييم مستواك.</p>
+    </div>
+
+    <!-- بيانات الشخص المختبر -->
+    <div class="user-info-box">
+        <h3><i class="fas fa-id-card"></i> بيانات المشارك في الاختبار:</h3>
+        <div class="form-grid">
+            <input type="text" id="userInfoName" class="form-input" placeholder="الاسم بالكامل *" required>
+            <input type="text" id="userInfoJob" class="form-input" placeholder="المسمى الوظيفي">
+            <input type="email" id="userInfoEmail" class="form-input" placeholder="البريد الإلكتروني">
+            <input type="tel" id="userInfoWhats" class="form-input" placeholder="رقم الواتساب">
+        </div>
     </div>
 
     <form id="eiForm">
         <div id="questionsContainer"></div>
-        
-        <button type="button" class="submit-btn" onclick="calculateScore()">احتساب النتيجة</button>
+        <button type="button" class="submit-btn" id="btnSubmit" onclick="calculateScore()">حفظ وإرسال التقييم</button>
     </form>
 
     <div id="resultBox">
-        <h2>نتيجة التقييم</h2>
+        <h2><i class="fas fa-check-circle"></i> تم إرسال نتيجة التقييم بنجاح</h2>
         <p id="scoreText"></p>
-        <p id="feedbackText" style="margin-top: 8px; font-weight: bold;"></p>
+        <p id="feedbackText" style="margin-top: 10px; font-weight: bold;"></p>
     </div>
-
-    <p class="thanks-note">شكراً لك! هذا الاختبار صُمم بهدف التوجيه والتطوير الذاتي والمرح العلمي.</p>
 </div>
 
 <script>
+    // تهيئة Firebase بنفس إعدادات الـ DISC
+    const firebaseConfig = {
+      apiKey: "AIzaSyCVQ7OIVjfajk3MpFFB_DJpOo8tswCk6eM",
+      authDomain: "smart-charter-disc-7d1e5.firebaseapp.com",
+      databaseURL: "https://smart-charter-disc-7d1e5-default-rtdb.firebaseio.com",
+      projectId: "smart-charter-disc-7d1e5",
+      storageBucket: "smart-charter-disc-7d1e5.firebasestorage.app",
+      messagingSenderId: "260611412584",
+      appId: "1:260611412584:web:7ee244ebcfd08da796a1dd"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
     const questions = [
         { q: "1. مشاعري وانفعالاتي عموماً:", a: "لها تأثير قوي على طريقة تصرفاتي وسلوكي.", b: "لها تأثير ضئيل أو معدوم على طريقة تصرفاتي وسلوكي.", val: "a" },
         { q: "2. في حياتي عموماً، أسترشد بـ:", a: "أهدافي وقيمي الشخصية.", b: "أهداف وقيم الآخرين.", val: "a" },
@@ -191,17 +118,17 @@
         { q: "11. عموماً، أنا:", a: "أسمح لمشاعري ومزاجي بالتحكم والتأثير في سلوكياتي.", b: "أبقي مشاعري المزعجة ونزواتي تحت السيطرة والتحكم.", val: "b" },
         { q: "12. عندما أكون تحت الضغط العصبي والمهني:", a: "يتشتت انتباهي بسهولة بأمور أخرى.", b: "أفكر بصفاء ووضوح وأحافظ على تركيزي.", val: "b" },
         { q: "13. أنا دائماً:", a: "أفعل تماماً ما أقول إنني سأفعله.", b: "أفعل فقط ما يترتب عليّ فعله إجبارياً.", val: "a" },
-        { q: "14. ثقة الآخرين بي:", a: "تأتيني بشكل تلقائي وتلقائي للوهلة الأولى.", b: "تُبنى بمرور الوقت عبر الاعتمادية والمصداقية.", val: "b" },
+        { q: "14. ثقة الآخرين بي:", a: "تأتيني بشكل تلقائي للوهلة الأولى.", b: "تُبنى بمرور الوقت عبر الاعتمادية والمصداقية.", val: "b" },
         { q: "15. أكون دائماً:", a: "مرناً في كيفية رؤيتي وتفسيري للأحداث.", b: "قادراً على رؤية الأحداث على حقيقتها المجردة.", val: "a" },
         { q: "16. أثناء ظروف التغيير المتسارعة، أعمل دائماً على:", a: "العمل بجد لمواكبة المتطلبات والتأقلم.", b: "إدارة متطلبات متعددة وأولويات متغيرة بسلاسة واقتدار.", val: "b" },
         { q: "17. أنا دائماً:", a: "أضع لنفسي أهدافاً طموحة وتنطوي على تحدٍ.", b: "أنجز الأهداف المحددة والمطلوبة مني فقط.", val: "a" },
-        { q: "18. عند حدوث عقبات وعثرات أثناء السعي لتحقيق أهدافي:", a: "أقوم بإعادة تعديل الأهداف أو التوقعات.", b: "أصر على أداة وملاحقة الأهداف بغض النظر عما حدث.", val: "b" },
+        { q: "18. عند حدوث عقبات وعثرات أثناء السعي لتحقيق أهدافي:", a: "أقوم بإعادة تعديل الأهداف أو التوقعات.", b: "أصر على ملاحقة الأهداف بغض النظر عما حدث.", val: "b" },
         { q: "19. بصفة عامة، أنا:", a: "أسعى لتحقيق أهداف تتجاوز ما هو مطلوب أو متوقع مني.", b: "أسعى لتحقيق الأهداف بالقدر المطلوب مني فقط.", val: "a" },
         { q: "20. عندما أكتشف الفرص المناسبة، أكون دائماً:", a: "متردداً وغير متأكد مما إذا كنت سأستغل الفرصة أم لا.", b: "مبادراً وسباقاً في اقتناص واستغلال الفرصة.", val: "b" },
         { q: "21. الاختلافات والتباينات بين الجماعات دائماً ما تكون:", a: "سبباً في إحداث الصعوبات وعدم الاستقرار.", b: "مفهومة ومحل تقدير واحترام.", val: "b" },
         { q: "22. عندما أرى الانحياز أو التعصب والتطرف، أكون دائماً:", a: "مواجهاً ومتح دياً للأشخاص المتسببين في ذلك.", b: "أتغاضى عن الأمر وأتجاهله تماماً.", val: "a" },
         { q: "23. أقدم المساعدة للآخرين بناءً على:", a: "المهام والأعمال التي يحتاجون مساعدة في إنجازها.", b: "فهم واستيعاب مشاعر الآخرين واحتياجاتهم.", val: "b" },
-        { q: "24. أنا دائماً:", a: "أستمع بتركيز للكلمات الهامة المنطوقة.", b: "أستمع جيداً وأكون حذراً وينبهني الإيحاء والإنصات العاطفي.", val: "b" },
+        { q: "24. أنا دائماً:", a: "أستمع بتركيز للكلمات الهامة المنطوقة.", b: "أستمع جيداً وأكون حذراً وينبهني الإنصات العاطفي.", val: "b" },
         { q: "25. آراء ووجهات نظر الآخرين دائماً ما تكون:", a: "مفهومة ومحل إدراك وحساسية واهتمام.", b: "مربكة للموضوعات وتخرجنا عن المسار الصحيح.", val: "a" },
         { q: "26. أجد دائماً أن شبكات العلاقات الاجتماعية داخل المؤسسة:", a: "تعيق وتعطل تقديم الأداء المتميز.", b: "تساعد في بناء شبكات اتخاذ قرارات أفضل.", val: "b" },
         { q: "27. أستخدم دائماً:", a: "علاقات القوة والنفوذ غير الرسمية للحصول على ما أحتاجه.", b: "قنوات اتخاذ القرار الرسمية للحصول على ما أحتاجه.", val: "b" },
@@ -224,24 +151,23 @@
         const container = document.getElementById('questionsContainer');
         questions.forEach((q, index) => {
             const qNum = index + 1;
-            const qHtml = `
+            container.innerHTML += `
                 <div class="question-card">
                     <div class="question-title">${q.q}</div>
-                    <label class="option-label">
-                        <input type="radio" name="q${qNum}" value="a">
-                        <span>أ) ${q.a}</span>
-                    </label>
-                    <label class="option-label">
-                        <input type="radio" name="q${qNum}" value="b">
-                        <span>ب) ${q.b}</span>
-                    </label>
-                </div>
-            `;
-            container.innerHTML += qHtml;
+                    <label class="option-label"><input type="radio" name="q${qNum}" value="a"> <span>أ) ${q.a}</span></label>
+                    <label class="option-label"><input type="radio" name="q${qNum}" value="b"> <span>ب) ${q.b}</span></label>
+                </div>`;
         });
     }
 
     function calculateScore() {
+        const name = document.getElementById('userInfoName').value.trim();
+        const job = document.getElementById('userInfoJob').value.trim();
+        const email = document.getElementById('userInfoEmail').value.trim();
+        const whats = document.getElementById('userInfoWhats').value.trim();
+
+        if (!name) return alert("يرجى إدخال الاسم بالكامل أولاً!");
+
         let score = 0;
         let answeredCount = 0;
 
@@ -250,42 +176,49 @@
             const selected = document.querySelector(`input[name="q${qNum}"]:checked`);
             if (selected) {
                 answeredCount++;
-                if (selected.value === q.val) {
-                    score++;
-                }
+                if (selected.value === q.val) score++;
             }
         });
 
         if (answeredCount < questions.length) {
-            alert(`يرجى الإجابة على جميع الأسئلة قبل الاحتساب.\nلقد أجبت على ${answeredCount} من أصل 40 سؤالاً.`);
-            return;
+            return alert(`يرجى الإجابة على جميع الأسئلة.\nلقد أجبت على ${answeredCount} من 40.`);
         }
 
         const percentage = Math.round((score / 40) * 100);
-        const resultBox = document.getElementById('resultBox');
-        const scoreText = document.getElementById('scoreText');
-        const feedbackText = document.getElementById('feedbackText');
+        let level = "متوسط";
+        if (score >= 32) level = "ممتاز جداً";
+        else if (score >= 24) level = "جيد جداً";
 
-        scoreText.innerHTML = `درجتك هي: <strong>${score}</strong> من 40 (النسبة المئوية: <strong>${percentage}%</strong>)`;
+        const btn = document.getElementById('btnSubmit');
+        btn.disabled = true;
+        btn.innerText = "جاري الحفظ بالسحابة...";
 
-        if (score >= 32) {
-            feedbackText.textContent = "مستوى الذكاء العاطفي لديك ممتاز جداً! تملك وعياً عالياً بذاتك وبالآخرين وقدرة ممتازة على قيادة وتوجيه العلاقات والعواطف.";
-            feedbackText.style.color = "#15803d";
-        } else if (score >= 24) {
-            feedbackText.textContent = "مستوى الذكاء العاطفي لديك جيد جداً. لديك أسس متينة في التواصل والتوازن العاطفي مع وجود بعض النقاط التي يمكنك إعطاؤها اهتماماً للتطوير.";
-            feedbackText.style.color = "#0369a1";
-        } else {
-            feedbackText.textContent = "مستوى الذكاء العاطفي لديك متوسط أو يحتاج إلى تركيز وتطوير. يوصى بالعمل على مهارات إدارة الذات والإنصات العاطفي وفهم الآخرين بشكل أكبر.";
-            feedbackText.style.color = "#b91c1c";
-        }
+        // حفظ البيانات في مسار ei_results في Firebase
+        const record = {
+            name: name,
+            job: job,
+            email: email,
+            whats: whats,
+            score: score,
+            percentage: percentage,
+            level: level,
+            date: new Date().toISOString()
+        };
 
-        resultBox.style.display = 'block';
-        resultBox.scrollIntoView({ behavior: 'smooth' });
+        db.ref('ei_results').push(record).then(() => {
+            document.getElementById('eiForm').style.display = 'none';
+            const resultBox = document.getElementById('resultBox');
+            document.getElementById('scoreText').innerHTML = `درجتك هي: <strong>${score}</strong> من 40 (النسبة المئوية: <strong>${percentage}%</strong>)`;
+            document.getElementById('feedbackText').textContent = `التقييم العام: ${level}`;
+            resultBox.style.display = 'block';
+        }).catch(err => {
+            alert("حدث خطأ أثناء الحفظ في قاعدة البيانات!");
+            btn.disabled = false;
+            btn.innerText = "حفظ وإرسال التقييم";
+        });
     }
 
-    // تشغيل بناء الأسئلة فور تحميل الصفحة
     window.onload = renderQuestions;
 </script>
-
 </body>
 </html>
