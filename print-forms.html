@@ -9,7 +9,6 @@
     
     <!-- مكتبات قراءة وتصدير ملفات Word و PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -63,7 +62,6 @@
         .multi-select-box { max-height: 180px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; background: #fff; }
         .multi-select-box label { display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; padding: 4px 0; border-bottom: 1px dashed #f1f5f9; font-size: 0.8rem; }
 
-        /* شريط حالة المحرر للتعرف على الخط والحجم */
         .font-info-badge { background: #eff6ff; border: 1px solid #bfdbfe; color: var(--primary-dark); font-size: 0.76rem; padding: 4px 10px; border-radius: 6px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; font-weight: bold; }
 
         .editor-toolbar-container { position: sticky; top: 0px; z-index: 999; margin-bottom: 18px; background: var(--bg); padding-top: 4px; padding-bottom: 4px; }
@@ -73,47 +71,52 @@
         .tool-select { border: 1px solid #cbd5e1; padding: 4px 6px; border-radius: 4px; font-size: 0.78rem; background: #f8fafc; outline: none; cursor: pointer; }
         .toolbar-separator { width: 1px; height: 22px; background: #cbd5e1; margin: 0 3px; }
 
-        .paper-wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .paper-wrapper { display: flex; flex-direction: column; align-items: center; gap: 0px; }
         
-        .blank-start-page { width: 210mm; height: 297mm; background: #ffffff; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.1rem; border: 2px dashed #cbd5e1; }
+        .blank-start-page { width: 210mm; height: 297mm; background: #ffffff; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.1rem; border: 2px dashed #cbd5e1; margin-bottom: 20px; }
 
         .print-document {
             width: 210mm; background: #ffffff; padding: 0; box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-            box-sizing: border-box; margin-bottom: 25px; position: relative;
+            box-sizing: border-box; margin-bottom: 20px; position: relative;
         }
 
+        /* حماية ضد الصفحة الفارغة */
         .page-node {
-            width: 210mm; min-height: 297mm; display: flex; flex-direction: column; justify-content: space-between;
-            box-sizing: border-box; background: #ffffff; page-break-after: always; position: relative;
+            width: 210mm; height: 297mm; max-height: 297mm; display: flex; flex-direction: column; justify-content: space-between;
+            box-sizing: border-box; background: #ffffff; position: relative; overflow: hidden; page-break-after: always; break-after: page;
+        }
+
+        .print-document:last-child .page-node {
+            page-break-after: avoid !important; break-after: avoid !important;
         }
 
         .header-section {
-            width: 100%; padding: 10mm 15mm 5mm 15mm;
+            width: 100%; padding: 8mm 15mm 4mm 15mm;
             display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;
         }
 
         .footer-section {
-            width: 100%; padding: 5mm 15mm 8mm 15mm;
+            width: 100%; padding: 4mm 15mm 6mm 15mm;
             font-size: 0.78rem; color: #64748b; box-sizing: border-box; margin-top: auto;
         }
 
         .header-text { font-size: 0.88rem; font-weight: bold; line-height: 1.4; }
         .header-logo { max-height: 55px; max-width: 130px; object-fit: contain; }
 
-        .body-section { padding: 5mm 15mm; font-size: 1rem; line-height: 1.8; color: #0f172a; flex: 1; display: flex; flex-direction: column; }
-        .editable-text-area { outline: none; min-height: 220px; padding: 6px; border: 1px dashed transparent; flex: 1; }
+        .body-section { padding: 4mm 15mm; font-size: 1rem; line-height: 1.8; color: #0f172a; flex: 1; display: flex; flex-direction: column; }
+        .editable-text-area { outline: none; min-height: 180px; padding: 4px; border: 1px dashed transparent; flex: 1; }
         .editable-text-area:focus { border-color: #cbd5e1; }
 
-        .editable-text-area table { width: 100%; border-collapse: collapse; margin: 12px 0; table-layout: fixed; }
+        .editable-text-area table { width: 100%; border-collapse: collapse; margin: 10px 0; table-layout: fixed; }
         .editable-text-area td, .editable-text-area th { padding: 6px 8px; border: 1px solid #cbd5e1; min-width: 30px; }
 
-        .document-title { text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 12px; color: var(--primary-dark); }
-        .recipient-block { font-weight: bold; font-size: 1.05rem; margin-bottom: 12px; color: #1e293b; }
-        .date-display-block { font-weight: bold; font-size: 0.9rem; margin-bottom: 12px; color: #334155; }
+        .document-title { text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 10px; color: var(--primary-dark); }
+        .recipient-block { font-weight: bold; font-size: 1.05rem; margin-bottom: 10px; color: #1e293b; }
+        .date-display-block { font-weight: bold; font-size: 0.9rem; margin-bottom: 10px; color: #334155; }
 
-        .signatures-area { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 35px; padding: 10px 0; gap: 10px; width: 100%; }
+        .signatures-area { display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; padding: 10px 0; gap: 10px; width: 100%; }
         .sig-col { flex: 1; text-align: center; min-width: 100px; }
-        .sig-title { font-weight: bold; font-size: 0.88rem; color: #334155; margin-bottom: 30px; }
+        .sig-title { font-weight: bold; font-size: 0.88rem; color: #334155; margin-bottom: 25px; }
         .sig-name { font-weight: bold; font-size: 0.9rem; color: var(--primary-dark); border-top: 1px dashed #94a3b8; padding-top: 4px; }
 
         @page { size: A4; margin: 0mm; }
@@ -122,9 +125,10 @@
             html, body { background: white; padding: 0; margin: 0; }
             .sidebar, .editor-toolbar-container, .no-print { display: none !important; }
             .app-container { display: block; }
-            .paper-wrapper { width: 100%; }
-            .print-document { box-shadow: none; width: 100%; margin: 0; }
-            .page-node { page-break-after: always; height: 297mm; min-height: 297mm; }
+            .paper-wrapper { width: 100%; gap: 0; }
+            .print-document { box-shadow: none; width: 100%; margin: 0; page-break-after: always; break-after: page; }
+            .print-document:last-child { page-break-after: avoid !important; break-after: avoid !important; }
+            .page-node { height: 297mm; max-height: 297mm; }
         }
     </style>
 </head>
@@ -142,7 +146,6 @@
             <!-- تبويب 1: تحرير نموذج جديد -->
             <div id="tab-create" class="tab-content active">
                 
-                <!-- التحكم الثلاثي السريع -->
                 <div class="triple-btn-group">
                     <button class="btn btn-primary" onclick="startEditingMode('blank')"><i class="fas fa-file-circle-plus"></i> نموذج جديد</button>
                     <button class="btn btn-warning" onclick="document.getElementById('wordFileInputDirect').click()"><i class="fas fa-file-word"></i> رفع نموذج</button>
@@ -150,7 +153,6 @@
                 </div>
                 <input type="file" id="wordFileInputDirect" accept=".docx,.doc" style="display:none;" onchange="importWordFile(this)">
 
-                <!-- أقسام التحرير المفتوحة عند بدء التحرير فقط -->
                 <div id="editingSectionsContainer" style="display:none;">
                     <h2><i class="fas fa-code"></i> إدراج حقول المتغيرات</h2>
                     <div class="form-group">
@@ -240,7 +242,7 @@
                 </div>
             </div>
 
-            <!-- تبويب 2: النماذج المحفوظة (للطباعة والتصدير فقط بدون تحرير) -->
+            <!-- تبويب 2: النماذج المحفوظة -->
             <div id="tab-select" class="tab-content">
                 <h2><i class="fas fa-layer-group"></i> اختيار النماذج المحفوظة</h2>
                 <div class="form-group">
@@ -283,10 +285,6 @@
                 </div>
 
                 <h2><i class="fas fa-file-pdf"></i> تصدير وحفظ PDF</h2>
-                <div class="form-group">
-                    <label>تحديد صفحات للتصدير (مثل: 1, 2 أو اتركه فارغاً للكل):</label>
-                    <input type="text" id="pdfPagesInput" placeholder="أرقام الصفحات مع الفاصلة (مثال: 1, 3)...">
-                </div>
                 <button class="btn btn-warning" onclick="exportSelectedPagesToPDF()" style="width:100%; padding:10px; font-size:0.9rem; margin-bottom:10px;"><i class="fas fa-file-pdf"></i> تصدير النماذج إلى PDF</button>
 
                 <button class="btn btn-primary" onclick="window.print()" style="width: 100%; padding: 10px; font-size: 0.9rem; margin-top: 4px;">
@@ -305,7 +303,6 @@
 
         <!-- منطقة العرض وشريط المحرر الخارق -->
         <div>
-            <!-- شريط المحرر وشريط الاستكشاف الحي للخط والحجم -->
             <div class="editor-toolbar-container no-print" id="editorToolbarWrapper" style="display:none;">
                 <div class="font-info-badge" id="fontInfoBadge">
                     <span><i class="fas fa-font"></i> الخط الحالي: <span id="currentFontDetected">Traditional Arabic</span></span>
@@ -313,8 +310,7 @@
                 </div>
 
                 <div class="editor-toolbar">
-                    <!-- نوع الخط -->
-                    <select class="tool-select" id="fontFamilySelect" onchange="applyFontFamily(this.value)" title="نوع الخط">
+                    <select class="tool-select" id="fontFamilySelect" onchange="applyFontFamilyDirect(this.value)" title="نوع الخط">
                         <option value="Cairo">Cairo (القاهرة)</option>
                         <option value="Traditional Arabic" selected>Traditional Arabic</option>
                         <option value="Amiri">Amiri (أميري)</option>
@@ -324,8 +320,7 @@
                         <option value="Tahoma">Tahoma</option>
                     </select>
 
-                    <!-- حجم الخط -->
-                    <select class="tool-select" id="fontSizeSelect" onchange="applyFontSize(this.value)" title="حجم الخط">
+                    <select class="tool-select" id="fontSizeSelect" onchange="applyFontSizeDirect(this.value)" title="حجم الخط">
                         <option value="12px">12 px</option>
                         <option value="14px">14 px</option>
                         <option value="16px" selected>16 px</option>
@@ -338,14 +333,12 @@
 
                     <div class="toolbar-separator"></div>
 
-                    <!-- التنسيقات الأساسية -->
                     <button class="tool-btn" onclick="formatDoc('bold')" title="غامق (Bold)"><i class="fas fa-bold"></i></button>
                     <button class="tool-btn" onclick="formatDoc('italic')" title="مائل (Italic)"><i class="fas fa-italic"></i></button>
                     <button class="tool-btn" onclick="formatDoc('underline')" title="تحته خط (Underline)"><i class="fas fa-underline"></i></button>
 
                     <div class="toolbar-separator"></div>
 
-                    <!-- الألوان والتظليل -->
                     <label title="لون النص" style="display:inline-flex; align-items:center; cursor:pointer;">
                         <i class="fas fa-font" style="margin-left:2px;"></i>
                         <input type="color" onchange="formatDoc('foreColor', this.value)" style="width:20px; height:20px; padding:0; border:none; background:none; cursor:pointer;">
@@ -357,7 +350,6 @@
 
                     <div class="toolbar-separator"></div>
 
-                    <!-- المحاذاة -->
                     <button class="tool-btn" onclick="formatDoc('justifyRight')" title="يمين"><i class="fas fa-align-right"></i></button>
                     <button class="tool-btn" onclick="formatDoc('justifyCenter')" title="وسط"><i class="fas fa-align-center"></i></button>
                     <button class="tool-btn" onclick="formatDoc('justifyLeft')" title="يسار"><i class="fas fa-align-left"></i></button>
@@ -365,7 +357,6 @@
 
                     <div class="toolbar-separator"></div>
 
-                    <!-- القوائم والجدول -->
                     <button class="tool-btn" onclick="formatDoc('insertUnorderedList')" title="قائمة نقطية"><i class="fas fa-list-ul"></i></button>
                     <button class="tool-btn" onclick="formatDoc('insertOrderedList')" title="قائمة رقمية"><i class="fas fa-list-ol"></i></button>
                     <button class="tool-btn" onclick="insertCustomTable()" title="إدراج جدول"><i class="fas fa-table"></i></button>
@@ -374,10 +365,9 @@
             </div>
 
             <div class="paper-wrapper" id="papersContainer">
-                <!-- البداية: صفحة فارغة وأنيقة -->
                 <div class="blank-start-page" id="initialBlankPage">
                     <i class="fas fa-file-invoice" style="font-size: 3rem; margin-bottom: 15px; color: #cbd5e1;"></i>
-                    <span>اختر أحد أزرار التحرير أو اختر نموذجاً محفوظاً من التابة الثانية للبدء</span>
+                    <span>اختر أحد أزرار التحرير أعلاه أو انتقل للتابة الثانية لاختيار نموذج للطباعة</span>
                 </div>
             </div>
         </div>
@@ -429,7 +419,6 @@
             document.addEventListener('selectionchange', handleSelectionAndDetectFont);
         };
 
-        /* كشف فوري للخط والحجم المطبق عند الوقوف بالماوس */
         function handleSelectionAndDetectFont() {
             const sel = window.getSelection();
             if (sel && sel.rangeCount > 0) {
@@ -437,8 +426,6 @@
                 const editable = node ? (node.nodeType === 1 ? node.closest('.editable-text-area') : node.parentElement.closest('.editable-text-area')) : null;
                 if (editable) {
                     savedSelectionRange = sel.getRangeAt(0);
-
-                    // استكشاف خصائص الخط والحجم للكلمة الحالية
                     const parentEl = node.nodeType === 1 ? node : node.parentElement;
                     const computedStyle = window.getComputedStyle(parentEl);
 
@@ -472,9 +459,7 @@
             renderAllPages();
         }
 
-        function openSavedForEdit() { 
-            switchTab('tab-select'); 
-        }
+        function openSavedForEdit() { switchTab('tab-select'); }
 
         function loadDataFromFirebase() {
             db.ref(`companyProfiles/${activeUser}`).once('value', snap => {
@@ -571,7 +556,7 @@
                         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed #f1f5f9; padding:3px 0;">
                             <label style="border:none; margin:0;"><input type="checkbox" class="template-chk" value="${k}" onchange="renderAllPages()"> <b>[${t.group || 'عام'}]</b> ${k}</label>
                             <div>
-                                <button class="btn btn-secondary" onclick="loadSavedTemplateToEditor('${k}')" style="padding:2px 7px; font-size:0.75rem;" title="تحرير بالكامل"><i class="fas fa-edit"></i> تحرير</button>
+                                <button class="btn btn-secondary" onclick="loadSavedTemplateToEditor('${k}')" style="padding:2px 7px; font-size:0.75rem;" title="تحرير"><i class="fas fa-edit"></i> تحرير</button>
                                 <button class="btn btn-danger" onclick="deleteSavedTemplate('${k}')" style="padding:2px 6px; font-size:0.75rem;" title="حذف"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
@@ -589,6 +574,11 @@
             document.getElementById('docTitleInput').value = t.title || templateKey;
             currentEditorRawContent = t.content || "";
             if (t.group) document.getElementById('templateGroupSelect').value = t.group;
+
+            // استعادة التوقيعات المحفوظة
+            if (t.sig1 !== undefined) document.getElementById('selectSig1').value = t.sig1;
+            if (t.sig2 !== undefined) document.getElementById('selectSig2').value = t.sig2;
+            if (t.sig3 !== undefined) document.getElementById('selectSig3').value = t.sig3;
 
             switchTab('tab-create');
             renderAllPages();
@@ -683,7 +673,19 @@
                 selectedTemplateKeys.forEach(tKey => {
                     let rawHtml = (tKey === '__CURRENT__') ? currentEditorRawContent : (savedTemplates[tKey] ? savedTemplates[tKey].content : '');
                     let mergedHtml = mergeEmployeeData(rawHtml, emp);
-                    const docHtml = createSinglePageDocument(mergedHtml, tKey === '__CURRENT__');
+                    
+                    // تحضير بيانات التوقيعات من القوالب المحفوظة أو المحددة حالياً
+                    let s1 = document.getElementById('selectSig1').value;
+                    let s2 = document.getElementById('selectSig2').value;
+                    let s3 = document.getElementById('selectSig3').value;
+
+                    if (tKey !== '__CURRENT__' && savedTemplates[tKey]) {
+                        s1 = savedTemplates[tKey].sig1 || "";
+                        s2 = savedTemplates[tKey].sig2 || "";
+                        s3 = savedTemplates[tKey].sig3 || "";
+                    }
+
+                    const docHtml = createSinglePageDocument(mergedHtml, tKey === '__CURRENT__', s1, s2, s3);
                     container.insertAdjacentHTML('beforeend', docHtml);
                 });
             });
@@ -718,8 +720,7 @@
             return res;
         }
 
-        /* توليد وبناء شكل الصفحة والتوقيعات الصحيحة */
-        function createSinglePageDocument(bodyHtml, isEditable) {
+        function createSinglePageDocument(bodyHtml, isEditable, s1Idx, s2Idx, s3Idx) {
             const isTab2 = document.getElementById('tab-select').classList.contains('active');
             
             const showHeader = isTab2 ? true : document.getElementById('showHeaderChk').checked;
@@ -750,11 +751,7 @@
             const formattedDate = getFormattedDateStr(isEnglish);
             let dateBlock = (showDate && formattedDate) ? `<div class="date-display-block" style="text-align:${alignPos};">${isEnglish ? 'Date:' : 'التاريخ:'} ${formattedDate}</div>` : '';
 
-            // بناء منطقة التوقيعات بشكل سليم
-            const s1Idx = document.getElementById('selectSig1').value;
-            const s2Idx = document.getElementById('selectSig2').value;
-            const s3Idx = document.getElementById('selectSig3').value;
-
+            // استخراج التوقيعات بدقة وبنائها
             let sig1 = (s1Idx !== "" && signaturesList[s1Idx]) ? signaturesList[s1Idx] : null;
             let sig2 = (s2Idx !== "" && signaturesList[s2Idx]) ? signaturesList[s2Idx] : null;
             let sig3 = (s3Idx !== "" && signaturesList[s3Idx]) ? signaturesList[s3Idx] : null;
@@ -789,37 +786,33 @@
             `;
         }
 
-        /* تصدير صفحات مختارة إلى PDF */
+        /* تصدير PDF خالي تماماً من الصفحات البيضاء */
         function exportSelectedPagesToPDF() {
-            const pagesInput = document.getElementById('pdfPagesInput').value.trim();
             const allDocElements = document.querySelectorAll('.print-document');
 
             if (allDocElements.length === 0) return alert('لا يوجد نماذج معروضة للتصدير حالياً');
 
             let containerToExport = document.createElement('div');
 
-            if (!pagesInput) {
-                allDocElements.forEach(doc => containerToExport.appendChild(doc.cloneNode(true)));
-            } else {
-                const targetIndexes = pagesInput.split(',').map(n => parseInt(n.trim()) - 1);
-                targetIndexes.forEach(idx => {
-                    if (allDocElements[idx]) {
-                        containerToExport.appendChild(allDocElements[idx].cloneNode(true));
-                    }
-                });
-            }
+            allDocElements.forEach(doc => {
+                let cloned = doc.cloneNode(true);
+                cloned.style.margin = "0";
+                cloned.style.boxShadow = "none";
+                containerToExport.appendChild(cloned);
+            });
 
             const opt = {
                 margin: 0,
-                filename: `النماذج_المصدة_${new Date().toISOString().slice(0,10)}.pdf`,
+                filename: `النماذج_المصدرة_${new Date().toISOString().slice(0,10)}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
+                html2canvas: { scale: 2, useCORS: true },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             html2pdf().set(opt).from(containerToExport).save();
         }
 
+        /* حفظ التوقيعات والمحتوى داخل النماذج المحفوظة */
         function saveAndClearTemplate() {
             const nameInput = document.getElementById('templateNameInput');
             const name = nameInput.value.trim();
@@ -832,6 +825,9 @@
             }
 
             const docTitle = document.getElementById('docTitleInput').value.trim();
+            const s1 = document.getElementById('selectSig1').value;
+            const s2 = document.getElementById('selectSig2').value;
+            const s3 = document.getElementById('selectSig3').value;
 
             let templateToSave = currentEditorRawContent;
             const selectedEmpIndexes = Array.from(selectedEmpIndexesSet);
@@ -851,9 +847,12 @@
                 name: name,
                 group: group,
                 title: docTitle,
+                sig1: s1,
+                sig2: s2,
+                sig3: s3,
                 content: templateToSave
             }).then(() => {
-                alert('تم حفظ النموذج كقالب ديناميكي بنجاح!');
+                alert('تم حفظ النموذج والتوقيعات بنجاح!');
                 nameInput.value = '';
                 loadDataFromFirebase();
             });
@@ -887,25 +886,41 @@
 
         function formatDoc(cmd, value = null) { document.execCommand(cmd, false, value); }
 
-        function applyFontFamily(fontName) {
-            document.execCommand('fontName', false, fontName);
+        /* تطبيق فوري لتغيير الخط وحجمه على النص المحدد */
+        function applyFontFamilyDirect(fontName) {
             const editable = document.querySelector('.editable-text-area[contenteditable="true"]');
-            if (editable) currentEditorRawContent = editable.innerHTML;
+            if (!editable) return;
+            
+            editable.focus();
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+                const range = sel.getRangeAt(0);
+                const span = document.createElement('span');
+                span.style.fontFamily = fontName;
+                range.surroundContents(span);
+            } else {
+                editable.style.fontFamily = fontName;
+            }
+            currentEditorRawContent = editable.innerHTML;
             renderAllPages();
         }
 
-        function applyFontSize(sizeVal) {
+        function applyFontSizeDirect(sizeVal) {
+            const editable = document.querySelector('.editable-text-area[contenteditable="true"]');
+            if (!editable) return;
+
+            editable.focus();
             const sel = window.getSelection();
-            if (sel && sel.rangeCount > 0) {
+            if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+                const range = sel.getRangeAt(0);
                 const span = document.createElement('span');
                 span.style.fontSize = sizeVal;
-                const range = sel.getRangeAt(0);
                 range.surroundContents(span);
-                
-                const editable = document.querySelector('.editable-text-area[contenteditable="true"]');
-                if (editable) currentEditorRawContent = editable.innerHTML;
-                renderAllPages();
+            } else {
+                editable.style.fontSize = sizeVal;
             }
+            currentEditorRawContent = editable.innerHTML;
+            renderAllPages();
         }
 
         function insertCustomTable() {
