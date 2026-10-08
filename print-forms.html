@@ -363,6 +363,7 @@
         let savedSelectionRange = null;
 
         let currentEditorRawContent = "";
+        let selectedEmpIndexesSet = new Set([0]); // الحفاظ على حالة تحديد الموظفين
 
         window.onload = function() {
             document.getElementById('customDateInput').valueAsDate = new Date();
@@ -503,7 +504,7 @@
             }
         }
 
-        /* دالة عرض الموظفين الشاملة (الكود، الاسم، القسم) مع دعم خانة الفلترة */
+        /* دالة عرض الموظفين الشاملة وتحديث الاختيارات بصورة ديناميكية */
         function renderEmployeesCheckboxes(list) {
             const box = document.getElementById('employeesMultiSelect');
             box.innerHTML = '';
@@ -518,14 +519,25 @@
                 const name = e['الاسم'] || e['الاسم عربي'] || e['الاسم_عربي'] || e['الاسم إنجليزي'] || e['Name'] || 'موظف ' + (i + 1);
                 const dept = e['القسم'] || e['Department'] || '';
                 const deptStr = dept ? ` - <span style="color:#0b4fb3; font-weight:600;">(${dept})</span>` : '';
+                const isChecked = selectedEmpIndexesSet.has(i) ? 'checked' : '';
 
                 box.innerHTML += `
                     <label class="emp-item-label" data-search="${String(code).toLowerCase()} ${String(name).toLowerCase()} ${String(dept).toLowerCase()}">
-                        <input type="checkbox" class="emp-chk" value="${i}" ${i === 0 ? 'checked' : ''} onchange="renderAllPages()">
+                        <input type="checkbox" class="emp-chk" value="${i}" ${isChecked} onchange="onEmpCheckChange(this)">
                         <span><b>[${code}]</b> ${name} ${deptStr}</span>
                     </label>
                 `;
             });
+        }
+
+        function onEmpCheckChange(chk) {
+            const val = parseInt(chk.value);
+            if (chk.checked) {
+                selectedEmpIndexesSet.add(val);
+            } else {
+                selectedEmpIndexesSet.delete(val);
+            }
+            renderAllPages();
         }
 
         /* دالة البحث المباشرة لتصفية قائمة الموظفين */
@@ -547,7 +559,12 @@
             document.querySelectorAll('#employeesMultiSelect .emp-item-label').forEach(label => {
                 if (label.style.display !== 'none') {
                     const chk = label.querySelector('.emp-chk');
-                    if (chk) chk.checked = status;
+                    if (chk) {
+                        chk.checked = status;
+                        const val = parseInt(chk.value);
+                        if (status) selectedEmpIndexesSet.add(val);
+                        else selectedEmpIndexesSet.delete(val);
+                    }
                 }
             });
             renderAllPages();
@@ -571,7 +588,7 @@
             container.innerHTML = '';
 
             const selectedTemplateKeys = Array.from(document.querySelectorAll('.template-chk:checked')).map(c => c.value);
-            const selectedEmpIndexes = Array.from(document.querySelectorAll('.emp-chk:checked')).map(c => parseInt(c.value));
+            const selectedEmpIndexes = Array.from(selectedEmpIndexesSet);
 
             if (selectedEmpIndexes.length === 0) {
                 container.innerHTML = '<div style="background:#fff; padding:20px; border-radius:8px;">برجاء اختيار موظف واحد على الأقل للطباعة.</div>';
@@ -589,18 +606,18 @@
                 });
             });
 
-            const editableArea = document.querySelector('.editable-text-area[contenteditable="true"]');
-            if (editableArea) {
-                editableArea.addEventListener('keyup', saveSelectionAndContent);
-                editableArea.addEventListener('mouseup', saveSelectionAndContent);
-            }
+            // ربط أحداث الحفظ على جميع المستندات والمحررات المتولدة
+            const editableAreas = document.querySelectorAll('.editable-text-area[contenteditable="true"]');
+            editableAreas.forEach(area => {
+                area.addEventListener('keyup', saveSelectionAndContent);
+                area.addEventListener('mouseup', saveSelectionAndContent);
+            });
         }
 
-        function saveSelectionAndContent() {
+        function saveSelectionAndContent(e) {
             saveSelection();
-            const editableArea = document.querySelector('.editable-text-area[contenteditable="true"]');
-            if (editableArea) {
-                currentEditorRawContent = editableArea.innerHTML;
+            if (e && e.target) {
+                currentEditorRawContent = e.target.innerHTML;
             }
         }
 
@@ -717,7 +734,7 @@
                         <div class="body-section" dir="${textDir}" style="${topPaddingStyle}">
                             ${isFirst ? titleBlock + dateBlock + recipientBlock : ''}
                             
-                            <div class="editable-text-area" ${isEditable ? 'contenteditable="true" oninput="currentEditorRawContent=this.innerHTML;"' : ''}>
+                            <div class="editable-text-area" ${isEditable ? 'contenteditable="true"' : ''}>
                                 ${pageContent}
                             </div>
 
@@ -751,8 +768,10 @@
             document.getElementById('selectSig2').value = "";
             document.getElementById('selectSig3').value = "";
             currentEditorRawContent = "";
+            selectedEmpIndexesSet = new Set([0]);
 
             filterEmployeesList("");
+            renderEmployeesCheckboxes(employeesList);
             renderAllPages();
             alert('تم تفريغ كافة الإعدادات بنجاح!');
         }
