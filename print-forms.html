@@ -26,7 +26,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: var(--bg); color: var(--text); padding: 15px; direction: rtl; }
 
-        .app-container { display: grid; grid-template-columns: 380px 1fr; gap: 20px; max-width: 1550px; margin: 0 auto; align-items: start; }
+        .app-container { display: grid; grid-template-columns: 390px 1fr; gap: 20px; max-width: 1600px; margin: 0 auto; align-items: start; }
 
         .sidebar { 
             background: #fff; padding: 18px; border-radius: 12px; border: 1px solid var(--border); 
@@ -54,6 +54,10 @@
         .btn-danger { background: #ef4444; color: white; }
         .btn-secondary { background: #64748b; color: white; }
         .btn-warning { background: #f59e0b; color: white; }
+
+        /* شريط الأزرار الثلاثي */
+        .triple-btn-group { display: flex; gap: 4px; margin-bottom: 12px; }
+        .triple-btn-group .btn { flex: 1; font-size: 0.72rem; padding: 7px 2px; }
 
         .multi-select-box { max-height: 180px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; background: #fff; }
         .multi-select-box label { display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; padding: 4px 0; border-bottom: 1px dashed #f1f5f9; font-size: 0.8rem; }
@@ -88,13 +92,8 @@
         .header-text { font-size: 0.88rem; font-weight: bold; line-height: 1.4; }
         .header-logo { max-height: 55px; max-width: 130px; object-fit: contain; }
 
-        .body-section {
-            padding: 5mm 15mm; font-size: 1rem; line-height: 1.8; color: #0f172a; flex: 1;
-        }
-
-        .editable-text-area {
-            outline: none; min-height: 200px; padding: 4px;
-        }
+        .body-section { padding: 5mm 15mm; font-size: 1rem; line-height: 1.8; color: #0f172a; flex: 1; }
+        .editable-text-area { outline: none; min-height: 200px; padding: 4px; }
 
         .document-title { text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 12px; color: var(--primary-dark); }
         .recipient-block { font-weight: bold; font-size: 1.05rem; margin-bottom: 12px; color: #1e293b; }
@@ -130,6 +129,15 @@
 
             <!-- تبويب 1: تحرير نموذج جديد -->
             <div id="tab-create" class="tab-content active">
+                
+                <!-- الأزرار الثلاثة المتاورة للتحكم السريع -->
+                <div class="triple-btn-group">
+                    <button class="btn btn-primary" onclick="createNewBlankTemplate()"><i class="fas fa-file-circle-plus"></i> نموذج جديد</button>
+                    <button class="btn btn-warning" onclick="document.getElementById('wordFileInputDirect').click()"><i class="fas fa-file-word"></i> رفع نموذج</button>
+                    <button class="btn btn-secondary" onclick="openSavedForEdit()"><i class="fas fa-folder-open"></i> تحرير محفوظ</button>
+                </div>
+                <input type="file" id="wordFileInputDirect" accept=".docx,.doc" style="display:none;" onchange="importWordFile(this)">
+
                 <h2><i class="fas fa-building"></i> الديباجة والفرع</h2>
                 <div class="form-group">
                     <label>ديباجة رأس الصفحة:</label>
@@ -219,18 +227,36 @@
                 <div class="form-group"><select id="selectSig2" onchange="renderAllPages()"></select></div>
                 <div class="form-group"><select id="selectSig3" onchange="renderAllPages()"></select></div>
 
-                <h2><i class="fas fa-save"></i> حفظ وتفريغ</h2>
+                <h2><i class="fas fa-save"></i> حفظ في المجموعات</h2>
                 <div class="form-group">
+                    <label>مجموعة النماذج:</label>
+                    <select id="templateGroupSelect" onchange="toggleCustomGroupInput(this)">
+                        <option value="نماذج التعيين">نماذج التعيين</option>
+                        <option value="نماذج إنهاء الخدمة">نماذج إنهاء الخدمة</option>
+                        <option value="الإداريات والخطابات العامة">الإداريات والخطابات العامة</option>
+                        <option value="__NEW__">+ إضافة مجموعة جديدة...</option>
+                    </select>
+                    <input type="text" id="customGroupInput" placeholder="اسم المجموعة الجديدة..." style="display:none; margin-top:4px;">
+                </div>
+                <div class="form-group">
+                    <label>اسم النموذج:</label>
                     <input type="text" id="templateNameInput" placeholder="اسم النموذج الجديد...">
-                    <button class="btn btn-success" onclick="saveAndClearTemplate()" style="width:100%; margin-top:4px;"><i class="fas fa-check-double"></i> حفظ وتفريغ النموذج</button>
+                    <button class="btn btn-success" onclick="saveAndClearTemplate()" style="width:100%; margin-top:6px;"><i class="fas fa-check-double"></i> حفظ وحفظ التعديلات</button>
                 </div>
                 <button class="btn btn-danger" onclick="resetFormControls()" style="width:100%; padding:8px;"><i class="fas fa-rotate-right"></i> مسح الإعدادات</button>
             </div>
 
-            <!-- تبويب 2: اختيار نموذج محفوظ -->
+            <!-- تبويب 2: النماذج المحفوظة والفلاتر -->
             <div id="tab-select" class="tab-content">
-                <h2><i class="fas fa-layer-group"></i> اختيار النماذج المثبتة</h2>
+                <h2><i class="fas fa-layer-group"></i> تصنيف النماذج المحفوظة</h2>
                 <div class="form-group">
+                    <label>تصفية حسب المجموعة:</label>
+                    <select id="filterGroupSelect" onchange="filterSavedTemplatesByGroup()">
+                        <option value="ALL">-- عرض كافة المجموعات --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>النماذج المحفوظة المتاحة للطباعة:</label>
                     <div class="multi-select-box" id="templatesMultiSelect"></div>
                 </div>
 
@@ -245,9 +271,6 @@
                 </div>
 
                 <h2><i class="fas fa-file-word"></i> استيراد وتصدير Word</h2>
-                <div class="form-group">
-                    <input type="file" id="wordFileInput" accept=".docx" onchange="importWordFile(this)">
-                </div>
                 <button class="btn btn-warning" onclick="downloadBackupWord()" style="width:100%; margin-bottom:10px;"><i class="fas fa-download"></i> تصدير النسخة المكتملة (.doc)</button>
             </div>
 
@@ -349,7 +372,6 @@
         let savedRecipients = [];
         let savedSelectionRange = null;
 
-        // القالب الافتراضي مع ربطه بالمتغيرات لتجنب ثبات الاسم
         let currentEditorRawContent = `
             <p><strong>اقر انا /{الاسم}</strong></p>
             <p>واحمل بطاقة قومي / <strong>{الرقم القومي}</strong> صادرة بتاريخ / </p>
@@ -358,19 +380,23 @@
             <p>بالمحافظة علي كافة المعلومات الخاصة بالعمل واقر بأنها في سرية تامة ولا يجوز لي افشاؤها او التحدث بشأنها مع الغير بطريق مباشر او غير مباشر كما اقر بعدم استخدامي او استعمالي لاي من مستندات الشركة او اي بيانات تخص العمل وذلك اثناء العمل او في حالة تركي العمل لأي سبب من الاسباب واتعهد باحترام كافة اسرار الشركة من اي نوع وكذلك الحفاظ علي كافة المعلومات التي تخص عملاء الشركة</p>
         `;
 
-        let selectedEmpIndexesSet = new Set();
+        let selectedEmpIndexesSet = new Set([0]);
 
         window.onload = function() {
             document.getElementById('customDateInput').valueAsDate = new Date();
             loadDataFromFirebase();
         };
 
+        // دالة التنقل والتنشيط التلقائي (Refresh) عند التنقل بين التابات
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             
             event.currentTarget.classList.add('active');
             document.getElementById(tabId).classList.add('active');
+
+            // Refresh وقراءة البيانات فور الانتقال
+            loadDataFromFirebase();
         }
 
         function loadDataFromFirebase() {
@@ -413,8 +439,92 @@
             varDropdown.innerHTML = '<option value="">-- اختر الحقل لإدراجه بمكان المؤشر --</option>';
             columnKeys.forEach(k => { varDropdown.innerHTML += `<option value="{${k}}">{${k}}</option>`; });
 
-            renderTemplatesCheckboxes();
+            populateGroupsAndTemplates();
             renderEmployeesCheckboxes(employeesList);
+        }
+
+        /* إدارة المجموعات وفلترتها */
+        function populateGroupsAndTemplates() {
+            const groupSelect = document.getElementById('templateGroupSelect');
+            const filterGroup = document.getElementById('filterGroupSelect');
+
+            const existingGroups = new Set(["نماذج التعيين", "نماذج إنهاء الخدمة", "الإداريات والخطابات العامة"]);
+            
+            Object.values(savedTemplates).forEach(t => {
+                if (t.group) existingGroups.add(t.group);
+            });
+
+            filterGroup.innerHTML = '<option value="ALL">-- عرض كافة المجموعات --</option>';
+            groupSelect.innerHTML = '';
+
+            existingGroups.forEach(grp => {
+                filterGroup.innerHTML += `<option value="${grp}">${grp}</option>`;
+                groupSelect.innerHTML += `<option value="${grp}">${grp}</option>`;
+            });
+            groupSelect.innerHTML += `<option value="__NEW__">+ إضافة مجموعة جديدة...</option>`;
+
+            filterSavedTemplatesByGroup();
+        }
+
+        function toggleCustomGroupInput(selectEl) {
+            const customInput = document.getElementById('customGroupInput');
+            if (selectEl.value === '__NEW__') {
+                customInput.style.display = 'block';
+            } else {
+                customInput.style.display = 'none';
+            }
+        }
+
+        function filterSavedTemplatesByGroup() {
+            const selectedGroup = document.getElementById('filterGroupSelect').value;
+            const box = document.getElementById('templatesMultiSelect');
+            box.innerHTML = `<label><input type="checkbox" class="template-chk" value="__CURRENT__" checked onchange="renderAllPages()"> النموذج المحرر الحالي</label>`;
+
+            Object.keys(savedTemplates).forEach(k => {
+                const t = savedTemplates[k];
+                if (selectedGroup === 'ALL' || t.group === selectedGroup) {
+                    box.innerHTML += `
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed #f1f5f9; padding:2px 0;">
+                            <label style="border:none; margin:0;"><input type="checkbox" class="template-chk" value="${k}" onchange="renderAllPages()"> <b>[${t.group || 'عام'}]</b> ${k}</label>
+                            <div>
+                                <button class="btn btn-secondary" onclick="loadSavedTemplateToEditor('${k}')" style="padding:1px 6px; font-size:0.75rem;" title="تحرير"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger" onclick="deleteSavedTemplate('${k}')" style="padding:1px 6px; font-size:0.75rem;" title="حذف"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        /* إنشاء نموذج فارغ جديد */
+        function createNewBlankTemplate() {
+            document.getElementById('templateNameInput').value = "";
+            document.getElementById('docTitleInput').value = "عنوان الخطاب الجديد";
+            currentEditorRawContent = "<p>اكتب نص الخطاب هنا...</p>";
+            renderAllPages();
+        }
+
+        /* فتح شاشة النماذج المحفوظة لتحريرها */
+        function openSavedForEdit() {
+            switchTab('tab-select');
+        }
+
+        /* تحميل نموذج محفوظ إلى المحرر للتعديل والحفظ */
+        function loadSavedTemplateToEditor(templateKey) {
+            const t = savedTemplates[templateKey];
+            if (!t) return;
+
+            document.getElementById('templateNameInput').value = templateKey;
+            document.getElementById('docTitleInput').value = t.title || templateKey;
+            currentEditorRawContent = t.content || "";
+            
+            if (t.group) {
+                document.getElementById('templateGroupSelect').value = t.group;
+            }
+
+            switchTab('tab-create');
+            renderAllPages();
+            alert(`تم فتح النموذج "${templateKey}" في المحرر بنجاح!`);
         }
 
         function syncAndRenderLetterhead(sourceSelect) {
@@ -457,19 +567,6 @@
                 document.getElementById('recipientInput').value = '';
                 populateRecipientsDropdown();
                 renderAllPages();
-            });
-        }
-
-        function renderTemplatesCheckboxes() {
-            const box = document.getElementById('templatesMultiSelect');
-            box.innerHTML = `<label><input type="checkbox" class="template-chk" value="__CURRENT__" checked onchange="renderAllPages()"> النموذج المحرر الحالي</label>`;
-            Object.keys(savedTemplates).forEach(k => {
-                box.innerHTML += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed #f1f5f9;">
-                        <label style="border:none;"><input type="checkbox" class="template-chk" value="${k}" onchange="renderAllPages()"> ${k}</label>
-                        <button class="btn btn-danger" onclick="deleteSavedTemplate('${k}')" style="padding:1px 5px; font-size:0.75rem;"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
             });
         }
 
@@ -556,7 +653,6 @@
                 });
             });
 
-            // ربط الحفظ بالمحرر التفاعلي
             const editableAreas = document.querySelectorAll('.editable-text-area[contenteditable="true"]');
             editableAreas.forEach(area => {
                 area.addEventListener('input', function(e) {
@@ -567,16 +663,12 @@
 
         function mergeEmployeeData(htmlContent, emp) {
             let res = htmlContent;
-            const docLang = document.getElementById('docLang').value;
-            const isEnglish = (docLang === 'en');
 
-            // دالة بحث شاملة لكافة الحقول (الاسم، البطاقة، الوظيفة، إلخ)
             Object.keys(emp).forEach(key => {
                 const regex = new RegExp(`\\{${key}\\}`, 'g');
                 res = res.replace(regex, emp[key] || '');
             });
 
-            // مصفوفة توافق الأسماء الشائعة
             const empName = emp['الاسم'] || emp['الاسم عربي'] || emp['الاسم_عربي'] || emp['Name'] || '';
             const empNationalId = emp['الرقم القومي'] || emp['رقم القومي'] || emp['National_ID'] || emp['National ID'] || '';
             const empJob = emp['الوظيفة'] || emp['الوظيفة الحالية'] || emp['Job'] || '';
@@ -642,12 +734,68 @@
             `;
         }
 
+        /* حفظ النموذج التابع للمجموعة */
+        function saveAndClearTemplate() {
+            const nameInput = document.getElementById('templateNameInput');
+            const name = nameInput.value.trim();
+            if (!name) return alert('برجاء كتابة اسم النموذج أولاً');
+
+            let group = document.getElementById('templateGroupSelect').value;
+            if (group === '__NEW__') {
+                group = document.getElementById('customGroupInput').value.trim();
+                if (!group) return alert('برجاء كتابة اسم المجموعة الجديدة');
+            }
+
+            const docTitle = document.getElementById('docTitleInput').value.trim();
+
+            db.ref(`companyProfiles/${activeUser}/templates/${name}`).set({
+                name: name,
+                group: group,
+                title: docTitle,
+                content: currentEditorRawContent
+            }).then(() => {
+                alert('تم حفظ النموذج وتصنيفه بنجاح!');
+                nameInput.value = '';
+                loadDataFromFirebase();
+            });
+        }
+
+        function deleteSavedTemplate(templateKey) {
+            if (confirm(`هل أنت تأكد من حذف النموذج "${templateKey}" نهائياً؟`)) {
+                db.ref(`companyProfiles/${activeUser}/templates/${templateKey}`).remove()
+                    .then(() => {
+                        alert('تم مسح النموذج بنجاح!');
+                        loadDataFromFirebase();
+                    });
+            }
+        }
+
+        function importWordFile(input) {
+            if (!input.files.length) return;
+            const file = input.files[0];
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const arrayBuffer = e.target.result;
+                mammoth.convertToHtml({ arrayBuffer: arrayBuffer })
+                    .then(function(result) {
+                        currentEditorRawContent = result.value;
+                        renderAllPages();
+                        alert('تم استيراد محتوى ملف الوورد بنجاح إلى المحرر!');
+                    })
+                    .catch(function(err) {
+                        alert('حدث خطأ أثناء قراءة ملف الوورد: ' + err.message);
+                    });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
         function resetFormControls() {
             currentEditorRawContent = `
                 <p><strong>اقر انا /{الاسم}</strong></p>
                 <p>واحمل بطاقة قومي / <strong>{الرقم القومي}</strong></p>
             `;
-            selectedEmpIndexesSet = new Set();
+            selectedEmpIndexesSet = new Set([0]);
             renderEmployeesCheckboxes(employeesList);
             renderAllPages();
         }
