@@ -36,7 +36,6 @@
             position: sticky; top: 15px; z-index: 1000;
         }
 
-        /* شريط عنوان البروفايل المعزول */
         .profile-title-badge {
             background: #eff6ff; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px;
             border: 1px solid #bfdbfe; color: var(--primary-dark); font-size: 0.85rem; font-weight: bold;
@@ -84,58 +83,57 @@
         .blank-start-page { width: 210mm; height: 297mm; background: #ffffff; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.1rem; border: 2px dashed #cbd5e1; margin-bottom: 20px; }
 
         .print-document {
-            width: 210mm; background: #ffffff; padding: 0; box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-            box-sizing: border-box; margin-bottom: 20px; position: relative;
+            width: 210mm; height: 297mm; background: #ffffff; padding: 0; box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            box-sizing: border-box; margin-bottom: 20px; position: relative; overflow: hidden; page-break-after: always; break-after: page;
+        }
+
+        .print-document:last-child {
+            page-break-after: avoid !important; break-after: avoid !important; margin-bottom: 0;
         }
 
         .page-node {
-            width: 210mm; height: 297mm; max-height: 297mm; display: flex; flex-direction: column; justify-content: space-between;
-            box-sizing: border-box; background: #ffffff; position: relative; overflow: hidden; page-break-after: always; break-after: page;
-        }
-
-        .print-document:last-child .page-node {
-            page-break-after: avoid !important; break-after: avoid !important;
+            width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between;
+            box-sizing: border-box; background: #ffffff; position: relative; padding: 0; margin: 0;
         }
 
         .header-section {
-            width: 100%; padding: 8mm 15mm 4mm 15mm;
+            width: 100%; padding: 15px 35px 10px 35px;
             display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;
         }
 
         .footer-section {
-            width: 100%; padding: 4mm 15mm 6mm 15mm;
+            width: 100%; padding: 10px 35px 15px 35px;
             font-size: 0.78rem; color: #64748b; box-sizing: border-box; margin-top: auto;
         }
 
         .header-text { font-size: 0.88rem; font-weight: bold; line-height: 1.4; }
-        .header-logo { max-height: 55px; max-width: 130px; object-fit: contain; }
+        .header-logo { max-height: 50px; max-width: 130px; object-fit: contain; }
 
-        .body-section { padding: 4mm 15mm; font-size: 1rem; line-height: 1.8; color: #0f172a; flex: 1; display: flex; flex-direction: column; }
+        .body-section { padding: 10px 35px; font-size: 1rem; line-height: 1.8; color: #0f172a; flex: 1; display: flex; flex-direction: column; box-sizing: border-box; }
         .editable-text-area { outline: none; min-height: 180px; padding: 4px; border: 1px dashed transparent; flex: 1; }
         .editable-text-area:focus { border-color: #cbd5e1; }
 
         .editable-text-area table { width: 100%; border-collapse: collapse; margin: 10px 0; table-layout: fixed; }
         .editable-text-area td, .editable-text-area th { padding: 6px 8px; border: 1px solid #cbd5e1; min-width: 30px; }
 
-        .document-title { text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 10px; color: var(--primary-dark); }
+        .document-title { text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 12px; color: var(--primary-dark); }
         .recipient-block { font-weight: bold; font-size: 1.05rem; margin-bottom: 10px; color: #1e293b; }
         .date-display-block { font-weight: bold; font-size: 0.9rem; margin-bottom: 10px; color: #334155; }
 
-        .signatures-area { display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; padding: 10px 0; gap: 10px; width: 100%; }
+        .signatures-area { display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; padding: 15px 0 5px 0; gap: 10px; width: 100%; }
         .sig-col { flex: 1; text-align: center; min-width: 100px; }
         .sig-title { font-weight: bold; font-size: 0.88rem; color: #334155; margin-bottom: 25px; }
         .sig-name { font-weight: bold; font-size: 0.9rem; color: var(--primary-dark); border-top: 1px dashed #94a3b8; padding-top: 4px; }
 
-        @page { size: A4; margin: 0mm; }
+        @page { size: A4 portrait; margin: 0; }
 
         @media print {
-            html, body { background: white; padding: 0; margin: 0; }
+            html, body { background: white; padding: 0; margin: 0; width: 210mm; height: 297mm; }
             .sidebar, .editor-toolbar-container, .no-print { display: none !important; }
-            .app-container { display: block; }
+            .app-container { display: block; padding: 0; margin: 0; }
             .paper-wrapper { width: 100%; gap: 0; }
-            .print-document { box-shadow: none; width: 100%; margin: 0; page-break-after: always; break-after: page; }
+            .print-document { box-shadow: none; width: 210mm; height: 297mm; margin: 0; page-break-after: always; break-after: page; overflow: hidden; }
             .print-document:last-child { page-break-after: avoid !important; break-after: avoid !important; }
-            .page-node { height: 297mm; max-height: 297mm; }
         }
     </style>
 </head>
@@ -145,7 +143,6 @@
         <!-- الشريط الجانبي الثابت -->
         <div class="sidebar no-print">
 
-            <!-- اسم البروفايل النشط معزول تلقائياً بدون أي قوائم مسدلة -->
             <div class="profile-title-badge">
                 <span><i class="fas fa-building"></i> البروفايل النشط:</span>
                 <span id="activeProfileDisplayName" style="color:var(--primary); font-size:0.92rem;">جاري التحميل...</span>
@@ -224,11 +221,11 @@
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
                         <div class="form-group">
                             <label>ارتفاع الهيدر (px):</label>
-                            <input type="number" id="headerHeight" value="110" oninput="renderAllPages()">
+                            <input type="number" id="headerHeight" value="90" oninput="renderAllPages()">
                         </div>
                         <div class="form-group">
                             <label>ارتفاع الفوتر (px):</label>
-                            <input type="number" id="footerHeight" value="90" oninput="renderAllPages()">
+                            <input type="number" id="footerHeight" value="70" oninput="renderAllPages()">
                         </div>
                     </div>
 
@@ -406,7 +403,6 @@
             return String(str).replace(/[\.\#\$\/\[\]]/g, '-').trim();
         }
 
-        // جلب مستخدم/بروفايل الجلسة بفرز صريح ومنفصل 100%
         let activeUser = cleanFirebaseKey(sessionStorage.getItem('LOGGED_USER') || 'TCL');
 
         let companyInfo = {};
@@ -430,17 +426,13 @@
             document.getElementById('customDateInput').valueAsDate = new Date();
             document.getElementById('customDateInputPrint').valueAsDate = new Date();
             
-            // قراءة فورية وتلقائية للبروفايل المفتوح فقط
             loadIsolatedProfileData();
 
             document.addEventListener('selectionchange', handleSelectionAndDetectFont);
         };
 
-        /* دالة جلب وقراءة بيانات البروفايل المعزول تماماً */
         function loadIsolatedProfileData() {
             activeUser = cleanFirebaseKey(sessionStorage.getItem('LOGGED_USER') || 'TCL');
-            
-            // الغاء أي مستمع قديم لعدم تداخل أي بيانات لشركة أخرى
             db.ref(`companyProfiles/${activeUser}`).off();
 
             db.ref(`companyProfiles/${activeUser}`).on('value', snap => {
@@ -453,7 +445,6 @@
                 columnKeys = data.columnKeys || ['كود', 'الاسم', 'الاسم عربي', 'الوظيفة', 'القسم', 'الرقم القومي', 'العنوان بالبطاقة'];
                 savedTemplates = data.templates || {};
 
-                // عرض اسم الشركة/البروفايل الحالية في الشريط
                 document.getElementById('activeProfileDisplayName').textContent = companyInfo.nameAr || activeUser;
 
                 populateControls();
@@ -722,24 +713,30 @@
             });
         }
 
+        /* نظام دمج حقول شامل ودقيق للغاية يغطي كافة المسميات الممكنة */
         function mergeEmployeeData(htmlContent, emp) {
             let res = htmlContent;
 
+            // 1. استبدال مباشر ومطابق تماماً لكل مفاتيح الجدول المسجلة
             Object.keys(emp).forEach(key => {
-                const regex = new RegExp(`\\{${key}\\}`, 'g');
-                res = res.replace(regex, emp[key] || '');
+                if (key) {
+                    const regex = new RegExp(`\\{${key.trim()}\\}`, 'g');
+                    res = res.replace(regex, emp[key] !== undefined && emp[key] !== null ? emp[key] : '');
+                }
             });
 
-            const empName = emp['الاسم عربي'] || emp['الاسم'] || '';
-            const empJob = emp['الوظيفة'] || '';
-            const empDept = emp['القسم'] || '';
-            const empNationalId = emp['الرقم القومي'] || '';
+            // 2. مرادفات احتياطية للمفردات الشائعة لحماية أسلوب كتابة الموظف
+            const nameSynonyms = ['الاسم عربي', 'الاسم', 'الاسم_عربي', 'اسم الموظف', 'Name'];
+            const jobSynonyms = ['الوظيفة', 'الوظيفة الحالية', 'المسمى الوظيفي', 'Job'];
+            const deptSynonyms = ['القسم', 'الإدارة', 'Department'];
 
-            res = res.replace(/\{الاسم عربي\}/g, empName);
-            res = res.replace(/\{الاسم\}/g, empName);
-            res = res.replace(/\{الوظيفة\}/g, empJob);
-            res = res.replace(/\{القسم\}/g, empDept);
-            res = res.replace(/\{الرقم القومي\}/g, empNationalId);
+            const empName = nameSynonyms.map(k => emp[k]).find(v => v !== undefined && v !== null) || '';
+            const empJob = jobSynonyms.map(k => emp[k]).find(v => v !== undefined && v !== null) || '';
+            const empDept = deptSynonyms.map(k => emp[k]).find(v => v !== undefined && v !== null) || '';
+
+            nameSynonyms.forEach(k => res = res.replace(new RegExp(`\\{${k}\\}`, 'g'), empName));
+            jobSynonyms.forEach(k => res = res.replace(new RegExp(`\\{${k}\\}`, 'g'), empJob));
+            deptSynonyms.forEach(k => res = res.replace(new RegExp(`\\{${k}\\}`, 'g'), empDept));
 
             return res;
         }
@@ -755,8 +752,8 @@
             const isEnglish = (document.getElementById('docLang').value === 'en');
             const textDir = isEnglish ? 'ltr' : 'rtl';
 
-            const headerH = document.getElementById('headerHeight').value || 110;
-            const footerH = document.getElementById('footerHeight').value || 90;
+            const headerH = document.getElementById('headerHeight').value || 90;
+            const footerH = document.getElementById('footerHeight').value || 70;
 
             const lhSelect = document.querySelector('.select-letterhead-ctrl');
             const lh = letterheadsList[lhSelect ? lhSelect.value : 0] || {};
@@ -809,25 +806,36 @@
             `;
         }
 
+        /* تصدير محمي ومتقن 100% يمنع نزول النص أو خلق صفحات بيضاء */
         function exportSelectedPagesToPDF() {
             const allDocElements = document.querySelectorAll('.print-document');
             if (allDocElements.length === 0) return alert('لا يوجد نماذج معروضة للتصدير حالياً');
 
             let containerToExport = document.createElement('div');
+            containerToExport.style.width = "210mm";
 
             allDocElements.forEach(doc => {
                 let cloned = doc.cloneNode(true);
                 cloned.style.margin = "0";
                 cloned.style.boxShadow = "none";
+                cloned.style.height = "297mm";
+                cloned.style.pageBreakAfter = "always";
+                cloned.style.breakAfter = "page";
                 containerToExport.appendChild(cloned);
             });
+
+            if (containerToExport.lastElementChild) {
+                containerToExport.lastElementChild.style.pageBreakAfter = "avoid";
+                containerToExport.lastElementChild.style.breakAfter = "avoid";
+            }
 
             const opt = {
                 margin: 0,
                 filename: `النماذج_المصدرة_${new Date().toISOString().slice(0,10)}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
             html2pdf().set(opt).from(containerToExport).save();
