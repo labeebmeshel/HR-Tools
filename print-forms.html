@@ -36,11 +36,12 @@
             position: sticky; top: 15px; z-index: 1000;
         }
 
-        .profile-switcher-box {
-            background: #f1f5f9; padding: 8px 10px; border-radius: 8px; margin-bottom: 12px;
-            border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        /* شريط عنوان البروفايل المعزول */
+        .profile-title-badge {
+            background: #eff6ff; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px;
+            border: 1px solid #bfdbfe; color: var(--primary-dark); font-size: 0.85rem; font-weight: bold;
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
         }
-        .profile-switcher-box label { font-size: 0.75rem; font-weight: bold; color: var(--primary-dark); white-space: nowrap; margin: 0; }
         
         .tab-buttons { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 12px; gap: 2px; }
         .tab-btn { flex: 1; padding: 8px 2px; font-weight: bold; border: none; background: none; cursor: pointer; color: #64748b; font-size: 0.75rem; border-bottom: 2px solid transparent; margin-bottom: -2px; text-align: center; }
@@ -87,7 +88,6 @@
             box-sizing: border-box; margin-bottom: 20px; position: relative;
         }
 
-        /* حماية مطورة ضد ظهور الصفحات الفارغة */
         .page-node {
             width: 210mm; height: 297mm; max-height: 297mm; display: flex; flex-direction: column; justify-content: space-between;
             box-sizing: border-box; background: #ffffff; position: relative; overflow: hidden; page-break-after: always; break-after: page;
@@ -145,14 +145,10 @@
         <!-- الشريط الجانبي الثابت -->
         <div class="sidebar no-print">
 
-            <!-- أداة التبديل السريع للشركة لمنع التداخل والبطء -->
-            <div class="profile-switcher-box">
-                <label><i class="fas fa-building"></i> بروفايل الشركة:</label>
-                <select id="activeCompanySelect" onchange="changeActiveCompanyProfile(this.value)" style="font-weight:bold; color:var(--primary-dark);">
-                    <option value="TCL">شركة TCL الكيماويات</option>
-                    <option value="HeliopolisUniversity">جامعة هليوبوليس</option>
-                    <option value="PRAXI">أكاديمية براكسي</option>
-                </select>
+            <!-- اسم البروفايل النشط معزول تلقائياً بدون أي قوائم مسدلة -->
+            <div class="profile-title-badge">
+                <span><i class="fas fa-building"></i> البروفايل النشط:</span>
+                <span id="activeProfileDisplayName" style="color:var(--primary); font-size:0.92rem;">جاري التحميل...</span>
             </div>
 
             <div class="tab-buttons">
@@ -410,6 +406,7 @@
             return String(str).replace(/[\.\#\$\/\[\]]/g, '-').trim();
         }
 
+        // جلب مستخدم/بروفايل الجلسة بفرز صريح ومنفصل 100%
         let activeUser = cleanFirebaseKey(sessionStorage.getItem('LOGGED_USER') || 'TCL');
 
         let companyInfo = {};
@@ -430,23 +427,22 @@
         let selectedEmpIndexesSet = new Set([0]);
 
         window.onload = function() {
-            document.getElementById('activeCompanySelect').value = activeUser;
             document.getElementById('customDateInput').valueAsDate = new Date();
             document.getElementById('customDateInputPrint').valueAsDate = new Date();
             
-            // جلب سريع للغاية للبيانات
-            loadDataFromFirebaseFast();
+            // قراءة فورية وتلقائية للبروفايل المفتوح فقط
+            loadIsolatedProfileData();
 
             document.addEventListener('selectionchange', handleSelectionAndDetectFont);
         };
 
-        function changeActiveCompanyProfile(newProfileKey) {
-            activeUser = cleanFirebaseKey(newProfileKey);
-            sessionStorage.setItem('LOGGED_USER', activeUser);
-            loadDataFromFirebaseFast();
-        }
+        /* دالة جلب وقراءة بيانات البروفايل المعزول تماماً */
+        function loadIsolatedProfileData() {
+            activeUser = cleanFirebaseKey(sessionStorage.getItem('LOGGED_USER') || 'TCL');
+            
+            // الغاء أي مستمع قديم لعدم تداخل أي بيانات لشركة أخرى
+            db.ref(`companyProfiles/${activeUser}`).off();
 
-        function loadDataFromFirebaseFast() {
             db.ref(`companyProfiles/${activeUser}`).on('value', snap => {
                 const data = snap.val() || {};
                 companyInfo = data.info || {};
@@ -456,6 +452,9 @@
                 employeesList = data.employees || [];
                 columnKeys = data.columnKeys || ['كود', 'الاسم', 'الاسم عربي', 'الوظيفة', 'القسم', 'الرقم القومي', 'العنوان بالبطاقة'];
                 savedTemplates = data.templates || {};
+
+                // عرض اسم الشركة/البروفايل الحالية في الشريط
+                document.getElementById('activeProfileDisplayName').textContent = companyInfo.nameAr || activeUser;
 
                 populateControls();
                 if (isEditModeActive || document.getElementById('tab-select').classList.contains('active')) {
@@ -608,14 +607,14 @@
 
             switchTab('tab-create');
             renderAllPages();
-            alert(`تم فتح النموذج "${templateKey}" والتوقيعات الخاصة به بنجاح!`);
+            alert(`تم فتح النموذج "${templateKey}" في المحرر بنجاح!`);
         }
 
         function renderEmployeesCheckboxes(list) {
             const box = document.getElementById('employeesMultiSelect');
             box.innerHTML = '';
             if (!list || list.length === 0) {
-                box.innerHTML = '<div style="font-size:0.8rem; color:#94a3b8; text-align:center; padding:10px;">لا يوجد موظفين مسجلين.</div>';
+                box.innerHTML = '<div style="font-size:0.8rem; color:#94a3b8; text-align:center; padding:10px;">لا يوجد موظفين مسجلين في هذا البروفايل.</div>';
                 return;
             }
 
@@ -873,7 +872,7 @@
                 sig3: s3,
                 content: templateToSave
             }).then(() => {
-                alert('تم حفظ النموذج والتوقيعات بنجاح!');
+                alert('تم حفظ النموذج والتوقيعات بنجاح في البروفايل!');
                 nameInput.value = '';
             });
         }
