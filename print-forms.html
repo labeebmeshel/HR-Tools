@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منظومة طباعة وتصميم النماذج والخطابات الجماعية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;800&family=Traditional+Arabic&display=swap" rel="stylesheet">
     
     <!-- مكتبات قراءة وتصدير ملفات Word -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -26,7 +27,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: var(--bg); color: var(--text); padding: 15px; direction: rtl; }
 
-        .app-container { display: grid; grid-template-columns: 390px 1fr; gap: 20px; max-width: 1600px; margin: 0 auto; align-items: start; }
+        .app-container { display: grid; grid-template-columns: 390px 1fr; gap: 20px; max-width: 1650px; margin: 0 auto; align-items: start; }
 
         .sidebar { 
             background: #fff; padding: 18px; border-radius: 12px; border: 1px solid var(--border); 
@@ -55,17 +56,19 @@
         .btn-secondary { background: #64748b; color: white; }
         .btn-warning { background: #f59e0b; color: white; }
 
-        /* شريط الأزرار الثلاثي */
         .triple-btn-group { display: flex; gap: 4px; margin-bottom: 12px; }
         .triple-btn-group .btn { flex: 1; font-size: 0.72rem; padding: 7px 2px; }
 
         .multi-select-box { max-height: 180px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; background: #fff; }
         .multi-select-box label { display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; padding: 4px 0; border-bottom: 1px dashed #f1f5f9; font-size: 0.8rem; }
 
-        .editor-toolbar-container { position: sticky; top: 0px; z-index: 999; margin-bottom: 20px; background: var(--bg); padding-top: 5px; padding-bottom: 5px; }
-        .editor-toolbar { display: flex; flex-wrap: wrap; gap: 6px; background: #ffffff; padding: 8px 12px; border: 1px solid #94a3b8; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); align-items: center; }
-        .tool-btn { background: #f8fafc; border: 1px solid #cbd5e1; padding: 5px 9px; border-radius: 4px; cursor: pointer; font-size: 0.82rem; color: #334155; }
+        /* شريط أدوات محرر Word المتطور */
+        .editor-toolbar-container { position: sticky; top: 0px; z-index: 999; margin-bottom: 18px; background: var(--bg); padding-top: 4px; padding-bottom: 4px; }
+        .editor-toolbar { display: flex; flex-wrap: wrap; gap: 4px; background: #ffffff; padding: 8px; border: 1px solid #94a3b8; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.12); align-items: center; }
+        .tool-btn { background: #f8fafc; border: 1px solid #cbd5e1; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; color: #334155; }
         .tool-btn:hover { background: #e0e7ff; color: var(--primary); }
+        .tool-select { border: 1px solid #cbd5e1; padding: 4px 6px; border-radius: 4px; font-size: 0.78rem; background: #f8fafc; outline: none; cursor: pointer; }
+        .toolbar-separator { width: 1px; height: 22px; background: #cbd5e1; margin: 0 3px; }
 
         .paper-wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; }
         
@@ -93,7 +96,11 @@
         .header-logo { max-height: 55px; max-width: 130px; object-fit: contain; }
 
         .body-section { padding: 5mm 15mm; font-size: 1rem; line-height: 1.8; color: #0f172a; flex: 1; }
-        .editable-text-area { outline: none; min-height: 200px; padding: 4px; }
+        .editable-text-area { outline: none; min-height: 220px; padding: 6px; border: 1px dashed transparent; transition: border 0.2s; }
+        .editable-text-area:focus { border-color: #cbd5e1; }
+
+        .editable-text-area table { width: 100%; border-collapse: collapse; margin: 12px 0; table-layout: fixed; }
+        .editable-text-area td, .editable-text-area th { padding: 6px 8px; border: 1px solid #cbd5e1; min-width: 30px; }
 
         .document-title { text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 12px; color: var(--primary-dark); }
         .recipient-block { font-weight: bold; font-size: 1.05rem; margin-bottom: 12px; color: #1e293b; }
@@ -130,13 +137,20 @@
             <!-- تبويب 1: تحرير نموذج جديد -->
             <div id="tab-create" class="tab-content active">
                 
-                <!-- الأزرار الثلاثة المتاورة للتحكم السريع -->
+                <!-- التحكم الثلاثي السريع -->
                 <div class="triple-btn-group">
                     <button class="btn btn-primary" onclick="createNewBlankTemplate()"><i class="fas fa-file-circle-plus"></i> نموذج جديد</button>
                     <button class="btn btn-warning" onclick="document.getElementById('wordFileInputDirect').click()"><i class="fas fa-file-word"></i> رفع نموذج</button>
                     <button class="btn btn-secondary" onclick="openSavedForEdit()"><i class="fas fa-folder-open"></i> تحرير محفوظ</button>
                 </div>
                 <input type="file" id="wordFileInputDirect" accept=".docx,.doc" style="display:none;" onchange="importWordFile(this)">
+
+                <h2><i class="fas fa-code"></i> إدراج حقول المتغيرات</h2>
+                <div class="form-group">
+                    <select id="variableDropdown" onchange="insertSelectedVariable(this)">
+                        <option value="">-- اختر الحقل لإدراجه بمكان المؤشر --</option>
+                    </select>
+                </div>
 
                 <h2><i class="fas fa-building"></i> الديباجة والفرع</h2>
                 <div class="form-group">
@@ -159,7 +173,7 @@
                     </div>
                     <div class="form-group">
                         <label>عنوان الخطاب:</label>
-                        <input type="text" id="docTitleInput" value="إقرار وتعهد" placeholder="اكتب عنوان الخطاب..." oninput="renderAllPages()">
+                        <input type="text" id="docTitleInput" value="إقرار استلام العمل" placeholder="اكتب عنوان الخطاب..." oninput="renderAllPages()">
                     </div>
                 </div>
 
@@ -241,7 +255,7 @@
                 <div class="form-group">
                     <label>اسم النموذج:</label>
                     <input type="text" id="templateNameInput" placeholder="اسم النموذج الجديد...">
-                    <button class="btn btn-success" onclick="saveAndClearTemplate()" style="width:100%; margin-top:6px;"><i class="fas fa-check-double"></i> حفظ وحفظ التعديلات</button>
+                    <button class="btn btn-success" onclick="saveAndClearTemplate()" style="width:100%; margin-top:6px;"><i class="fas fa-check-double"></i> حفظ النموذج</button>
                 </div>
                 <button class="btn btn-danger" onclick="resetFormControls()" style="width:100%; padding:8px;"><i class="fas fa-rotate-right"></i> مسح الإعدادات</button>
             </div>
@@ -270,7 +284,7 @@
                     <select class="select-branch-ctrl" onchange="syncAndRenderBranch(this)"></select>
                 </div>
 
-                <h2><i class="fas fa-file-word"></i> استيراد وتصدير Word</h2>
+                <h2><i class="fas fa-file-word"></i> تصدير Word</h2>
                 <button class="btn btn-warning" onclick="downloadBackupWord()" style="width:100%; margin-bottom:10px;"><i class="fas fa-download"></i> تصدير النسخة المكتملة (.doc)</button>
             </div>
 
@@ -284,7 +298,7 @@
 
             <hr style="margin: 12px 0; border: none; border-top: 1px solid #cbd5e1;">
 
-            <!-- الموظفين والمتغيرات -->
+            <!-- الموظفين -->
             <h2><i class="fas fa-users"></i> اختيار الموظفين للطباعة</h2>
             <div class="form-group" style="margin-bottom: 8px;">
                 <input type="text" id="empSearchFilter" placeholder="🔍 بحث/فلترة بالكود، الاسم، أو القسم..." oninput="filterEmployeesList(this.value)">
@@ -298,42 +312,79 @@
                 <div class="multi-select-box" id="employeesMultiSelect" style="max-height: 200px;"></div>
             </div>
 
-            <h2><i class="fas fa-code"></i> إدراج حقول المتغيرات</h2>
-            <div class="form-group">
-                <select id="variableDropdown" onchange="insertSelectedVariable(this)">
-                    <option value="">-- اختر الحقل لإدراجه بمكان المؤشر --</option>
-                </select>
-            </div>
-
             <button class="btn btn-primary" onclick="window.print()" style="width: 100%; padding: 12px; font-size: 1rem; margin-top: 8px;">
                 <i class="fas fa-print"></i> طباعة النماذج المحددة (A4)
             </button>
         </div>
 
-        <!-- منطقة العرض والطباعة -->
+        <!-- منطقة العرض وشريط المحرر الخارق متوافق مع Word -->
         <div>
-            <!-- شريط أدوات المحرر العلوي -->
             <div class="editor-toolbar-container no-print">
                 <div class="editor-toolbar">
-                    <button class="tool-btn" onclick="formatDoc('bold')" title="غامق"><i class="fas fa-bold"></i></button>
-                    <button class="tool-btn" onclick="formatDoc('italic')" title="مائل"><i class="fas fa-italic"></i></button>
-                    <button class="tool-btn" onclick="formatDoc('underline')" title="تحته خط"><i class="fas fa-underline"></i></button>
-                    
-                    <select class="tool-btn" onchange="formatDoc('fontSize', this.value)">
-                        <option value="3">حجم الخط عادي</option>
-                        <option value="1">صغير جداً</option>
-                        <option value="2">صغير</option>
-                        <option value="4">متوسط</option>
-                        <option value="5">كبير</option>
-                        <option value="6">كبير جداً</option>
-                        <option value="7">ضخم</option>
+                    <!-- نوع الخط -->
+                    <select class="tool-select" onchange="formatDoc('fontName', this.value)" title="نوع الخط">
+                        <option value="Cairo">Cairo (القاهرة)</option>
+                        <option value="Traditional Arabic" selected>Traditional Arabic</option>
+                        <option value="Amiri">Amiri (أميري)</option>
+                        <option value="Segoe UI">Segoe UI</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Tahoma">Tahoma</option>
                     </select>
 
-                    <button class="tool-btn" onclick="formatDoc('justifyRight')"><i class="fas fa-align-right"></i></button>
-                    <button class="tool-btn" onclick="formatDoc('justifyCenter')"><i class="fas fa-align-center"></i></button>
-                    <button class="tool-btn" onclick="formatDoc('justifyLeft')"><i class="fas fa-align-left"></i></button>
-                    <button class="tool-btn" onclick="insertCustomTable()"><i class="fas fa-table"></i></button>
-                    <button class="tool-btn" onclick="formatDoc('removeFormat')"><i class="fas fa-eraser"></i></button>
+                    <!-- حجم الخط -->
+                    <select class="tool-select" onchange="changeCustomFontSize(this.value)" title="حجم الخط">
+                        <option value="12px">12 px</option>
+                        <option value="14px">14 px</option>
+                        <option value="16px" selected>16 px</option>
+                        <option value="18px">18 px</option>
+                        <option value="20px">20 px</option>
+                        <option value="24px">24 px</option>
+                        <option value="28px">28 px</option>
+                        <option value="32px">32 px</option>
+                    </select>
+
+                    <div class="toolbar-separator"></div>
+
+                    <!-- التنسيقات الأساسية -->
+                    <button class="tool-btn" onclick="formatDoc('bold')" title="غامق (Bold)"><i class="fas fa-bold"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('italic')" title="مائل (Italic)"><i class="fas fa-italic"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('underline')" title="تحته خط (Underline)"><i class="fas fa-underline"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('strikeThrough')" title="يتوسطه خط"><i class="fas fa-strikethrough"></i></button>
+
+                    <div class="toolbar-separator"></div>
+
+                    <!-- الألوان والتظليل -->
+                    <label title="لون النص" style="display:inline-flex; align-items:center; cursor:pointer;">
+                        <i class="fas fa-font" style="margin-left:2px;"></i>
+                        <input type="color" onchange="formatDoc('foreColor', this.value)" style="width:20px; height:20px; padding:0; border:none; background:none; cursor:pointer;">
+                    </label>
+                    <label title="لون التظليل (Highlight)" style="display:inline-flex; align-items:center; cursor:pointer; margin-left:4px;">
+                        <i class="fas fa-highlighter" style="margin-left:2px;"></i>
+                        <input type="color" value="#ffff00" onchange="formatDoc('hiliteColor', this.value)" style="width:20px; height:20px; padding:0; border:none; background:none; cursor:pointer;">
+                    </label>
+
+                    <div class="toolbar-separator"></div>
+
+                    <!-- المحاذاة -->
+                    <button class="tool-btn" onclick="formatDoc('justifyRight')" title="يمين"><i class="fas fa-align-right"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('justifyCenter')" title="وسط"><i class="fas fa-align-center"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('justifyLeft')" title="يسار"><i class="fas fa-align-left"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('justifyFull')" title="محاذاة كاملة"><i class="fas fa-align-justify"></i></button>
+
+                    <div class="toolbar-separator"></div>
+
+                    <!-- القوائم والمسافات البادئة -->
+                    <button class="tool-btn" onclick="formatDoc('insertUnorderedList')" title="قائمة نقطية"><i class="fas fa-list-ul"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('insertOrderedList')" title="قائمة رقمية"><i class="fas fa-list-ol"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('indent')" title="زيادة المسافة البادئة"><i class="fas fa-indent"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('outdent')" title="إنقاص المسافة البادئة"><i class="fas fa-outdent"></i></button>
+
+                    <div class="toolbar-separator"></div>
+
+                    <!-- الجدول والمسح -->
+                    <button class="tool-btn" onclick="insertCustomTable()" title="إدراج جدول"><i class="fas fa-table"></i></button>
+                    <button class="tool-btn" onclick="formatDoc('removeFormat')" title="مسح التنسيق"><i class="fas fa-eraser"></i></button>
                 </div>
             </div>
 
@@ -373,11 +424,8 @@
         let savedSelectionRange = null;
 
         let currentEditorRawContent = `
-            <p><strong>اقر انا /{الاسم}</strong></p>
-            <p>واحمل بطاقة قومي / <strong>{الرقم القومي}</strong> صادرة بتاريخ / </p>
-            <p>ومقيم / {العنوان}</p>
-            <p>اعمل بوظيفة / <strong>{الوظيفة}</strong></p>
-            <p>بالمحافظة علي كافة المعلومات الخاصة بالعمل واقر بأنها في سرية تامة ولا يجوز لي افشاؤها او التحدث بشأنها مع الغير بطريق مباشر او غير مباشر كما اقر بعدم استخدامي او استعمالي لاي من مستندات الشركة او اي بيانات تخص العمل وذلك اثناء العمل او في حالة تركي العمل لأي سبب من الاسباب واتعهد باحترام كافة اسرار الشركة من اي نوع وكذلك الحفاظ علي كافة المعلومات التي تخص عملاء الشركة</p>
+            <p><strong>أقر أنا / {الاسم عربي}</strong></p>
+            <p>بأني إستلمت العمل بوظيفة "<strong>{الوظيفة}</strong>" بقسم {القسم}</p>
         `;
 
         let selectedEmpIndexesSet = new Set([0]);
@@ -385,9 +433,22 @@
         window.onload = function() {
             document.getElementById('customDateInput').valueAsDate = new Date();
             loadDataFromFirebase();
+
+            // حفظ موقع المؤشر بصورة مستمرة ودقيقة داخل محرر النصوص
+            document.addEventListener('selectionchange', saveSelection);
         };
 
-        // دالة التنقل والتنشيط التلقائي (Refresh) عند التنقل بين التابات
+        function saveSelection() {
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                const node = sel.anchorNode;
+                const editable = node ? (node.nodeType === 1 ? node.closest('.editable-text-area') : node.parentElement.closest('.editable-text-area')) : null;
+                if (editable) {
+                    savedSelectionRange = sel.getRangeAt(0);
+                }
+            }
+        }
+
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -395,7 +456,6 @@
             event.currentTarget.classList.add('active');
             document.getElementById(tabId).classList.add('active');
 
-            // Refresh وقراءة البيانات فور الانتقال
             loadDataFromFirebase();
         }
 
@@ -407,7 +467,7 @@
                 branchesList = data.branches || [];
                 signaturesList = data.signatures || [];
                 employeesList = data.employees || [];
-                columnKeys = data.columnKeys || ['كود', 'الاسم', 'الوظيفة', 'القسم', 'الرقم القومي', 'العنوان'];
+                columnKeys = data.columnKeys || ['كود', 'الاسم', 'الاسم عربي', 'الوظيفة', 'القسم', 'الرقم القومي', 'العنوان بالبطاقة'];
                 savedTemplates = data.templates || {};
                 savedRecipients = data.recipients || [];
 
@@ -435,15 +495,43 @@
 
             populateRecipientsDropdown();
 
+            // تعبئة قائمة المتغيرات بدقة
             const varDropdown = document.getElementById('variableDropdown');
             varDropdown.innerHTML = '<option value="">-- اختر الحقل لإدراجه بمكان المؤشر --</option>';
-            columnKeys.forEach(k => { varDropdown.innerHTML += `<option value="{${k}}">{${k}}</option>`; });
+            
+            const uniqueKeys = new Set([...columnKeys, 'الاسم', 'الاسم عربي', 'الاسم إنجليزي', 'الوظيفة', 'القسم', 'الرقم القومي', 'العنوان بالبطاقة', 'المحافظة', 'الرقم التأميني']);
+            uniqueKeys.forEach(k => { 
+                varDropdown.innerHTML += `<option value="{${k}}">{${k}}</option>`; 
+            });
 
             populateGroupsAndTemplates();
             renderEmployeesCheckboxes(employeesList);
         }
 
-        /* إدارة المجموعات وفلترتها */
+        /* دالة إدراج المتغيرات بموقع المؤشر الدقيق مع التحديث المباشر */
+        function insertSelectedVariable(selectEl) {
+            const varTag = selectEl.value;
+            if (!varTag) return;
+
+            const editableArea = document.querySelector('.editable-text-area[contenteditable="true"]');
+            if (editableArea) {
+                editableArea.focus();
+                
+                if (savedSelectionRange) {
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(savedSelectionRange);
+                }
+
+                // إدراج نص الحقل
+                document.execCommand('insertText', false, varTag);
+                currentEditorRawContent = editableArea.innerHTML;
+                renderAllPages();
+            }
+
+            selectEl.value = '';
+        }
+
         function populateGroupsAndTemplates() {
             const groupSelect = document.getElementById('templateGroupSelect');
             const filterGroup = document.getElementById('filterGroupSelect');
@@ -468,11 +556,7 @@
 
         function toggleCustomGroupInput(selectEl) {
             const customInput = document.getElementById('customGroupInput');
-            if (selectEl.value === '__NEW__') {
-                customInput.style.display = 'block';
-            } else {
-                customInput.style.display = 'none';
-            }
+            customInput.style.display = (selectEl.value === '__NEW__') ? 'block' : 'none';
         }
 
         function filterSavedTemplatesByGroup() {
@@ -496,7 +580,6 @@
             });
         }
 
-        /* إنشاء نموذج فارغ جديد */
         function createNewBlankTemplate() {
             document.getElementById('templateNameInput').value = "";
             document.getElementById('docTitleInput').value = "عنوان الخطاب الجديد";
@@ -504,12 +587,8 @@
             renderAllPages();
         }
 
-        /* فتح شاشة النماذج المحفوظة لتحريرها */
-        function openSavedForEdit() {
-            switchTab('tab-select');
-        }
+        function openSavedForEdit() { switchTab('tab-select'); }
 
-        /* تحميل نموذج محفوظ إلى المحرر للتعديل والحفظ */
         function loadSavedTemplateToEditor(templateKey) {
             const t = savedTemplates[templateKey];
             if (!t) return;
@@ -517,10 +596,7 @@
             document.getElementById('templateNameInput').value = templateKey;
             document.getElementById('docTitleInput').value = t.title || templateKey;
             currentEditorRawContent = t.content || "";
-            
-            if (t.group) {
-                document.getElementById('templateGroupSelect').value = t.group;
-            }
+            if (t.group) document.getElementById('templateGroupSelect').value = t.group;
 
             switchTab('tab-create');
             renderAllPages();
@@ -580,7 +656,7 @@
 
             list.forEach((e, i) => {
                 const code = e['كود'] || e['Code'] || (i + 1);
-                const name = e['الاسم'] || e['الاسم عربي'] || e['Name'] || 'موظف ' + (i + 1);
+                const name = e['الاسم عربي'] || e['الاسم'] || e['Name'] || 'موظف ' + (i + 1);
                 const dept = e['القسم'] || e['Department'] || '';
                 const deptStr = dept ? ` - <span style="color:#0b4fb3; font-weight:600;">(${dept})</span>` : '';
                 const isChecked = selectedEmpIndexesSet.has(i) ? 'checked' : '';
@@ -658,9 +734,12 @@
                 area.addEventListener('input', function(e) {
                     currentEditorRawContent = e.target.innerHTML;
                 });
+                area.addEventListener('keyup', saveSelection);
+                area.addEventListener('mouseup', saveSelection);
             });
         }
 
+        /* دالة دمج المتغيرات المتطورة وشاملة لكافة مسميات الأعمدة */
         function mergeEmployeeData(htmlContent, emp) {
             let res = htmlContent;
 
@@ -669,15 +748,20 @@
                 res = res.replace(regex, emp[key] || '');
             });
 
-            const empName = emp['الاسم'] || emp['الاسم عربي'] || emp['الاسم_عربي'] || emp['Name'] || '';
-            const empNationalId = emp['الرقم القومي'] || emp['رقم القومي'] || emp['National_ID'] || emp['National ID'] || '';
+            const empName = emp['الاسم عربي'] || emp['الاسم'] || emp['الاسم_عربي'] || emp['Name'] || '';
+            const empEngName = emp['الاسم إنجليزي'] || emp['English Name'] || '';
+            const empNationalId = emp['الرقم القومي'] || emp['رقم القومي'] || emp['National_ID'] || '';
             const empJob = emp['الوظيفة'] || emp['الوظيفة الحالية'] || emp['Job'] || '';
-            const empAddress = emp['العنوان'] || emp['مقيم'] || emp['Address'] || '';
+            const empDept = emp['القسم'] || emp['Department'] || '';
+            const empAddress = emp['العنوان بالبطاقة'] || emp['العنوان'] || emp['مقيم'] || '';
 
+            res = res.replace(/\{الاسم عربي\}/g, empName);
             res = res.replace(/\{الاسم\}/g, empName);
+            res = res.replace(/\{الاسم إنجليزي\}/g, empEngName);
             res = res.replace(/\{الرقم القومي\}/g, empNationalId);
             res = res.replace(/\{الوظيفة\}/g, empJob);
-            res = res.replace(/\{العنوان\}/g, empAddress);
+            res = res.replace(/\{القسم\}/g, empDept);
+            res = res.replace(/\{العنوان بالبطاقة\}/g, empAddress);
 
             return res;
         }
@@ -734,7 +818,6 @@
             `;
         }
 
-        /* حفظ النموذج التابع للمجموعة */
         function saveAndClearTemplate() {
             const nameInput = document.getElementById('templateNameInput');
             const name = nameInput.value.trim();
@@ -792,15 +875,47 @@
 
         function resetFormControls() {
             currentEditorRawContent = `
-                <p><strong>اقر انا /{الاسم}</strong></p>
-                <p>واحمل بطاقة قومي / <strong>{الرقم القومي}</strong></p>
+                <p><strong>أقر أنا / {الاسم عربي}</strong></p>
+                <p>بأني إستلمت العمل بوظيفة "<strong>{الوظيفة}</strong>"</p>
             `;
             selectedEmpIndexesSet = new Set([0]);
             renderEmployeesCheckboxes(employeesList);
             renderAllPages();
         }
 
-        function formatDoc(cmd, value = null) { document.execCommand(cmd, false, value); }
+        function formatDoc(cmd, value = null) { 
+            document.execCommand(cmd, false, value); 
+        }
+
+        function changeCustomFontSize(sizeVal) {
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                const span = document.createElement('span');
+                span.style.fontSize = sizeVal;
+                const range = sel.getRangeAt(0);
+                range.surroundContents(span);
+                
+                const editable = document.querySelector('.editable-text-area[contenteditable="true"]');
+                if (editable) currentEditorRawContent = editable.innerHTML;
+            }
+        }
+
+        function insertCustomTable() {
+            const rows = prompt('عدد الصفوف:', '3');
+            const cols = prompt('عدد الأعمدة:', '3');
+            if (!rows || !cols) return;
+
+            let tableHtml = '<table border="1" style="width:100%; border-collapse:collapse; margin:15px 0;">';
+            for (let r = 0; r < rows; r++) {
+                tableHtml += '<tr>';
+                for (let c = 0; c < cols; c++) {
+                    tableHtml += '<td style="padding:8px; border:1px solid #cbd5e1;">خلية</td>';
+                }
+                tableHtml += '</tr>';
+            }
+            tableHtml += '</table><p></p>';
+            document.execCommand('insertHTML', false, tableHtml);
+        }
     </script>
 </body>
 </html>
