@@ -82,7 +82,6 @@
         
         .blank-start-page { width: 210mm; min-height: 285mm; background: #ffffff; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.1rem; border: 2px dashed #cbd5e1; margin-bottom: 20px; }
 
-        /* نموذج الورقة A4 المحددة بأبعاد قياسية ممتازة */
         .print-document {
             width: 210mm; 
             height: 297mm; 
@@ -135,20 +134,14 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.03);
         }
         
-        .iso-box-1 {
-            min-width: 195px; text-align: center; font-weight: bold;
-        }
+        .iso-box-1 { min-width: 195px; text-align: center; font-weight: bold; }
         .iso-box-1 .iso-main-title {
             font-size: 0.95rem; color: var(--primary-dark); border-bottom: 1px solid #94a3b8; padding-bottom: 4px; margin-bottom: 4px;
             word-spacing: 3px;
         }
-        .iso-box-1 .iso-code-row {
-            font-size: 0.85rem; color: #334155; font-weight: bold; direction: rtl;
-        }
+        .iso-box-1 .iso-code-row { font-size: 0.85rem; color: #334155; font-weight: bold; direction: rtl; }
 
-        .iso-box-2 {
-            min-width: 180px; font-size: 0.82rem; font-weight: 600; line-height: 1.5;
-        }
+        .iso-box-2 { min-width: 180px; font-size: 0.82rem; font-weight: 600; line-height: 1.5; }
         .iso-box-2 .iso-row-item {
             display: flex; justify-content: space-between; align-items: center; gap: 8px; 
             border-bottom: 1px dashed #cbd5e1; padding-bottom: 2px; margin-bottom: 3px;
@@ -170,123 +163,57 @@
         .editable-text-area { outline: none; padding: 4px; border: 1px dashed transparent; min-height: 100px; }
         .editable-text-area:focus { border-color: #cbd5e1; }
 
-        .var-value-span {
-            display: inline-block;
-            margin: 0 4px;
-            font-weight: bold;
-            unicode-bidi: isolate;
-        }
+        .var-value-span { display: inline-block; margin: 0 4px; font-weight: bold; unicode-bidi: isolate; }
 
         .editable-text-area table { width: 100%; border-collapse: collapse; margin: 10px 0; table-layout: fixed; }
         .editable-text-area td, .editable-text-area th { padding: 6px 8px; border: 1px solid #cbd5e1; min-width: 30px; }
 
         .document-title { text-align: center; font-weight: bold; font-size: 1.35rem; margin-bottom: 12px; color: var(--primary-dark); word-spacing: 3px; }
-        .recipient-block { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; color: #1e293b; }
         
-        .date-display-block { 
-            font-weight: bold; font-size: 0.95rem; margin-bottom: 12px; color: #334155; width: 100%; display: block;
-        }
+        .date-display-block { font-weight: bold; font-size: 0.95rem; margin-bottom: 12px; color: #334155; width: 100%; display: block; }
 
-        .signatures-area { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: flex-start; 
-            margin-top: auto; 
-            margin-bottom: 10px;
-            padding: 5px 0; 
-            gap: 10px; 
-            width: 100%; 
-            page-break-inside: avoid;
+        /* منطقة التوقيعات متعددة المستويات الإدارية */
+        .signatures-area-container {
+            display: flex; flex-direction: column; gap: 15px; margin-top: auto; margin-bottom: 10px; width: 100%; page-break-inside: avoid;
+        }
+        .sig-row-level {
+            display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; width: 100%;
         }
         .sig-col { flex: 1; text-align: center; min-width: 100px; }
-        .sig-title { font-weight: bold; font-size: 0.92rem; color: #334155; margin-bottom: 20px; }
+        .sig-title { font-weight: bold; font-size: 0.92rem; color: #334155; margin-bottom: 18px; }
         .sig-name { font-weight: bold; font-size: 0.95rem; color: var(--primary-dark); border-top: 1px dashed #94a3b8; padding-top: 4px; }
 
         .bidi-isolate { unicode-bidi: isolate; display: inline-block; }
         .bidi-ltr { direction: ltr !important; unicode-bidi: embed; display: inline-block; }
 
         .page-break-element {
-            display: block;
-            page-break-after: always;
-            break-after: page;
-            border-top: 2px dashed #ef4444;
-            margin: 25px 0;
-            position: relative;
-            text-align: center;
+            display: block; page-break-after: always; break-after: page; border-top: 2px dashed #ef4444; margin: 25px 0; position: relative; text-align: center;
         }
         .page-break-element::after {
-            content: "✂️ --- فاصل صفحة A4 جديد --- ✂️";
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 2px 12px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            border-radius: 12px;
-            border: 1px solid #fca5a5;
+            content: "✂️ --- فاصل صفحة A4 جديد --- ✂️"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #fee2e2; color: #991b1b; padding: 2px 12px; font-size: 0.75rem; font-weight: bold; border-radius: 12px; border: 1px solid #fca5a5;
         }
 
-        /* حاوية التقطيع الوهمية لحساب الارتفاعات */
         #pagination-measurer {
-            position: absolute;
-            visibility: hidden;
-            left: -9999px;
-            top: -9999px;
-            width: 210mm;
-            padding: 10px 40px;
-            box-sizing: border-box;
-            font-size: 1.05rem;
-            line-height: 1.8;
-            word-spacing: 3px;
+            position: absolute; visibility: hidden; left: -9999px; top: -9999px; width: 210mm; padding: 10px 40px; box-sizing: border-box; font-size: 1.05rem; line-height: 1.8; word-spacing: 3px;
         }
 
-        @page { 
-            size: A4 portrait; 
-            margin: 0 !important; 
-        }
+        .sig-config-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px; margin-bottom: 8px; }
+
+        @page { size: A4 portrait; margin: 0 !important; }
 
         @media print {
             html, body { 
-                background: #ffffff !important; 
-                padding: 0 !important; 
-                margin: 0 !important; 
-                width: 100% !important;
-                height: auto !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
+                background: #ffffff !important; padding: 0 !important; margin: 0 !important; width: 100% !important; height: auto !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
             }
             .sidebar, .editor-toolbar-container, .no-print { display: none !important; }
             .app-container { display: block !important; padding: 0 !important; margin: 0 !important; width: 100% !important; }
             .paper-wrapper { width: 100% !important; margin: 0 auto !important; padding: 0 !important; gap: 0 !important; }
             
             .print-document { 
-                box-shadow: none !important; 
-                width: 100% !important; 
-                max-width: 100% !important;
-                height: 297mm !important;
-                margin: 0 auto !important; 
-                padding: 0 !important;
-                page-break-after: always !important; 
-                break-after: page !important; 
-                box-sizing: border-box !important;
-                overflow: hidden !important;
+                box-shadow: none !important; width: 100% !important; max-width: 100% !important; height: 297mm !important; margin: 0 auto !important; padding: 0 !important; page-break-after: always !important; break-after: page !important; box-sizing: border-box !important; overflow: hidden !important;
             }
-            
-            .print-document:last-child { 
-                page-break-after: avoid !important; 
-                break-after: avoid !important; 
-            }
-            
-            .page-node {
-                width: 100% !important;
-                height: 100% !important;
-                padding: 12mm 18mm !important;
-                box-sizing: border-box !important;
-            }
-
+            .print-document:last-child { page-break-after: avoid !important; break-after: avoid !important; }
+            .page-node { width: 100% !important; height: 100% !important; padding: 12mm 18mm !important; box-sizing: border-box !important; }
             .header-section { padding: 0 0 10px 0 !important; }
             .body-section { padding: 10px 0 !important; }
             .footer-section { padding: 10px 0 0 0 !important; }
@@ -297,7 +224,7 @@
 <body>
 
     <div class="app-container">
-        <!-- الشريط الجانبي الثابت -->
+        <!-- الشريط الجانبي -->
         <div class="sidebar no-print">
 
             <div class="profile-title-badge">
@@ -342,30 +269,30 @@
                     <h2><i class="fas fa-certificate"></i> إعدادات الجودة ISO بالديباجة</h2>
                     <div class="form-group">
                         <label>عنوان الجودة الرئيسي (HEADER):</label>
-                        <input type="text" id="isoTitleInput" value="إجراءات الموارد البشرية" placeholder="عنوان الجودة..." oninput="renderAllPages()">
+                        <input type="text" id="isoTitleInput" value="إجراءات الموارد البشرية" placeholder="عنوان الجودة..." oninput="onIsoInputChange()">
                     </div>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
                         <div class="form-group">
                             <label>رقم / كود الوثيقة:</label>
-                            <input type="text" id="isoCodeInput" value="qsep-07.01" placeholder="رقم:" oninput="renderAllPages()">
+                            <input type="text" id="isoCodeInput" value="qsep-07.01" placeholder="رقم:" oninput="onIsoInputChange()">
                         </div>
                         <div class="form-group">
                             <label>إصدار / تعديل:</label>
-                            <input type="text" id="isoVerInput" value="12" placeholder="إصدار/تعديل:" oninput="renderAllPages()">
+                            <input type="text" id="isoVerInput" value="12" placeholder="إصدار/تعديل:" oninput="onIsoInputChange()">
                         </div>
                     </div>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
                         <div class="form-group">
                             <label>تاريخ التعديل:</label>
-                            <input type="text" id="isoDateInput" value="2026-10-03" placeholder="تاريخ التعديل:" oninput="renderAllPages()">
+                            <input type="text" id="isoDateInput" value="2026-10-03" placeholder="تاريخ التعديل:" oninput="onIsoInputChange()">
                         </div>
                         <div class="form-group">
                             <label>صفحة رقم:</label>
-                            <input type="text" id="isoPageInput" value="1 من 12" placeholder="صفحة رقم:" oninput="renderAllPages()">
+                            <input type="text" id="isoPageInput" value="1 من 12" placeholder="صفحة رقم:" oninput="onIsoInputChange()">
                         </div>
                     </div>
 
-                    <h2><i class="fas fa-globe"></i> لغة الخطاب والتنسيق</h2>
+                    <h2><i class="fas fa-globe"></i> لغة الخطاب وتكرار العنوان</h2>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
                         <div class="form-group">
                             <label>لغة الخطاب:</label>
@@ -378,6 +305,11 @@
                             <label>عنوان الخطاب:</label>
                             <input type="text" id="docTitleInput" value="عنوان الخطاب" placeholder="اكتب عنوان الخطاب..." oninput="renderAllPages()">
                         </div>
+                    </div>
+                    <div class="form-group" style="margin-top:-4px;">
+                        <label style="cursor:pointer; color:#0b4fb3; font-weight:bold;">
+                            <input type="checkbox" id="repeatTitleChk" onchange="renderAllPages()"> تكرار عنوان الخطاب في كل الصفحات
+                        </label>
                     </div>
 
                     <h2><i class="fas fa-calendar-days"></i> إعدادات التاريخ والموقع</h2>
@@ -412,18 +344,78 @@
                         </div>
                     </div>
 
-                    <h2><i class="fas fa-file-signature"></i> التوقيعات الثلاثة</h2>
-                    <div class="form-group">
-                        <label>التوقيع (1 - الأيمن):</label>
+                    <h2><i class="fas fa-file-signature"></i> التوقيعات وتحديد المستويات الإدارية</h2>
+                    
+                    <!-- إعداد التوقيع 1 -->
+                    <div class="sig-config-card">
+                        <label>التوقيع الأول:</label>
                         <select id="selectSig1" onchange="renderAllPages()"></select>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:4px; margin-top:4px;">
+                            <div>
+                                <label>الموقع الأفقي:</label>
+                                <select id="sig1Pos" onchange="renderAllPages()">
+                                    <option value="right" selected>يمين</option>
+                                    <option value="center">وسط</option>
+                                    <option value="left">يسار</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>المستوى الرأسي:</label>
+                                <select id="sig1Level" onchange="renderAllPages()">
+                                    <option value="1" selected>سطر 1 (القمة)</option>
+                                    <option value="2">سطر 2 (الأوسط)</option>
+                                    <option value="3">سطر 3 (القاع)</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>التوقيع (2 - الأوسط):</label>
+
+                    <!-- إعداد التوقيع 2 -->
+                    <div class="sig-config-card">
+                        <label>التوقيع الثاني:</label>
                         <select id="selectSig2" onchange="renderAllPages()"></select>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:4px; margin-top:4px;">
+                            <div>
+                                <label>الموقع الأفقي:</label>
+                                <select id="sig2Pos" onchange="renderAllPages()">
+                                    <option value="center" selected>وسط</option>
+                                    <option value="right">يمين</option>
+                                    <option value="left">يسار</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>المستوى الرأسي:</label>
+                                <select id="sig2Level" onchange="renderAllPages()">
+                                    <option value="1" selected>سطر 1 (القمة)</option>
+                                    <option value="2">سطر 2 (الأوسط)</option>
+                                    <option value="3">سطر 3 (القاع)</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>التوقيع (3 - الأيسر):</label>
+
+                    <!-- إعداد التوقيع 3 -->
+                    <div class="sig-config-card">
+                        <label>التوقيع الثالث:</label>
                         <select id="selectSig3" onchange="renderAllPages()"></select>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:4px; margin-top:4px;">
+                            <div>
+                                <label>الموقع الأفقي:</label>
+                                <select id="sig3Pos" onchange="renderAllPages()">
+                                    <option value="left" selected>يسار</option>
+                                    <option value="right">يمين</option>
+                                    <option value="center">وسط</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>المستوى الرأسي:</label>
+                                <select id="sig3Level" onchange="renderAllPages()">
+                                    <option value="2" selected>سطر 2 (الأوسط)</option>
+                                    <option value="1">سطر 1 (القمة)</option>
+                                    <option value="3">سطر 3 (القاع)</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <h2><i class="fas fa-save"></i> حفظ في المجموعات</h2>
@@ -572,7 +564,6 @@
         </div>
     </div>
 
-    <!-- حاوية مخفية لحساب الارتفاع بالبكسل للتقطيع الآلي -->
     <div id="pagination-measurer"></div>
 
     <script>
@@ -606,6 +597,15 @@
         let savedSelectionRange = null;
         let isEditModeActive = false;
 
+        // حالة حقول الجودة الثابتة لمنع المسح والرجوع للقديم
+        let isoState = {
+            title: "إجراءات الموارد البشرية",
+            code: "qsep-07.01",
+            ver: "12",
+            date: "2026-10-03",
+            page: "1 من 12"
+        };
+
         let currentEditorRawContent = `
             <p><strong>أقر أنا / {الاسم عربي}</strong></p>
             <p>بأني إستلمت العمل بوظيفة "<strong>{الوظيفة}</strong>" بقسم {القسم}</p>
@@ -621,6 +621,15 @@
 
             document.addEventListener('selectionchange', handleSelectionAndDetectFont);
         };
+
+        function onIsoInputChange() {
+            isoState.title = document.getElementById('isoTitleInput').value;
+            isoState.code = document.getElementById('isoCodeInput').value;
+            isoState.ver = document.getElementById('isoVerInput').value;
+            isoState.date = document.getElementById('isoDateInput').value;
+            isoState.page = document.getElementById('isoPageInput').value;
+            renderAllPages();
+        }
 
         function loadIsolatedProfileData() {
             activeUser = cleanFirebaseKey(sessionStorage.getItem('LOGGED_USER') || 'TCL');
@@ -642,11 +651,11 @@
 
                 if (letterheadsList.length > 0 && letterheadsList[0]) {
                     const lh0 = letterheadsList[0];
-                    if (lh0.isoTitle) document.getElementById('isoTitleInput').value = lh0.isoTitle;
-                    if (lh0.isoCode) document.getElementById('isoCodeInput').value = lh0.isoCode;
-                    if (lh0.isoVer) document.getElementById('isoVerInput').value = lh0.isoVer;
-                    if (lh0.isoDate) document.getElementById('isoDateInput').value = lh0.isoDate;
-                    if (lh0.isoPage) document.getElementById('isoPageInput').value = lh0.isoPage;
+                    if (lh0.isoTitle) { isoState.title = lh0.isoTitle; document.getElementById('isoTitleInput').value = lh0.isoTitle; }
+                    if (lh0.isoCode) { isoState.code = lh0.isoCode; document.getElementById('isoCodeInput').value = lh0.isoCode; }
+                    if (lh0.isoVer) { isoState.ver = lh0.isoVer; document.getElementById('isoVerInput').value = lh0.isoVer; }
+                    if (lh0.isoDate) { isoState.date = lh0.isoDate; document.getElementById('isoDateInput').value = lh0.isoDate; }
+                    if (lh0.isoPage) { isoState.page = lh0.isoPage; document.getElementById('isoPageInput').value = lh0.isoPage; }
                 }
 
                 if (isEditModeActive || document.getElementById('tab-select').classList.contains('active')) {
@@ -724,11 +733,11 @@
             const idx = selectEl.value;
             if (letterheadsList[idx]) {
                 const lh = letterheadsList[idx];
-                if (lh.isoTitle) document.getElementById('isoTitleInput').value = lh.isoTitle;
-                if (lh.isoCode) document.getElementById('isoCodeInput').value = lh.isoCode;
-                if (lh.isoVer) document.getElementById('isoVerInput').value = lh.isoVer;
-                if (lh.isoDate) document.getElementById('isoDateInput').value = lh.isoDate;
-                if (lh.isoPage) document.getElementById('isoPageInput').value = lh.isoPage;
+                if (lh.isoTitle) { isoState.title = lh.isoTitle; document.getElementById('isoTitleInput').value = lh.isoTitle; }
+                if (lh.isoCode) { isoState.code = lh.isoCode; document.getElementById('isoCodeInput').value = lh.isoCode; }
+                if (lh.isoVer) { isoState.ver = lh.isoVer; document.getElementById('isoVerInput').value = lh.isoVer; }
+                if (lh.isoDate) { isoState.date = lh.isoDate; document.getElementById('isoDateInput').value = lh.isoDate; }
+                if (lh.isoPage) { isoState.page = lh.isoPage; document.getElementById('isoPageInput').value = lh.isoPage; }
             }
             renderAllPages();
         }
@@ -782,6 +791,7 @@
             filterSavedTemplatesByGroup();
         }
 
+        /* تعديل اسم مجموعة النماذج بشكل مباشر وسحابي بدون تكرار */
         function renameCurrentGroup() {
             const selectEl = document.getElementById('templateGroupSelect');
             const oldGroup = selectEl.value;
@@ -801,10 +811,12 @@
 
             if (Object.keys(updates).length > 0) {
                 db.ref().update(updates).then(() => {
-                    alert(`تم تغيير اسم المجموعة من "${oldGroup}" إلى "${trimmedNewGroup}" بنجاح! ✅`);
+                    alert(`تم تحديث اسم المجموعة من "${oldGroup}" إلى "${trimmedNewGroup}" بنجاح! ✅`);
+                    selectEl.value = trimmedNewGroup;
+                    populateGroupsAndTemplates();
                 });
             } else {
-                alert('تم التحديث.');
+                alert('لا توجد نماذج محفوظة تتطلب التحديث.');
             }
         }
 
@@ -847,11 +859,20 @@
             if (t.sig2 !== undefined) document.getElementById('selectSig2').value = t.sig2;
             if (t.sig3 !== undefined) document.getElementById('selectSig3').value = t.sig3;
 
-            if (t.isoTitle) document.getElementById('isoTitleInput').value = t.isoTitle;
-            if (t.isoCode) document.getElementById('isoCodeInput').value = t.isoCode;
-            if (t.isoVer) document.getElementById('isoVerInput').value = t.isoVer;
-            if (t.isoDate) document.getElementById('isoDateInput').value = t.isoDate;
-            if (t.isoPage) document.getElementById('isoPageInput').value = t.isoPage;
+            if (t.sig1Pos) document.getElementById('sig1Pos').value = t.sig1Pos;
+            if (t.sig1Level) document.getElementById('sig1Level').value = t.sig1Level;
+            if (t.sig2Pos) document.getElementById('sig2Pos').value = t.sig2Pos;
+            if (t.sig2Level) document.getElementById('sig2Level').value = t.sig2Level;
+            if (t.sig3Pos) document.getElementById('sig3Pos').value = t.sig3Pos;
+            if (t.sig3Level) document.getElementById('sig3Level').value = t.sig3Level;
+
+            if (t.repeatTitle !== undefined) document.getElementById('repeatTitleChk').checked = t.repeatTitle;
+
+            if (t.isoTitle) { isoState.title = t.isoTitle; document.getElementById('isoTitleInput').value = t.isoTitle; }
+            if (t.isoCode) { isoState.code = t.isoCode; document.getElementById('isoCodeInput').value = t.isoCode; }
+            if (t.isoVer) { isoState.ver = t.isoVer; document.getElementById('isoVerInput').value = t.isoVer; }
+            if (t.isoDate) { isoState.date = t.isoDate; document.getElementById('isoDateInput').value = t.isoDate; }
+            if (t.isoPage) { isoState.page = t.isoPage; document.getElementById('isoPageInput').value = t.isoPage; }
 
             if (t.dateAlignPos) {
                 document.getElementById('dateAlignPos').value = t.dateAlignPos;
@@ -923,12 +944,10 @@
             return new Date(dateVal).toLocaleDateString(isEnglish ? 'en-US' : 'ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
         }
 
-        /* محرك التقطيع التلقائي الآلي للصفحات للعقود والنصوص الطويلة */
         function paginateHtmlContent(html) {
             const measurer = document.getElementById('pagination-measurer');
             measurer.innerHTML = html;
 
-            // أقصى ارتفاع مسموح به لبدن الصفحة A4 القياسي بالبكسل (حوالي 720px)
             const MAX_PAGE_HEIGHT = 720; 
 
             const children = Array.from(measurer.children);
@@ -938,7 +957,6 @@
             let currentChunk = document.createElement('div');
 
             children.forEach(child => {
-                // الفواصل اليدوية
                 if (child.classList && child.classList.contains('page-break-element')) {
                     if (currentChunk.children.length > 0) {
                         pages.push(currentChunk.innerHTML);
@@ -1005,15 +1023,15 @@
                         s3 = savedTemplates[tKey].sig3 || "";
                     }
 
-                    // التقطيع الآلي للفقرات عبر محرك القياس
                     const pagesChunks = paginateHtmlContent(mergedHtml);
 
                     pagesChunks.forEach((chunkHtml, pIndex) => {
                         const totalPages = pagesChunks.length;
                         const pageNumStr = `${pIndex + 1} من ${totalPages}`;
                         const isLastPage = (pIndex === totalPages - 1);
+                        const isFirstPage = (pIndex === 0);
 
-                        const docHtml = createSinglePageDocument(chunkHtml, tKey === '__CURRENT__', isLastPage ? s1 : '', isLastPage ? s2 : '', isLastPage ? s3 : '', pageNumStr);
+                        const docHtml = createSinglePageDocument(chunkHtml, tKey === '__CURRENT__', isLastPage ? s1 : '', isLastPage ? s2 : '', isLastPage ? s3 : '', pageNumStr, isFirstPage);
                         container.insertAdjacentHTML('beforeend', docHtml);
                     });
                 });
@@ -1058,12 +1076,14 @@
             return res;
         }
 
-        function createSinglePageDocument(bodyHtml, isEditable, s1Idx, s2Idx, s3Idx, dynamicPageNum = '1 من 1') {
+        /* توليد صفحة A4 واحدة مع حماية مدخلات الجودة والتنظيم المتعدد للمستويات الإدارية للتوقيعات */
+        function createSinglePageDocument(bodyHtml, isEditable, s1Idx, s2Idx, s3Idx, dynamicPageNum = '1 من 1', isFirstPage = true) {
             const isTab2 = document.getElementById('tab-select').classList.contains('active');
             
             const showHeader = isTab2 ? true : document.getElementById('showHeaderChk').checked;
             const showFooter = isTab2 ? true : document.getElementById('showFooterChk').checked;
             const showDate = isTab2 ? document.getElementById('showDateChkPrint').checked : document.getElementById('showDateChk').checked;
+            const repeatTitle = document.getElementById('repeatTitleChk').checked;
             
             const alignPos = isTab2 ? document.getElementById('dateAlignPosPrint').value : document.getElementById('dateAlignPos').value;
 
@@ -1084,10 +1104,11 @@
 
             const logoHtml = (companyInfo.logo && lh.logoPos !== 'none') ? `<img src="${companyInfo.logo}" class="header-logo" alt="Logo">` : '';
 
-            const isoTitle = document.getElementById('isoTitleInput').value.trim() || 'إجراءات الموارد البشرية';
-            const isoCode = document.getElementById('isoCodeInput').value.trim() || 'qsep-07.01';
-            const isoVer = document.getElementById('isoVerInput').value.trim() || '12';
-            const isoDate = document.getElementById('isoDateInput').value.trim() || '2026-10-03';
+            // استخدام الحقول الثابتة لحماية قيم الجودة
+            const isoTitle = isoState.title || 'إجراءات الموارد البشرية';
+            const isoCode = isoState.code || 'qsep-07.01';
+            const isoVer = isoState.ver || '12';
+            const isoDate = isoState.date || '2026-10-03';
 
             const isoMarkup = `
                 <div class="header-iso-container">
@@ -1118,23 +1139,54 @@
             if (br) fLine += `<div style="font-weight:bold; margin-top:2px;">${br.name} - س.ت: <span class="bidi-isolate">${br.cr}</span> - ب.ض: <span class="bidi-isolate">${br.tax}</span></div>`;
 
             const docTitle = document.getElementById('docTitleInput').value.trim();
-            let titleBlock = docTitle ? `<div class="document-title">${docTitle}</div>` : '';
+            let titleBlock = (docTitle && (isFirstPage || repeatTitle)) ? `<div class="document-title">${docTitle}</div>` : '';
 
             const formattedDate = getFormattedDateStr(isEnglish);
-            
             const dateTextAlignCss = (alignPos === 'left') ? 'text-align: left !important;' : 'text-align: right !important;';
-            let dateBlock = (showDate && formattedDate) ? `<div class="date-display-block" style="${dateTextAlignCss}">${isEnglish ? 'Date:' : 'التاريخ:'}&nbsp;<span class="bidi-ltr">${formattedDate}</span></div>` : '';
+            let dateBlock = (showDate && formattedDate && (isFirstPage || repeatTitle)) ? `<div class="date-display-block" style="${dateTextAlignCss}">${isEnglish ? 'Date:' : 'التاريخ:'}&nbsp;<span class="bidi-ltr">${formattedDate}</span></div>` : '';
 
+            // بناء التوقيعات بمستويات إدارية ومواقع أفقية
             let sig1 = (s1Idx !== "" && signaturesList[s1Idx]) ? signaturesList[s1Idx] : null;
             let sig2 = (s2Idx !== "" && signaturesList[s2Idx]) ? signaturesList[s2Idx] : null;
             let sig3 = (s3Idx !== "" && signaturesList[s3Idx]) ? signaturesList[s3Idx] : null;
 
             let sigHtml = '';
             if (sig1 || sig2 || sig3) {
-                sigHtml = `<div class="signatures-area">`;
-                sigHtml += `<div class="sig-col">${sig1 ? `<div class="sig-title">${sig1.titleAr || ''}</div><div class="sig-name">${sig1.nameAr || ''}</div>` : ''}</div>`;
-                sigHtml += `<div class="sig-col">${sig2 ? `<div class="sig-title">${sig2.titleAr || ''}</div><div class="sig-name">${sig2.nameAr || ''}</div>` : ''}</div>`;
-                sigHtml += `<div class="sig-col">${sig3 ? `<div class="sig-title">${sig3.titleAr || ''}</div><div class="sig-name">${sig3.nameAr || ''}</div>` : ''}</div>`;
+                const levels = { "1": [], "2": [], "3": [] };
+
+                if (sig1) {
+                    const level = document.getElementById('sig1Level').value;
+                    const pos = document.getElementById('sig1Pos').value;
+                    levels[level].push({ sig: sig1, pos: pos });
+                }
+                if (sig2) {
+                    const level = document.getElementById('sig2Level').value;
+                    const pos = document.getElementById('sig2Pos').value;
+                    levels[level].push({ sig: sig2, pos: pos });
+                }
+                if (sig3) {
+                    const level = document.getElementById('sig3Level').value;
+                    const pos = document.getElementById('sig3Pos').value;
+                    levels[level].push({ sig: sig3, pos: pos });
+                }
+
+                sigHtml = `<div class="signatures-area-container">`;
+                ["1", "2", "3"].forEach(lvlKey => {
+                    const items = levels[lvlKey];
+                    if (items.length > 0) {
+                        sigHtml += `<div class="sig-row-level">`;
+                        
+                        let rightItem = items.find(i => i.pos === 'right');
+                        let centerItem = items.find(i => i.pos === 'center');
+                        let leftItem = items.find(i => i.pos === 'left');
+
+                        sigHtml += `<div class="sig-col">${rightItem ? `<div class="sig-title">${rightItem.sig.titleAr || ''}</div><div class="sig-name">${rightItem.sig.nameAr || ''}</div>` : ''}</div>`;
+                        sigHtml += `<div class="sig-col">${centerItem ? `<div class="sig-title">${centerItem.sig.titleAr || ''}</div><div class="sig-name">${centerItem.sig.nameAr || ''}</div>` : ''}</div>`;
+                        sigHtml += `<div class="sig-col">${leftItem ? `<div class="sig-title">${leftItem.sig.titleAr || ''}</div><div class="sig-name">${leftItem.sig.nameAr || ''}</div>` : ''}</div>`;
+
+                        sigHtml += `</div>`;
+                    }
+                });
                 sigHtml += `</div>`;
             }
 
@@ -1209,11 +1261,20 @@
             const s2 = document.getElementById('selectSig2').value;
             const s3 = document.getElementById('selectSig3').value;
 
-            const isoTitle = document.getElementById('isoTitleInput').value.trim();
-            const isoCode = document.getElementById('isoCodeInput').value.trim();
-            const isoVer = document.getElementById('isoVerInput').value.trim();
-            const isoDate = document.getElementById('isoDateInput').value.trim();
-            const isoPage = document.getElementById('isoPageInput').value.trim();
+            const sig1Pos = document.getElementById('sig1Pos').value;
+            const sig1Level = document.getElementById('sig1Level').value;
+            const sig2Pos = document.getElementById('sig2Pos').value;
+            const sig2Level = document.getElementById('sig2Level').value;
+            const sig3Pos = document.getElementById('sig3Pos').value;
+            const sig3Level = document.getElementById('sig3Level').value;
+
+            const repeatTitle = document.getElementById('repeatTitleChk').checked;
+
+            const isoTitle = isoState.title;
+            const isoCode = isoState.code;
+            const isoVer = isoState.ver;
+            const isoDate = isoState.date;
+            const isoPage = isoState.page;
             const dateAlignPos = document.getElementById('dateAlignPos').value;
 
             let templateToSave = currentEditorRawContent;
@@ -1237,6 +1298,13 @@
                 sig1: s1,
                 sig2: s2,
                 sig3: s3,
+                sig1Pos: sig1Pos,
+                sig1Level: sig1Level,
+                sig2Pos: sig2Pos,
+                sig2Level: sig2Level,
+                sig3Pos: sig3Pos,
+                sig3Level: sig3Level,
+                repeatTitle: repeatTitle,
                 isoTitle: isoTitle,
                 isoCode: isoCode,
                 isoVer: isoVer,
