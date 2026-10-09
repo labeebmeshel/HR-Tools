@@ -82,10 +82,9 @@
         
         .blank-start-page { width: 210mm; min-height: 285mm; background: #ffffff; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.1rem; border: 2px dashed #cbd5e1; margin-bottom: 20px; }
 
-        /* الورقة الثابتة أبعاد A4 تماماً كالوورد */
         .print-document {
             width: 210mm; 
-            height: 297mm; 
+            min-height: 297mm; 
             background: #ffffff; 
             padding: 0; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.12);
@@ -94,6 +93,7 @@
             page-break-after: always; 
             break-after: page;
             overflow: hidden;
+            margin-bottom: 20px;
         }
 
         .print-document:last-child {
@@ -103,7 +103,7 @@
 
         .page-node {
             width: 100%; 
-            height: 100%; 
+            min-height: 297mm;
             display: flex; 
             flex-direction: column; 
             justify-content: space-between;
@@ -149,14 +149,20 @@
         }
         .iso-box-2 .iso-row-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 
+        /* الفوتر المحدث بدمج الترقيم في نفس السطر */
         .footer-section {
             width: 100%; padding: 10px 40px 15px 40px;
             font-size: 0.82rem; color: #64748b; box-sizing: border-box; margin-top: auto;
             word-spacing: 2px; position: relative;
+            display: flex; align-items: center; justify-content: space-between;
         }
 
-        .page-number-display {
-            font-size: 0.82rem; font-weight: bold; color: #334155; padding: 2px 0;
+        .footer-content-block {
+            flex: 1; text-align: center;
+        }
+
+        .page-number-display-inline {
+            font-size: 0.82rem; font-weight: bold; color: #334155; white-space: nowrap;
         }
 
         .body-section { 
@@ -187,7 +193,6 @@
         .bidi-isolate { unicode-bidi: isolate; display: inline-block; }
         .bidi-ltr { direction: ltr !important; unicode-bidi: embed; display: inline-block; }
 
-        /* حاوية القياس لضبط الأسطر والصفحات */
         #pagination-measurer {
             position: absolute; visibility: hidden; left: -9999px; top: -9999px; width: 210mm; padding: 10px 40px; box-sizing: border-box; font-size: 1.05rem; line-height: 1.8; word-spacing: 3px;
         }
@@ -249,7 +254,7 @@
                         </select>
                     </div>
 
-                    <h2><i class="fas fa-hashtag"></i> ترقيم الصفحات</h2>
+                    <h2><i class="fas fa-hashtag"></i> ترقيم الصفحات في نفس سطر الفوتر</h2>
                     <div style="margin-bottom:6px;">
                         <label style="cursor:pointer; font-weight:bold; color:var(--primary);"><input type="checkbox" id="showPageNumChk" checked onchange="renderAllPages()"> إظهار ترقيم الصفحات</label>
                     </div>
@@ -258,13 +263,11 @@
                     </div>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
                         <div class="form-group">
-                            <label>موقع الترقيم:</label>
+                            <label>موقع الترقيم بالفوتر:</label>
                             <select id="pageNumPosSelect" onchange="renderAllPages()">
-                                <option value="footer-center" selected>الفوتر (وسط)</option>
-                                <option value="footer-left">الفوتر (يسار)</option>
-                                <option value="footer-right">الفوتر (يمين)</option>
-                                <option value="header-left">الهيدر (يسار)</option>
-                                <option value="header-right">الهيدر (يمين)</option>
+                                <option value="footer-left" selected>الفوتر (أقصى اليسار)</option>
+                                <option value="footer-right">الفوتر (أقصى اليمين)</option>
+                                <option value="footer-center">الفوتر (منتصف السطر)</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -952,11 +955,48 @@
             return new Date(dateVal).toLocaleDateString(isEnglish ? 'en-US' : 'ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
         }
 
-        /* محرك تقطيع وحساب ارتفاع المحتوى بنمط MS Word اللحظي */
+        function saveCaretPosition(context) {
+            const selection = window.getSelection();
+            if (selection.rangeCount === 0) return null;
+            const range = selection.getRangeAt(0);
+            const preTreeRange = range.cloneRange();
+            preTreeRange.selectNodeContents(context);
+            preTreeRange.setEnd(range.startContainer, range.startOffset);
+            return preTreeRange.toString().length;
+        }
+
+        function restoreCaretPosition(context, chars) {
+            if (chars === null) return;
+            const selection = window.getSelection();
+            const range = document.createRange();
+            let currentChars = 0;
+            let stop = false;
+
+            function traverseNodes(node) {
+                if (node.nodeType === 3) {
+                    const nextChars = currentChars + node.length;
+                    if (!stop && chars >= currentChars && chars <= nextChars) {
+                        range.setStart(node, chars - currentChars);
+                        range.setEnd(node, chars - currentChars);
+                        stop = true;
+                    }
+                    currentChars = nextChars;
+                } else {
+                    for (let i = 0; i < node.childNodes.length; i++) {
+                        traverseNodes(node.childNodes[i]);
+                        if (stop) break;
+                    }
+                }
+            }
+
+            traverseNodes(context);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+
         function paginateHtmlContent(html) {
             const measurer = document.getElementById('pagination-measurer');
             
-            // تنظيف واستخلاص عناصر HTML لتفادي مشاكل اللصق من Word
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = html;
 
@@ -965,7 +1005,7 @@
             const nodes = Array.from(tempDiv.childNodes);
             if (nodes.length === 0) return [html];
 
-            const MAX_PAGE_HEIGHT = 700; // ارتفاع A4 الصافي بالبكسل
+            const MAX_PAGE_HEIGHT = 680; 
             let pages = [];
             let currentChunk = document.createElement('div');
 
@@ -991,8 +1031,15 @@
             return pages.length > 0 ? pages : [html];
         }
 
-        function renderAllPages() {
+        function renderAllPages(skipCaretRestore = false) {
             const container = document.getElementById('papersContainer');
+            
+            const activeEditable = document.activeElement && document.activeElement.classList.contains('editable-text-area') ? document.activeElement : null;
+            let caretOffset = null;
+            if (activeEditable) {
+                caretOffset = saveCaretPosition(activeEditable);
+            }
+
             container.innerHTML = '';
 
             const isTab2 = document.getElementById('tab-select').classList.contains('active');
@@ -1046,29 +1093,30 @@
 
             const editableAreas = document.querySelectorAll('.editable-text-area[contenteditable="true"]');
             editableAreas.forEach(area => {
-                // معالج اللصق الذكي لمنع مشاكل اختفاء الكلمات من Word
                 area.addEventListener('paste', function(e) {
                     e.preventDefault();
-                    let text = (e.clipboardData || window.clipboardData).getData('text/html') || (e.clipboardData || window.clipboardData).getData('text');
-                    
-                    // تنظيف التنسيقات غير المرغوبة من Word
-                    text = text.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-                               .replace(/<!--[\s\S]*?-->/g, '')
-                               .replace(/class="[^"]*"/gi, '')
-                               .replace(/id="[^"]*"/gi, '');
-
-                    document.execCommand('insertHTML', false, text);
+                    let text = (e.clipboardData || window.clipboardData).getData('text/plain');
+                    document.execCommand('insertText', false, text);
                     currentEditorRawContent = area.innerHTML;
-                    renderAllPages();
+                    renderAllPages(true);
                 });
 
                 area.addEventListener('input', function(e) { 
-                    currentEditorRawContent = e.target.innerHTML; 
-                    renderAllPages(); 
+                    currentEditorRawContent = e.target.innerHTML;
+                    renderAllPages(false);
                 });
+                
                 area.addEventListener('keyup', handleSelectionAndDetectFont);
                 area.addEventListener('mouseup', handleSelectionAndDetectFont);
             });
+
+            if (!skipCaretRestore && activeEditable && caretOffset !== null) {
+                const newEditable = document.querySelector('.editable-text-area[contenteditable="true"]');
+                if (newEditable) {
+                    newEditable.focus();
+                    restoreCaretPosition(newEditable, caretOffset);
+                }
+            }
         }
 
         function mergeEmployeeData(htmlContent, emp) {
@@ -1102,7 +1150,7 @@
             return res;
         }
 
-        /* توليد ورقة A4 واحدة مع الترقيم المحترف والتوزيع الإداري */
+        /* دمج الترقيم بالكامل في نفس سطر الفوتر الأفقية */
         function createSinglePageDocument(bodyHtml, isEditable, s1Idx, s2Idx, s3Idx, pageNum, totalPages, isFirstPage = true) {
             const isTab2 = document.getElementById('tab-select').classList.contains('active');
             
@@ -1111,13 +1159,11 @@
             const showDate = isTab2 ? document.getElementById('showDateChkPrint').checked : document.getElementById('showDateChk').checked;
             const repeatTitle = document.getElementById('repeatTitleChk').checked;
 
-            // إعدادات الترقيم
             const showPageNum = document.getElementById('showPageNumChk').checked;
             const hideNumOnFirstPage = document.getElementById('hideNumOnFirstPageChk').checked;
             const pageNumPos = document.getElementById('pageNumPosSelect').value;
             const pageNumFormat = document.getElementById('pageNumFormatSelect').value;
 
-            // حساب النص المكتوب للترقيم
             let pageNumString = '';
             if (pageNumFormat === 'full') pageNumString = `صفحة ${pageNum} من ${totalPages}`;
             else if (pageNumFormat === 'slash') pageNumString = `${pageNum} / ${totalPages}`;
@@ -1215,21 +1261,20 @@
                 sigHtml += `</div>`;
             }
 
-            // عنصر رقم الصفحة المستقل
-            let numHeaderMarkup = '';
-            let numFooterMarkup = '';
-            if (shouldDisplayNum) {
-                if (pageNumPos.startsWith('header')) {
-                    const align = pageNumPos.endsWith('left') ? 'left' : 'right';
-                    numHeaderMarkup = `<div class="page-number-display" style="text-align:${align}; margin-bottom:4px;">${pageNumString}</div>`;
-                } else {
-                    const align = pageNumPos.endsWith('left') ? 'left' : (pageNumPos.endsWith('right') ? 'right' : 'center');
-                    numFooterMarkup = `<div class="page-number-display" style="text-align:${align}; margin-top:4px;">${pageNumString}</div>`;
-                }
+            // تجهيز عناصر الفوتر المدمجة في سطر واحد افقياً
+            let pageNumHtmlSpan = shouldDisplayNum ? `<span class="page-number-display-inline">${pageNumString}</span>` : `<span></span>`;
+
+            let footerInlineMarkup = '';
+            if (pageNumPos === 'footer-left') {
+                footerInlineMarkup = `<div class="footer-content-block">${fLine}</div>${pageNumHtmlSpan}`;
+            } else if (pageNumPos === 'footer-right') {
+                footerInlineMarkup = `${pageNumHtmlSpan}<div class="footer-content-block">${fLine}</div>`;
+            } else {
+                footerInlineMarkup = `<div class="footer-content-block">${fLine} <div style="margin-top:2px;">${pageNumHtmlSpan}</div></div>`;
             }
 
-            const headerMarkup = showHeader ? `<div class="header-section" style="height:${headerH}px; border-bottom:2px solid #0b4fb3;"><div class="header-text"><div>${hLine1}</div><div>${hLine2}</div></div>${isoMarkup}${logoHtml}${numHeaderMarkup}</div>` : '';
-            const footerMarkup = showFooter ? `<div class="footer-section" style="height:${footerH}px; border-top:2px solid #0b4fb3; text-align:center;">${fLine}${numFooterMarkup}</div>` : '';
+            const headerMarkup = showHeader ? `<div class="header-section" style="height:${headerH}px; border-bottom:2px solid #0b4fb3;"><div class="header-text"><div>${hLine1}</div><div>${hLine2}</div></div>${isoMarkup}${logoHtml}</div>` : '';
+            const footerMarkup = showFooter ? `<div class="footer-section" style="height:${footerH}px; border-top:2px solid #0b4fb3;">${footerInlineMarkup}</div>` : '';
 
             return `
                 <div class="print-document">
