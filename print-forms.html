@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظومة طباعة وتصميم النماذج والخطابات الجماعية</title>
+    <title>منظومة طباعة وتصميم النماذج والعقود الجماعية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;800&family=Traditional+Arabic&display=swap" rel="stylesheet">
     
@@ -82,6 +82,7 @@
         
         .blank-start-page { width: 210mm; min-height: 285mm; background: #ffffff; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.1rem; border: 2px dashed #cbd5e1; margin-bottom: 20px; }
 
+        /* الورقة الثابتة أبعاد A4 تماماً كالوورد */
         .print-document {
             width: 210mm; 
             height: 297mm; 
@@ -149,9 +150,13 @@
         .iso-box-2 .iso-row-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 
         .footer-section {
-            width: 100%; padding: 10px 40px 20px 40px;
+            width: 100%; padding: 10px 40px 15px 40px;
             font-size: 0.82rem; color: #64748b; box-sizing: border-box; margin-top: auto;
-            word-spacing: 2px;
+            word-spacing: 2px; position: relative;
+        }
+
+        .page-number-display {
+            font-size: 0.82rem; font-weight: bold; color: #334155; padding: 2px 0;
         }
 
         .body-section { 
@@ -160,7 +165,7 @@
             word-spacing: 3px; letter-spacing: 0.2px; overflow: hidden;
         }
         
-        .editable-text-area { outline: none; padding: 4px; border: 1px dashed transparent; min-height: 100px; }
+        .editable-text-area { outline: none; padding: 4px; border: 1px dashed transparent; min-height: 100px; flex: 1; }
         .editable-text-area:focus { border-color: #cbd5e1; }
 
         .var-value-span { display: inline-block; margin: 0 4px; font-weight: bold; unicode-bidi: isolate; }
@@ -169,16 +174,12 @@
         .editable-text-area td, .editable-text-area th { padding: 6px 8px; border: 1px solid #cbd5e1; min-width: 30px; }
 
         .document-title { text-align: center; font-weight: bold; font-size: 1.35rem; margin-bottom: 12px; color: var(--primary-dark); word-spacing: 3px; }
-        
         .date-display-block { font-weight: bold; font-size: 0.95rem; margin-bottom: 12px; color: #334155; width: 100%; display: block; }
 
-        /* منطقة التوقيعات متعددة المستويات الإدارية */
         .signatures-area-container {
             display: flex; flex-direction: column; gap: 15px; margin-top: auto; margin-bottom: 10px; width: 100%; page-break-inside: avoid;
         }
-        .sig-row-level {
-            display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; width: 100%;
-        }
+        .sig-row-level { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; width: 100%; }
         .sig-col { flex: 1; text-align: center; min-width: 100px; }
         .sig-title { font-weight: bold; font-size: 0.92rem; color: #334155; margin-bottom: 18px; }
         .sig-name { font-weight: bold; font-size: 0.95rem; color: var(--primary-dark); border-top: 1px dashed #94a3b8; padding-top: 4px; }
@@ -186,13 +187,7 @@
         .bidi-isolate { unicode-bidi: isolate; display: inline-block; }
         .bidi-ltr { direction: ltr !important; unicode-bidi: embed; display: inline-block; }
 
-        .page-break-element {
-            display: block; page-break-after: always; break-after: page; border-top: 2px dashed #ef4444; margin: 25px 0; position: relative; text-align: center;
-        }
-        .page-break-element::after {
-            content: "✂️ --- فاصل صفحة A4 جديد --- ✂️"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #fee2e2; color: #991b1b; padding: 2px 12px; font-size: 0.75rem; font-weight: bold; border-radius: 12px; border: 1px solid #fca5a5;
-        }
-
+        /* حاوية القياس لضبط الأسطر والصفحات */
         #pagination-measurer {
             position: absolute; visibility: hidden; left: -9999px; top: -9999px; width: 210mm; padding: 10px 40px; box-sizing: border-box; font-size: 1.05rem; line-height: 1.8; word-spacing: 3px;
         }
@@ -217,7 +212,6 @@
             .header-section { padding: 0 0 10px 0 !important; }
             .body-section { padding: 10px 0 !important; }
             .footer-section { padding: 10px 0 0 0 !important; }
-            .page-break-element { display: none !important; }
         }
     </style>
 </head>
@@ -248,13 +242,40 @@
                 <input type="file" id="wordFileInputDirect" accept=".docx,.doc" style="display:none;" onchange="importWordFile(this)">
 
                 <div id="editingSectionsContainer" style="display:none;">
-                    <h2><i class="fas fa-code"></i> إدراج حقول المتغيرات والفواصل</h2>
+                    <h2><i class="fas fa-code"></i> إدراج حقول المتغيرات</h2>
                     <div class="form-group">
                         <select id="variableDropdown" onchange="insertSelectedVariable(this)">
                             <option value="">-- اختر الحقل لإدراجه بمكان المؤشر --</option>
                         </select>
                     </div>
-                    <button class="btn btn-secondary" type="button" onclick="insertManualPageBreak()" style="width:100%; margin-bottom:10px;"><i class="fas fa-scissors"></i> إدراج فاصل صفحات يدوي</button>
+
+                    <h2><i class="fas fa-hashtag"></i> ترقيم الصفحات</h2>
+                    <div style="margin-bottom:6px;">
+                        <label style="cursor:pointer; font-weight:bold; color:var(--primary);"><input type="checkbox" id="showPageNumChk" checked onchange="renderAllPages()"> إظهار ترقيم الصفحات</label>
+                    </div>
+                    <div style="margin-bottom:6px;">
+                        <label style="cursor:pointer; font-size:0.76rem;"><input type="checkbox" id="hideNumOnFirstPageChk" onchange="renderAllPages()"> إخفاء الترقيم من الصفحة الأولى</label>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+                        <div class="form-group">
+                            <label>موقع الترقيم:</label>
+                            <select id="pageNumPosSelect" onchange="renderAllPages()">
+                                <option value="footer-center" selected>الفوتر (وسط)</option>
+                                <option value="footer-left">الفوتر (يسار)</option>
+                                <option value="footer-right">الفوتر (يمين)</option>
+                                <option value="header-left">الهيدر (يسار)</option>
+                                <option value="header-right">الهيدر (يمين)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>صيغة الترقيم:</label>
+                            <select id="pageNumFormatSelect" onchange="renderAllPages()">
+                                <option value="full" selected>صفحة X من Y</option>
+                                <option value="slash">X / Y</option>
+                                <option value="simple">X</option>
+                            </select>
+                        </div>
+                    </div>
 
                     <h2><i class="fas fa-building"></i> الديباجة والفرع</h2>
                     <div class="form-group">
@@ -346,7 +367,6 @@
 
                     <h2><i class="fas fa-file-signature"></i> التوقيعات وتحديد المستويات الإدارية</h2>
                     
-                    <!-- إعداد التوقيع 1 -->
                     <div class="sig-config-card">
                         <label>التوقيع الأول:</label>
                         <select id="selectSig1" onchange="renderAllPages()"></select>
@@ -370,7 +390,6 @@
                         </div>
                     </div>
 
-                    <!-- إعداد التوقيع 2 -->
                     <div class="sig-config-card">
                         <label>التوقيع الثاني:</label>
                         <select id="selectSig2" onchange="renderAllPages()"></select>
@@ -394,7 +413,6 @@
                         </div>
                     </div>
 
-                    <!-- إعداد التوقيع 3 -->
                     <div class="sig-config-card">
                         <label>التوقيع الثالث:</label>
                         <select id="selectSig3" onchange="renderAllPages()"></select>
@@ -491,7 +509,7 @@
             </div>
         </div>
 
-        <!-- منطقة العرض وشريط المحرر الخارق -->
+        <!-- منطقة العرض وشريط المحرر -->
         <div>
             <div class="editor-toolbar-container no-print" id="editorToolbarWrapper" style="display:none;">
                 <div class="font-info-badge" id="fontInfoBadge">
@@ -550,7 +568,6 @@
                     <button class="tool-btn" onclick="formatDoc('insertUnorderedList')" title="قائمة نقطية"><i class="fas fa-list-ul"></i></button>
                     <button class="tool-btn" onclick="formatDoc('insertOrderedList')" title="قائمة رقمية"><i class="fas fa-list-ol"></i></button>
                     <button class="tool-btn" onclick="insertCustomTable()" title="إدراج جدول"><i class="fas fa-table"></i></button>
-                    <button class="tool-btn" onclick="insertManualPageBreak()" title="فاصل صفحات"><i class="fas fa-scissors"></i> فاصل صفحة</button>
                     <button class="tool-btn" onclick="formatDoc('removeFormat')" title="مسح التنسيق"><i class="fas fa-eraser"></i></button>
                 </div>
             </div>
@@ -597,7 +614,6 @@
         let savedSelectionRange = null;
         let isEditModeActive = false;
 
-        // حالة حقول الجودة الثابتة لمنع المسح والرجوع للقديم
         let isoState = {
             title: "إجراءات الموارد البشرية",
             code: "qsep-07.01",
@@ -761,17 +777,6 @@
             selectEl.value = '';
         }
 
-        function insertManualPageBreak() {
-            const editableArea = document.querySelector('.editable-text-area[contenteditable="true"]');
-            if (editableArea) {
-                editableArea.focus();
-                const breakHtml = '<div class="page-break-element" contenteditable="false"></div><p></p>';
-                document.execCommand('insertHTML', false, breakHtml);
-                currentEditorRawContent = editableArea.innerHTML;
-                renderAllPages();
-            }
-        }
-
         function populateGroupsAndTemplates() {
             const groupSelect = document.getElementById('templateGroupSelect');
             const filterGroup = document.getElementById('filterGroupSelect');
@@ -791,7 +796,6 @@
             filterSavedTemplatesByGroup();
         }
 
-        /* تعديل اسم مجموعة النماذج بشكل مباشر وسحابي بدون تكرار */
         function renameCurrentGroup() {
             const selectEl = document.getElementById('templateGroupSelect');
             const oldGroup = selectEl.value;
@@ -867,6 +871,10 @@
             if (t.sig3Level) document.getElementById('sig3Level').value = t.sig3Level;
 
             if (t.repeatTitle !== undefined) document.getElementById('repeatTitleChk').checked = t.repeatTitle;
+            if (t.showPageNum !== undefined) document.getElementById('showPageNumChk').checked = t.showPageNum;
+            if (t.hideNumOnFirstPage !== undefined) document.getElementById('hideNumOnFirstPageChk').checked = t.hideNumOnFirstPage;
+            if (t.pageNumPos) document.getElementById('pageNumPosSelect').value = t.pageNumPos;
+            if (t.pageNumFormat) document.getElementById('pageNumFormatSelect').value = t.pageNumFormat;
 
             if (t.isoTitle) { isoState.title = t.isoTitle; document.getElementById('isoTitleInput').value = t.isoTitle; }
             if (t.isoCode) { isoState.code = t.isoCode; document.getElementById('isoCodeInput').value = t.isoCode; }
@@ -944,40 +952,39 @@
             return new Date(dateVal).toLocaleDateString(isEnglish ? 'en-US' : 'ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
         }
 
+        /* محرك تقطيع وحساب ارتفاع المحتوى بنمط MS Word اللحظي */
         function paginateHtmlContent(html) {
             const measurer = document.getElementById('pagination-measurer');
-            measurer.innerHTML = html;
+            
+            // تنظيف واستخلاص عناصر HTML لتفادي مشاكل اللصق من Word
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
 
-            const MAX_PAGE_HEIGHT = 720; 
+            measurer.innerHTML = '';
+            
+            const nodes = Array.from(tempDiv.childNodes);
+            if (nodes.length === 0) return [html];
 
-            const children = Array.from(measurer.children);
-            if (children.length === 0) return [html];
-
+            const MAX_PAGE_HEIGHT = 700; // ارتفاع A4 الصافي بالبكسل
             let pages = [];
             let currentChunk = document.createElement('div');
 
-            children.forEach(child => {
-                if (child.classList && child.classList.contains('page-break-element')) {
-                    if (currentChunk.children.length > 0) {
-                        pages.push(currentChunk.innerHTML);
-                        currentChunk = document.createElement('div');
-                    }
-                    return;
-                }
-
-                currentChunk.appendChild(child.cloneNode(true));
+            nodes.forEach(node => {
+                const clone = node.cloneNode(true);
+                currentChunk.appendChild(clone);
                 measurer.innerHTML = currentChunk.innerHTML;
 
-                if (measurer.offsetHeight > MAX_PAGE_HEIGHT && currentChunk.children.length > 1) {
+                if (measurer.offsetHeight > MAX_PAGE_HEIGHT && currentChunk.childNodes.length > 1) {
                     currentChunk.removeChild(currentChunk.lastChild);
                     pages.push(currentChunk.innerHTML);
 
                     currentChunk = document.createElement('div');
-                    currentChunk.appendChild(child.cloneNode(true));
+                    currentChunk.appendChild(node.cloneNode(true));
+                    measurer.innerHTML = currentChunk.innerHTML;
                 }
             });
 
-            if (currentChunk.children.length > 0) {
+            if (currentChunk.childNodes.length > 0) {
                 pages.push(currentChunk.innerHTML);
             }
 
@@ -1027,11 +1034,11 @@
 
                     pagesChunks.forEach((chunkHtml, pIndex) => {
                         const totalPages = pagesChunks.length;
-                        const pageNumStr = `${pIndex + 1} من ${totalPages}`;
+                        const pageNumVal = pIndex + 1;
                         const isLastPage = (pIndex === totalPages - 1);
                         const isFirstPage = (pIndex === 0);
 
-                        const docHtml = createSinglePageDocument(chunkHtml, tKey === '__CURRENT__', isLastPage ? s1 : '', isLastPage ? s2 : '', isLastPage ? s3 : '', pageNumStr, isFirstPage);
+                        const docHtml = createSinglePageDocument(chunkHtml, tKey === '__CURRENT__', isLastPage ? s1 : '', isLastPage ? s2 : '', isLastPage ? s3 : '', pageNumVal, totalPages, isFirstPage);
                         container.insertAdjacentHTML('beforeend', docHtml);
                     });
                 });
@@ -1039,7 +1046,26 @@
 
             const editableAreas = document.querySelectorAll('.editable-text-area[contenteditable="true"]');
             editableAreas.forEach(area => {
-                area.addEventListener('input', function(e) { currentEditorRawContent = e.target.innerHTML; });
+                // معالج اللصق الذكي لمنع مشاكل اختفاء الكلمات من Word
+                area.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    let text = (e.clipboardData || window.clipboardData).getData('text/html') || (e.clipboardData || window.clipboardData).getData('text');
+                    
+                    // تنظيف التنسيقات غير المرغوبة من Word
+                    text = text.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+                               .replace(/<!--[\s\S]*?-->/g, '')
+                               .replace(/class="[^"]*"/gi, '')
+                               .replace(/id="[^"]*"/gi, '');
+
+                    document.execCommand('insertHTML', false, text);
+                    currentEditorRawContent = area.innerHTML;
+                    renderAllPages();
+                });
+
+                area.addEventListener('input', function(e) { 
+                    currentEditorRawContent = e.target.innerHTML; 
+                    renderAllPages(); 
+                });
                 area.addEventListener('keyup', handleSelectionAndDetectFont);
                 area.addEventListener('mouseup', handleSelectionAndDetectFont);
             });
@@ -1076,14 +1102,28 @@
             return res;
         }
 
-        /* توليد صفحة A4 واحدة مع حماية مدخلات الجودة والتنظيم المتعدد للمستويات الإدارية للتوقيعات */
-        function createSinglePageDocument(bodyHtml, isEditable, s1Idx, s2Idx, s3Idx, dynamicPageNum = '1 من 1', isFirstPage = true) {
+        /* توليد ورقة A4 واحدة مع الترقيم المحترف والتوزيع الإداري */
+        function createSinglePageDocument(bodyHtml, isEditable, s1Idx, s2Idx, s3Idx, pageNum, totalPages, isFirstPage = true) {
             const isTab2 = document.getElementById('tab-select').classList.contains('active');
             
             const showHeader = isTab2 ? true : document.getElementById('showHeaderChk').checked;
             const showFooter = isTab2 ? true : document.getElementById('showFooterChk').checked;
             const showDate = isTab2 ? document.getElementById('showDateChkPrint').checked : document.getElementById('showDateChk').checked;
             const repeatTitle = document.getElementById('repeatTitleChk').checked;
+
+            // إعدادات الترقيم
+            const showPageNum = document.getElementById('showPageNumChk').checked;
+            const hideNumOnFirstPage = document.getElementById('hideNumOnFirstPageChk').checked;
+            const pageNumPos = document.getElementById('pageNumPosSelect').value;
+            const pageNumFormat = document.getElementById('pageNumFormatSelect').value;
+
+            // حساب النص المكتوب للترقيم
+            let pageNumString = '';
+            if (pageNumFormat === 'full') pageNumString = `صفحة ${pageNum} من ${totalPages}`;
+            else if (pageNumFormat === 'slash') pageNumString = `${pageNum} / ${totalPages}`;
+            else pageNumString = `${pageNum}`;
+
+            const shouldDisplayNum = showPageNum && !(isFirstPage && hideNumOnFirstPage);
             
             const alignPos = isTab2 ? document.getElementById('dateAlignPosPrint').value : document.getElementById('dateAlignPos').value;
 
@@ -1104,7 +1144,6 @@
 
             const logoHtml = (companyInfo.logo && lh.logoPos !== 'none') ? `<img src="${companyInfo.logo}" class="header-logo" alt="Logo">` : '';
 
-            // استخدام الحقول الثابتة لحماية قيم الجودة
             const isoTitle = isoState.title || 'إجراءات الموارد البشرية';
             const isoCode = isoState.code || 'qsep-07.01';
             const isoVer = isoState.ver || '12';
@@ -1129,7 +1168,7 @@
                         </div>
                         <div class="iso-row-item">
                             <span>صفحة&nbsp;رقم:&nbsp;</span>
-                            <b class="bidi-isolate">${dynamicPageNum}</b>
+                            <b class="bidi-isolate">${pageNum} من ${totalPages}</b>
                         </div>
                     </div>
                 </div>
@@ -1145,7 +1184,7 @@
             const dateTextAlignCss = (alignPos === 'left') ? 'text-align: left !important;' : 'text-align: right !important;';
             let dateBlock = (showDate && formattedDate && (isFirstPage || repeatTitle)) ? `<div class="date-display-block" style="${dateTextAlignCss}">${isEnglish ? 'Date:' : 'التاريخ:'}&nbsp;<span class="bidi-ltr">${formattedDate}</span></div>` : '';
 
-            // بناء التوقيعات بمستويات إدارية ومواقع أفقية
+            // التوقيعات
             let sig1 = (s1Idx !== "" && signaturesList[s1Idx]) ? signaturesList[s1Idx] : null;
             let sig2 = (s2Idx !== "" && signaturesList[s2Idx]) ? signaturesList[s2Idx] : null;
             let sig3 = (s3Idx !== "" && signaturesList[s3Idx]) ? signaturesList[s3Idx] : null;
@@ -1154,28 +1193,15 @@
             if (sig1 || sig2 || sig3) {
                 const levels = { "1": [], "2": [], "3": [] };
 
-                if (sig1) {
-                    const level = document.getElementById('sig1Level').value;
-                    const pos = document.getElementById('sig1Pos').value;
-                    levels[level].push({ sig: sig1, pos: pos });
-                }
-                if (sig2) {
-                    const level = document.getElementById('sig2Level').value;
-                    const pos = document.getElementById('sig2Pos').value;
-                    levels[level].push({ sig: sig2, pos: pos });
-                }
-                if (sig3) {
-                    const level = document.getElementById('sig3Level').value;
-                    const pos = document.getElementById('sig3Pos').value;
-                    levels[level].push({ sig: sig3, pos: pos });
-                }
+                if (sig1) levels[document.getElementById('sig1Level').value].push({ sig: sig1, pos: document.getElementById('sig1Pos').value });
+                if (sig2) levels[document.getElementById('sig2Level').value].push({ sig: sig2, pos: document.getElementById('sig2Pos').value });
+                if (sig3) levels[document.getElementById('sig3Level').value].push({ sig: sig3, pos: document.getElementById('sig3Pos').value });
 
                 sigHtml = `<div class="signatures-area-container">`;
                 ["1", "2", "3"].forEach(lvlKey => {
                     const items = levels[lvlKey];
                     if (items.length > 0) {
                         sigHtml += `<div class="sig-row-level">`;
-                        
                         let rightItem = items.find(i => i.pos === 'right');
                         let centerItem = items.find(i => i.pos === 'center');
                         let leftItem = items.find(i => i.pos === 'left');
@@ -1183,15 +1209,27 @@
                         sigHtml += `<div class="sig-col">${rightItem ? `<div class="sig-title">${rightItem.sig.titleAr || ''}</div><div class="sig-name">${rightItem.sig.nameAr || ''}</div>` : ''}</div>`;
                         sigHtml += `<div class="sig-col">${centerItem ? `<div class="sig-title">${centerItem.sig.titleAr || ''}</div><div class="sig-name">${centerItem.sig.nameAr || ''}</div>` : ''}</div>`;
                         sigHtml += `<div class="sig-col">${leftItem ? `<div class="sig-title">${leftItem.sig.titleAr || ''}</div><div class="sig-name">${leftItem.sig.nameAr || ''}</div>` : ''}</div>`;
-
                         sigHtml += `</div>`;
                     }
                 });
                 sigHtml += `</div>`;
             }
 
-            const headerMarkup = showHeader ? `<div class="header-section" style="height:${headerH}px; border-bottom:2px solid #0b4fb3;"><div class="header-text"><div>${hLine1}</div><div>${hLine2}</div></div>${isoMarkup}${logoHtml}</div>` : '';
-            const footerMarkup = showFooter ? `<div class="footer-section" style="height:${footerH}px; border-top:2px solid #0b4fb3; text-align:center;">${fLine}</div>` : '';
+            // عنصر رقم الصفحة المستقل
+            let numHeaderMarkup = '';
+            let numFooterMarkup = '';
+            if (shouldDisplayNum) {
+                if (pageNumPos.startsWith('header')) {
+                    const align = pageNumPos.endsWith('left') ? 'left' : 'right';
+                    numHeaderMarkup = `<div class="page-number-display" style="text-align:${align}; margin-bottom:4px;">${pageNumString}</div>`;
+                } else {
+                    const align = pageNumPos.endsWith('left') ? 'left' : (pageNumPos.endsWith('right') ? 'right' : 'center');
+                    numFooterMarkup = `<div class="page-number-display" style="text-align:${align}; margin-top:4px;">${pageNumString}</div>`;
+                }
+            }
+
+            const headerMarkup = showHeader ? `<div class="header-section" style="height:${headerH}px; border-bottom:2px solid #0b4fb3;"><div class="header-text"><div>${hLine1}</div><div>${hLine2}</div></div>${isoMarkup}${logoHtml}${numHeaderMarkup}</div>` : '';
+            const footerMarkup = showFooter ? `<div class="footer-section" style="height:${footerH}px; border-top:2px solid #0b4fb3; text-align:center;">${fLine}${numFooterMarkup}</div>` : '';
 
             return `
                 <div class="print-document">
@@ -1269,6 +1307,10 @@
             const sig3Level = document.getElementById('sig3Level').value;
 
             const repeatTitle = document.getElementById('repeatTitleChk').checked;
+            const showPageNum = document.getElementById('showPageNumChk').checked;
+            const hideNumOnFirstPage = document.getElementById('hideNumOnFirstPageChk').checked;
+            const pageNumPos = document.getElementById('pageNumPosSelect').value;
+            const pageNumFormat = document.getElementById('pageNumFormatSelect').value;
 
             const isoTitle = isoState.title;
             const isoCode = isoState.code;
@@ -1305,6 +1347,10 @@
                 sig3Pos: sig3Pos,
                 sig3Level: sig3Level,
                 repeatTitle: repeatTitle,
+                showPageNum: showPageNum,
+                hideNumOnFirstPage: hideNumOnFirstPage,
+                pageNumPos: pageNumPos,
+                pageNumFormat: pageNumFormat,
                 isoTitle: isoTitle,
                 isoCode: isoCode,
                 isoVer: isoVer,
@@ -1313,7 +1359,7 @@
                 dateAlignPos: dateAlignPos,
                 content: templateToSave
             }).then(() => {
-                alert('تم حفظ النموذج والتوقيعات وبيانات الجودة سحابياً بنجاح! ✅');
+                alert('تم حفظ النموذج والتوقيعات وإعدادات الترقيم سحابياً بنجاح! ✅');
                 nameInput.value = '';
             });
         }
