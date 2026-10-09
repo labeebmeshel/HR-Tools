@@ -78,14 +78,14 @@
         .tool-select { border: 1px solid #cbd5e1; padding: 4px 6px; border-radius: 4px; font-size: 0.78rem; background: #f8fafc; outline: none; cursor: pointer; }
         .toolbar-separator { width: 1px; height: 22px; background: #cbd5e1; margin: 0 3px; }
 
-        .paper-wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .paper-wrapper { display: flex; flex-direction: column; align-items: center; gap: 25px; }
         
         .blank-start-page { width: 210mm; min-height: 285mm; background: #ffffff; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.1rem; border: 2px dashed #cbd5e1; margin-bottom: 20px; }
 
-        /* نموذج الورقة A4 المقفلة */
+        /* نموذج الورقة A4 المحددة بأبعاد قياسية ممتازة */
         .print-document {
             width: 210mm; 
-            height: 297mm; /* ارتفاع ثابت مطابق للـ A4 القياسي */
+            height: 297mm; 
             background: #ffffff; 
             padding: 0; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.12);
@@ -162,7 +162,7 @@
         }
 
         .body-section { 
-            padding: 10px 40px; font-size: 1.05rem; line-height: 1.9; color: #0f172a; 
+            padding: 10px 40px; font-size: 1.05rem; line-height: 1.8; color: #0f172a; 
             flex: 1; display: flex; flex-direction: column; box-sizing: border-box; 
             word-spacing: 3px; letter-spacing: 0.2px; overflow: hidden;
         }
@@ -205,7 +205,6 @@
         .bidi-isolate { unicode-bidi: isolate; display: inline-block; }
         .bidi-ltr { direction: ltr !important; unicode-bidi: embed; display: inline-block; }
 
-        /* عنصر فاصل الصفحات البصري في المحرر */
         .page-break-element {
             display: block;
             page-break-after: always;
@@ -228,6 +227,20 @@
             font-weight: bold;
             border-radius: 12px;
             border: 1px solid #fca5a5;
+        }
+
+        /* حاوية التقطيع الوهمية لحساب الارتفاعات */
+        #pagination-measurer {
+            position: absolute;
+            visibility: hidden;
+            left: -9999px;
+            top: -9999px;
+            width: 210mm;
+            padding: 10px 40px;
+            box-sizing: border-box;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            word-spacing: 3px;
         }
 
         @page { 
@@ -314,7 +327,7 @@
                             <option value="">-- اختر الحقل لإدراجه بمكان المؤشر --</option>
                         </select>
                     </div>
-                    <button class="btn btn-secondary" type="button" onclick="insertManualPageBreak()" style="width:100%; margin-bottom:10px;"><i class="fas fa-scissors"></i> إدراج فاصل صفحات A4 يدوي</button>
+                    <button class="btn btn-secondary" type="button" onclick="insertManualPageBreak()" style="width:100%; margin-bottom:10px;"><i class="fas fa-scissors"></i> إدراج فاصل صفحات يدوي</button>
 
                     <h2><i class="fas fa-building"></i> الديباجة والفرع</h2>
                     <div class="form-group">
@@ -559,6 +572,9 @@
         </div>
     </div>
 
+    <!-- حاوية مخفية لحساب الارتفاع بالبكسل للتقطيع الآلي -->
+    <div id="pagination-measurer"></div>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBty7fK-7mchOETrE_vtOZx4dgWSHIuC8Y",
@@ -736,7 +752,6 @@
             selectEl.value = '';
         }
 
-        /* إدراج فاصل صفحات بصري مقسم للصفحات A4 */
         function insertManualPageBreak() {
             const editableArea = document.querySelector('.editable-text-area[contenteditable="true"]');
             if (editableArea) {
@@ -908,7 +923,49 @@
             return new Date(dateVal).toLocaleDateString(isEnglish ? 'en-US' : 'ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
         }
 
-        /* توليد وعرض الصفحات مع التقطيع الديناميكي للعقود والخطابات الطويلة */
+        /* محرك التقطيع التلقائي الآلي للصفحات للعقود والنصوص الطويلة */
+        function paginateHtmlContent(html) {
+            const measurer = document.getElementById('pagination-measurer');
+            measurer.innerHTML = html;
+
+            // أقصى ارتفاع مسموح به لبدن الصفحة A4 القياسي بالبكسل (حوالي 720px)
+            const MAX_PAGE_HEIGHT = 720; 
+
+            const children = Array.from(measurer.children);
+            if (children.length === 0) return [html];
+
+            let pages = [];
+            let currentChunk = document.createElement('div');
+
+            children.forEach(child => {
+                // الفواصل اليدوية
+                if (child.classList && child.classList.contains('page-break-element')) {
+                    if (currentChunk.children.length > 0) {
+                        pages.push(currentChunk.innerHTML);
+                        currentChunk = document.createElement('div');
+                    }
+                    return;
+                }
+
+                currentChunk.appendChild(child.cloneNode(true));
+                measurer.innerHTML = currentChunk.innerHTML;
+
+                if (measurer.offsetHeight > MAX_PAGE_HEIGHT && currentChunk.children.length > 1) {
+                    currentChunk.removeChild(currentChunk.lastChild);
+                    pages.push(currentChunk.innerHTML);
+
+                    currentChunk = document.createElement('div');
+                    currentChunk.appendChild(child.cloneNode(true));
+                }
+            });
+
+            if (currentChunk.children.length > 0) {
+                pages.push(currentChunk.innerHTML);
+            }
+
+            return pages.length > 0 ? pages : [html];
+        }
+
         function renderAllPages() {
             const container = document.getElementById('papersContainer');
             container.innerHTML = '';
@@ -948,8 +1005,8 @@
                         s3 = savedTemplates[tKey].sig3 || "";
                     }
 
-                    // تقسيم المحتوى حسب الفواصل اليدوية إن وجدت
-                    const pagesChunks = mergedHtml.split(/<div class="page-break-element"[^>]*><\/div>/i);
+                    // التقطيع الآلي للفقرات عبر محرك القياس
+                    const pagesChunks = paginateHtmlContent(mergedHtml);
 
                     pagesChunks.forEach((chunkHtml, pIndex) => {
                         const totalPages = pagesChunks.length;
@@ -1001,7 +1058,6 @@
             return res;
         }
 
-        /* دالة بناء ورقة A4 مستقلة بالـ Header والـ Footer التلقائي لكل صفحة */
         function createSinglePageDocument(bodyHtml, isEditable, s1Idx, s2Idx, s3Idx, dynamicPageNum = '1 من 1') {
             const isTab2 = document.getElementById('tab-select').classList.contains('active');
             
