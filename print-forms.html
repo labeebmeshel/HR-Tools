@@ -80,11 +80,12 @@
 
         .paper-wrapper { display: flex; flex-direction: column; align-items: center; gap: 0px; }
         
-        .blank-start-page { width: 210mm; min-height: 290mm; background: #ffffff; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.1rem; border: 2px dashed #cbd5e1; margin-bottom: 20px; }
+        .blank-start-page { width: 210mm; min-height: 285mm; background: #ffffff; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.1rem; border: 2px dashed #cbd5e1; margin-bottom: 20px; }
 
+        /* نموذج العرض في الشاشة */
         .print-document {
             width: 210mm; 
-            min-height: 290mm; 
+            min-height: 285mm; 
             background: #ffffff; 
             padding: 0; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.12);
@@ -103,7 +104,7 @@
 
         .page-node {
             width: 100%; 
-            min-height: 290mm; 
+            min-height: 285mm; 
             display: flex; 
             flex-direction: column; 
             justify-content: space-between;
@@ -115,19 +116,19 @@
         }
 
         .header-section {
-            width: 100%; padding: 15px 35px 10px 35px;
+            width: 100%; padding: 20px 40px 10px 40px;
             display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;
         }
 
         .footer-section {
-            width: 100%; padding: 10px 35px 15px 35px;
+            width: 100%; padding: 10px 40px 20px 40px;
             font-size: 0.78rem; color: #64748b; box-sizing: border-box; margin-top: auto;
         }
 
         .header-text { font-size: 0.88rem; font-weight: bold; line-height: 1.4; }
         .header-logo { max-height: 50px; max-width: 130px; object-fit: contain; }
 
-        .body-section { padding: 10px 35px; font-size: 1rem; line-height: 1.8; color: #0f172a; flex: 1; display: flex; flex-direction: column; box-sizing: border-box; }
+        .body-section { padding: 10px 40px; font-size: 1rem; line-height: 1.8; color: #0f172a; flex: 1; display: flex; flex-direction: column; box-sizing: border-box; }
         .editable-text-area { outline: none; padding: 4px; border: 1px dashed transparent; }
         .editable-text-area:focus { border-color: #cbd5e1; }
 
@@ -138,52 +139,74 @@
         .recipient-block { font-weight: bold; font-size: 1.05rem; margin-bottom: 10px; color: #1e293b; }
         .date-display-block { font-weight: bold; font-size: 0.9rem; margin-bottom: 10px; color: #334155; }
 
-        /* تعديل التوقيعات لتظهر مباشرة بعد آخر سطر في الخطاب */
+        /* التوقيعات مباشرة تحت نص الخطاب */
         .signatures-area { 
             display: flex; 
             justify-content: space-between; 
             align-items: flex-start; 
-            margin-top: 30px; 
+            margin-top: 25px; 
             margin-bottom: 20px;
-            padding: 10px 0 5px 0; 
+            padding: 5px 0; 
             gap: 10px; 
             width: 100%; 
             page-break-inside: avoid;
         }
         .sig-col { flex: 1; text-align: center; min-width: 100px; }
-        .sig-title { font-weight: bold; font-size: 0.88rem; color: #334155; margin-bottom: 25px; }
+        .sig-title { font-weight: bold; font-size: 0.88rem; color: #334155; margin-bottom: 20px; }
         .sig-name { font-weight: bold; font-size: 0.9rem; color: var(--primary-dark); border-top: 1px dashed #94a3b8; padding-top: 4px; }
 
-        @page { size: A4 portrait; margin: 0; }
+        /* ========================================================= */
+        /*  تنسيقات الطباعة الخارقة لمنع الاقتطاع وضبط الصفحة 100%   */
+        /* ========================================================= */
+        @page { 
+            size: A4 portrait; 
+            margin: 0mm !important; 
+        }
 
-        /* قواعد طباعة محكمة ومطابقة للشاشة بدقة */
         @media print {
             html, body { 
-                background: white !important; 
+                background: #ffffff !important; 
                 padding: 0 !important; 
                 margin: 0 !important; 
-                width: 210mm !important;
+                width: 100% !important;
+                height: 100% !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
             .sidebar, .editor-toolbar-container, .no-print { display: none !important; }
             .app-container { display: block !important; padding: 0 !important; margin: 0 !important; width: 100% !important; }
-            .paper-wrapper { width: 100% !important; gap: 0 !important; }
+            .paper-wrapper { width: 100% !important; gap: 0 !important; margin: 0 !important; padding: 0 !important; }
+            
             .print-document { 
                 box-shadow: none !important; 
-                width: 210mm !important; 
-                box-sizing: border-box !important;
-                margin: 0 auto !important; 
+                width: 100% !important; 
+                max-width: 100% !important;
+                min-height: 100vh !important;
+                height: 100vh !important;
+                margin: 0 !important; 
                 padding: 0 !important;
                 page-break-after: always !important; 
                 break-after: page !important; 
+                box-sizing: border-box !important;
                 overflow: hidden !important;
             }
+            
             .print-document:last-child { 
                 page-break-after: avoid !important; 
                 break-after: avoid !important; 
             }
+            
             .page-node {
                 width: 100% !important;
+                min-height: 100vh !important;
+                height: 100vh !important;
+                padding: 10mm 15mm !important; /* هوامش أمان داخلية تمنع أي خروج للنص */
+                box-sizing: border-box !important;
             }
+
+            .header-section { padding: 0 0 10px 0 !important; }
+            .body-section { padding: 10px 0 !important; }
+            .footer-section { padding: 10px 0 0 0 !important; }
         }
     </style>
 </head>
@@ -271,11 +294,11 @@
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
                         <div class="form-group">
                             <label>ارتفاع الهيدر (px):</label>
-                            <input type="number" id="headerHeight" value="90" oninput="renderAllPages()">
+                            <input type="number" id="headerHeight" value="85" oninput="renderAllPages()">
                         </div>
                         <div class="form-group">
                             <label>ارتفاع الفوتر (px):</label>
-                            <input type="number" id="footerHeight" value="70" oninput="renderAllPages()">
+                            <input type="number" id="footerHeight" value="65" oninput="renderAllPages()">
                         </div>
                     </div>
 
@@ -799,8 +822,8 @@
             const isEnglish = (document.getElementById('docLang').value === 'en');
             const textDir = isEnglish ? 'ltr' : 'rtl';
 
-            const headerH = document.getElementById('headerHeight').value || 90;
-            const footerH = document.getElementById('footerHeight').value || 70;
+            const headerH = document.getElementById('headerHeight').value || 85;
+            const footerH = document.getElementById('footerHeight').value || 65;
 
             const lhSelect = document.querySelector('.select-letterhead-ctrl');
             const lh = letterheadsList[lhSelect ? lhSelect.value : 0] || {};
@@ -864,7 +887,7 @@
                 let cloned = doc.cloneNode(true);
                 cloned.style.margin = "0";
                 cloned.style.boxShadow = "none";
-                cloned.style.minHeight = "290mm";
+                cloned.style.minHeight = "285mm";
                 cloned.style.pageBreakAfter = "always";
                 cloned.style.breakAfter = "page";
                 containerToExport.appendChild(cloned);
