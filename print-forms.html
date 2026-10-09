@@ -115,29 +115,58 @@
             margin: 0;
         }
 
+        /* رأس الصفحة المطور مع مربعات الجودة والخط الكبير */
         .header-section {
-            width: 100%; padding: 20px 40px 10px 40px;
-            display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;
+            width: 100%; padding: 15px 30px 10px 30px;
+            display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; gap: 10px;
         }
+
+        .header-text { font-size: 0.95rem; font-weight: bold; line-height: 1.4; }
+        .header-logo { max-height: 60px; max-width: 130px; object-fit: contain; }
+
+        /* تنسيق مربعات الجودة والـ ISO بأسلوب احترافي وخط واسع */
+        .header-iso-container {
+            display: flex; gap: 8px; align-items: center; justify-content: center; flex: 1; margin: 0 10px;
+        }
+        
+        .iso-box {
+            border: 1px solid #1e293b; border-radius: 6px; padding: 6px 10px; background: #ffffff;
+            display: flex; flex-direction: column; justify-content: center; font-size: 0.88rem; color: #0f172a;
+        }
+        
+        .iso-box-1 {
+            min-width: 190px; text-align: center; font-weight: bold;
+        }
+        .iso-box-1 .iso-main-title {
+            font-size: 0.95rem; color: var(--primary-dark); border-bottom: 1px solid #94a3b8; padding-bottom: 3px; margin-bottom: 3px;
+        }
+        .iso-box-1 .iso-code-row {
+            font-size: 0.85rem; color: #334155;
+        }
+
+        .iso-box-2 {
+            min-width: 170px; font-size: 0.82rem; font-weight: 600; line-height: 1.4;
+        }
+        .iso-box-2 div {
+            display: flex; justify-content: space-between; gap: 6px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 1px; margin-bottom: 2px;
+        }
+        .iso-box-2 div:last-child { border-bottom: none; margin-bottom: 0; }
 
         .footer-section {
             width: 100%; padding: 10px 40px 20px 40px;
-            font-size: 0.78rem; color: #64748b; box-sizing: border-box; margin-top: auto;
+            font-size: 0.82rem; color: #64748b; box-sizing: border-box; margin-top: auto;
         }
 
-        .header-text { font-size: 0.88rem; font-weight: bold; line-height: 1.4; }
-        .header-logo { max-height: 50px; max-width: 130px; object-fit: contain; }
-
-        .body-section { padding: 10px 40px; font-size: 1rem; line-height: 1.8; color: #0f172a; flex: 1; display: flex; flex-direction: column; box-sizing: border-box; }
+        .body-section { padding: 10px 40px; font-size: 1.05rem; line-height: 1.8; color: #0f172a; flex: 1; display: flex; flex-direction: column; box-sizing: border-box; }
         .editable-text-area { outline: none; padding: 4px; border: 1px dashed transparent; }
         .editable-text-area:focus { border-color: #cbd5e1; }
 
         .editable-text-area table { width: 100%; border-collapse: collapse; margin: 10px 0; table-layout: fixed; }
         .editable-text-area td, .editable-text-area th { padding: 6px 8px; border: 1px solid #cbd5e1; min-width: 30px; }
 
-        .document-title { text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 12px; color: var(--primary-dark); }
-        .recipient-block { font-weight: bold; font-size: 1.05rem; margin-bottom: 10px; color: #1e293b; }
-        .date-display-block { font-weight: bold; font-size: 0.9rem; margin-bottom: 10px; color: #334155; }
+        .document-title { text-align: center; font-weight: bold; font-size: 1.35rem; margin-bottom: 12px; color: var(--primary-dark); }
+        .recipient-block { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; color: #1e293b; }
+        .date-display-block { font-weight: bold; font-size: 0.95rem; margin-bottom: 10px; color: #334155; }
 
         /* التوقيعات مباشرة تحت نص الخطاب */
         .signatures-area { 
@@ -152,8 +181,8 @@
             page-break-inside: avoid;
         }
         .sig-col { flex: 1; text-align: center; min-width: 100px; }
-        .sig-title { font-weight: bold; font-size: 0.88rem; color: #334155; margin-bottom: 20px; }
-        .sig-name { font-weight: bold; font-size: 0.9rem; color: var(--primary-dark); border-top: 1px dashed #94a3b8; padding-top: 4px; }
+        .sig-title { font-weight: bold; font-size: 0.92rem; color: #334155; margin-bottom: 20px; }
+        .sig-name { font-weight: bold; font-size: 0.95rem; color: var(--primary-dark); border-top: 1px dashed #94a3b8; padding-top: 4px; }
 
         /* ========================================================= */
         /*  تنسيقات الطباعة الخارقة لمنع الاقتطاع وضبط الصفحة 100%   */
@@ -200,7 +229,7 @@
                 width: 100% !important;
                 min-height: 100vh !important;
                 height: 100vh !important;
-                padding: 10mm 15mm !important; /* هوامش أمان داخلية تمنع أي خروج للنص */
+                padding: 10mm 15mm !important;
                 box-sizing: border-box !important;
             }
 
@@ -255,6 +284,32 @@
                         <select class="select-branch-ctrl" onchange="syncAndRenderBranch(this)"></select>
                     </div>
 
+                    <h2><i class="fas fa-certificate"></i> إعدادات الجودة ISO بالديباجة</h2>
+                    <div class="form-group">
+                        <label>عنوان الجودة الرئيسي (HEADER):</label>
+                        <input type="text" id="isoTitleInput" value="نظام إدارة الجودة ISO 9001:2015" placeholder="عنوان الجودة..." oninput="renderAllPages()">
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+                        <div class="form-group">
+                            <label>رقم / كود الوثيقة:</label>
+                            <input type="text" id="isoCodeInput" value="SOP-HR-001" placeholder="رقم:" oninput="renderAllPages()">
+                        </div>
+                        <div class="form-group">
+                            <label>إصدار / تعديل:</label>
+                            <input type="text" id="isoVerInput" value="01 / 00" placeholder="إصدار/تعديل:" oninput="renderAllPages()">
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+                        <div class="form-group">
+                            <label>تاريخ التعديل:</label>
+                            <input type="text" id="isoDateInput" value="2026-10-09" placeholder="تاريخ التعديل:" oninput="renderAllPages()">
+                        </div>
+                        <div class="form-group">
+                            <label>صفحة رقم:</label>
+                            <input type="text" id="isoPageInput" value="1 من 1" placeholder="صفحة رقم:" oninput="renderAllPages()">
+                        </div>
+                    </div>
+
                     <h2><i class="fas fa-globe"></i> لغة الخطاب والتنسيق</h2>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
                         <div class="form-group">
@@ -294,7 +349,7 @@
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
                         <div class="form-group">
                             <label>ارتفاع الهيدر (px):</label>
-                            <input type="number" id="headerHeight" value="85" oninput="renderAllPages()">
+                            <input type="number" id="headerHeight" value="105" oninput="renderAllPages()">
                         </div>
                         <div class="form-group">
                             <label>ارتفاع الفوتر (px):</label>
@@ -390,7 +445,7 @@
             <div class="editor-toolbar-container no-print" id="editorToolbarWrapper" style="display:none;">
                 <div class="font-info-badge" id="fontInfoBadge">
                     <span><i class="fas fa-font"></i> الخط الحالي: <span id="currentFontDetected">Traditional Arabic</span></span>
-                    <span><i class="fas fa-text-height"></i> الحجم: <span id="currentSizeDetected">16px</span></span>
+                    <span><i class="fas fa-text-height"></i> الحجم: <span id="currentSizeDetected">18px</span></span>
                 </div>
 
                 <div class="editor-toolbar">
@@ -407,8 +462,8 @@
                     <select class="tool-select" id="fontSizeSelect" onchange="applyFontSizeDirect(this.value)" title="حجم الخط">
                         <option value="12px">12 px</option>
                         <option value="14px">14 px</option>
-                        <option value="16px" selected>16 px</option>
-                        <option value="18px">18 px</option>
+                        <option value="16px">16 px</option>
+                        <option value="18px" selected>18 px</option>
                         <option value="20px">20 px</option>
                         <option value="24px">24 px</option>
                         <option value="28px">28 px</option>
@@ -590,6 +645,19 @@
 
             populateGroupsAndTemplates();
             renderEmployeesCheckboxes(employeesList);
+        }
+
+        function syncAndRenderLetterhead(selectEl) {
+            const idx = selectEl.value;
+            if (letterheadsList[idx]) {
+                const lh = letterheadsList[idx];
+                if (lh.isoTitle) document.getElementById('isoTitleInput').value = lh.isoTitle;
+                if (lh.isoCode) document.getElementById('isoCodeInput').value = lh.isoCode;
+                if (lh.isoVer) document.getElementById('isoVerInput').value = lh.isoVer;
+                if (lh.isoDate) document.getElementById('isoDateInput').value = lh.isoDate;
+                if (lh.isoPage) document.getElementById('isoPageInput').value = lh.isoPage;
+            }
+            renderAllPages();
         }
 
         function insertSelectedVariable(selectEl) {
@@ -822,7 +890,7 @@
             const isEnglish = (document.getElementById('docLang').value === 'en');
             const textDir = isEnglish ? 'ltr' : 'rtl';
 
-            const headerH = document.getElementById('headerHeight').value || 85;
+            const headerH = document.getElementById('headerHeight').value || 105;
             const footerH = document.getElementById('footerHeight').value || 65;
 
             const lhSelect = document.querySelector('.select-letterhead-ctrl');
@@ -832,6 +900,28 @@
             const hLine1 = lh.hLine1 || companyInfo.nameAr || '';
             const hLine2 = lh.hLine2 || companyInfo.fieldAr || '';
             const logoHtml = (companyInfo.logo && lh.logoPos !== 'none') ? `<img src="${companyInfo.logo}" class="header-logo" alt="Logo">` : '';
+
+            // بيانات الجودة والـ ISO المقروءة من الواجهة
+            const isoTitle = document.getElementById('isoTitleInput').value || lh.isoTitle || 'نظام إدارة الجودة ISO 9001:2015';
+            const isoCode = document.getElementById('isoCodeInput').value || lh.isoCode || 'SOP-HR-001';
+            const isoVer = document.getElementById('isoVerInput').value || lh.isoVer || '01 / 00';
+            const isoDate = document.getElementById('isoDateInput').value || lh.isoDate || '2026-10-09';
+            const isoPage = document.getElementById('isoPageInput').value || lh.isoPage || '1 من 1';
+
+            // المربعين الخاصين بالجودة في الـ HEADER بالخط الكبير
+            const isoMarkup = `
+                <div class="header-iso-container">
+                    <div class="iso-box iso-box-1">
+                        <div class="iso-main-title">${isoTitle}</div>
+                        <div class="iso-code-row"><b>رقم:</b> ${isoCode}</div>
+                    </div>
+                    <div class="iso-box iso-box-2">
+                        <div><span>إصدار / تعديل:</span> <b>${isoVer}</b></div>
+                        <div><span>تاريخ التعديل:</span> <b>${isoDate}</b></div>
+                        <div><span>صفحة رقم:</span> <b>${isoPage}</b></div>
+                    </div>
+                </div>
+            `;
 
             let fLine = `<div>${lh.fLine1 || ''}</div><div>${lh.fLine2 || ''}</div>`;
             if (br) fLine += `<div style="font-weight:bold; margin-top:2px;">${br.name} - س.ت: ${br.cr} - ب.ض: ${br.tax}</div>`;
@@ -855,7 +945,7 @@
                 sigHtml += `</div>`;
             }
 
-            const headerMarkup = showHeader ? `<div class="header-section" style="height:${headerH}px; border-bottom:2px solid #0b4fb3;"><div class="header-text"><div>${hLine1}</div><div>${hLine2}</div></div>${logoHtml}</div>` : '';
+            const headerMarkup = showHeader ? `<div class="header-section" style="height:${headerH}px; border-bottom:2px solid #0b4fb3;"><div class="header-text"><div>${hLine1}</div><div>${hLine2}</div></div>${isoMarkup}${logoHtml}</div>` : '';
             const footerMarkup = showFooter ? `<div class="footer-section" style="height:${footerH}px; border-top:2px solid #0b4fb3; text-align:center;">${fLine}</div>` : '';
 
             return `
