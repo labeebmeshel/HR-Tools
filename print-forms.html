@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منظومة طباعة وتصميم النماذج والعقود الجماعية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;800&family=Traditional+Arabic&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <!-- مكتبات قراءة وتصدير ملفات Word و PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -25,8 +25,9 @@
             --border: #94a3b8;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 15px; direction: rtl; word-spacing: normal; letter-spacing: normal; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        button, input, select, textarea { font-family: inherit; }
+        body { background: var(--bg); color: var(--text); padding: 15px; direction: rtl; word-spacing: normal; letter-spacing: normal; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
         .app-container { display: grid; grid-template-columns: 390px 1fr; gap: 20px; max-width: 1650px; margin: 0 auto; align-items: start; }
 
@@ -82,9 +83,10 @@
         
         .blank-start-page { width: 210mm; min-height: 285mm; background: #ffffff; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.1rem; border: 2px dashed #cbd5e1; margin-bottom: 20px; }
 
+        /* الورقة الثابتة أبعاد A4 تماماً كالوورد */
         .print-document {
             width: 210mm; 
-            min-height: 297mm; 
+            height: 297mm; 
             background: #ffffff; 
             padding: 0; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.12);
@@ -93,7 +95,6 @@
             page-break-after: always; 
             break-after: page;
             overflow: hidden;
-            margin-bottom: 20px;
         }
 
         .print-document:last-child {
@@ -103,7 +104,7 @@
 
         .page-node {
             width: 100%; 
-            min-height: 297mm;
+            height: 100%; 
             display: flex; 
             flex-direction: column; 
             justify-content: space-between;
@@ -121,7 +122,7 @@
 
         .header-text { 
             font-size: 0.95rem; font-weight: bold; line-height: 1.6; color: #0f172a; 
-            word-spacing: 3px; letter-spacing: 0.3px; text-align: right;
+            word-spacing: 3px; text-align: right;
         }
         .header-logo { max-height: 60px; max-width: 130px; object-fit: contain; }
 
@@ -149,26 +150,20 @@
         }
         .iso-box-2 .iso-row-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 
-        /* الفوتر المحدث بدمج الترقيم في نفس السطر */
         .footer-section {
             width: 100%; padding: 10px 40px 15px 40px;
             font-size: 0.82rem; color: #64748b; box-sizing: border-box; margin-top: auto;
             word-spacing: 2px; position: relative;
-            display: flex; align-items: center; justify-content: space-between;
         }
 
-        .footer-content-block {
-            flex: 1; text-align: center;
-        }
-
-        .page-number-display-inline {
-            font-size: 0.82rem; font-weight: bold; color: #334155; white-space: nowrap;
+        .page-number-display {
+            font-size: 0.82rem; font-weight: bold; color: #334155; padding: 2px 0;
         }
 
         .body-section { 
             padding: 10px 40px; font-size: 1.05rem; line-height: 1.8; color: #0f172a; 
             flex: 1; display: flex; flex-direction: column; box-sizing: border-box; 
-            word-spacing: 3px; letter-spacing: 0.2px; overflow: hidden;
+            word-spacing: 3px; overflow: hidden;
         }
         
         .editable-text-area { outline: none; padding: 4px; border: 1px dashed transparent; min-height: 100px; flex: 1; }
@@ -193,9 +188,11 @@
         .bidi-isolate { unicode-bidi: isolate; display: inline-block; }
         .bidi-ltr { direction: ltr !important; unicode-bidi: embed; display: inline-block; }
 
-        #pagination-measurer {
-            position: absolute; visibility: hidden; left: -9999px; top: -9999px; width: 210mm; padding: 10px 40px; box-sizing: border-box; font-size: 1.05rem; line-height: 1.8; word-spacing: 3px;
-        }
+        /* حاوية القياس: تطابق تماماً منطقة المحتوى في الصفحة الحقيقية */
+        #pagination-measurer { position: fixed; visibility: hidden; left: 0; top: 0; z-index: -1; width: 210mm; height: auto; flex: none; overflow: visible; pointer-events: none; }
+        #pm-extra { display: flow-root; }
+        #pm-area { flex: none; min-height: 0; }
+        .editable-text-area img { max-width: 100%; height: auto; }
 
         .sig-config-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px; margin-bottom: 8px; }
 
@@ -205,18 +202,15 @@
             html, body { 
                 background: #ffffff !important; padding: 0 !important; margin: 0 !important; width: 100% !important; height: auto !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
             }
-            .sidebar, .editor-toolbar-container, .no-print { display: none !important; }
+            .sidebar, .editor-toolbar-container, .no-print, #pagination-measurer { display: none !important; }
             .app-container { display: block !important; padding: 0 !important; margin: 0 !important; width: 100% !important; }
             .paper-wrapper { width: 100% !important; margin: 0 auto !important; padding: 0 !important; gap: 0 !important; }
             
             .print-document { 
-                box-shadow: none !important; width: 100% !important; max-width: 100% !important; height: 297mm !important; margin: 0 auto !important; padding: 0 !important; page-break-after: always !important; break-after: page !important; box-sizing: border-box !important; overflow: hidden !important;
+                box-shadow: none !important; width: 210mm !important; max-width: 210mm !important; height: 296mm !important; margin: 0 auto !important; padding: 0 !important; page-break-after: always !important; break-after: page !important; box-sizing: border-box !important; overflow: hidden !important;
             }
             .print-document:last-child { page-break-after: avoid !important; break-after: avoid !important; }
-            .page-node { width: 100% !important; height: 100% !important; padding: 12mm 18mm !important; box-sizing: border-box !important; }
-            .header-section { padding: 0 0 10px 0 !important; }
-            .body-section { padding: 10px 0 !important; }
-            .footer-section { padding: 10px 0 0 0 !important; }
+            .editable-text-area { border-color: transparent !important; }
         }
     </style>
 </head>
@@ -232,8 +226,8 @@
             </div>
 
             <div class="tab-buttons">
-                <button class="tab-btn active" onclick="switchTab('tab-create')"><i class="fas fa-edit"></i> تحرير نموذج</button>
-                <button class="tab-btn" onclick="switchTab('tab-select')"><i class="fas fa-folder-open"></i> نماذج محفوظة</button>
+                <button class="tab-btn active" data-tab="tab-create" onclick="switchTab('tab-create')"><i class="fas fa-edit"></i> تحرير نموذج</button>
+                <button class="tab-btn" data-tab="tab-select" onclick="switchTab('tab-select')"><i class="fas fa-folder-open"></i> نماذج محفوظة</button>
             </div>
 
             <!-- تبويب 1: تحرير نموذج جديد -->
@@ -244,7 +238,7 @@
                     <button class="btn btn-warning" onclick="document.getElementById('wordFileInputDirect').click()"><i class="fas fa-file-word"></i> رفع نموذج Word</button>
                     <button class="btn btn-secondary" onclick="openSavedForEdit()"><i class="fas fa-folder-open"></i> تحرير محفوظ</button>
                 </div>
-                <input type="file" id="wordFileInputDirect" accept=".docx,.doc" style="display:none;" onchange="importWordFile(this)">
+                <input type="file" id="wordFileInputDirect" accept=".docx" style="display:none;" onchange="importWordFile(this)">
 
                 <div id="editingSectionsContainer" style="display:none;">
                     <h2><i class="fas fa-code"></i> إدراج حقول المتغيرات</h2>
@@ -254,7 +248,7 @@
                         </select>
                     </div>
 
-                    <h2><i class="fas fa-hashtag"></i> ترقيم الصفحات في نفس سطر الفوتر</h2>
+                    <h2><i class="fas fa-hashtag"></i> ترقيم الصفحات</h2>
                     <div style="margin-bottom:6px;">
                         <label style="cursor:pointer; font-weight:bold; color:var(--primary);"><input type="checkbox" id="showPageNumChk" checked onchange="renderAllPages()"> إظهار ترقيم الصفحات</label>
                     </div>
@@ -263,11 +257,13 @@
                     </div>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
                         <div class="form-group">
-                            <label>موقع الترقيم بالفوتر:</label>
+                            <label>موقع الترقيم:</label>
                             <select id="pageNumPosSelect" onchange="renderAllPages()">
-                                <option value="footer-left" selected>الفوتر (أقصى اليسار)</option>
-                                <option value="footer-right">الفوتر (أقصى اليمين)</option>
-                                <option value="footer-center">الفوتر (منتصف السطر)</option>
+                                <option value="footer-center" selected>الفوتر (وسط)</option>
+                                <option value="footer-left">الفوتر (يسار)</option>
+                                <option value="footer-right">الفوتر (يمين)</option>
+                                <option value="header-left">الهيدر (يسار)</option>
+                                <option value="header-right">الهيدر (يمين)</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -312,7 +308,7 @@
                         </div>
                         <div class="form-group">
                             <label>صفحة رقم:</label>
-                            <input type="text" id="isoPageInput" value="1 من 12" placeholder="صفحة رقم:" oninput="onIsoInputChange()">
+                            <input type="text" id="isoPageInput" value="تلقائي" disabled title="يُحسب تلقائياً حسب عدد صفحات كل نموذج">
                         </div>
                     </div>
 
@@ -475,6 +471,16 @@
                     <div class="multi-select-box" id="templatesMultiSelect"></div>
                 </div>
 
+                <h2><i class="fas fa-building"></i> الديباجة والفرع للطباعة</h2>
+                <div class="form-group">
+                    <label>ديباجة رأس الصفحة:</label>
+                    <select class="select-letterhead-ctrl" onchange="syncAndRenderLetterhead(this)"></select>
+                </div>
+                <div class="form-group">
+                    <label>الفرع / السجل التجاري:</label>
+                    <select class="select-branch-ctrl" onchange="syncAndRenderBranch(this)"></select>
+                </div>
+
                 <h2><i class="fas fa-calendar-days"></i> إعدادات التاريخ في الطباعة</h2>
                 <div style="margin-bottom:6px;">
                     <label style="cursor:pointer;"><input type="checkbox" id="showDateChkPrint" checked onchange="renderAllPages()"> إظهار التاريخ في الخطاب</label>
@@ -544,9 +550,9 @@
 
                     <div class="toolbar-separator"></div>
 
-                    <button class="tool-btn" onclick="formatDoc('bold')" title="غامق (Bold)"><i class="fas fa-bold"></i></button>
-                    <button class="tool-btn" onclick="formatDoc('italic')" title="مائل (Italic)"><i class="fas fa-italic"></i></button>
-                    <button class="tool-btn" onclick="formatDoc('underline')" title="تحته خط (Underline)"><i class="fas fa-underline"></i></button>
+                    <button class="tool-btn" onmousedown="event.preventDefault()" onclick="formatDoc('bold')" title="غامق (Bold)"><i class="fas fa-bold"></i></button>
+                    <button class="tool-btn" onmousedown="event.preventDefault()" onclick="formatDoc('italic')" title="مائل (Italic)"><i class="fas fa-italic"></i></button>
+                    <button class="tool-btn" onmousedown="event.preventDefault()" onclick="formatDoc('underline')" title="تحته خط (Underline)"><i class="fas fa-underline"></i></button>
 
                     <div class="toolbar-separator"></div>
 
@@ -561,17 +567,17 @@
 
                     <div class="toolbar-separator"></div>
 
-                    <button class="tool-btn" onclick="formatDoc('justifyRight')" title="يمين"><i class="fas fa-align-right"></i></button>
-                    <button class="tool-btn" onclick="formatDoc('justifyCenter')" title="وسط"><i class="fas fa-align-center"></i></button>
-                    <button class="tool-btn" onclick="formatDoc('justifyLeft')" title="يسار"><i class="fas fa-align-left"></i></button>
-                    <button class="tool-btn" onclick="formatDoc('justifyFull')" title="محاذاة كاملة"><i class="fas fa-align-justify"></i></button>
+                    <button class="tool-btn" onmousedown="event.preventDefault()" onclick="formatDoc('justifyRight')" title="يمين"><i class="fas fa-align-right"></i></button>
+                    <button class="tool-btn" onmousedown="event.preventDefault()" onclick="formatDoc('justifyCenter')" title="وسط"><i class="fas fa-align-center"></i></button>
+                    <button class="tool-btn" onmousedown="event.preventDefault()" onclick="formatDoc('justifyLeft')" title="يسار"><i class="fas fa-align-left"></i></button>
+                    <button class="tool-btn" onmousedown="event.preventDefault()" onclick="formatDoc('justifyFull')" title="محاذاة كاملة"><i class="fas fa-align-justify"></i></button>
 
                     <div class="toolbar-separator"></div>
 
-                    <button class="tool-btn" onclick="formatDoc('insertUnorderedList')" title="قائمة نقطية"><i class="fas fa-list-ul"></i></button>
-                    <button class="tool-btn" onclick="formatDoc('insertOrderedList')" title="قائمة رقمية"><i class="fas fa-list-ol"></i></button>
-                    <button class="tool-btn" onclick="insertCustomTable()" title="إدراج جدول"><i class="fas fa-table"></i></button>
-                    <button class="tool-btn" onclick="formatDoc('removeFormat')" title="مسح التنسيق"><i class="fas fa-eraser"></i></button>
+                    <button class="tool-btn" onmousedown="event.preventDefault()" onclick="formatDoc('insertUnorderedList')" title="قائمة نقطية"><i class="fas fa-list-ul"></i></button>
+                    <button class="tool-btn" onmousedown="event.preventDefault()" onclick="formatDoc('insertOrderedList')" title="قائمة رقمية"><i class="fas fa-list-ol"></i></button>
+                    <button class="tool-btn" onmousedown="event.preventDefault()" onclick="insertCustomTable()" title="إدراج جدول"><i class="fas fa-table"></i></button>
+                    <button class="tool-btn" onmousedown="event.preventDefault()" onclick="formatDoc('removeFormat')" title="مسح التنسيق"><i class="fas fa-eraser"></i></button>
                 </div>
             </div>
 
@@ -584,7 +590,7 @@
         </div>
     </div>
 
-    <div id="pagination-measurer"></div>
+    <div id="pagination-measurer" class="body-section" aria-hidden="true"><div id="pm-extra"></div><div id="pm-area" class="editable-text-area"></div></div>
 
     <script>
         const firebaseConfig = {
@@ -600,11 +606,80 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        /* ============ دوال مساعدة ============ */
         function cleanFirebaseKey(str) {
             if (!str) return '';
             return String(str).replace(/[\.\#\$\/\[\]]/g, '-').trim();
         }
 
+        function escapeHtml(v) {
+            return String(v === undefined || v === null ? '' : v)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        // Firebase قد يُرجع المصفوفات ككائنات (عند وجود فجوات في الفهارس)
+        function toArray(v) {
+            if (!v) return [];
+            if (Array.isArray(v)) return v;
+            if (typeof v === 'object') {
+                const keys = Object.keys(v);
+                if (keys.every(k => /^\d+$/.test(k))) {
+                    const arr = [];
+                    keys.forEach(k => { arr[+k] = v[k]; });
+                    return arr;
+                }
+                return Object.values(v);
+            }
+            return [];
+        }
+
+        function setSelectValue(sel, v) {
+            if (!sel || v === undefined || v === null) return;
+            const s = String(v);
+            if (Array.from(sel.options).some(o => o.value === s)) sel.value = s;
+        }
+
+        function $(id) { return document.getElementById(id); }
+
+        // تنظيف HTML (اللصق / ملفات Word / النماذج المحفوظة) لمنع تنفيذ أكواد خبيثة
+        function sanitizeHtml(html, opts) {
+            opts = opts || {};
+            const doc = new DOMParser().parseFromString(String(html || ''), 'text/html');
+            doc.querySelectorAll('script,style,iframe,object,embed,link,meta,xml,form,base,noscript,title').forEach(n => n.remove());
+            Array.from(doc.body.querySelectorAll('*')).forEach(el => {
+                if (el.tagName.indexOf(':') !== -1) {            // وسوم Word مثل o:p
+                    el.replaceWith(...Array.from(el.childNodes));
+                    return;
+                }
+                Array.from(el.attributes).forEach(a => {
+                    const n = a.name.toLowerCase(), v = a.value;
+                    if (n.startsWith('on')) el.removeAttribute(a.name);
+                    else if (['href', 'src', 'xlink:href', 'action', 'formaction'].includes(n) && /^\s*(javascript|vbscript)\s*:/i.test(v)) el.removeAttribute(a.name);
+                    else if (n === 'src' && /^\s*data:(?!image\/)/i.test(v)) el.removeAttribute(a.name);
+                    else if (n === 'style') {
+                        if (/javascript:|expression\(|@import|behavior:/i.test(v)) el.removeAttribute('style');
+                        else el.setAttribute('style', v.replace(/mso-[^;]+;?/gi, ''));
+                    }
+                    else if (opts.stripClass && (n === 'class' || n === 'id')) el.removeAttribute(a.name);
+                });
+            });
+            return doc.body.innerHTML;
+        }
+
+        function todayLocalISO() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+
+        const SERIF_FONTS = ['Traditional Arabic', 'Amiri', 'Times New Roman'];
+        function fontStack(f) {
+            return SERIF_FONTS.includes(f)
+                ? `'${f}', 'Amiri', 'Traditional Arabic', 'Times New Roman', serif`
+                : `'${f}', 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif`;
+        }
+
+        /* ============ الحالة العامة ============ */
         let activeUser = cleanFirebaseKey(sessionStorage.getItem('LOGGED_USER') || 'TCL');
 
         let companyInfo = {};
@@ -616,14 +691,14 @@
         let savedTemplates = {};
         let savedSelectionRange = null;
         let isEditModeActive = false;
+        let profileInitialized = false;
+        let renderTimer = null;
+        let isComposing = false;
 
-        let isoState = {
-            title: "إجراءات الموارد البشرية",
-            code: "qsep-07.01",
-            ver: "12",
-            date: "2026-10-03",
-            page: "1 من 12"
-        };
+        const ISO_DEFAULTS = { title: 'إجراءات الموارد البشرية', code: 'qsep-07.01', ver: '12', date: '2026-10-03' };
+        let isoState = { title: ISO_DEFAULTS.title, code: ISO_DEFAULTS.code, ver: ISO_DEFAULTS.ver, date: ISO_DEFAULTS.date, page: '' };
+
+        let docFont = { family: 'Traditional Arabic', size: '18px' };
 
         let currentEditorRawContent = `
             <p><strong>أقر أنا / {الاسم عربي}</strong></p>
@@ -631,23 +706,60 @@
         `;
 
         let selectedEmpIndexesSet = new Set([0]);
+        let selectedTemplateKeys = new Set();
 
-        window.onload = function() {
-            document.getElementById('customDateInput').valueAsDate = new Date();
-            document.getElementById('customDateInputPrint').valueAsDate = new Date();
-            
+        const PAGE_H_PX = Math.round(297 * 96 / 25.4);   // ارتفاع A4 بالبكسل
+        const BODY_PAD_V = 20;                            // padding رأسي لـ .body-section
+        const SAFETY_PX = 8;
+
+        const NAME_SYN = ['الاسم عربي', 'الاسم', 'الاسم_عربي', 'اسم الموظف', 'Name'];
+        const JOB_SYN = ['الوظيفة', 'الوظيفة الحالية', 'المسمى الوظيفي', 'Job'];
+        const DEPT_SYN = ['القسم', 'الإدارة', 'Department'];
+        const SIG_DEFAULTS = [{ pos: 'right', level: '1' }, { pos: 'center', level: '1' }, { pos: 'left', level: '2' }];
+
+        window.onload = function () {
+            $('customDateInput').value = todayLocalISO();
+            $('customDateInputPrint').value = todayLocalISO();
+
+            // مستمعات موحدة (Event Delegation) بدل ربط مستمعات جديدة بعد كل رسم
+            const papers = $('papersContainer');
+            papers.addEventListener('input', function (e) { if (closestEditable(e.target)) onEditorInput(); });
+            papers.addEventListener('compositionstart', function () { isComposing = true; });
+            papers.addEventListener('compositionend', function () { isComposing = false; onEditorInput(); });
+            papers.addEventListener('paste', onEditorPaste);
+
+            const tplBox = $('templatesMultiSelect');
+            tplBox.addEventListener('change', function (e) {
+                const chk = e.target.closest('.template-chk');
+                if (!chk) return;
+                if (chk.checked) selectedTemplateKeys.add(chk.dataset.key); else selectedTemplateKeys.delete(chk.dataset.key);
+                renderAllPages();
+            });
+            tplBox.addEventListener('click', function (e) {
+                const btn = e.target.closest('button[data-act]');
+                if (!btn) return;
+                if (btn.dataset.act === 'edit') loadSavedTemplateToEditor(btn.dataset.key);
+                else if (btn.dataset.act === 'delete') deleteSavedTemplate(btn.dataset.key);
+            });
+
             loadIsolatedProfileData();
-
             document.addEventListener('selectionchange', handleSelectionAndDetectFont);
         };
 
         function onIsoInputChange() {
-            isoState.title = document.getElementById('isoTitleInput').value;
-            isoState.code = document.getElementById('isoCodeInput').value;
-            isoState.ver = document.getElementById('isoVerInput').value;
-            isoState.date = document.getElementById('isoDateInput').value;
-            isoState.page = document.getElementById('isoPageInput').value;
+            isoState.title = $('isoTitleInput').value;
+            isoState.code = $('isoCodeInput').value;
+            isoState.ver = $('isoVerInput').value;
+            isoState.date = $('isoDateInput').value;
             renderAllPages();
+        }
+
+        function applyLetterheadIsoToInputs(lh) {
+            if (!lh) return;
+            if (lh.isoTitle) { isoState.title = lh.isoTitle; $('isoTitleInput').value = lh.isoTitle; }
+            if (lh.isoCode) { isoState.code = lh.isoCode; $('isoCodeInput').value = lh.isoCode; }
+            if (lh.isoVer) { isoState.ver = lh.isoVer; $('isoVerInput').value = lh.isoVer; }
+            if (lh.isoDate) { isoState.date = lh.isoDate; $('isoDateInput').value = lh.isoDate; }
         }
 
         function loadIsolatedProfileData() {
@@ -657,150 +769,249 @@
             db.ref(`companyProfiles/${activeUser}`).on('value', snap => {
                 const data = snap.val() || {};
                 companyInfo = data.info || {};
-                letterheadsList = data.letterheads || [];
-                branchesList = data.branches || [];
-                signaturesList = data.signatures || [];
-                employeesList = data.employees || [];
-                columnKeys = data.columnKeys || ['كود', 'الاسم', 'الاسم عربي', 'الوظيفة', 'القسم', 'الرقم القومي', 'العنوان بالبطاقة'];
+                letterheadsList = toArray(data.letterheads);
+                branchesList = toArray(data.branches);
+                signaturesList = toArray(data.signatures);
+                employeesList = toArray(data.employees);
+                columnKeys = toArray(data.columnKeys);
+                if (columnKeys.length === 0) columnKeys = ['كود', 'الاسم', 'الاسم عربي', 'الوظيفة', 'القسم', 'الرقم القومي', 'العنوان بالبطاقة'];
                 savedTemplates = data.templates || {};
 
-                document.getElementById('activeProfileDisplayName').textContent = companyInfo.nameAr || activeUser;
+                $('activeProfileDisplayName').textContent = companyInfo.nameAr || activeUser;
 
                 populateControls();
 
-                if (letterheadsList.length > 0 && letterheadsList[0]) {
-                    const lh0 = letterheadsList[0];
-                    if (lh0.isoTitle) { isoState.title = lh0.isoTitle; document.getElementById('isoTitleInput').value = lh0.isoTitle; }
-                    if (lh0.isoCode) { isoState.code = lh0.isoCode; document.getElementById('isoCodeInput').value = lh0.isoCode; }
-                    if (lh0.isoVer) { isoState.ver = lh0.isoVer; document.getElementById('isoVerInput').value = lh0.isoVer; }
-                    if (lh0.isoDate) { isoState.date = lh0.isoDate; document.getElementById('isoDateInput').value = lh0.isoDate; }
-                    if (lh0.isoPage) { isoState.page = lh0.isoPage; document.getElementById('isoPageInput').value = lh0.isoPage; }
+                // قيم الجودة من الديباجة الأولى تُطبّق عند أول تحميل فقط (حتى لا تُمسح تعديلات المستخدم)
+                if (!profileInitialized) {
+                    profileInitialized = true;
+                    if (letterheadsList[0]) applyLetterheadIsoToInputs(letterheadsList[0]);
                 }
 
-                if (isEditModeActive || document.getElementById('tab-select').classList.contains('active')) {
+                if (isEditModeActive || $('tab-select').classList.contains('active')) {
                     renderAllPages();
                 }
             });
+        }
+
+        /* ============ تحديد النص / الخط ============ */
+        function closestEditable(node) {
+            if (!node) return null;
+            const el = node.nodeType === 1 ? node : node.parentElement;
+            return el ? el.closest('.editable-text-area[contenteditable="true"]') : null;
+        }
+
+        function getEditableAreas() {
+            return Array.from(document.querySelectorAll('#papersContainer .editable-text-area[contenteditable="true"]'));
         }
 
         function handleSelectionAndDetectFont() {
             const sel = window.getSelection();
             if (sel && sel.rangeCount > 0) {
                 const node = sel.anchorNode;
-                const editable = node ? (node.nodeType === 1 ? node.closest('.editable-text-area') : node.parentElement.closest('.editable-text-area')) : null;
+                const editable = closestEditable(node);
                 if (editable) {
-                    savedSelectionRange = sel.getRangeAt(0);
+                    savedSelectionRange = sel.getRangeAt(0).cloneRange();
                     const parentEl = node.nodeType === 1 ? node : node.parentElement;
                     const computedStyle = window.getComputedStyle(parentEl);
-
-                    document.getElementById('currentFontDetected').textContent = computedStyle.fontFamily.replace(/['"]/g, '').split(',')[0];
-                    document.getElementById('currentSizeDetected').textContent = computedStyle.fontSize;
+                    $('currentFontDetected').textContent = computedStyle.fontFamily.replace(/['"]/g, '').split(',')[0];
+                    $('currentSizeDetected').textContent = computedStyle.fontSize;
                 }
             }
         }
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            event.currentTarget.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
+        function restoreSelection() {
+            if (savedSelectionRange && savedSelectionRange.commonAncestorContainer.isConnected) {
+                const area = closestEditable(savedSelectionRange.commonAncestorContainer);
+                if (area) {
+                    area.focus({ preventScroll: true });
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(savedSelectionRange);
+                    return true;
+                }
+            }
+            return false;
+        }
 
-            if (tabId === 'tab-select') renderAllPages();
+        function selectionInsideEditor() {
+            const sel = window.getSelection();
+            return !!(sel && sel.rangeCount && closestEditable(sel.anchorNode));
+        }
+
+        /* حفظ/استرجاع موضع المؤشر عبر إعادة الرسم حتى لا يضيع التركيز أثناء الكتابة */
+        function captureCaret() {
+            const sel = window.getSelection();
+            if (!sel || !sel.rangeCount) return null;
+            const r = sel.getRangeAt(0);
+            const area = closestEditable(r.startContainer);
+            if (!area) return null;
+            const areas = getEditableAreas();
+            const idx = areas.indexOf(area);
+            if (idx < 0) return null;
+            let before = 0;
+            for (let i = 0; i < idx; i++) before += areas[i].textContent.length;
+            const pre = document.createRange();
+            pre.selectNodeContents(area);
+            pre.setEnd(r.startContainer, r.startOffset);
+            return { offset: before + pre.toString().length };
+        }
+
+        function restoreCaret(state) {
+            if (!state) return;
+            const areas = getEditableAreas();
+            if (!areas.length) return;
+            let remaining = state.offset;
+            for (let i = 0; i < areas.length; i++) {
+                const len = areas[i].textContent.length;
+                if (remaining <= len || i === areas.length - 1) {
+                    const walker = document.createTreeWalker(areas[i], NodeFilter.SHOW_TEXT);
+                    let n, acc = 0, target = null, tOff = 0;
+                    while ((n = walker.nextNode())) {
+                        if (remaining <= acc + n.data.length) { target = n; tOff = remaining - acc; break; }
+                        acc += n.data.length;
+                    }
+                    const range = document.createRange();
+                    if (target) range.setStart(target, Math.min(tOff, target.data.length));
+                    else range.setStart(areas[i], 0);
+                    range.collapse(true);
+                    areas[i].focus({ preventScroll: true });
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                    return;
+                }
+                remaining -= len;
+            }
+        }
+
+        /* ============ التبويبات ============ */
+        function switchTab(tabId) {
+            if ($('tab-create').classList.contains('active') && tabId !== 'tab-create') syncContentFromEditor();
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === tabId));
+            $('editorToolbarWrapper').style.display = (tabId === 'tab-create' && isEditModeActive) ? 'block' : 'none';
+            renderAllPages();
+        }
+
+        function enterEditMode() {
+            isEditModeActive = true;
+            $('editingSectionsContainer').style.display = 'block';
+            $('editorToolbarWrapper').style.display = 'block';
         }
 
         function startEditingMode(source) {
-            isEditModeActive = true;
-            document.getElementById('editingSectionsContainer').style.display = 'block';
-            document.getElementById('editorToolbarWrapper').style.display = 'block';
-            
+            enterEditMode();
             if (source === 'blank') {
-                document.getElementById('templateNameInput').value = "";
-                document.getElementById('docTitleInput').value = "عنوان الخطاب الجديد";
+                $('templateNameInput').value = "";
+                $('docTitleInput').value = "عنوان الخطاب الجديد";
                 currentEditorRawContent = "<p>اكتب نص الخطاب هنا...</p>";
             }
-
             renderAllPages();
         }
 
         function openSavedForEdit() { switchTab('tab-select'); }
 
+        /* ============ تعبئة القوائم (مع الحفاظ على اختيارات المستخدم) ============ */
         function populateControls() {
-            const lhOptionsHtml = letterheadsList.map((lh, i) => `<option value="${i}">${lh.name || 'ديباجة ' + (i+1)}</option>`).join('');
-            document.querySelectorAll('.select-letterhead-ctrl').forEach(select => { select.innerHTML = lhOptionsHtml; });
+            const prev = {
+                lh: (document.querySelector('.select-letterhead-ctrl') || {}).value,
+                br: (document.querySelector('.select-branch-ctrl') || {}).value,
+                s1: $('selectSig1').value, s2: $('selectSig2').value, s3: $('selectSig3').value
+            };
 
-            const brOptionsHtml = '<option value="">-- بدون تحديد فرع --</option>' + 
-                branchesList.map((b, i) => `<option value="${i}">${b.name || 'فرع ' + (i+1)}</option>`).join('');
-            document.querySelectorAll('.select-branch-ctrl').forEach(select => { select.innerHTML = brOptionsHtml; });
+            const lhOptionsHtml = letterheadsList.map((lh, i) => `<option value="${i}">${escapeHtml((lh && lh.name) || 'ديباجة ' + (i + 1))}</option>`).join('');
+            document.querySelectorAll('.select-letterhead-ctrl').forEach(select => { select.innerHTML = lhOptionsHtml; setSelectValue(select, prev.lh); });
 
-            const sigOptions = '<option value="">-- بدون توقيع --</option>' + signaturesList.map((s, i) => `<option value="${i}">[توقيع ${i+1}] ${s.titleAr || s.nameAr || ''}</option>`).join('');
-            document.getElementById('selectSig1').innerHTML = sigOptions;
-            document.getElementById('selectSig2').innerHTML = sigOptions;
-            document.getElementById('selectSig3').innerHTML = sigOptions;
+            const brOptionsHtml = '<option value="">-- بدون تحديد فرع --</option>' +
+                branchesList.map((b, i) => `<option value="${i}">${escapeHtml((b && b.name) || 'فرع ' + (i + 1))}</option>`).join('');
+            document.querySelectorAll('.select-branch-ctrl').forEach(select => { select.innerHTML = brOptionsHtml; setSelectValue(select, prev.br); });
 
-            const varDropdown = document.getElementById('variableDropdown');
-            varDropdown.innerHTML = '<option value="">-- اختر الحقل لإدراجه بمكان المؤشر --</option>';
-            
+            const sigOptions = '<option value="">-- بدون توقيع --</option>' +
+                signaturesList.map((s, i) => `<option value="${i}">${escapeHtml(`[توقيع ${i + 1}] ${(s && (s.titleAr || s.nameAr)) || ''}`)}</option>`).join('');
+            ['selectSig1', 'selectSig2', 'selectSig3'].forEach((id, k) => {
+                $(id).innerHTML = sigOptions;
+                setSelectValue($(id), [prev.s1, prev.s2, prev.s3][k]);
+            });
+
             const uniqueKeys = new Set([...columnKeys, 'الاسم', 'الاسم عربي', 'الاسم إنجليزي', 'الوظيفة', 'القسم', 'الرقم القومي', 'العنوان بالبطاقة']);
-            uniqueKeys.forEach(k => { varDropdown.innerHTML += `<option value="{${k}}">{${k}}</option>`; });
+            let varHtml = '<option value="">-- اختر الحقل لإدراجه بمكان المؤشر --</option>';
+            uniqueKeys.forEach(k => { if (k) varHtml += `<option value="{${escapeHtml(k)}}">{${escapeHtml(k)}}</option>`; });
+            $('variableDropdown').innerHTML = varHtml;
 
             populateGroupsAndTemplates();
             renderEmployeesCheckboxes(employeesList);
         }
 
+        function currentLetterhead() {
+            const sel = document.querySelector('.select-letterhead-ctrl');
+            return letterheadsList[sel ? sel.value : 0] || {};
+        }
+
+        function syncAllSelects(cls, value) {
+            document.querySelectorAll(cls).forEach(s => { if (s.value !== value) s.value = value; });
+        }
+
         function syncAndRenderLetterhead(selectEl) {
-            const idx = selectEl.value;
-            if (letterheadsList[idx]) {
-                const lh = letterheadsList[idx];
-                if (lh.isoTitle) { isoState.title = lh.isoTitle; document.getElementById('isoTitleInput').value = lh.isoTitle; }
-                if (lh.isoCode) { isoState.code = lh.isoCode; document.getElementById('isoCodeInput').value = lh.isoCode; }
-                if (lh.isoVer) { isoState.ver = lh.isoVer; document.getElementById('isoVerInput').value = lh.isoVer; }
-                if (lh.isoDate) { isoState.date = lh.isoDate; document.getElementById('isoDateInput').value = lh.isoDate; }
-                if (lh.isoPage) { isoState.page = lh.isoPage; document.getElementById('isoPageInput').value = lh.isoPage; }
-            }
+            syncAllSelects('.select-letterhead-ctrl', selectEl.value);
+            const lh = letterheadsList[selectEl.value];
+            if (lh) applyLetterheadIsoToInputs(lh);
+            renderAllPages();
+        }
+
+        function syncAndRenderBranch(selectEl) {
+            syncAllSelects('.select-branch-ctrl', selectEl.value);
             renderAllPages();
         }
 
         function insertSelectedVariable(selectEl) {
             const varTag = selectEl.value;
-            if (!varTag) return;
-
-            const editableArea = document.querySelector('.editable-text-area[contenteditable="true"]');
-            if (editableArea) {
-                editableArea.focus();
-                if (savedSelectionRange) {
-                    const sel = window.getSelection();
-                    sel.removeAllRanges();
-                    sel.addRange(savedSelectionRange);
-                }
-                document.execCommand('insertText', false, ' ' + varTag + ' ');
-                currentEditorRawContent = editableArea.innerHTML;
-                renderAllPages();
-            }
             selectEl.value = '';
+            if (!varTag || !isEditModeActive) return;
+
+            if (!restoreSelection()) {
+                const areas = getEditableAreas();
+                if (!areas.length) return;
+                const last = areas[areas.length - 1];
+                last.focus({ preventScroll: true });
+                const range = document.createRange();
+                range.selectNodeContents(last);
+                range.collapse(false);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+            document.execCommand('insertText', false, ' ' + varTag + ' ');
+            syncContentFromEditor();
+            scheduleRender();
         }
 
+        /* ============ المجموعات والنماذج المحفوظة ============ */
         function populateGroupsAndTemplates() {
-            const groupSelect = document.getElementById('templateGroupSelect');
-            const filterGroup = document.getElementById('filterGroupSelect');
+            const groupSelect = $('templateGroupSelect');
+            const filterGroup = $('filterGroupSelect');
+            const prevGroup = groupSelect.value;
+            const prevFilter = filterGroup.value;
 
             const existingGroups = new Set(["نماذج التعيين", "نماذج إنهاء الخدمة", "الإداريات والخطابات العامة"]);
-            Object.values(savedTemplates).forEach(t => { if (t.group) existingGroups.add(t.group); });
+            Object.values(savedTemplates).forEach(t => { if (t && t.group) existingGroups.add(t.group); });
 
-            filterGroup.innerHTML = '<option value="ALL">-- عرض كافة المجموعات --</option>';
-            groupSelect.innerHTML = '';
-
+            let filterHtml = '<option value="ALL">-- عرض كافة المجموعات --</option>';
+            let groupHtml = '';
             existingGroups.forEach(grp => {
-                filterGroup.innerHTML += `<option value="${grp}">${grp}</option>`;
-                groupSelect.innerHTML += `<option value="${grp}">${grp}</option>`;
+                filterHtml += `<option value="${escapeHtml(grp)}">${escapeHtml(grp)}</option>`;
+                groupHtml += `<option value="${escapeHtml(grp)}">${escapeHtml(grp)}</option>`;
             });
-            groupSelect.innerHTML += `<option value="__NEW__">+ إضافة مجموعة جديدة...</option>`;
+            groupHtml += `<option value="__NEW__">+ إضافة مجموعة جديدة...</option>`;
+            filterGroup.innerHTML = filterHtml;
+            groupSelect.innerHTML = groupHtml;
+            setSelectValue(groupSelect, prevGroup);
+            setSelectValue(filterGroup, prevFilter);
 
             filterSavedTemplatesByGroup();
         }
 
         function renameCurrentGroup() {
-            const selectEl = document.getElementById('templateGroupSelect');
+            const selectEl = $('templateGroupSelect');
             const oldGroup = selectEl.value;
             if (oldGroup === '__NEW__') return alert('يرجى اختيار مجموعة حقيقية أولاً لتعديل اسمها.');
 
@@ -811,7 +1022,7 @@
 
             const updates = {};
             Object.keys(savedTemplates).forEach(k => {
-                if (savedTemplates[k].group === oldGroup) {
+                if (savedTemplates[k] && savedTemplates[k].group === oldGroup) {
                     updates[`companyProfiles/${activeUser}/templates/${k}/group`] = trimmedNewGroup;
                 }
             });
@@ -819,104 +1030,109 @@
             if (Object.keys(updates).length > 0) {
                 db.ref().update(updates).then(() => {
                     alert(`تم تحديث اسم المجموعة من "${oldGroup}" إلى "${trimmedNewGroup}" بنجاح! ✅`);
-                    selectEl.value = trimmedNewGroup;
                     populateGroupsAndTemplates();
-                });
+                    setSelectValue($('templateGroupSelect'), trimmedNewGroup);
+                }).catch(err => alert('تعذر تحديث اسم المجموعة: ' + err.message));
             } else {
                 alert('لا توجد نماذج محفوظة تتطلب التحديث.');
             }
         }
 
         function toggleCustomGroupInput(selectEl) {
-            document.getElementById('customGroupInput').style.display = (selectEl.value === '__NEW__') ? 'block' : 'none';
+            $('customGroupInput').style.display = (selectEl.value === '__NEW__') ? 'block' : 'none';
         }
 
         function filterSavedTemplatesByGroup() {
-            const selectedGroup = document.getElementById('filterGroupSelect').value;
-            const box = document.getElementById('templatesMultiSelect');
-            box.innerHTML = '';
+            const selectedGroup = $('filterGroupSelect').value;
+            const box = $('templatesMultiSelect');
+            let html = '';
 
             Object.keys(savedTemplates).forEach(k => {
                 const t = savedTemplates[k];
+                if (!t) return;
                 if (selectedGroup === 'ALL' || t.group === selectedGroup) {
-                    box.innerHTML += `
+                    const k2 = escapeHtml(k);
+                    html += `
                         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed #f1f5f9; padding:3px 0;">
-                            <label style="border:none; margin:0;"><input type="checkbox" class="template-chk" value="${k}" onchange="renderAllPages()"> <b>[${t.group || 'عام'}]</b> ${k}</label>
+                            <label style="border:none; margin:0;"><input type="checkbox" class="template-chk" data-key="${k2}" ${selectedTemplateKeys.has(k) ? 'checked' : ''}> <b>[${escapeHtml(t.group || 'عام')}]</b> ${escapeHtml(t.name || k)}</label>
                             <div>
-                                <button class="btn btn-secondary" onclick="loadSavedTemplateToEditor('${k}')" style="padding:2px 7px; font-size:0.75rem;" title="تحرير"><i class="fas fa-edit"></i> تحرير</button>
-                                <button class="btn btn-danger" onclick="deleteSavedTemplate('${k}')" style="padding:2px 6px; font-size:0.75rem;" title="حذف"><i class="fas fa-trash"></i></button>
+                                <button class="btn btn-secondary" data-act="edit" data-key="${k2}" style="padding:2px 7px; font-size:0.75rem;" title="تحرير"><i class="fas fa-edit"></i> تحرير</button>
+                                <button class="btn btn-danger" data-act="delete" data-key="${k2}" style="padding:2px 6px; font-size:0.75rem;" title="حذف"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
                     `;
                 }
             });
+            box.innerHTML = html;
         }
 
         function loadSavedTemplateToEditor(templateKey) {
             const t = savedTemplates[templateKey];
             if (!t) return;
 
-            startEditingMode('load');
-            document.getElementById('templateNameInput').value = templateKey;
-            document.getElementById('docTitleInput').value = t.title || templateKey;
-            currentEditorRawContent = t.content || "";
-            if (t.group) document.getElementById('templateGroupSelect').value = t.group;
+            enterEditMode();
+            $('templateNameInput').value = t.name || templateKey;
+            $('docTitleInput').value = (t.title !== undefined && t.title !== '') ? t.title : (t.name || templateKey);
+            currentEditorRawContent = sanitizeHtml(t.content || "");
+            if (t.group) setSelectValue($('templateGroupSelect'), t.group);
+            toggleCustomGroupInput($('templateGroupSelect'));
 
-            if (t.sig1 !== undefined) document.getElementById('selectSig1').value = t.sig1;
-            if (t.sig2 !== undefined) document.getElementById('selectSig2').value = t.sig2;
-            if (t.sig3 !== undefined) document.getElementById('selectSig3').value = t.sig3;
+            ['1', '2', '3'].forEach(n => {
+                if (t['sig' + n] !== undefined) setSelectValue($('selectSig' + n), t['sig' + n]);
+                if (t['sig' + n + 'Pos']) setSelectValue($('sig' + n + 'Pos'), t['sig' + n + 'Pos']);
+                if (t['sig' + n + 'Level']) setSelectValue($('sig' + n + 'Level'), t['sig' + n + 'Level']);
+            });
 
-            if (t.sig1Pos) document.getElementById('sig1Pos').value = t.sig1Pos;
-            if (t.sig1Level) document.getElementById('sig1Level').value = t.sig1Level;
-            if (t.sig2Pos) document.getElementById('sig2Pos').value = t.sig2Pos;
-            if (t.sig2Level) document.getElementById('sig2Level').value = t.sig2Level;
-            if (t.sig3Pos) document.getElementById('sig3Pos').value = t.sig3Pos;
-            if (t.sig3Level) document.getElementById('sig3Level').value = t.sig3Level;
+            if (t.repeatTitle !== undefined) $('repeatTitleChk').checked = t.repeatTitle;
+            if (t.showPageNum !== undefined) $('showPageNumChk').checked = t.showPageNum;
+            if (t.hideNumOnFirstPage !== undefined) $('hideNumOnFirstPageChk').checked = t.hideNumOnFirstPage;
+            if (t.pageNumPos) setSelectValue($('pageNumPosSelect'), t.pageNumPos);
+            if (t.pageNumFormat) setSelectValue($('pageNumFormatSelect'), t.pageNumFormat);
+            setSelectValue($('docLang'), t.lang || 'ar');
 
-            if (t.repeatTitle !== undefined) document.getElementById('repeatTitleChk').checked = t.repeatTitle;
-            if (t.showPageNum !== undefined) document.getElementById('showPageNumChk').checked = t.showPageNum;
-            if (t.hideNumOnFirstPage !== undefined) document.getElementById('hideNumOnFirstPageChk').checked = t.hideNumOnFirstPage;
-            if (t.pageNumPos) document.getElementById('pageNumPosSelect').value = t.pageNumPos;
-            if (t.pageNumFormat) document.getElementById('pageNumFormatSelect').value = t.pageNumFormat;
+            docFont = { family: t.fontFamily || 'Traditional Arabic', size: t.fontSize || '18px' };
+            setSelectValue($('fontFamilySelect'), docFont.family);
+            setSelectValue($('fontSizeSelect'), docFont.size);
 
-            if (t.isoTitle) { isoState.title = t.isoTitle; document.getElementById('isoTitleInput').value = t.isoTitle; }
-            if (t.isoCode) { isoState.code = t.isoCode; document.getElementById('isoCodeInput').value = t.isoCode; }
-            if (t.isoVer) { isoState.ver = t.isoVer; document.getElementById('isoVerInput').value = t.isoVer; }
-            if (t.isoDate) { isoState.date = t.isoDate; document.getElementById('isoDateInput').value = t.isoDate; }
-            if (t.isoPage) { isoState.page = t.isoPage; document.getElementById('isoPageInput').value = t.isoPage; }
+            applyLetterheadIsoToInputs(t);
 
             if (t.dateAlignPos) {
-                document.getElementById('dateAlignPos').value = t.dateAlignPos;
-                document.getElementById('dateAlignPosPrint').value = t.dateAlignPos;
+                $('dateAlignPos').value = t.dateAlignPos;
+                $('dateAlignPosPrint').value = t.dateAlignPos;
             }
 
             switchTab('tab-create');
-            renderAllPages();
-            alert(`تم فتح النموذج "${templateKey}" في المحرر بنجاح!`);
+            alert(`تم فتح النموذج "${t.name || templateKey}" في المحرر بنجاح!`);
         }
 
+        /* ============ الموظفون ============ */
         function renderEmployeesCheckboxes(list) {
-            const box = document.getElementById('employeesMultiSelect');
-            box.innerHTML = '';
+            const box = $('employeesMultiSelect');
             if (!list || list.length === 0) {
                 box.innerHTML = '<div style="font-size:0.8rem; color:#94a3b8; text-align:center; padding:10px;">لا يوجد موظفين مسجلين في هذا البروفايل.</div>';
                 return;
             }
 
+            let html = '';
             list.forEach((e, i) => {
+                if (!e) return;
                 const code = e['كود'] || e['Code'] || (i + 1);
                 const name = e['الاسم عربي'] || e['الاسم'] || e['Name'] || 'موظف ' + (i + 1);
                 const dept = e['القسم'] || e['Department'] || '';
-                const deptStr = dept ? ` - <span style="color:#0b4fb3; font-weight:600;">(${dept})</span>` : '';
+                const deptStr = dept ? ` - <span style="color:#0b4fb3; font-weight:600;">(${escapeHtml(dept)})</span>` : '';
                 const isChecked = selectedEmpIndexesSet.has(i) ? 'checked' : '';
+                const searchStr = escapeHtml(`${code} ${name} ${dept}`.toLowerCase());
 
-                box.innerHTML += `
-                    <label class="emp-item-label" data-search="${String(code).toLowerCase()} ${String(name).toLowerCase()} ${String(dept).toLowerCase()}">
+                html += `
+                    <label class="emp-item-label" data-search="${searchStr}">
                         <input type="checkbox" class="emp-chk" value="${i}" ${isChecked} onchange="onEmpCheckChange(this)">
-                        <span><b>[${code}]</b> ${name} ${deptStr}</span>
+                        <span><b>[${escapeHtml(code)}]</b> ${escapeHtml(name)} ${deptStr}</span>
                     </label>
                 `;
             });
+            box.innerHTML = html;
+            const q = $('empSearchFilter').value;
+            if (q) filterEmployeesList(q);
         }
 
         function onEmpCheckChange(chk) {
@@ -949,102 +1165,322 @@
         }
 
         function getFormattedDateStr(isEnglish) {
-            const isTab2 = document.getElementById('tab-select').classList.contains('active');
-            const dateVal = document.getElementById(isTab2 ? 'customDateInputPrint' : 'customDateInput').value;
+            const isTab2 = $('tab-select').classList.contains('active');
+            const dateVal = $(isTab2 ? 'customDateInputPrint' : 'customDateInput').value;
             if (!dateVal) return '';
-            return new Date(dateVal).toLocaleDateString(isEnglish ? 'en-US' : 'ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+            const parts = dateVal.split('-').map(Number);
+            if (parts.length !== 3 || parts.some(isNaN)) return '';
+            // بناء التاريخ محلياً لتفادي انزياح اليوم بسبب المنطقة الزمنية
+            return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString(isEnglish ? 'en-US' : 'ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
         }
 
-        function saveCaretPosition(context) {
-            const selection = window.getSelection();
-            if (selection.rangeCount === 0) return null;
-            const range = selection.getRangeAt(0);
-            const preTreeRange = range.cloneRange();
-            preTreeRange.selectNodeContents(context);
-            preTreeRange.setEnd(range.startContainer, range.startOffset);
-            return preTreeRange.toString().length;
+        /* ============ محرك التقسيم إلى صفحات ============ */
+        function nodesToHtml(nodes) {
+            const d = document.createElement('div');
+            nodes.forEach(n => d.appendChild(n));
+            return d.innerHTML;
         }
 
-        function restoreCaretPosition(context, chars) {
-            if (chars === null) return;
-            const selection = window.getSelection();
-            const range = document.createRange();
-            let currentChars = 0;
-            let stop = false;
-
-            function traverseNodes(node) {
-                if (node.nodeType === 3) {
-                    const nextChars = currentChars + node.length;
-                    if (!stop && chars >= currentChars && chars <= nextChars) {
-                        range.setStart(node, chars - currentChars);
-                        range.setEnd(node, chars - currentChars);
-                        stop = true;
-                    }
-                    currentChars = nextChars;
-                } else {
-                    for (let i = 0; i < node.childNodes.length; i++) {
-                        traverseNodes(node.childNodes[i]);
-                        if (stop) break;
-                    }
-                }
-            }
-
-            traverseNodes(context);
-            selection.removeAllRanges();
-            selection.addRange(range);
+        function measureExtra(html, dir) {
+            const pm = $('pagination-measurer');
+            pm.dir = dir;
+            const ex = $('pm-extra');
+            ex.innerHTML = html;
+            const h = ex.offsetHeight;
+            ex.innerHTML = '';
+            return h;
         }
 
-        function paginateHtmlContent(html) {
-            const measurer = document.getElementById('pagination-measurer');
-            
+        /*  يقسّم المحتوى إلى صفحات حسب الارتفاع المتاح فعلياً (الهيدر + الفوتر + العنوان + التوقيعات)
+            capFn(i): أقصى ارتفاع لمحتوى الصفحة رقم i،  sigH: ارتفاع التوقيعات في الصفحة الأخيرة  */
+        function paginateHtmlContent(html, st, capFn, sigH) {
+            const pm = $('pagination-measurer');
+            const area = $('pm-area');
+            pm.dir = st.lang === 'en' ? 'ltr' : 'rtl';
+            area.style.fontFamily = fontStack(st.font.family);
+            area.style.fontSize = st.font.size;
+            area.innerHTML = '';
+
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = html;
+            const nodes = Array.from(tempDiv.childNodes).filter(n => !(n.nodeType === 3 && n.textContent.trim() === ''));
+            if (nodes.length === 0) return [''];
 
-            measurer.innerHTML = '';
-            
-            const nodes = Array.from(tempDiv.childNodes);
-            if (nodes.length === 0) return [html];
+            const pages = [];
+            const fits = () => area.offsetHeight <= capFn(pages.length);
+            const newPage = () => { pages.push(area.innerHTML); area.innerHTML = ''; };
 
-            const MAX_PAGE_HEIGHT = 680; 
-            let pages = [];
-            let currentChunk = document.createElement('div');
-
-            nodes.forEach(node => {
-                const clone = node.cloneNode(true);
-                currentChunk.appendChild(clone);
-                measurer.innerHTML = currentChunk.innerHTML;
-
-                if (measurer.offsetHeight > MAX_PAGE_HEIGHT && currentChunk.childNodes.length > 1) {
-                    currentChunk.removeChild(currentChunk.lastChild);
-                    pages.push(currentChunk.innerHTML);
-
-                    currentChunk = document.createElement('div');
-                    currentChunk.appendChild(node.cloneNode(true));
-                    measurer.innerHTML = currentChunk.innerHTML;
-                }
-            });
-
-            if (currentChunk.childNodes.length > 0) {
-                pages.push(currentChunk.innerHTML);
+            function placeTableRows(table) {
+                const rows = Array.from(table.rows);
+                let shell, tbody;
+                const startShell = (cont) => {
+                    shell = table.cloneNode(false);
+                    Array.from(table.children).forEach(c => { if (c.tagName === 'COLGROUP') shell.appendChild(c.cloneNode(true)); });
+                    if (cont) shell.setAttribute('data-pg-cont', '1');
+                    tbody = document.createElement('tbody');
+                    shell.appendChild(tbody);
+                    area.appendChild(shell);
+                };
+                startShell(false);
+                rows.forEach(row => {
+                    const clone = row.cloneNode(true);
+                    tbody.appendChild(clone);
+                    if (fits()) return;
+                    if (tbody.rows.length === 1) {
+                        if (area.childNodes.length > 1) {          // يوجد محتوى قبله: انقل الجدول للصفحة التالية
+                            area.removeChild(shell);
+                            newPage();
+                            area.appendChild(shell);
+                        }
+                        return;
+                    }
+                    tbody.removeChild(clone);
+                    newPage();
+                    startShell(true);
+                    tbody.appendChild(clone);
+                });
             }
 
-            return pages.length > 0 ? pages : [html];
+            function placeListItems(list) {
+                const items = Array.from(list.children).filter(c => c.tagName === 'LI');
+                const isOl = list.tagName === 'OL';
+                const baseStart = parseInt(list.getAttribute('start')) || 1;
+                let shell, count = 0, consumed = 0;
+                const startShell = (cont) => {
+                    shell = list.cloneNode(false);
+                    if (cont) {
+                        shell.setAttribute('data-pg-cont', '1');
+                        if (isOl) shell.setAttribute('start', String(baseStart + consumed));
+                    }
+                    count = 0;
+                    area.appendChild(shell);
+                };
+                startShell(false);
+                items.forEach(li => {
+                    const clone = li.cloneNode(true);
+                    shell.appendChild(clone);
+                    count++;
+                    if (fits()) { consumed++; return; }
+                    if (count === 1) {
+                        if (area.childNodes.length > 1) { area.removeChild(shell); newPage(); area.appendChild(shell); }
+                        consumed++;
+                        return;
+                    }
+                    shell.removeChild(clone);
+                    newPage();
+                    startShell(true);
+                    shell.appendChild(clone);
+                    count = 1;
+                    consumed++;
+                });
+            }
+
+            function placeWords(node) {
+                const tokens = node.textContent.split(/(\s+)/);
+                let shell = node.cloneNode(false);
+                area.appendChild(shell);
+                let buf = '';
+                tokens.forEach(tok => {
+                    const prev = buf;
+                    buf += tok;
+                    shell.textContent = buf;
+                    if (!fits() && prev.trim() !== '') {
+                        shell.textContent = prev;
+                        newPage();
+                        shell = node.cloneNode(false);
+                        shell.setAttribute('data-pg-cont', '1');
+                        area.appendChild(shell);
+                        buf = tok;
+                        shell.textContent = buf;
+                    }
+                });
+            }
+
+            function placeNode(node) {
+                area.appendChild(node);
+                if (fits()) return;
+                area.removeChild(node);
+
+                if (node.nodeType === 1) {
+                    if (node.tagName === 'TABLE') {
+                        if (area.childNodes.length > 0 && node.rows.length <= 6) { newPage(); placeNode(node); return; }
+                        placeTableRows(node);
+                        return;
+                    }
+                    if ((node.tagName === 'UL' || node.tagName === 'OL') && node.children.length > 1) { placeListItems(node); return; }
+                }
+                if (area.childNodes.length > 0) { newPage(); placeNode(node); return; }
+
+                // العنصر وحده أطول من صفحة كاملة
+                if (node.nodeType === 1 && node.children.length === 0 && node.textContent.trim() !== '') { placeWords(node); return; }
+                area.appendChild(node);   // لا يمكن تقسيمه
+            }
+
+            nodes.forEach(n => placeNode(n.cloneNode(true)));
+
+            // الصفحة الأخيرة: يجب أن تتسع للتوقيعات أيضاً وإلا تُقص
+            if (sigH > 0) {
+                const lastIdx = pages.length;
+                if (area.offsetHeight + sigH > capFn(lastIdx)) {
+                    const moved = [];
+                    while (area.childNodes.length > 1 && area.offsetHeight + sigH > capFn(lastIdx)) {
+                        moved.unshift(area.lastChild);
+                        area.removeChild(area.lastChild);
+                    }
+                    pages.push(area.innerHTML);
+                    area.innerHTML = '';
+                    pages.push(moved.length ? nodesToHtml(moved) : '');
+                    area.innerHTML = '';
+                    return pages;
+                }
+            }
+            pages.push(area.innerHTML);
+            area.innerHTML = '';
+            return pages;
         }
 
-        function renderAllPages(skipCaretRestore = false) {
-            const container = document.getElementById('papersContainer');
-            
-            const activeEditable = document.activeElement && document.activeElement.classList.contains('editable-text-area') ? document.activeElement : null;
-            let caretOffset = null;
-            if (activeEditable) {
-                caretOffset = saveCaretPosition(activeEditable);
+        // يعيد دمج الأجزاء التي قسّمها محرك الصفحات (فقرة / جدول / قائمة) إلى عنصر واحد قبل الحفظ
+        function mergeContinuations(html) {
+            if (html.indexOf('data-pg-cont') === -1) return html;
+            const box = document.createElement('div');
+            box.innerHTML = html;
+            box.querySelectorAll('[data-pg-cont]').forEach(el => {
+                const prev = el.previousElementSibling;
+                if (!prev || prev.tagName !== el.tagName) { el.removeAttribute('data-pg-cont'); el.removeAttribute('start'); return; }
+                if (el.tagName === 'TABLE') {
+                    const target = prev.tBodies.length ? prev.tBodies[prev.tBodies.length - 1] : prev;
+                    Array.from(el.rows).forEach(r => target.appendChild(r));
+                } else if (el.tagName === 'UL' || el.tagName === 'OL') {
+                    Array.from(el.children).forEach(li => prev.appendChild(li));
+                } else {
+                    prev.innerHTML = prev.innerHTML + el.innerHTML;
+                }
+                el.remove();
+            });
+            return box.innerHTML;
+        }
+
+        function collectEditorContent() {
+            const areas = getEditableAreas();
+            if (!areas.length) return null;
+            return mergeContinuations(areas.map(a => a.innerHTML).join(''));
+        }
+
+        function syncContentFromEditor() {
+            const c = collectEditorContent();
+            if (c !== null) currentEditorRawContent = c;
+        }
+
+        function scheduleRender() {
+            clearTimeout(renderTimer);
+            renderTimer = setTimeout(function () { if (!isComposing) renderAllPages(); }, 500);
+        }
+
+        function onEditorInput() {
+            syncContentFromEditor();
+            scheduleRender();
+        }
+
+        function onEditorPaste(e) {
+            if (!closestEditable(e.target)) return;
+            e.preventDefault();
+            const cd = e.clipboardData || window.clipboardData;
+            const rawHtml = cd.getData('text/html');
+            let html;
+            if (rawHtml) html = sanitizeHtml(rawHtml, { stripClass: true });
+            else html = escapeHtml(cd.getData('text')).replace(/\r?\n/g, '<br>');
+            document.execCommand('insertHTML', false, html);
+        }
+
+        /* ============ إعدادات كل نموذج ============ */
+        function getTemplateSettings(tKey) {
+            const val = id => $(id).value;
+            const chk = id => $(id).checked;
+            let st;
+            if (tKey === '__CURRENT__') {
+                st = {
+                    title: val('docTitleInput').trim(),
+                    lang: val('docLang'),
+                    repeatTitle: chk('repeatTitleChk'),
+                    showPageNum: chk('showPageNumChk'),
+                    hideNumOnFirstPage: chk('hideNumOnFirstPageChk'),
+                    pageNumPos: val('pageNumPosSelect'),
+                    pageNumFormat: val('pageNumFormatSelect'),
+                    iso: { title: isoState.title, code: isoState.code, ver: isoState.ver, date: isoState.date },
+                    font: { family: docFont.family, size: docFont.size },
+                    sigs: [1, 2, 3].map(n => ({ idx: val('selectSig' + n), pos: val('sig' + n + 'Pos'), level: val('sig' + n + 'Level') }))
+                };
+            } else {
+                const t = savedTemplates[tKey] || {};
+                const lh = currentLetterhead();
+                st = {
+                    title: (t.title === undefined || t.title === null) ? (t.name || tKey) : String(t.title).trim(),
+                    lang: t.lang || 'ar',
+                    repeatTitle: !!t.repeatTitle,
+                    showPageNum: t.showPageNum !== false,
+                    hideNumOnFirstPage: !!t.hideNumOnFirstPage,
+                    pageNumPos: t.pageNumPos || 'footer-center',
+                    pageNumFormat: t.pageNumFormat || 'full',
+                    iso: {
+                        title: t.isoTitle || lh.isoTitle || ISO_DEFAULTS.title,
+                        code: t.isoCode || lh.isoCode || ISO_DEFAULTS.code,
+                        ver: t.isoVer || lh.isoVer || ISO_DEFAULTS.ver,
+                        date: t.isoDate || lh.isoDate || ISO_DEFAULTS.date
+                    },
+                    font: { family: t.fontFamily || 'Traditional Arabic', size: t.fontSize || '18px' },
+                    sigs: [1, 2, 3].map(n => ({
+                        idx: (t['sig' + n] === undefined || t['sig' + n] === null) ? '' : String(t['sig' + n]),
+                        pos: t['sig' + n + 'Pos'] || SIG_DEFAULTS[n - 1].pos,
+                        level: t['sig' + n + 'Level'] || SIG_DEFAULTS[n - 1].level
+                    }))
+                };
             }
+            return st;
+        }
 
-            container.innerHTML = '';
+        function buildSignaturesHtml(sigs) {
+            const levels = { "1": [], "2": [], "3": [] };
+            sigs.forEach(c => {
+                if (c.idx !== '' && signaturesList[c.idx]) {
+                    const lvl = levels[c.level] ? c.level : "1";
+                    levels[lvl].push({ sig: signaturesList[c.idx], pos: c.pos });
+                }
+            });
+            if (!levels["1"].length && !levels["2"].length && !levels["3"].length) return '';
 
-            const isTab2 = document.getElementById('tab-select').classList.contains('active');
-            const selectedTemplateKeys = isTab2 ? Array.from(document.querySelectorAll('.template-chk:checked')).map(c => c.value) : ['__CURRENT__'];
-            const selectedEmpIndexes = Array.from(selectedEmpIndexesSet);
+            const col = (items, pos) => {
+                const inner = items.filter(i => i.pos === pos)
+                    .map(i => `<div class="sig-title">${escapeHtml(i.sig.titleAr || '')}</div><div class="sig-name">${escapeHtml(i.sig.nameAr || '')}</div>`).join('');
+                return `<div class="sig-col">${inner}</div>`;
+            };
+
+            let html = `<div class="signatures-area-container">`;
+            ["1", "2", "3"].forEach(lvlKey => {
+                const items = levels[lvlKey];
+                if (items.length > 0) {
+                    html += `<div class="sig-row-level">${col(items, 'right')}${col(items, 'center')}${col(items, 'left')}</div>`;
+                }
+            });
+            return html + `</div>`;
+        }
+
+        function buildTitleDateHtml(st, ctx, isEnglish) {
+            const titleBlock = st.title ? `<div class="document-title">${escapeHtml(st.title)}</div>` : '';
+            const dateStr = getFormattedDateStr(isEnglish);
+            const dateTextAlignCss = (ctx.alignPos === 'left') ? 'text-align: left !important;' : 'text-align: right !important;';
+            const dateBlock = (ctx.showDate && dateStr)
+                ? `<div class="date-display-block" style="${dateTextAlignCss}">${isEnglish ? 'Date:' : 'التاريخ:'}&nbsp;<span class="bidi-ltr">${escapeHtml(dateStr)}</span></div>` : '';
+            return titleBlock + dateBlock;
+        }
+
+        /* ============ الرسم الرئيسي ============ */
+        function renderAllPages() {
+            clearTimeout(renderTimer);
+            const container = $('papersContainer');
+            const scrollY = window.scrollY;
+            const caret = captureCaret();
+
+            const isTab2 = $('tab-select').classList.contains('active');
 
             if (!isEditModeActive && !isTab2) {
                 container.innerHTML = `
@@ -1055,162 +1491,133 @@
                 return;
             }
 
-            if (selectedEmpIndexes.length === 0) {
-                container.innerHTML = '<div style="background:#fff; padding:20px; border-radius:8px;">برجاء اختيار موظف واحد على الأقل للطباعة.</div>';
-                return;
+            // وضع التحرير: نموذج واحد بحقوله الخام {المتغيرات} / وضع الطباعة: كل موظف × كل نموذج
+            let jobs = [];
+            if (isTab2) {
+                const keys = Object.keys(savedTemplates).filter(k => selectedTemplateKeys.has(k));
+                const emps = Array.from(selectedEmpIndexesSet).sort((a, b) => a - b);
+                if (keys.length === 0) {
+                    container.innerHTML = '<div style="background:#fff; padding:20px; border-radius:8px;">برجاء اختيار نموذج واحد على الأقل للطباعة.</div>';
+                    return;
+                }
+                if (emps.length === 0) {
+                    container.innerHTML = '<div style="background:#fff; padding:20px; border-radius:8px;">برجاء اختيار موظف واحد على الأقل للطباعة.</div>';
+                    return;
+                }
+                emps.forEach(ei => keys.forEach(k => jobs.push({ tKey: k, emp: employeesList[ei] || {} })));
+            } else {
+                jobs.push({ tKey: '__CURRENT__', emp: null });
             }
 
-            selectedEmpIndexes.forEach(empIdx => {
-                const emp = employeesList[empIdx] || {};
+            // إعدادات مشتركة
+            const showHeader = isTab2 ? true : $('showHeaderChk').checked;
+            const showFooter = isTab2 ? true : $('showFooterChk').checked;
+            const headerH = parseInt($('headerHeight').value) || 105;
+            const footerH = parseInt($('footerHeight').value) || 65;
+            const ctx = {
+                showHeader, showFooter, headerH, footerH,
+                showDate: isTab2 ? $('showDateChkPrint').checked : $('showDateChk').checked,
+                alignPos: isTab2 ? $('dateAlignPosPrint').value : $('dateAlignPos').value,
+                lh: currentLetterhead(),
+                logoHtml: '',
+                br: branchesList[document.querySelector('.select-branch-ctrl').value || ""]
+            };
 
-                selectedTemplateKeys.forEach(tKey => {
-                    let rawHtml = (tKey === '__CURRENT__') ? currentEditorRawContent : (savedTemplates[tKey] ? savedTemplates[tKey].content : '');
-                    let mergedHtml = mergeEmployeeData(rawHtml, emp);
-                    
-                    let s1 = document.getElementById('selectSig1').value;
-                    let s2 = document.getElementById('selectSig2').value;
-                    let s3 = document.getElementById('selectSig3').value;
+            ctx.logoHtml = (companyInfo.logo && ctx.lh.logoPos !== 'none') ? `<img src="${escapeHtml(companyInfo.logo)}" class="header-logo" alt="Logo">` : '';
 
-                    if (tKey !== '__CURRENT__' && savedTemplates[tKey]) {
-                        s1 = savedTemplates[tKey].sig1 || "";
-                        s2 = savedTemplates[tKey].sig2 || "";
-                        s3 = savedTemplates[tKey].sig3 || "";
-                    }
+            // معالجة كل نموذج مرة واحدة (الإعدادات + التوقيعات + الارتفاعات)
+            const tplCache = {};
+            const knownKeys = new Set([...columnKeys, ...NAME_SYN, ...JOB_SYN, ...DEPT_SYN, 'الاسم إنجليزي', 'الرقم القومي', 'العنوان بالبطاقة']);
+            let allHtml = '';
 
-                    const pagesChunks = paginateHtmlContent(mergedHtml);
+            jobs.forEach(job => {
+                const tKey = job.tKey;
+                if (!tplCache[tKey]) {
+                    const st = getTemplateSettings(tKey);
+                    const isEnglish = st.lang === 'en';
+                    const dir = isEnglish ? 'ltr' : 'rtl';
+                    const rawHtml = (tKey === '__CURRENT__') ? currentEditorRawContent : ((savedTemplates[tKey] && savedTemplates[tKey].content) || '');
+                    const sigHtml = buildSignaturesHtml(st.sigs);
+                    const titleDateHtml = buildTitleDateHtml(st, ctx, isEnglish);
+                    const tdH = titleDateHtml ? measureExtra(titleDateHtml, dir) : 0;
+                    const sigH = sigHtml ? measureExtra(sigHtml, dir) + 12 : 0;
+                    const hdr = showHeader ? headerH : 0, ftr = showFooter ? footerH : 0;
+                    const capFn = (i) => Math.max(200, PAGE_H_PX - hdr - ftr - BODY_PAD_V - ((i === 0 || st.repeatTitle) ? tdH : 0) - SAFETY_PX);
+                    tplCache[tKey] = { st, isEnglish, dir, html: sanitizeHtml(rawHtml), sigHtml, titleDateHtml, sigH, capFn };
+                }
+                const T = tplCache[tKey];
+                const mergedHtml = job.emp ? mergeEmployeeData(T.html, job.emp, knownKeys) : T.html;
+                const pagesChunks = paginateHtmlContent(mergedHtml, T.st, T.capFn, T.sigH);
+                const totalPages = pagesChunks.length;
 
-                    pagesChunks.forEach((chunkHtml, pIndex) => {
-                        const totalPages = pagesChunks.length;
-                        const pageNumVal = pIndex + 1;
-                        const isLastPage = (pIndex === totalPages - 1);
-                        const isFirstPage = (pIndex === 0);
-
-                        const docHtml = createSinglePageDocument(chunkHtml, tKey === '__CURRENT__', isLastPage ? s1 : '', isLastPage ? s2 : '', isLastPage ? s3 : '', pageNumVal, totalPages, isFirstPage);
-                        container.insertAdjacentHTML('beforeend', docHtml);
+                pagesChunks.forEach((chunkHtml, pIndex) => {
+                    allHtml += createSinglePageDocument({
+                        bodyHtml: chunkHtml,
+                        isEditable: tKey === '__CURRENT__',
+                        sigHtml: (pIndex === totalPages - 1) ? T.sigHtml : '',
+                        titleDateHtml: (pIndex === 0 || T.st.repeatTitle) ? T.titleDateHtml : '',
+                        pageNum: pIndex + 1, totalPages, isFirstPage: pIndex === 0,
+                        st: T.st, isEnglish: T.isEnglish, dir: T.dir, ctx
                     });
                 });
             });
 
-            const editableAreas = document.querySelectorAll('.editable-text-area[contenteditable="true"]');
-            editableAreas.forEach(area => {
-                area.addEventListener('paste', function(e) {
-                    e.preventDefault();
-                    let text = (e.clipboardData || window.clipboardData).getData('text/plain');
-                    document.execCommand('insertText', false, text);
-                    currentEditorRawContent = area.innerHTML;
-                    renderAllPages(true);
-                });
-
-                area.addEventListener('input', function(e) { 
-                    currentEditorRawContent = e.target.innerHTML;
-                    renderAllPages(false);
-                });
-                
-                area.addEventListener('keyup', handleSelectionAndDetectFont);
-                area.addEventListener('mouseup', handleSelectionAndDetectFont);
-            });
-
-            if (!skipCaretRestore && activeEditable && caretOffset !== null) {
-                const newEditable = document.querySelector('.editable-text-area[contenteditable="true"]');
-                if (newEditable) {
-                    newEditable.focus();
-                    restoreCaretPosition(newEditable, caretOffset);
-                }
-            }
+            container.innerHTML = allHtml;     // استبدال واحد فقط حتى لا يقفز شريط التمرير
+            window.scrollTo(0, scrollY);
+            restoreCaret(caret);
         }
 
-        function mergeEmployeeData(htmlContent, emp) {
-            let res = htmlContent;
+        function mergeEmployeeData(htmlContent, emp, knownKeys) {
+            const map = new Map();
+            Object.keys(emp).forEach(k => { if (k && k.trim()) map.set(k.trim(), emp[k]); });
 
-            Object.keys(emp).forEach(key => {
-                if (key) {
-                    const regex = new RegExp(`\\{${key.trim()}\\}`, 'g');
-                    const rawVal = emp[key] !== undefined && emp[key] !== null ? String(emp[key]).trim() : '';
-                    const safeVal = `&nbsp;<span class="var-value-span">${rawVal}</span>&nbsp;`;
-                    res = res.replace(regex, safeVal);
-                }
+            const first = arr => arr.map(k => emp[k]).find(v => v !== undefined && v !== null);
+            const syn = (arr) => { const v = first(arr); arr.forEach(k => { if (!map.has(k)) map.set(k, v === undefined ? '' : v); }); };
+            syn(NAME_SYN); syn(JOB_SYN); syn(DEPT_SYN);
+
+            const span = v => `&nbsp;<span class="var-value-span">${escapeHtml(v === undefined || v === null ? '' : String(v).trim())}</span>&nbsp;`;
+
+            // مرور واحد على كل {حقل}: لا حاجة لبناء تعبيرات نمطية من أسماء الأعمدة
+            return htmlContent.replace(/\{([^{}<>]{1,80})\}/g, (match, name) => {
+                const k = name.trim();
+                if (map.has(k)) return span(map.get(k));
+                if (knownKeys.has(k)) return span('');     // عمود معروف لكن لا توجد له قيمة لهذا الموظف
+                return match;
             });
-
-            const nameSynonyms = ['الاسم عربي', 'الاسم', 'الاسم_عربي', 'اسم الموظف', 'Name'];
-            const jobSynonyms = ['الوظيفة', 'الوظيفة الحالية', 'المسمى الوظيفي', 'Job'];
-            const deptSynonyms = ['القسم', 'الإدارة', 'Department'];
-
-            const empName = nameSynonyms.map(k => emp[k]).find(v => v !== undefined && v !== null) || '';
-            const empJob = jobSynonyms.map(k => emp[k]).find(v => v !== undefined && v !== null) || '';
-            const empDept = deptSynonyms.map(k => emp[k]).find(v => v !== undefined && v !== null) || '';
-
-            const safeName = `&nbsp;<span class="var-value-span">${String(empName).trim()}</span>&nbsp;`;
-            const safeJob = `&nbsp;<span class="var-value-span">${String(empJob).trim()}</span>&nbsp;`;
-            const safeDept = `&nbsp;<span class="var-value-span">${String(empDept).trim()}</span>&nbsp;`;
-
-            nameSynonyms.forEach(k => res = res.replace(new RegExp(`\\{${k}\\}`, 'g'), safeName));
-            jobSynonyms.forEach(k => res = res.replace(new RegExp(`\\{${k}\\}`, 'g'), safeJob));
-            deptSynonyms.forEach(k => res = res.replace(new RegExp(`\\{${k}\\}`, 'g'), safeDept));
-
-            return res;
         }
 
-        /* دمج الترقيم بالكامل في نفس سطر الفوتر الأفقية */
-        function createSinglePageDocument(bodyHtml, isEditable, s1Idx, s2Idx, s3Idx, pageNum, totalPages, isFirstPage = true) {
-            const isTab2 = document.getElementById('tab-select').classList.contains('active');
-            
-            const showHeader = isTab2 ? true : document.getElementById('showHeaderChk').checked;
-            const showFooter = isTab2 ? true : document.getElementById('showFooterChk').checked;
-            const showDate = isTab2 ? document.getElementById('showDateChkPrint').checked : document.getElementById('showDateChk').checked;
-            const repeatTitle = document.getElementById('repeatTitleChk').checked;
-
-            const showPageNum = document.getElementById('showPageNumChk').checked;
-            const hideNumOnFirstPage = document.getElementById('hideNumOnFirstPageChk').checked;
-            const pageNumPos = document.getElementById('pageNumPosSelect').value;
-            const pageNumFormat = document.getElementById('pageNumFormatSelect').value;
+        /* توليد ورقة A4 واحدة مع الترقيم والتوزيع الإداري */
+        function createSinglePageDocument(p) {
+            const { bodyHtml, isEditable, sigHtml, titleDateHtml, pageNum, totalPages, isFirstPage, st, isEnglish, dir: textDir, ctx } = p;
 
             let pageNumString = '';
-            if (pageNumFormat === 'full') pageNumString = `صفحة ${pageNum} من ${totalPages}`;
-            else if (pageNumFormat === 'slash') pageNumString = `${pageNum} / ${totalPages}`;
+            if (st.pageNumFormat === 'full') pageNumString = isEnglish ? `Page ${pageNum} of ${totalPages}` : `صفحة ${pageNum} من ${totalPages}`;
+            else if (st.pageNumFormat === 'slash') pageNumString = `${pageNum} / ${totalPages}`;
             else pageNumString = `${pageNum}`;
 
-            const shouldDisplayNum = showPageNum && !(isFirstPage && hideNumOnFirstPage);
-            
-            const alignPos = isTab2 ? document.getElementById('dateAlignPosPrint').value : document.getElementById('dateAlignPos').value;
+            const shouldDisplayNum = st.showPageNum && !(isFirstPage && st.hideNumOnFirstPage);
 
-            const isEnglish = (document.getElementById('docLang').value === 'en');
-            const textDir = isEnglish ? 'ltr' : 'rtl';
-
-            const headerH = document.getElementById('headerHeight').value || 105;
-            const footerH = document.getElementById('footerHeight').value || 65;
-
-            const lhSelect = document.querySelector('.select-letterhead-ctrl');
-            const lh = letterheadsList[lhSelect ? lhSelect.value : 0] || {};
-            const br = branchesList[document.querySelector('.select-branch-ctrl').value || ""];
-
-            let hLine1 = lh.hLine1 || companyInfo.nameAr || 'شركة المعامل الكيميائية الفنية';
-            let hLine2 = lh.hLine2 || companyInfo.fieldAr || '';
-
+            const lh = ctx.lh, br = ctx.br;
+            let hLine1 = escapeHtml(lh.hLine1 || companyInfo.nameAr || '');
+            const hLine2 = escapeHtml(lh.hLine2 || companyInfo.fieldAr || '');
             hLine1 = hLine1.replace(/\(([^)]+)\)/g, '&nbsp;<span class="bidi-ltr">($1)</span>&nbsp;');
-
-            const logoHtml = (companyInfo.logo && lh.logoPos !== 'none') ? `<img src="${companyInfo.logo}" class="header-logo" alt="Logo">` : '';
-
-            const isoTitle = isoState.title || 'إجراءات الموارد البشرية';
-            const isoCode = isoState.code || 'qsep-07.01';
-            const isoVer = isoState.ver || '12';
-            const isoDate = isoState.date || '2026-10-03';
 
             const isoMarkup = `
                 <div class="header-iso-container">
                     <div class="iso-box iso-box-1">
-                        <div class="iso-main-title">${isoTitle}</div>
+                        <div class="iso-main-title">${escapeHtml(st.iso.title)}</div>
                         <div class="iso-code-row">
-                            <b>رقم:&nbsp;</b><span class="bidi-ltr" style="font-weight:bold;">${isoCode}</span>
+                            <b>رقم:&nbsp;</b><span class="bidi-ltr" style="font-weight:bold;">${escapeHtml(st.iso.code)}</span>
                         </div>
                     </div>
                     <div class="iso-box iso-box-2">
                         <div class="iso-row-item">
                             <span>إصدار&nbsp;/&nbsp;تعديل:&nbsp;</span>
-                            <b class="bidi-isolate">${isoVer}</b>
+                            <b class="bidi-isolate">${escapeHtml(st.iso.ver)}</b>
                         </div>
                         <div class="iso-row-item">
                             <span>تاريخ&nbsp;التعديل:&nbsp;</span>
-                            <b class="bidi-ltr">${isoDate}</b>
+                            <b class="bidi-ltr">${escapeHtml(st.iso.date)}</b>
                         </div>
                         <div class="iso-row-item">
                             <span>صفحة&nbsp;رقم:&nbsp;</span>
@@ -1220,72 +1627,31 @@
                 </div>
             `;
 
-            let fLine = `<div>${lh.fLine1 || ''}</div><div>${lh.fLine2 || ''}</div>`;
-            if (br) fLine += `<div style="font-weight:bold; margin-top:2px;">${br.name} - س.ت: <span class="bidi-isolate">${br.cr}</span> - ب.ض: <span class="bidi-isolate">${br.tax}</span></div>`;
+            let fLine = `<div>${escapeHtml(lh.fLine1 || '')}</div><div>${escapeHtml(lh.fLine2 || '')}</div>`;
+            if (br) fLine += `<div style="font-weight:bold; margin-top:2px;">${escapeHtml(br.name)} - س.ت: <span class="bidi-isolate">${escapeHtml(br.cr)}</span> - ب.ض: <span class="bidi-isolate">${escapeHtml(br.tax)}</span></div>`;
 
-            const docTitle = document.getElementById('docTitleInput').value.trim();
-            let titleBlock = (docTitle && (isFirstPage || repeatTitle)) ? `<div class="document-title">${docTitle}</div>` : '';
-
-            const formattedDate = getFormattedDateStr(isEnglish);
-            const dateTextAlignCss = (alignPos === 'left') ? 'text-align: left !important;' : 'text-align: right !important;';
-            let dateBlock = (showDate && formattedDate && (isFirstPage || repeatTitle)) ? `<div class="date-display-block" style="${dateTextAlignCss}">${isEnglish ? 'Date:' : 'التاريخ:'}&nbsp;<span class="bidi-ltr">${formattedDate}</span></div>` : '';
-
-            // التوقيعات
-            let sig1 = (s1Idx !== "" && signaturesList[s1Idx]) ? signaturesList[s1Idx] : null;
-            let sig2 = (s2Idx !== "" && signaturesList[s2Idx]) ? signaturesList[s2Idx] : null;
-            let sig3 = (s3Idx !== "" && signaturesList[s3Idx]) ? signaturesList[s3Idx] : null;
-
-            let sigHtml = '';
-            if (sig1 || sig2 || sig3) {
-                const levels = { "1": [], "2": [], "3": [] };
-
-                if (sig1) levels[document.getElementById('sig1Level').value].push({ sig: sig1, pos: document.getElementById('sig1Pos').value });
-                if (sig2) levels[document.getElementById('sig2Level').value].push({ sig: sig2, pos: document.getElementById('sig2Pos').value });
-                if (sig3) levels[document.getElementById('sig3Level').value].push({ sig: sig3, pos: document.getElementById('sig3Pos').value });
-
-                sigHtml = `<div class="signatures-area-container">`;
-                ["1", "2", "3"].forEach(lvlKey => {
-                    const items = levels[lvlKey];
-                    if (items.length > 0) {
-                        sigHtml += `<div class="sig-row-level">`;
-                        let rightItem = items.find(i => i.pos === 'right');
-                        let centerItem = items.find(i => i.pos === 'center');
-                        let leftItem = items.find(i => i.pos === 'left');
-
-                        sigHtml += `<div class="sig-col">${rightItem ? `<div class="sig-title">${rightItem.sig.titleAr || ''}</div><div class="sig-name">${rightItem.sig.nameAr || ''}</div>` : ''}</div>`;
-                        sigHtml += `<div class="sig-col">${centerItem ? `<div class="sig-title">${centerItem.sig.titleAr || ''}</div><div class="sig-name">${centerItem.sig.nameAr || ''}</div>` : ''}</div>`;
-                        sigHtml += `<div class="sig-col">${leftItem ? `<div class="sig-title">${leftItem.sig.titleAr || ''}</div><div class="sig-name">${leftItem.sig.nameAr || ''}</div>` : ''}</div>`;
-                        sigHtml += `</div>`;
-                    }
-                });
-                sigHtml += `</div>`;
+            let numHeaderMarkup = '';
+            let numFooterMarkup = '';
+            if (shouldDisplayNum) {
+                if (st.pageNumPos.startsWith('header')) {
+                    const align = st.pageNumPos.endsWith('left') ? 'left' : 'right';
+                    numHeaderMarkup = `<div class="page-number-display" style="text-align:${align}; margin-bottom:4px;">${pageNumString}</div>`;
+                } else {
+                    const align = st.pageNumPos.endsWith('left') ? 'left' : (st.pageNumPos.endsWith('right') ? 'right' : 'center');
+                    numFooterMarkup = `<div class="page-number-display" style="text-align:${align}; margin-top:4px;">${pageNumString}</div>`;
+                }
             }
 
-            // تجهيز عناصر الفوتر المدمجة في سطر واحد افقياً
-            let pageNumHtmlSpan = shouldDisplayNum ? `<span class="page-number-display-inline">${pageNumString}</span>` : `<span></span>`;
-
-            let footerInlineMarkup = '';
-            if (pageNumPos === 'footer-left') {
-                footerInlineMarkup = `<div class="footer-content-block">${fLine}</div>${pageNumHtmlSpan}`;
-            } else if (pageNumPos === 'footer-right') {
-                footerInlineMarkup = `${pageNumHtmlSpan}<div class="footer-content-block">${fLine}</div>`;
-            } else {
-                footerInlineMarkup = `<div class="footer-content-block">${fLine} <div style="margin-top:2px;">${pageNumHtmlSpan}</div></div>`;
-            }
-
-            const headerMarkup = showHeader ? `<div class="header-section" style="height:${headerH}px; border-bottom:2px solid #0b4fb3;"><div class="header-text"><div>${hLine1}</div><div>${hLine2}</div></div>${isoMarkup}${logoHtml}</div>` : '';
-            const footerMarkup = showFooter ? `<div class="footer-section" style="height:${footerH}px; border-top:2px solid #0b4fb3;">${footerInlineMarkup}</div>` : '';
+            const headerMarkup = ctx.showHeader ? `<div class="header-section" style="height:${ctx.headerH}px; border-bottom:2px solid #0b4fb3;"><div class="header-text"><div>${hLine1}</div><div>${hLine2}</div></div>${isoMarkup}${ctx.logoHtml}${numHeaderMarkup}</div>` : '';
+            const footerMarkup = ctx.showFooter ? `<div class="footer-section" style="height:${ctx.footerH}px; border-top:2px solid #0b4fb3; text-align:center;">${fLine}${numFooterMarkup}</div>` : '';
 
             return `
                 <div class="print-document">
                     <div class="page-node" dir="${textDir}">
                         ${headerMarkup}
                         <div class="body-section" dir="${textDir}">
-                            ${titleBlock}
-                            ${dateBlock}
-                            <div class="editable-text-area" ${isEditable ? 'contenteditable="true"' : ''}>
-                                ${bodyHtml}
-                            </div>
+                            ${titleDateHtml}
+                            <div class="editable-text-area" style="font-family:${escapeHtml(fontStack(st.font.family))}; font-size:${escapeHtml(st.font.size)};" ${isEditable ? 'contenteditable="true"' : ''}>${bodyHtml}</div>
                             ${sigHtml}
                         </div>
                         ${footerMarkup}
@@ -1294,18 +1660,22 @@
             `;
         }
 
+        /* ============ التصدير ============ */
         function exportSelectedPagesToPDF() {
             const allDocElements = document.querySelectorAll('.print-document');
             if (allDocElements.length === 0) return alert('لا يوجد نماذج معروضة للتصدير حالياً');
 
-            let containerToExport = document.createElement('div');
+            if (allDocElements.length > 40 && !confirm(`سيتم تصدير ${allDocElements.length} صفحة، وقد يتباطأ المتصفح أو يتوقف. للكميات الكبيرة يُفضّل زر الطباعة ثم اختيار "حفظ كـ PDF". هل تريد المتابعة؟`)) return;
+
+            const containerToExport = document.createElement('div');
             containerToExport.style.width = "210mm";
 
             allDocElements.forEach(doc => {
-                let cloned = doc.cloneNode(true);
+                const cloned = doc.cloneNode(true);
+                cloned.querySelectorAll('[contenteditable]').forEach(e => e.removeAttribute('contenteditable'));
                 cloned.style.margin = "0";
                 cloned.style.boxShadow = "none";
-                cloned.style.height = "297mm";
+                cloned.style.height = "296mm";
                 cloned.style.pageBreakAfter = "always";
                 cloned.style.breakAfter = "page";
                 containerToExport.appendChild(cloned);
@@ -1316,102 +1686,122 @@
                 containerToExport.lastElementChild.style.breakAfter = "avoid";
             }
 
+            // ملاحظة: letterRendering كان يفكك حروف العربية في الـ PDF فتم حذفه
             const opt = {
                 margin: 0,
-                filename: `النماذج_المصدرة_${new Date().toISOString().slice(0,10)}.pdf`,
+                filename: `النماذج_المصدرة_${todayLocalISO()}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, scrollY: 0, letterRendering: true },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                pagebreak: { mode: ['css'] }
             };
 
-            html2pdf().set(opt).from(containerToExport).save();
+            html2pdf().set(opt).from(containerToExport).save().catch(err => alert('تعذر إنشاء ملف PDF: ' + err.message));
+        }
+
+        /* استبدال بيانات الموظف الحالي بمتغيرات داخل نصوص المحتوى فقط (لا تلمس الوسوم ولا المتغيرات الموجودة) */
+        function templatizeContent(html, emp) {
+            const box = document.createElement('div');
+            box.innerHTML = html;
+            const report = [];
+            const pairs = [
+                [emp['الاسم عربي'] || emp['الاسم'] || '', '{الاسم عربي}'],
+                [emp['الوظيفة'] || '', '{الوظيفة}'],
+                [emp['القسم'] || '', '{القسم}']
+            ];
+            pairs.forEach(([value, tag]) => {
+                value = String(value).trim();
+                if (value.length < 3) return;
+                let count = 0;
+                const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+                const textNodes = [];
+                let n;
+                while ((n = walker.nextNode())) textNodes.push(n);
+                textNodes.forEach(tn => {
+                    const parts = tn.data.split(/(\{[^{}]*\})/);          // لا نلمس المتغيرات الموجودة
+                    let changed = false;
+                    const out = parts.map(seg => {
+                        if (/^\{[^{}]*\}$/.test(seg) || seg.indexOf(value) === -1) return seg;
+                        const pieces = seg.split(value);
+                        count += pieces.length - 1;
+                        changed = true;
+                        return pieces.join(tag);
+                    });
+                    if (changed) tn.data = out.join('');
+                });
+                if (count) report.push(`"${value}" ← ${tag} (${count})`);
+            });
+            return { html: box.innerHTML, report };
         }
 
         function saveAndClearTemplate() {
-            const nameInput = document.getElementById('templateNameInput');
+            syncContentFromEditor();
+            const nameInput = $('templateNameInput');
             const name = nameInput.value.trim();
             if (!name) return alert('برجاء كتابة اسم النموذج أولاً');
 
-            let group = document.getElementById('templateGroupSelect').value;
+            const key = cleanFirebaseKey(name);
+            if (!key) return alert('اسم النموذج غير صالح');
+
+            let group = $('templateGroupSelect').value;
             if (group === '__NEW__') {
-                group = document.getElementById('customGroupInput').value.trim();
+                group = $('customGroupInput').value.trim();
                 if (!group) return alert('برجاء كتابة اسم المجموعة الجديدة');
             }
 
-            const docTitle = document.getElementById('docTitleInput').value.trim();
-            const s1 = document.getElementById('selectSig1').value;
-            const s2 = document.getElementById('selectSig2').value;
-            const s3 = document.getElementById('selectSig3').value;
+            if (savedTemplates[key] && !confirm(`يوجد نموذج محفوظ بنفس الاسم "${name}". هل تريد استبداله؟`)) return;
 
-            const sig1Pos = document.getElementById('sig1Pos').value;
-            const sig1Level = document.getElementById('sig1Level').value;
-            const sig2Pos = document.getElementById('sig2Pos').value;
-            const sig2Level = document.getElementById('sig2Level').value;
-            const sig3Pos = document.getElementById('sig3Pos').value;
-            const sig3Level = document.getElementById('sig3Level').value;
+            const docTitle = $('docTitleInput').value.trim();
 
-            const repeatTitle = document.getElementById('repeatTitleChk').checked;
-            const showPageNum = document.getElementById('showPageNumChk').checked;
-            const hideNumOnFirstPage = document.getElementById('hideNumOnFirstPageChk').checked;
-            const pageNumPos = document.getElementById('pageNumPosSelect').value;
-            const pageNumFormat = document.getElementById('pageNumFormatSelect').value;
-
-            const isoTitle = isoState.title;
-            const isoCode = isoState.code;
-            const isoVer = isoState.ver;
-            const isoDate = isoState.date;
-            const isoPage = isoState.page;
-            const dateAlignPos = document.getElementById('dateAlignPos').value;
-
-            let templateToSave = currentEditorRawContent;
-            const selectedEmpIndexes = Array.from(selectedEmpIndexesSet);
-            
-            if (selectedEmpIndexes.length > 0) {
-                const currentEmp = employeesList[selectedEmpIndexes[0]] || {};
-                const empName = currentEmp['الاسم عربي'] || currentEmp['الاسم'] || '';
-                const empJob = currentEmp['الوظيفة'] || '';
-                const empDept = currentEmp['القسم'] || '';
-
-                if (empName) templateToSave = templateToSave.split(empName).join('{الاسم عربي}');
-                if (empJob) templateToSave = templateToSave.split(empJob).join('{الوظيفة}');
-                if (empDept) templateToSave = templateToSave.split(empDept).join('{القسم}');
+            let templateToSave = sanitizeHtml(currentEditorRawContent);
+            let report = [];
+            const selectedEmpIndexes = Array.from(selectedEmpIndexesSet).sort((a, b) => a - b);
+            if (selectedEmpIndexes.length > 0 && employeesList[selectedEmpIndexes[0]]) {
+                const res = templatizeContent(templateToSave, employeesList[selectedEmpIndexes[0]]);
+                templateToSave = res.html;
+                report = res.report;
             }
 
-            db.ref(`companyProfiles/${activeUser}/templates/${name}`).set({
+            const data = {
                 name: name,
                 group: group,
                 title: docTitle,
-                sig1: s1,
-                sig2: s2,
-                sig3: s3,
-                sig1Pos: sig1Pos,
-                sig1Level: sig1Level,
-                sig2Pos: sig2Pos,
-                sig2Level: sig2Level,
-                sig3Pos: sig3Pos,
-                sig3Level: sig3Level,
-                repeatTitle: repeatTitle,
-                showPageNum: showPageNum,
-                hideNumOnFirstPage: hideNumOnFirstPage,
-                pageNumPos: pageNumPos,
-                pageNumFormat: pageNumFormat,
-                isoTitle: isoTitle,
-                isoCode: isoCode,
-                isoVer: isoVer,
-                isoDate: isoDate,
-                isoPage: isoPage,
-                dateAlignPos: dateAlignPos,
+                sig1: $('selectSig1').value, sig2: $('selectSig2').value, sig3: $('selectSig3').value,
+                sig1Pos: $('sig1Pos').value, sig1Level: $('sig1Level').value,
+                sig2Pos: $('sig2Pos').value, sig2Level: $('sig2Level').value,
+                sig3Pos: $('sig3Pos').value, sig3Level: $('sig3Level').value,
+                repeatTitle: $('repeatTitleChk').checked,
+                showPageNum: $('showPageNumChk').checked,
+                hideNumOnFirstPage: $('hideNumOnFirstPageChk').checked,
+                pageNumPos: $('pageNumPosSelect').value,
+                pageNumFormat: $('pageNumFormatSelect').value,
+                isoTitle: isoState.title, isoCode: isoState.code, isoVer: isoState.ver, isoDate: isoState.date,
+                isoPage: isoState.page || '',
+                dateAlignPos: $('dateAlignPos').value,
+                lang: $('docLang').value,
+                fontFamily: docFont.family,
+                fontSize: docFont.size,
                 content: templateToSave
-            }).then(() => {
-                alert('تم حفظ النموذج والتوقيعات وإعدادات الترقيم سحابياً بنجاح! ✅');
-                nameInput.value = '';
-            });
+            };
+
+            try {
+                db.ref(`companyProfiles/${activeUser}/templates/${key}`).set(data).then(() => {
+                    let msg = 'تم حفظ النموذج والتوقيعات وإعدادات الترقيم سحابياً بنجاح! ✅';
+                    if (report.length) msg += '\n\nتم تحويل بيانات الموظف المحدد إلى متغيرات:\n' + report.join('\n') + '\nراجع النموذج للتأكد من صحة الاستبدال.';
+                    alert(msg);
+                    nameInput.value = '';
+                }).catch(err => alert('تعذر حفظ النموذج: ' + err.message));
+            } catch (err) {
+                alert('تعذر حفظ النموذج: ' + err.message);
+            }
         }
 
         function deleteSavedTemplate(templateKey) {
-            if (confirm(`هل أنت تأكد من حذف النموذج "${templateKey}" نهائياً؟`)) {
-                db.ref(`companyProfiles/${activeUser}/templates/${templateKey}`).remove();
+            const t = savedTemplates[templateKey] || {};
+            if (confirm(`هل أنت تأكد من حذف النموذج "${t.name || templateKey}" نهائياً؟`)) {
+                selectedTemplateKeys.delete(templateKey);
+                db.ref(`companyProfiles/${activeUser}/templates/${templateKey}`).remove()
+                    .catch(err => alert('تعذر الحذف: ' + err.message));
             }
         }
 
@@ -1420,77 +1810,97 @@
             const file = input.files[0];
 
             const reader = new FileReader();
-            reader.onload = function(e) {
-                const arrayBuffer = e.target.result;
-                mammoth.convertToHtml({ arrayBuffer: arrayBuffer })
-                    .then(function(result) {
-                        startEditingMode('word');
-                        currentEditorRawContent = result.value;
-                        renderAllPages();
+            reader.onload = function (e) {
+                mammoth.convertToHtml({ arrayBuffer: e.target.result })
+                    .then(function (result) {
+                        enterEditMode();
+                        currentEditorRawContent = sanitizeHtml(result.value);
+                        switchTab('tab-create');
                         alert('تم استيراد محتوى ملف الوورد بنجاح إلى المحرر! ✅');
                         input.value = '';
                     })
-                    .catch(function(err) {
-                        alert('حدث خطأ أثناء قراءة ملف الوورد: ' + err.message);
+                    .catch(function (err) {
+                        alert('حدث خطأ أثناء قراءة ملف الوورد (يُدعم فقط صيغة .docx): ' + err.message);
                         input.value = '';
                     });
             };
             reader.readAsArrayBuffer(file);
         }
 
-        function formatDoc(cmd, value = null) { document.execCommand(cmd, false, value); }
+        /* ============ أدوات المحرر ============ */
+        function formatDoc(cmd, value = null) {
+            restoreSelection();
+            document.execCommand('styleWithCSS', false, cmd === 'foreColor' || cmd === 'hiliteColor');
+            document.execCommand(cmd, false, value);
+            syncContentFromEditor();
+            scheduleRender();
+        }
 
         function applyFontFamilyDirect(fontName) {
-            const editable = document.querySelector('.editable-text-area[contenteditable="true"]');
-            if (!editable) return;
-            
-            editable.focus();
+            if (!isEditModeActive) return;
+            restoreSelection();
             const sel = window.getSelection();
-            if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
-                const range = sel.getRangeAt(0);
-                const span = document.createElement('span');
-                span.style.fontFamily = fontName;
-                range.surroundContents(span);
+            if (sel && sel.rangeCount > 0 && !sel.isCollapsed && selectionInsideEditor()) {
+                document.execCommand('styleWithCSS', false, true);
+                document.execCommand('fontName', false, fontName);
+                syncContentFromEditor();
             } else {
-                editable.style.fontFamily = fontName;
+                docFont.family = fontName;       // بدون تحديد: يُطبّق على النموذج كله ويُحفظ معه
             }
-            currentEditorRawContent = editable.innerHTML;
             renderAllPages();
         }
 
         function applyFontSizeDirect(sizeVal) {
-            const editable = document.querySelector('.editable-text-area[contenteditable="true"]');
-            if (!editable) return;
-
-            editable.focus();
+            if (!isEditModeActive) return;
+            restoreSelection();
             const sel = window.getSelection();
-            if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
-                const range = sel.getRangeAt(0);
-                const span = document.createElement('span');
-                span.style.fontSize = sizeVal;
-                range.surroundContents(span);
+            if (sel && sel.rangeCount > 0 && !sel.isCollapsed && selectionInsideEditor()) {
+                document.execCommand('styleWithCSS', false, false);
+                document.execCommand('fontSize', false, '7');
+                getEditableAreas().forEach(a => {
+                    a.querySelectorAll('font[size="7"]').forEach(f => {
+                        const s = document.createElement('span');
+                        s.style.fontSize = sizeVal;
+                        while (f.firstChild) s.appendChild(f.firstChild);
+                        f.replaceWith(s);
+                    });
+                });
+                syncContentFromEditor();
             } else {
-                editable.style.fontSize = sizeVal;
+                docFont.size = sizeVal;
             }
-            currentEditorRawContent = editable.innerHTML;
             renderAllPages();
         }
 
         function insertCustomTable() {
-            const rows = prompt('عدد الصفوف:', '3');
-            const cols = prompt('عدد الأعمدة:', '3');
-            if (!rows || !cols) return;
+            if (!isEditModeActive) return;
+            const rows = parseInt(prompt('عدد الصفوف:', '3'));
+            const cols = parseInt(prompt('عدد الأعمدة:', '3'));
+            if (!rows || !cols || rows < 1 || cols < 1 || rows > 50 || cols > 12) return alert('أدخل أرقاماً صحيحة (الصفوف حتى 50 والأعمدة حتى 12).');
 
             let tableHtml = '<table border="1" style="width:100%; border-collapse:collapse; margin:15px 0;">';
             for (let r = 0; r < rows; r++) {
                 tableHtml += '<tr>';
-                for (let c = 0; c < cols; c++) {
-                    tableHtml += '<td style="padding:8px; border:1px solid #cbd5e1;">خلية</td>';
-                }
+                for (let c = 0; c < cols; c++) tableHtml += '<td style="padding:8px; border:1px solid #cbd5e1;">خلية</td>';
                 tableHtml += '</tr>';
             }
-            tableHtml += '</table><p></p>';
+            tableHtml += '</table><p><br></p>';
+
+            if (!restoreSelection()) {
+                const areas = getEditableAreas();
+                if (!areas.length) return;
+                const last = areas[areas.length - 1];
+                last.focus({ preventScroll: true });
+                const range = document.createRange();
+                range.selectNodeContents(last);
+                range.collapse(false);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
             document.execCommand('insertHTML', false, tableHtml);
+            syncContentFromEditor();
+            scheduleRender();
         }
     </script>
 </body>
