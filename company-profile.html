@@ -63,25 +63,15 @@
         .dynamic-item-box { background: #f8fafc; border: 1px solid var(--border); padding: 15px; border-radius: 10px; margin-bottom: 15px; position: relative; }
         .dynamic-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px dashed #cbd5e1; }
 
-        /* معاينة الديباجة المحدثة مع خانة الجودة */
         .paper-preview {
             background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin-top: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05); min-height: 200px; display: flex; flex-direction: column; justify-content: space-between;
         }
-        .preview-header-zone { border-bottom: 2px solid var(--primary); padding-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 60px; }
-        .preview-header-text { font-size: 0.8rem; color: #1e293b; font-weight: bold; flex: 1; }
-        .preview-logo-img { max-height: 50px; max-width: 110px; object-fit: contain; }
-        
-        /* مربع معاينة الجودة بالمنتصف */
-        .preview-iso-zone {
-            border: 1px solid #94a3b8; border-radius: 6px; padding: 4px 8px; font-size: 0.68rem; text-align: center;
-            background: #f8fafc; color: #0f172a; min-width: 180px; margin: 0 10px;
-        }
-        .preview-iso-title { font-weight: bold; border-bottom: 1px dashed #cbd5e1; padding-bottom: 2px; margin-bottom: 3px; color: var(--primary); font-size: 0.72rem; }
-        .preview-iso-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 6px; text-align: right; }
-
+        .preview-header-zone { border-bottom: 1px dashed #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 50px; }
+        .preview-header-text { font-size: 0.8rem; color: #1e293b; font-weight: bold; }
+        .preview-logo-img { max-height: 45px; max-width: 100px; object-fit: contain; }
         .preview-body-zone { color: #cbd5e1; text-align: center; padding: 25px 0; font-size: 0.8rem; font-style: italic; }
-        .preview-footer-zone { border-top: 2px solid var(--primary); padding-top: 8px; font-size: 0.75rem; color: #64748b; }
+        .preview-footer-zone { border-top: 1px dashed #e2e8f0; padding-top: 8px; font-size: 0.75rem; color: #64748b; }
 
         /* أدوات الجدول */
         .table-controls { background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); }
@@ -191,17 +181,17 @@
         </div>
     </div>
 
-    <!-- 4. ديباجة الأوراق الرسمية ببيانات الجودة ISO -->
+    <!-- 4. ديباجة الأوراق الرسمية -->
     <div class="card">
         <div class="card-header" onclick="toggleAccordion(this)">
-            <h3><i class="fas fa-heading"></i> ديباجة الأوراق الرسمية ومعلومات الجودة ISO</h3>
+            <h3><i class="fas fa-heading"></i> ديباجة الأوراق الرسمية (رأس الصفحة وأسفل الصفحة)</h3>
             <i class="fas fa-chevron-down chevron"></i>
         </div>
         <div class="card-body">
             <div id="letterheadsContainer"></div>
             <button class="btn btn-add" onclick="addLetterheadItem()"><i class="fas fa-plus"></i> إضافة نموذج ديباجة جديد</button>
             <button class="btn btn-primary" onclick="saveLetterheads()" style="width: 100%; margin-top: 15px;">
-                <i class="fas fa-save"></i> حفظ جميع نماذج الديباجة والمعلومات
+                <i class="fas fa-save"></i> حفظ جميع نماذج الديباجة
             </button>
         </div>
     </div>
@@ -321,6 +311,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         
+        // تنظيف اسم المستخدم لمنع أخطاء الرموز الخاصة في مسار Firebase
         function getSafeUserKey() {
             const rawUser = sessionStorage.getItem('LOGGED_USER') || 'demoUser';
             return rawUser.replace(/[\.\#\$\/\[\]]/g, '_');
@@ -448,7 +439,6 @@
                 .then(() => alert('تم حفظ ملفات التأمينات بنجاح!'));
         }
 
-        /* إضافة وتحرير نموذج الديباجة المحدث ليشمل خانات الجودة ISO */
         function addLetterheadItem(data = {}) {
             const container = document.getElementById('letterheadsContainer');
             const id = 'lh_' + Date.now() + Math.random().toString(36).substr(2, 4);
@@ -459,13 +449,11 @@
                         <input type="text" class="lh-name" value="${data.name || ''}" placeholder="اسم النموذج (مثلاً: الخطابات الرسمية)" style="font-weight:bold; width:60%;">
                         <button class="btn btn-danger" onclick="document.getElementById('${id}').remove()"><i class="fas fa-trash"></i> حذف</button>
                     </div>
-                    
-                    <!-- 1. رأس الصفحة واللوجو -->
                     <div style="background:#fff; padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid #e2e8f0;">
-                        <small style="color:var(--primary); font-weight:bold;"><i class="fas fa-heading"></i> رأس الصفحة وشعار الشركة (Header & Logo)</small>
+                        <small style="color:var(--primary); font-weight:bold;">رأس الصفحة وشعار الشركة (Header & Logo)</small>
                         <div class="form-row-4" style="margin-top:5px;">
-                            <input type="text" class="lh-h-line1" value="${data.hLine1 || ''}" placeholder="السطر الأول (اسم الشركة)" oninput="updatePreview('${id}')">
-                            <input type="text" class="lh-h-line2" value="${data.hLine2 || ''}" placeholder="السطر الثاني (المجال)" oninput="updatePreview('${id}')">
+                            <input type="text" class="lh-h-line1" value="${data.hLine1 || ''}" placeholder="السطر الأول" oninput="updatePreview('${id}')">
+                            <input type="text" class="lh-h-line2" value="${data.hLine2 || ''}" placeholder="السطر الثاني" oninput="updatePreview('${id}')">
                             <select class="lh-h-align" onchange="updatePreview('${id}')">
                                 <option value="right" ${data.hAlign === 'right' ? 'selected' : ''}>نص رأس الصفحة: يمين</option>
                                 <option value="center" ${data.hAlign === 'center' ? 'selected' : ''}>نص رأس الصفحة: وسط</option>
@@ -480,23 +468,8 @@
                         </div>
                     </div>
 
-                    <!-- 2. خانة معلومات الجودة ISO (الجديدة) -->
-                    <div style="background:#f0f7ff; padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid #bfdbfe;">
-                        <small style="color:var(--primary-dark); font-weight:bold;"><i class="fas fa-certificate"></i> معلومات الجودة والـ ISO (في المنتصف بالـ Header)</small>
-                        <div class="form-row" style="margin-top:5px;">
-                            <input type="text" class="lh-iso-title" value="${data.isoTitle || ''}" placeholder="العنوان الرئيسي للجودة (مثال: نظام إدارة الجودة ISO 9001:2015)" oninput="updatePreview('${id}')">
-                            <input type="text" class="lh-iso-code" value="${data.isoCode || ''}" placeholder="رقم / كود الوثيقة (مثال: SOP-HR-001)" oninput="updatePreview('${id}')">
-                        </div>
-                        <div class="form-row-3" style="margin-top:6px;">
-                            <input type="text" class="lh-iso-ver" value="${data.isoVer || ''}" placeholder="إصدار / تعديل (مثال: 01/02)" oninput="updatePreview('${id}')">
-                            <input type="text" class="lh-iso-date" value="${data.isoDate || ''}" placeholder="تاريخ التعديل (مثال: 2026-10-09)" oninput="updatePreview('${id}')">
-                            <input type="text" class="lh-iso-page" value="${data.isoPage || ''}" placeholder="صفحة رقم (مثال: 1 من 1)" oninput="updatePreview('${id}')">
-                        </div>
-                    </div>
-
-                    <!-- 3. أسفل الصفحة -->
                     <div style="background:#fff; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
-                        <small style="color:var(--primary); font-weight:bold;"><i class="fas fa-grip-lines"></i> أسفل الصفحة (Footer Text)</small>
+                        <small style="color:var(--primary); font-weight:bold;">أسفل الصفحة (Footer Text)</small>
                         <div class="form-row-3" style="margin-top:5px;">
                             <input type="text" class="lh-f-line1" value="${data.fLine1 || ''}" placeholder="السطر الأول" oninput="updatePreview('${id}')">
                             <input type="text" class="lh-f-line2" value="${data.fLine2 || ''}" placeholder="السطر الثاني" oninput="updatePreview('${id}')">
@@ -508,7 +481,6 @@
                         </div>
                     </div>
 
-                    <!-- 4. المعاينة التفاعلية -->
                     <div style="margin-top:10px;">
                         <small style="font-weight:bold; color:#64748b;"><i class="fas fa-eye"></i> معاينة الورقة الرسمية A4:</small>
                         <div class="paper-preview">
@@ -523,25 +495,17 @@
             updatePreview(id);
         }
 
-        /* تحديث المعاينة الحية فورياً ليشمل المربع الأوسط للجودة */
         function updatePreview(id) {
             const box = document.getElementById(id);
             if (!box) return;
 
-            const hLine1 = box.querySelector('.lh-h-line1').value || 'اسم الشركة الرئيسي';
-            const hLine2 = box.querySelector('.lh-h-line2').value || 'مجال ونشاط الشركة';
+            const hLine1 = box.querySelector('.lh-h-line1').value || 'السطر الأول لرأس الصفحة';
+            const hLine2 = box.querySelector('.lh-h-line2').value || 'السطر الثاني لرأس الصفحة';
             const hAlign = box.querySelector('.lh-h-align').value;
             const logoPos = box.querySelector('.lh-logo-pos').value;
 
-            // بيانات الجودة والـ ISO
-            const isoTitle = box.querySelector('.lh-iso-title').value || 'نظام إدارة الجودة ISO 9001:2015';
-            const isoCode = box.querySelector('.lh-iso-code').value || 'SOP-HR-001';
-            const isoVer = box.querySelector('.lh-iso-ver').value || '01 / 00';
-            const isoDate = box.querySelector('.lh-iso-date').value || '2026-10-09';
-            const isoPage = box.querySelector('.lh-iso-page').value || '1 من 1';
-
-            const fLine1 = box.querySelector('.lh-f-line1').value || 'العنوان الرئيسي - هاتف الشركة';
-            const fLine2 = box.querySelector('.lh-f-line2').value || 'الموقع الإلكتروني - البريد الرسمي';
+            const fLine1 = box.querySelector('.lh-f-line1').value || 'السطر الأول لأسفل الصفحة';
+            const fLine2 = box.querySelector('.lh-f-line2').value || 'السطر الثاني لأسفل الصفحة';
             const fAlign = box.querySelector('.lh-f-align').value;
 
             const logoSrc = document.getElementById('compLogoBase64').value;
@@ -549,42 +513,28 @@
 
             const textHtml = `<div class="preview-header-text" style="text-align: ${hAlign};"><div>${hLine1}</div><div>${hLine2}</div></div>`;
 
-            // المربع الأوسط الخص ببيانات الجودة والـ ISO
-            const isoBoxHtml = `
-                <div class="preview-iso-zone">
-                    <div class="preview-iso-title">${isoTitle}</div>
-                    <div class="preview-iso-grid">
-                        <div><b>رقم الوثيقة:</b> ${isoCode}</div>
-                        <div><b>إصدار/تعديل:</b> ${isoVer}</div>
-                        <div><b>تاريخ التعديل:</b> ${isoDate}</div>
-                        <div><b>صفحة رقم:</b> ${isoPage}</div>
-                    </div>
-                </div>
-            `;
-
             const prevHeader = document.getElementById(`${id}_prev_header`);
             const prevFooter = document.getElementById(`${id}_prev_footer`);
 
             if (logoPos === 'right') {
                 prevHeader.style.flexDirection = 'row-reverse';
-                prevHeader.innerHTML = textHtml + isoBoxHtml + logoHtml;
+                prevHeader.innerHTML = textHtml + logoHtml;
             } else if (logoPos === 'left') {
                 prevHeader.style.flexDirection = 'row';
-                prevHeader.innerHTML = textHtml + isoBoxHtml + logoHtml;
+                prevHeader.innerHTML = textHtml + logoHtml;
             } else if (logoPos === 'center') {
                 prevHeader.style.flexDirection = 'column';
                 prevHeader.style.alignItems = 'center';
-                prevHeader.innerHTML = logoHtml + isoBoxHtml + textHtml;
+                prevHeader.innerHTML = logoHtml + textHtml;
             } else {
                 prevHeader.style.flexDirection = 'row';
-                prevHeader.innerHTML = textHtml + isoBoxHtml;
+                prevHeader.innerHTML = textHtml;
             }
 
             prevFooter.style.textAlign = fAlign;
             prevFooter.innerHTML = `<div>${fLine1}</div><div>${fLine2}</div>`;
         }
 
-        /* حفظ جميع البيانات والديباجات بما فيها بيانات الجودة في Firebase */
         function saveLetterheads() {
             const items = [];
             document.querySelectorAll('#letterheadsContainer .dynamic-item-box').forEach(box => {
@@ -594,11 +544,6 @@
                     hLine2: box.querySelector('.lh-h-line2').value,
                     hAlign: box.querySelector('.lh-h-align').value,
                     logoPos: box.querySelector('.lh-logo-pos').value,
-                    isoTitle: box.querySelector('.lh-iso-title').value,
-                    isoCode: box.querySelector('.lh-iso-code').value,
-                    isoVer: box.querySelector('.lh-iso-ver').value,
-                    isoDate: box.querySelector('.lh-iso-date').value,
-                    isoPage: box.querySelector('.lh-iso-page').value,
                     fLine1: box.querySelector('.lh-f-line1').value,
                     fLine2: box.querySelector('.lh-f-line2').value,
                     fAlign: box.querySelector('.lh-f-align').value
@@ -606,7 +551,7 @@
             });
 
             db.ref(`companyProfiles/${activeUser}/letterheads`).set(items)
-                .then(() => alert('تم حفظ نماذج الديباجة ومعلومات الجودة ISO بنجاح! ✅'));
+                .then(() => alert('تم حفظ نماذج الديباجة ومواقع اللوجو بنجاح!'));
         }
 
         function addSignatureItem(data = {}) {
@@ -659,6 +604,7 @@
                 return;
             }
 
+            // تنظيف أسماء الأعمدة من الرموز التي تسبب أخطاء في Firebase
             const extractedHeaders = rows[0].split('\t').map(h => h.replace(/[\.\#\$\/\[\]]/g, '_').trim()).filter(h => h !== "");
             
             columnKeys = [...extractedHeaders];
@@ -690,6 +636,7 @@
             saveEmployeeData();
         }
 
+        /* دالة مسح وتفريغ الجدول والداتا بالكامل */
         function clearPastedSheet() {
             if (confirm('هل أنت تأكد من مسح جميع بيانات الجدول والأعمدة بالكامل؟')) {
                 globalEmployees = [];
@@ -884,8 +831,10 @@
             XLSX.writeFile(workbook, fileName);
         }
 
+        /* دالة حفظ التغيرات السحابية المؤكدة والمضمونة */
         function saveEmployeeData() {
             try {
+                // 1. قراءة أحدث القيم المكتوبة مباشرة من خلايا الجدول الظاهرة
                 const rows = document.querySelectorAll('#empTableBody tr');
                 rows.forEach(row => {
                     const cells = row.querySelectorAll('td[data-key]');
@@ -898,6 +847,7 @@
                     });
                 });
 
+                // 2. تصفية البيانات والحرص على عدم وجود قيم undefined أو مفاتيح تسبب رفض من Firebase
                 const cleanColumns = columnKeys.map(k => String(k).replace(/[\.\#\$\/\[\]]/g, '_').trim()).filter(k => k !== "");
 
                 const cleanEmployees = globalEmployees.map(emp => {
@@ -908,6 +858,7 @@
                     return cleanObj;
                 });
 
+                // 3. الحفظ المباشر في Firebase مع إظهار رسالة التنبيه بنجاح
                 Promise.all([
                     db.ref(`companyProfiles/${activeUser}/employees`).set(cleanEmployees),
                     db.ref(`companyProfiles/${activeUser}/columnKeys`).set(cleanColumns)
