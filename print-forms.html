@@ -124,7 +124,7 @@
         .header-text { font-size: 0.95rem; font-weight: bold; line-height: 1.4; }
         .header-logo { max-height: 60px; max-width: 130px; object-fit: contain; }
 
-        /* تنسيق مربعات الجودة والـ ISO بأسلوب احترافي وخط واسع */
+        /* مربعات الجودة والـ ISO بأسلوب متناسق وخط بارز */
         .header-iso-container {
             display: flex; gap: 8px; align-items: center; justify-content: center; flex: 1; margin: 0 10px;
         }
@@ -168,7 +168,6 @@
         .recipient-block { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; color: #1e293b; }
         .date-display-block { font-weight: bold; font-size: 0.95rem; margin-bottom: 10px; color: #334155; }
 
-        /* التوقيعات مباشرة تحت نص الخطاب */
         .signatures-area { 
             display: flex; 
             justify-content: space-between; 
@@ -185,11 +184,11 @@
         .sig-name { font-weight: bold; font-size: 0.95rem; color: var(--primary-dark); border-top: 1px dashed #94a3b8; padding-top: 4px; }
 
         /* ========================================================= */
-        /*  تنسيقات الطباعة الخارقة لمنع الاقتطاع وضبط الصفحة 100%   */
+        /*  إصلاح جذرية لمعاينة الطباعة وتمركُز الورقة تماماً       */
         /* ========================================================= */
         @page { 
             size: A4 portrait; 
-            margin: 0mm !important; 
+            margin: 0 !important; 
         }
 
         @media print {
@@ -198,26 +197,24 @@
                 padding: 0 !important; 
                 margin: 0 !important; 
                 width: 100% !important;
-                height: 100% !important;
+                height: auto !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
             .sidebar, .editor-toolbar-container, .no-print { display: none !important; }
             .app-container { display: block !important; padding: 0 !important; margin: 0 !important; width: 100% !important; }
-            .paper-wrapper { width: 100% !important; gap: 0 !important; margin: 0 !important; padding: 0 !important; }
+            .paper-wrapper { width: 100% !important; margin: 0 auto !important; padding: 0 !important; }
             
             .print-document { 
                 box-shadow: none !important; 
                 width: 100% !important; 
                 max-width: 100% !important;
-                min-height: 100vh !important;
-                height: 100vh !important;
-                margin: 0 !important; 
+                margin: 0 auto !important; 
                 padding: 0 !important;
                 page-break-after: always !important; 
                 break-after: page !important; 
                 box-sizing: border-box !important;
-                overflow: hidden !important;
+                overflow: visible !important;
             }
             
             .print-document:last-child { 
@@ -227,9 +224,7 @@
             
             .page-node {
                 width: 100% !important;
-                min-height: 100vh !important;
-                height: 100vh !important;
-                padding: 10mm 15mm !important;
+                padding: 12mm 18mm !important; /* هوامش متوازنة تحمي الصفحة من الانزياح للقمة أو اليسار */
                 box-sizing: border-box !important;
             }
 
@@ -576,6 +571,17 @@
                 document.getElementById('activeProfileDisplayName').textContent = companyInfo.nameAr || activeUser;
 
                 populateControls();
+
+                // مزامنة حقول الجودة من أوّل ديباجة سحابية إن وُجدت
+                if (letterheadsList.length > 0 && letterheadsList[0]) {
+                    const lh0 = letterheadsList[0];
+                    if (lh0.isoTitle) document.getElementById('isoTitleInput').value = lh0.isoTitle;
+                    if (lh0.isoCode) document.getElementById('isoCodeInput').value = lh0.isoCode;
+                    if (lh0.isoVer) document.getElementById('isoVerInput').value = lh0.isoVer;
+                    if (lh0.isoDate) document.getElementById('isoDateInput').value = lh0.isoDate;
+                    if (lh0.isoPage) document.getElementById('isoPageInput').value = lh0.isoPage;
+                }
+
                 if (isEditModeActive || document.getElementById('tab-select').classList.contains('active')) {
                     renderAllPages();
                 }
@@ -736,6 +742,16 @@
             if (t.sig1 !== undefined) document.getElementById('selectSig1').value = t.sig1;
             if (t.sig2 !== undefined) document.getElementById('selectSig2').value = t.sig2;
             if (t.sig3 !== undefined) document.getElementById('selectSig3').value = t.sig3;
+
+            // استرجاع بيانات الجودة المخصصة لهذا النموذج
+            if (t.isoTitle) document.getElementById('isoTitleInput').value = t.isoTitle;
+            if (t.isoCode) document.getElementById('isoCodeInput').value = t.isoCode;
+            if (t.isoVer) document.getElementById('isoVerInput').value = t.isoVer;
+            if (t.isoDate) document.getElementById('isoDateInput').value = t.isoDate;
+            if (t.isoPage) document.getElementById('isoPageInput').value = t.isoPage;
+
+            // استرجاع اتجاه التاريخ المحدد للنموذج
+            if (t.dateAlignPos) document.getElementById('dateAlignPos').value = t.dateAlignPos;
 
             switchTab('tab-create');
             renderAllPages();
@@ -901,14 +917,14 @@
             const hLine2 = lh.hLine2 || companyInfo.fieldAr || '';
             const logoHtml = (companyInfo.logo && lh.logoPos !== 'none') ? `<img src="${companyInfo.logo}" class="header-logo" alt="Logo">` : '';
 
-            // بيانات الجودة والـ ISO المقروءة من الواجهة
-            const isoTitle = document.getElementById('isoTitleInput').value || lh.isoTitle || 'نظام إدارة الجودة ISO 9001:2015';
-            const isoCode = document.getElementById('isoCodeInput').value || lh.isoCode || 'SOP-HR-001';
-            const isoVer = document.getElementById('isoVerInput').value || lh.isoVer || '01 / 00';
-            const isoDate = document.getElementById('isoDateInput').value || lh.isoDate || '2026-10-09';
-            const isoPage = document.getElementById('isoPageInput').value || lh.isoPage || '1 من 1';
+            // قراءة قيم الجودة الحية الثابتة والمحفوظة
+            const isoTitle = document.getElementById('isoTitleInput').value || 'نظام إدارة الجودة ISO 9001:2015';
+            const isoCode = document.getElementById('isoCodeInput').value || 'SOP-HR-001';
+            const isoVer = document.getElementById('isoVerInput').value || '01 / 00';
+            const isoDate = document.getElementById('isoDateInput').value || '2026-10-09';
+            const isoPage = document.getElementById('isoPageInput').value || '1 من 1';
 
-            // المربعين الخاصين بالجودة في الـ HEADER بالخط الكبير
+            // المربعين المطورين للجودة بحجم خط واضح جداً بالـ HEADER
             const isoMarkup = `
                 <div class="header-iso-container">
                     <div class="iso-box iso-box-1">
@@ -966,6 +982,7 @@
             `;
         }
 
+        /* المحافظة الكاملة على آلية التصدير إلى PDF القائمة الممتازة */
         function exportSelectedPagesToPDF() {
             const allDocElements = document.querySelectorAll('.print-document');
             if (allDocElements.length === 0) return alert('لا يوجد نماذج معروضة للتصدير حالياً');
@@ -1000,6 +1017,7 @@
             html2pdf().set(opt).from(containerToExport).save();
         }
 
+        /* حفظ النموذج سحابياً شاملاً كافة بيانات الجودة ISO ومحاذاة التاريخ */
         function saveAndClearTemplate() {
             const nameInput = document.getElementById('templateNameInput');
             const name = nameInput.value.trim();
@@ -1015,6 +1033,14 @@
             const s1 = document.getElementById('selectSig1').value;
             const s2 = document.getElementById('selectSig2').value;
             const s3 = document.getElementById('selectSig3').value;
+
+            // قراءة حقول الجودة والمحاذاة لتثبيتها
+            const isoTitle = document.getElementById('isoTitleInput').value.trim();
+            const isoCode = document.getElementById('isoCodeInput').value.trim();
+            const isoVer = document.getElementById('isoVerInput').value.trim();
+            const isoDate = document.getElementById('isoDateInput').value.trim();
+            const isoPage = document.getElementById('isoPageInput').value.trim();
+            const dateAlignPos = document.getElementById('dateAlignPos').value;
 
             let templateToSave = currentEditorRawContent;
             const selectedEmpIndexes = Array.from(selectedEmpIndexesSet);
@@ -1037,9 +1063,15 @@
                 sig1: s1,
                 sig2: s2,
                 sig3: s3,
+                isoTitle: isoTitle,
+                isoCode: isoCode,
+                isoVer: isoVer,
+                isoDate: isoDate,
+                isoPage: isoPage,
+                dateAlignPos: dateAlignPos,
                 content: templateToSave
             }).then(() => {
-                alert('تم حفظ النموذج والتوقيعات بنجاح في البروفايل!');
+                alert('تم حفظ النموذج والتوقيعات وبيانات الجودة سحابياً بنجاح! ✅');
                 nameInput.value = '';
             });
         }
