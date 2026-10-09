@@ -26,7 +26,7 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 25px 15px; direction: rtl; max-width: 1100px; margin: 0 auto; }
+        body { background: var(--bg); color: var(--text); padding: 25px 15px; direction: rtl; max-width: 1150px; margin: 0 auto; }
 
         .header-title { font-size: 1.4rem; color: var(--primary-dark); margin-bottom: 25px; font-weight: bold; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid var(--border); padding-bottom: 12px; }
 
@@ -75,7 +75,7 @@
         .preview-footer-zone { border-top: 1px dashed #e2e8f0; padding-top: 8px; font-size: 0.75rem; color: #64748b; }
 
         .table-controls { background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border); }
-        .column-toggle-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .column-toggle-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; max-height: 140px; overflow-y: auto; }
         .col-chip { background: #fff; border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
         
         .table-responsive { overflow-x: auto; max-height: 450px; border: 1px solid var(--border); border-radius: 8px; }
@@ -214,18 +214,18 @@
         </div>
     </div>
 
-    <!-- 6. جدول الموظفين المتطور والديناميكي مع العواميد الثابتة -->
+    <!-- 6. جدول الموظفين القياسي المعتمد على 62 عمود ثابت -->
     <div class="card">
         <div class="card-header" onclick="toggleAccordion(this)">
-            <h3><i class="fas fa-paste"></i> إدارة شيت موظفي الشركة (القالب القياسي للربط بالنماذج)</h3>
+            <h3><i class="fas fa-paste"></i> إدارة شيت موظفي الشركة (القالب القياسي - 62 عمود ثابت للربط بالنماذج)</h3>
             <i class="fas fa-chevron-down chevron"></i>
         </div>
         <div class="card-body">
             
-            <!-- أزرار استيراد وتنزيل القالب الرسمي -->
+            <!-- أزرار الاستيراد والتصدير -->
             <div style="display: flex; gap: 10px; margin-bottom: 15px; background: #eef2ff; padding: 12px; border-radius: 8px; flex-wrap:wrap;">
                 <button class="btn btn-success" onclick="downloadStandardTemplate()" type="button" style="font-size:0.8rem;">
-                    <i class="fas fa-file-excel"></i> تنزيل قالب أكسيل فارغ (.xlsx)
+                    <i class="fas fa-file-excel"></i> تنزيل قالب أكسيل فارغ (62 عمود) (.xlsx)
                 </button>
                 <button class="btn btn-primary" onclick="downloadExcelData()" type="button" style="font-size:0.8rem;">
                     <i class="fas fa-download"></i> تحميل شيت الموظفين الحالي (.xlsx)
@@ -242,12 +242,12 @@
                     <i class="fas fa-paste" style="color:#10b981;"></i> لصق مباشر من أكسيل (Copy & Paste):
                 </label>
                 <p style="font-size:0.78rem; color:#64748b; margin-bottom: 8px;">
-                    حدد الخانات في أكسيل واضغط <b>Ctrl + C</b>، ثم اضغط بالأسفل واضغط <b>Ctrl + V</b> (تستطيع النسخ بوجود العناوين أو بدونها لتفريغ البيانات في القالب مباشرة):
+                    حدد الخانات في أكسيل واضغط <b>Ctrl + C</b>، ثم اضغط بالمربع بالأسفل واضغط <b>Ctrl + V</b> (يتم المطابقة والربط الآلي فوراً بكافة العواميد القياسية):
                 </p>
-                <textarea id="pasteExcelInput" onpaste="handleExcelPaste(event)" placeholder="اضغط هنا واضغط Ctrl + V للصق الجدول فوراً..." style="width:100%; height:85px; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:0.85rem; outline:none; resize:vertical; background:#fff;"></textarea>
+                <textarea id="pasteExcelInput" onpaste="handleExcelPaste(event)" placeholder="اضغط هنا واضغط Ctrl + V للصق الجدول فوراً من الأكسيل..." style="width:100%; height:85px; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:0.85rem; outline:none; resize:vertical; background:#fff;"></textarea>
                 
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; flex-wrap:wrap; gap:8px;">
-                    <span id="pasteStatusBadge" style="font-size:0.8rem; font-weight:bold; color:var(--primary);">تم تحميل القالب القياسي بالعواميد الثابتة.</span>
+                    <span id="pasteStatusBadge" style="font-size:0.8rem; font-weight:bold; color:var(--primary);">تم تحميل القالب القياسي بـ 62 عموداً ثابتاً.</span>
                     <button class="btn btn-danger" onclick="clearEmployeeRows()" type="button" style="padding:6px 12px; font-size:0.8rem;"><i class="fas fa-eraser"></i> تفريغ صفوف الموظفين</button>
                 </div>
             </div>
@@ -255,9 +255,9 @@
             <!-- أدوات التحكم بالأعمدة -->
             <div class="table-controls">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                    <strong style="font-size:0.85rem;"><i class="fas fa-columns"></i> إظهار/إخفاء الأعمدة:</strong>
+                    <strong style="font-size:0.85rem;"><i class="fas fa-columns"></i> إظهار/إخفاء الأعمدة (إجمالي 62 عموداً ثابتاً):</strong>
                     <div style="display:flex; gap:8px;">
-                        <input type="text" id="newColName" placeholder="اسم عمود إضافي..." style="width:140px; padding:4px 8px; font-size:0.8rem;">
+                        <input type="text" id="newColName" placeholder="اسم عمود مخصص جديد..." style="width:160px; padding:4px 8px; font-size:0.8rem;">
                         <button class="btn btn-primary" onclick="addNewCustomColumn()" type="button" style="padding:4px 10px; font-size:0.78rem;"><i class="fas fa-plus"></i> إضافة عمود</button>
                     </div>
                 </div>
@@ -268,7 +268,7 @@
                 <table id="advancedEmpTable">
                     <thead><tr id="tableHeadRow"></tr></thead>
                     <tbody id="empTableBody">
-                        <tr><td colspan="10" style="text-align:center; color:#94a3b8;">لم يتم إضافة موظفين بعد.</td></tr>
+                        <tr><td colspan="62" style="text-align:center; color:#94a3b8;">لم يتم إضافة موظفين بعد.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -325,8 +325,27 @@
 
         const activeUser = getSafeUserKey();
 
-        // العواميد الثابتة والمحمية للربط الدائم في النماذج
-        const FIXED_COLUMNS = ['كود', 'الاسم', 'الاسم عربي', 'الوظيفة', 'القسم', 'الرقم القومي', 'العنوان بالبطاقة'];
+        // العواميد القياسية الـ 62 الثابتة والمطابقة لملف الأكسيل المرفق
+        const FIXED_COLUMNS = [
+            'مسلسل', 'كود بصمة', 'الأسم بالعربي', 'الأسم بالإنجليزي', 'الوظيفة', 'الفرع', 'القطاع', 'الإدارة', 'القسم', 'الرقم القومي',
+            'محل الميلاد', 'تاريخ الميلاد', 'السن', 'العنوان', 'المركز / القسم', 'المحافظة', 'النوع', 'الجنسية', 'الديانة', 'الحالة الاجتماعية',
+            'تاريخ إنتهاء الرقم القومي', 'المؤهل', 'الكلية - المعهد', 'الجامعة', 'سنة التخرج', 'التقدير', 'رقم شهادة القيد', 'الرقم العسكري', 'الموقف من التجنيد', 'تاريخ الحالة',
+            'تاريخ إنتهاء الشهادة', 'نوع رخصة القيادة', 'إنتهاء رخصة القيادة', 'رقم السيارة المسجل عليها', 'تاريخ العمل الفعلي', 'يوم (العمل الفعلي)', 'شهر (العمل الفعلي)', 'سنة (العمل الفعلي)', 'يوم تاريخ العمل الفعلي', 'تاريخ العقد',
+            'يوم (العقد)', 'شهر (العقد)', 'سنة (العقد)', 'يوم تاريخ العقد', 'تاريخ إنتهاء العقد', 'يوم (إنتهاء العقد)', 'شهر (إنتهاء العقد)', 'سنة (إنتهاء العقد)', 'تاريخ التأمين', 'يوم (التأمين)',
+            'شهر (التأمين)', 'سنة (التأمين)', 'البريد الإليكتروني', 'رقم الموبايل الشخصى', 'رقم الموبايل العمل', 'رقم طوارئ', 'صاحب رقم الطوارئ', 'الحاله التأمينية', 'الرقم التأمينى', 'الأجر الشامل',
+            'الأجر التأميني', 'المدير المباشر'
+        ];
+
+        // مصفوفة التصدير النظيف للشيت مع مطابقة رؤوس الأكسيل الأصلي
+        const EXCEL_EXPORT_HEADERS = [
+            'مسلسل', 'كود بصمة', 'الأسم بالعربي', 'الأسم بالإنجليزي', 'الوظيفة', 'الفرع', 'القطاع', 'الإدارة', 'القسم', 'الرقم القومي',
+            'محل الميلاد', 'تاريخ الميلاد', 'السن', 'العنوان', 'المركز / القسم', 'المحافظة', 'النوع', 'الجنسية', 'الديانة', 'الحالة الاجتماعية',
+            'تاريخ إنتهاء الرقم القومي', 'المؤهل', 'الكلية - المعهد', 'الجامعة', 'سنة التخرج', 'التقدير', 'رقم شهادة القيد', 'الرقم العسكري', 'الموقف من التجنيد', 'تاريخ الحالة',
+            'تاريخ إنتهاء الشهادة', 'نوع رخصة القيادة', 'إنتهاء رخصة القيادة', 'رقم السيارة المسجل عليها', 'تاريخ العمل الفعلي', 'يوم', 'شهر', 'سنة', 'يوم تاريخ العمل الفعلي', 'تاريخ العقد',
+            'يوم', 'شهر', 'سنة', 'يوم تاريخ العقد', 'تاريخ إنتهاء العقد', 'يوم', 'شهر', 'سنة', 'تاريخ التأمين', 'يوم',
+            'شهر', 'سنة', 'البريد الإليكتروني', 'رقم الموبايل الشخصى', 'رقم الموبايل العمل', 'رقم طوارئ', 'صاحب رقم الطوارئ', 'الحاله التأمينية', 'الرقم التأمينى', 'الأجر الشامل',
+            'الأجر التأميني', 'المدير المباشر'
+        ];
 
         let globalEmployees = [];
         let columnKeys = [...FIXED_COLUMNS];
@@ -601,32 +620,37 @@
                 .then(() => alert('تم حفظ جميع التوقيعات المعتمدة بنجاح!'));
         }
 
-        /* 6. تنزيل القالب القياسي بالعواميد الثابتة */
+        /* 6. تنزيل القالب الفارغ المعياري المرفق (62 عمود) */
         function downloadStandardTemplate() {
-            const templateObj = {};
-            FIXED_COLUMNS.forEach(col => templateObj[col] = "");
-            
-            const worksheet = XLSX.utils.json_to_sheet([templateObj]);
+            const wsData = [EXCEL_EXPORT_HEADERS];
+            const worksheet = XLSX.utils.aoa_to_sheet(wsData);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "قالب الموظفين القياسي");
-            XLSX.writeFile(workbook, "قالب_الموظفين_القياسي.xlsx");
+            XLSX.writeFile(workbook, "قالب_الموظفين_القياسي_62_عمود.xlsx");
         }
 
+        /* تصدير شيت الموظفين المكتمل بنفس ترتيب العواميد الأصلي */
         function downloadExcelData() {
             const activeKeys = columnKeys.filter(k => visibleColumns[k]);
-            const exportData = globalEmployees.map(emp => {
-                let filteredObj = {};
-                activeKeys.forEach(k => filteredObj[k] = emp[k] || '');
-                return filteredObj;
+            
+            const rowsData = [EXCEL_EXPORT_HEADERS];
+            globalEmployees.forEach(emp => {
+                let row = [];
+                columnKeys.forEach((k, idx) => {
+                    if (visibleColumns[k]) {
+                        row.push(emp[k] || '');
+                    }
+                });
+                rowsData.push(row);
             });
 
-            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const worksheet = XLSX.utils.aoa_to_sheet(rowsData);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "الموظفين");
             XLSX.writeFile(workbook, "بيانات_موظفي_الشركة.xlsx");
         }
 
-        /* رفع شيت أكسيل ومطابقته مع العواميد القياسية */
+        /* رفع ملف الأكسيل مع التسكين التلقائي والمطابقة الدقيقة */
         function handleExcelFileUpload(input) {
             if (!input.files || !input.files[0]) return;
             const file = input.files[0];
@@ -637,39 +661,54 @@
                 const workbook = XLSX.read(data, { type: 'array' });
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
-                const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+                
+                // تحويل الشيت لمصفوفة صفوف (Array of Arrays) للتسكين بالمواضع والعناوين
+                const aoaRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
 
-                if (jsonRows.length === 0) {
-                    alert('ملف الأكسيل فارغ!');
+                if (!aoaRows || aoaRows.length < 2) {
+                    alert('ملف الأكسيل فارغ أو لا يحتوي على صفوف بيانات!');
                     input.value = '';
                     return;
                 }
 
-                processPastedOrUploadedRows(jsonRows);
+                processAoaRows(aoaRows);
                 input.value = '';
             };
             reader.readAsArrayBuffer(file);
         }
 
-        /* معالجة الموظفين والمطابقة الذكية للعواميد */
-        function processPastedOrUploadedRows(jsonArray) {
+        /* معالجة صفوف المصفوفة مع المطابقة بالمواقع والعناوين */
+        function processAoaRows(aoaRows) {
+            const headerRow = aoaRows[0].map(c => String(c).trim());
+            const dataRows = aoaRows.slice(1);
+
             const newEmployees = [];
 
-            jsonArray.forEach(row => {
+            dataRows.forEach(rowCells => {
+                if (!rowCells || rowCells.length === 0 || rowCells.every(c => String(c).trim() === "")) return;
+
                 let empObj = {};
-                
-                // تعبئة العواميد الثابتة بالقيم أو تركها فارغة
-                FIXED_COLUMNS.forEach(col => {
-                    const matchedKey = Object.keys(row).find(k => k.trim() === col || k.trim().replace(/[\.\#\$\/\[\]]/g, '_') === col);
-                    empObj[col] = matchedKey ? String(row[matchedKey]).trim() : (row[col] ? String(row[col]).trim() : "");
+
+                FIXED_COLUMNS.forEach((fixedCol, colIdx) => {
+                    // التسكين بالموقع (Index) أولاً إن وجد، أو بالبحث بالمطابقة اللفظية
+                    let cellVal = "";
+                    if (rowCells[colIdx] !== undefined) {
+                        cellVal = String(rowCells[colIdx]).trim();
+                    } else {
+                        const matchedIdx = headerRow.findIndex(h => h === fixedCol || h === FIXED_COLUMNS[colIdx]);
+                        if (matchedIdx !== -1 && rowCells[matchedIdx] !== undefined) {
+                            cellVal = String(rowCells[matchedIdx]).trim();
+                        }
+                    }
+                    empObj[fixedCol] = cellVal;
                 });
 
-                // معالجة العواميد الإضافية المخصصة
-                Object.keys(row).forEach(userCol => {
-                    const cleanCol = userCol.replace(/[\.\#\$\/\[\]]/g, '_').trim();
-                    if (cleanCol && !FIXED_COLUMNS.includes(cleanCol)) {
-                        if (!columnKeys.includes(cleanCol)) columnKeys.push(cleanCol);
-                        empObj[cleanCol] = String(row[userCol]).trim();
+                // التعامل مع أي عواميد إضافية متقدمة في الملف
+                headerRow.forEach((userH, idx) => {
+                    if (userH && !FIXED_COLUMNS.includes(userH) && !FIXED_COLUMNS.some(f => f.startsWith(userH))) {
+                        const cleanKey = userH.replace(/[\.\#\$\/\[\]]/g, '_').trim();
+                        if (!columnKeys.includes(cleanKey)) columnKeys.push(cleanKey);
+                        empObj[cleanKey] = rowCells[idx] !== undefined ? String(rowCells[idx]).trim() : "";
                     }
                 });
 
@@ -677,12 +716,12 @@
             });
 
             globalEmployees = newEmployees;
-            document.getElementById('pasteStatusBadge').innerText = `تم استيراد ${newEmployees.length} موظفاً بنجاح ومطابقتهم مع العواميد القياسية!`;
+            document.getElementById('pasteStatusBadge').innerText = `تم استيراد ${newEmployees.length} موظفاً بنجاح ومطابقتهم مع الـ 62 عموداً الثابتة!`;
             renderAdvancedTable();
             saveEmployeeData();
         }
 
-        /* معالجة النسخ واللصق المباشر من Excel */
+        /* معالجة النسخ واللصق المباشر من Excel (Copy & Paste) */
         function handleExcelPaste(e) {
             e.preventDefault();
             const clipboardData = (e.clipboardData || window.clipboardData).getData('text');
@@ -691,31 +730,23 @@
             const rows = clipboardData.trim().split(/\r\n|\n|\r/);
             if (rows.length === 0) return;
 
-            const firstRowCells = rows[0].split('\t').map(c => c.trim());
-            const hasHeader = firstRowCells.some(cell => FIXED_COLUMNS.includes(cell));
+            const aoaRows = rows.map(r => r.split('\t'));
+            
+            // التثبت من وجود صف عناوين أو البدء المباشر للبيانات
+            const firstCell = aoaRows[0][0] ? aoaRows[0][0].trim() : '';
+            const isHeaderPresent = FIXED_COLUMNS.includes(firstCell) || firstCell === 'مسلسل' || firstCell === 'كود بصمة';
 
-            let parsedRows = [];
-            let startIndex = hasHeader ? 1 : 0;
-            let headerMapping = hasHeader ? firstRowCells.map(c => c.replace(/[\.\#\$\/\[\]]/g, '_')) : FIXED_COLUMNS;
-
-            for (let i = startIndex; i < rows.length; i++) {
-                const values = rows[i].split('\t');
-                if (values.length === 0 || (values.length === 1 && values[0].trim() === "")) continue;
-
-                let rowObj = {};
-                values.forEach((val, colIdx) => {
-                    const colName = headerMapping[colIdx] || `عمود_${colIdx + 1}`;
-                    rowObj[colName] = val ? val.trim() : "";
-                });
-                parsedRows.push(rowObj);
+            if (!isHeaderPresent) {
+                // إذا كان النص المنسوخ بيانات فقط بدون هيدر، ندمج الهيدر الموحد في البداية
+                aoaRows.unshift(FIXED_COLUMNS);
             }
 
-            processPastedOrUploadedRows(parsedRows);
+            processAoaRows(aoaRows);
             document.getElementById('pasteExcelInput').value = '';
         }
 
         function clearEmployeeRows() {
-            if (confirm('هل أنت تأكد من مسح جميع صفوف الموظفين؟ ستظل العواميد القياسية كما هي.')) {
+            if (confirm('هل أنت تأكد من مسح جميع صفوف الموظفين؟ ستظل العواميد الثابتة كما هي.')) {
                 globalEmployees = [];
                 document.getElementById('pasteStatusBadge').innerText = 'تم تفريغ صفوف الموظفين.';
                 document.getElementById('pasteExcelInput').value = '';
@@ -745,9 +776,9 @@
         }
 
         function editColumnName(oldKey) {
-            if (FIXED_COLUMNS.includes(oldKey)) return alert('عذراً، هذا العمود من العواميد القياسية الثابتة ولا يمكن تغيير اسمه لضمان ربط النماذج.');
+            if (FIXED_COLUMNS.includes(oldKey)) return alert('عذراً، هذا العمود من العواميد القياسية الثابتة ولا يمكن تغيير اسمه لضمان ثبات ربط النماذج.');
 
-            const newKey = prompt('أدخل الاسم الجديد للعمود:', oldKey);
+            const newKey = prompt('أدخل الاسم الجديد للعمود المخصص:', oldKey);
             if (!newKey || newKey.trim() === '' || newKey === oldKey) return;
 
             const trimmedNewKey = newKey.trim().replace(/[\.\#\$\/\[\]]/g, '_');
@@ -798,9 +829,8 @@
         }
 
         function renderAdvancedTable() {
-            // للتأكد من وجود جميع العواميد الثابتة دائماً
             FIXED_COLUMNS.forEach(col => {
-                if (!columnKeys.includes(col)) columnKeys.unshift(col);
+                if (!columnKeys.includes(col)) columnKeys.push(col);
             });
 
             const toggleContainer = document.getElementById('columnToggleList');
@@ -825,7 +855,7 @@
                     headRow.innerHTML += `
                         <th class="${isFixed ? 'fixed-col' : ''}">
                             <div class="th-container">
-                                <input type="text" class="filter-input" placeholder="فلترة ${key}..." value="${columnFilters[key] || ''}" oninput="columnFilters['${key}']=this.value.toLowerCase(); renderTableBody();">
+                                <input type="text" class="filter-input" placeholder="فلترة..." value="${columnFilters[key] || ''}" oninput="columnFilters['${key}']=this.value.toLowerCase(); renderTableBody();">
                                 <div class="th-top-row">
                                     <span>${key} ${isFixed ? '<span class="fixed-badge">ثابت</span>' : ''}</span>
                                     <div class="th-actions">
