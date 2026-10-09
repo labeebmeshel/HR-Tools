@@ -26,7 +26,7 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 15px; direction: rtl; }
+        body { background: var(--bg); color: var(--text); padding: 15px; direction: rtl; word-spacing: normal; letter-spacing: normal; }
 
         .app-container { display: grid; grid-template-columns: 390px 1fr; gap: 20px; max-width: 1650px; margin: 0 auto; align-items: start; }
 
@@ -115,58 +115,74 @@
             margin: 0;
         }
 
-        /* رأس الصفحة المطور مع مربعات الجودة والخط الكبير */
+        /* رأس الصفحة المطور مع علاج الكلمات والرموز والمسافات */
         .header-section {
             width: 100%; padding: 15px 30px 10px 30px;
-            display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; gap: 10px;
+            display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; gap: 12px;
         }
 
-        .header-text { font-size: 0.95rem; font-weight: bold; line-height: 1.4; }
+        .header-text { 
+            font-size: 0.95rem; font-weight: bold; line-height: 1.6; color: #0f172a; 
+            word-spacing: 2px; letter-spacing: 0.2px; text-align: right;
+        }
         .header-logo { max-height: 60px; max-width: 130px; object-fit: contain; }
 
-        /* مربعات الجودة والـ ISO بأسلوب متناسق وخط بارز */
+        /* تعديلات وتنسيق حقول الجودة لمنع المود المعكوس والتصاق الكلمات */
         .header-iso-container {
-            display: flex; gap: 8px; align-items: center; justify-content: center; flex: 1; margin: 0 10px;
+            display: flex; gap: 10px; align-items: center; justify-content: center; flex: 1; margin: 0 10px;
         }
         
         .iso-box {
-            border: 1px solid #1e293b; border-radius: 6px; padding: 6px 10px; background: #ffffff;
+            border: 1px solid #1e293b; border-radius: 6px; padding: 6px 12px; background: #ffffff;
             display: flex; flex-direction: column; justify-content: center; font-size: 0.88rem; color: #0f172a;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
         }
         
         .iso-box-1 {
-            min-width: 190px; text-align: center; font-weight: bold;
+            min-width: 195px; text-align: center; font-weight: bold;
         }
         .iso-box-1 .iso-main-title {
-            font-size: 0.95rem; color: var(--primary-dark); border-bottom: 1px solid #94a3b8; padding-bottom: 3px; margin-bottom: 3px;
+            font-size: 0.95rem; color: var(--primary-dark); border-bottom: 1px solid #94a3b8; padding-bottom: 4px; margin-bottom: 4px;
+            word-spacing: 2px;
         }
         .iso-box-1 .iso-code-row {
-            font-size: 0.85rem; color: #334155;
+            font-size: 0.85rem; color: #334155; font-weight: bold; direction: rtl;
         }
 
         .iso-box-2 {
-            min-width: 170px; font-size: 0.82rem; font-weight: 600; line-height: 1.4;
+            min-width: 180px; font-size: 0.82rem; font-weight: 600; line-height: 1.5;
         }
-        .iso-box-2 div {
-            display: flex; justify-content: space-between; gap: 6px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 1px; margin-bottom: 2px;
+        .iso-box-2 .iso-row-item {
+            display: flex; justify-content: space-between; align-items: center; gap: 8px; 
+            border-bottom: 1px dashed #cbd5e1; padding-bottom: 2px; margin-bottom: 3px;
         }
-        .iso-box-2 div:last-child { border-bottom: none; margin-bottom: 0; }
+        .iso-box-2 .iso-row-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 
         .footer-section {
             width: 100%; padding: 10px 40px 20px 40px;
             font-size: 0.82rem; color: #64748b; box-sizing: border-box; margin-top: auto;
+            word-spacing: 1px;
         }
 
-        .body-section { padding: 10px 40px; font-size: 1.05rem; line-height: 1.8; color: #0f172a; flex: 1; display: flex; flex-direction: column; box-sizing: border-box; }
+        .body-section { 
+            padding: 10px 40px; font-size: 1.05rem; line-height: 1.8; color: #0f172a; 
+            flex: 1; display: flex; flex-direction: column; box-sizing: border-box; 
+            word-spacing: 1.5px;
+        }
+        
         .editable-text-area { outline: none; padding: 4px; border: 1px dashed transparent; }
         .editable-text-area:focus { border-color: #cbd5e1; }
 
         .editable-text-area table { width: 100%; border-collapse: collapse; margin: 10px 0; table-layout: fixed; }
         .editable-text-area td, .editable-text-area th { padding: 6px 8px; border: 1px solid #cbd5e1; min-width: 30px; }
 
-        .document-title { text-align: center; font-weight: bold; font-size: 1.35rem; margin-bottom: 12px; color: var(--primary-dark); }
+        .document-title { text-align: center; font-weight: bold; font-size: 1.35rem; margin-bottom: 12px; color: var(--primary-dark); word-spacing: 2px; }
         .recipient-block { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; color: #1e293b; }
-        .date-display-block { font-weight: bold; font-size: 0.95rem; margin-bottom: 10px; color: #334155; }
+        
+        /* التاريخ مع توجيه المحاذاة المحكم */
+        .date-display-block { 
+            font-weight: bold; font-size: 0.95rem; margin-bottom: 12px; color: #334155; width: 100%; display: block;
+        }
 
         .signatures-area { 
             display: flex; 
@@ -182,6 +198,17 @@
         .sig-col { flex: 1; text-align: center; min-width: 100px; }
         .sig-title { font-weight: bold; font-size: 0.92rem; color: #334155; margin-bottom: 20px; }
         .sig-name { font-weight: bold; font-size: 0.95rem; color: var(--primary-dark); border-top: 1px dashed #94a3b8; padding-top: 4px; }
+
+        /* نص معزول ثنائي الاتجاه يمنع العكس للأرقام والرموز */
+        .bidi-isolate {
+            unicode-bidi: isolate;
+            display: inline-block;
+        }
+        .bidi-ltr {
+            direction: ltr !important;
+            unicode-bidi: embed;
+            display: inline-block;
+        }
 
         /* ========================================================= */
         /*  إصلاح جذرية لمعاينة الطباعة وتمركُز الورقة تماماً       */
@@ -224,7 +251,7 @@
             
             .page-node {
                 width: 100% !important;
-                padding: 12mm 18mm !important; /* هوامش متوازنة تحمي الصفحة من الانزياح للقمة أو اليسار */
+                padding: 12mm 18mm !important;
                 box-sizing: border-box !important;
             }
 
@@ -282,26 +309,26 @@
                     <h2><i class="fas fa-certificate"></i> إعدادات الجودة ISO بالديباجة</h2>
                     <div class="form-group">
                         <label>عنوان الجودة الرئيسي (HEADER):</label>
-                        <input type="text" id="isoTitleInput" value="نظام إدارة الجودة ISO 9001:2015" placeholder="عنوان الجودة..." oninput="renderAllPages()">
+                        <input type="text" id="isoTitleInput" value="إجراءات الموارد البشرية" placeholder="عنوان الجودة..." oninput="renderAllPages()">
                     </div>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
                         <div class="form-group">
                             <label>رقم / كود الوثيقة:</label>
-                            <input type="text" id="isoCodeInput" value="SOP-HR-001" placeholder="رقم:" oninput="renderAllPages()">
+                            <input type="text" id="isoCodeInput" value="qsep-07.01" placeholder="رقم:" oninput="renderAllPages()">
                         </div>
                         <div class="form-group">
                             <label>إصدار / تعديل:</label>
-                            <input type="text" id="isoVerInput" value="01 / 00" placeholder="إصدار/تعديل:" oninput="renderAllPages()">
+                            <input type="text" id="isoVerInput" value="12" placeholder="إصدار/تعديل:" oninput="renderAllPages()">
                         </div>
                     </div>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
                         <div class="form-group">
                             <label>تاريخ التعديل:</label>
-                            <input type="text" id="isoDateInput" value="2026-10-09" placeholder="تاريخ التعديل:" oninput="renderAllPages()">
+                            <input type="text" id="isoDateInput" value="2026-10-03" placeholder="تاريخ التعديل:" oninput="renderAllPages()">
                         </div>
                         <div class="form-group">
                             <label>صفحة رقم:</label>
-                            <input type="text" id="isoPageInput" value="1 من 1" placeholder="صفحة رقم:" oninput="renderAllPages()">
+                            <input type="text" id="isoPageInput" value="1 من 12" placeholder="صفحة رقم:" oninput="renderAllPages()">
                         </div>
                     </div>
 
@@ -330,8 +357,8 @@
                         </div>
                         <div class="form-group">
                             <select id="dateAlignPos" onchange="renderAllPages()">
-                                <option value="right" selected>يمين (تحت العنوان)</option>
-                                <option value="left">يسار (تحت العنوان)</option>
+                                <option value="right">يمين (تحت العنوان)</option>
+                                <option value="left" selected>يسار (تحت العنوان)</option>
                             </select>
                         </div>
                     </div>
@@ -400,8 +427,8 @@
                     </div>
                     <div class="form-group">
                         <select id="dateAlignPosPrint" onchange="renderAllPages()">
-                            <option value="right" selected>يمين (تحت العنوان)</option>
-                            <option value="left">يسار (تحت العنوان)</option>
+                            <option value="right">يمين (تحت العنوان)</option>
+                            <option value="left" selected>يسار (تحت العنوان)</option>
                         </select>
                     </div>
                 </div>
@@ -572,7 +599,6 @@
 
                 populateControls();
 
-                // مزامنة حقول الجودة من أوّل ديباجة سحابية إن وُجدت
                 if (letterheadsList.length > 0 && letterheadsList[0]) {
                     const lh0 = letterheadsList[0];
                     if (lh0.isoTitle) document.getElementById('isoTitleInput').value = lh0.isoTitle;
@@ -743,15 +769,16 @@
             if (t.sig2 !== undefined) document.getElementById('selectSig2').value = t.sig2;
             if (t.sig3 !== undefined) document.getElementById('selectSig3').value = t.sig3;
 
-            // استرجاع بيانات الجودة المخصصة لهذا النموذج
             if (t.isoTitle) document.getElementById('isoTitleInput').value = t.isoTitle;
             if (t.isoCode) document.getElementById('isoCodeInput').value = t.isoCode;
             if (t.isoVer) document.getElementById('isoVerInput').value = t.isoVer;
             if (t.isoDate) document.getElementById('isoDateInput').value = t.isoDate;
             if (t.isoPage) document.getElementById('isoPageInput').value = t.isoPage;
 
-            // استرجاع اتجاه التاريخ المحدد للنموذج
-            if (t.dateAlignPos) document.getElementById('dateAlignPos').value = t.dateAlignPos;
+            if (t.dateAlignPos) {
+                document.getElementById('dateAlignPos').value = t.dateAlignPos;
+                document.getElementById('dateAlignPosPrint').value = t.dateAlignPos;
+            }
 
             switchTab('tab-create');
             renderAllPages();
@@ -895,12 +922,15 @@
             return res;
         }
 
+        /* دالة بناء أوراق الطباعة ومعالجة اتجاه الأقواس والمسافات وموقع التاريخ */
         function createSinglePageDocument(bodyHtml, isEditable, s1Idx, s2Idx, s3Idx) {
             const isTab2 = document.getElementById('tab-select').classList.contains('active');
             
             const showHeader = isTab2 ? true : document.getElementById('showHeaderChk').checked;
             const showFooter = isTab2 ? true : document.getElementById('showFooterChk').checked;
             const showDate = isTab2 ? document.getElementById('showDateChkPrint').checked : document.getElementById('showDateChk').checked;
+            
+            // جلب الاتجاه الدقيق للتاريخ
             const alignPos = isTab2 ? document.getElementById('dateAlignPosPrint').value : document.getElementById('dateAlignPos').value;
 
             const isEnglish = (document.getElementById('docLang').value === 'en');
@@ -913,40 +943,59 @@
             const lh = letterheadsList[lhSelect ? lhSelect.value : 0] || {};
             const br = branchesList[document.querySelector('.select-branch-ctrl').value || ""];
 
-            const hLine1 = lh.hLine1 || companyInfo.nameAr || '';
-            const hLine2 = lh.hLine2 || companyInfo.fieldAr || '';
+            // حماية نص رأس الصفحة وتوفير المسافات والرموز
+            let hLine1 = lh.hLine1 || companyInfo.nameAr || 'شركة المعامل الكيميائية الفنية';
+            let hLine2 = lh.hLine2 || companyInfo.fieldAr || '';
+
+            // معالجة الأقواس الإنجليزية مثل (TCL) لمنعها من الانعكاس
+            hLine1 = hLine1.replace(/\(([^)]+)\)/g, '&nbsp;<span class="bidi-ltr">($1)</span>&nbsp;');
+
             const logoHtml = (companyInfo.logo && lh.logoPos !== 'none') ? `<img src="${companyInfo.logo}" class="header-logo" alt="Logo">` : '';
 
-            // قراءة قيم الجودة الحية الثابتة والمحفوظة
-            const isoTitle = document.getElementById('isoTitleInput').value || 'نظام إدارة الجودة ISO 9001:2015';
-            const isoCode = document.getElementById('isoCodeInput').value || 'SOP-HR-001';
-            const isoVer = document.getElementById('isoVerInput').value || '01 / 00';
-            const isoDate = document.getElementById('isoDateInput').value || '2026-10-09';
-            const isoPage = document.getElementById('isoPageInput').value || '1 من 1';
+            // قراءة قيم الجودة مع عزل الأكواد والشرطة المائلة
+            const isoTitle = document.getElementById('isoTitleInput').value.trim() || 'إجراءات الموارد البشرية';
+            const isoCode = document.getElementById('isoCodeInput').value.trim() || 'qsep-07.01';
+            const isoVer = document.getElementById('isoVerInput').value.trim() || '12';
+            const isoDate = document.getElementById('isoDateInput').value.trim() || '2026-10-03';
+            const isoPage = document.getElementById('isoPageInput').value.trim() || '1 من 12';
 
-            // المربعين المطورين للجودة بحجم خط واضح جداً بالـ HEADER
+            // المربعين المحسنين للجودة مع منع العكس والتصاق الكلمات
             const isoMarkup = `
                 <div class="header-iso-container">
                     <div class="iso-box iso-box-1">
                         <div class="iso-main-title">${isoTitle}</div>
-                        <div class="iso-code-row"><b>رقم:</b> ${isoCode}</div>
+                        <div class="iso-code-row">
+                            <b>رقم:&nbsp;</b><span class="bidi-ltr" style="font-weight:bold;">${isoCode}</span>
+                        </div>
                     </div>
                     <div class="iso-box iso-box-2">
-                        <div><span>إصدار / تعديل:</span> <b>${isoVer}</b></div>
-                        <div><span>تاريخ التعديل:</span> <b>${isoDate}</b></div>
-                        <div><span>صفحة رقم:</span> <b>${isoPage}</b></div>
+                        <div class="iso-row-item">
+                            <span>إصدار&nbsp;/&nbsp;تعديل:&nbsp;</span>
+                            <b class="bidi-isolate">${isoVer}</b>
+                        </div>
+                        <div class="iso-row-item">
+                            <span>تاريخ&nbsp;التعديل:&nbsp;</span>
+                            <b class="bidi-ltr">${isoDate}</b>
+                        </div>
+                        <div class="iso-row-item">
+                            <span>صفحة&nbsp;رقم:&nbsp;</span>
+                            <b class="bidi-isolate">${isoPage}</b>
+                        </div>
                     </div>
                 </div>
             `;
 
             let fLine = `<div>${lh.fLine1 || ''}</div><div>${lh.fLine2 || ''}</div>`;
-            if (br) fLine += `<div style="font-weight:bold; margin-top:2px;">${br.name} - س.ت: ${br.cr} - ب.ض: ${br.tax}</div>`;
+            if (br) fLine += `<div style="font-weight:bold; margin-top:2px;">${br.name} - س.ت: <span class="bidi-isolate">${br.cr}</span> - ب.ض: <span class="bidi-isolate">${br.tax}</span></div>`;
 
             const docTitle = document.getElementById('docTitleInput').value.trim();
             let titleBlock = docTitle ? `<div class="document-title">${docTitle}</div>` : '';
 
             const formattedDate = getFormattedDateStr(isEnglish);
-            let dateBlock = (showDate && formattedDate) ? `<div class="date-display-block" style="text-align:${alignPos};">${isEnglish ? 'Date:' : 'التاريخ:'} ${formattedDate}</div>` : '';
+            
+            // تطبيق المحاذاة بدقة لليمين أو اليسار
+            const dateTextAlignCss = (alignPos === 'left') ? 'text-align: left !important;' : 'text-align: right !important;';
+            let dateBlock = (showDate && formattedDate) ? `<div class="date-display-block" style="${dateTextAlignCss}">${isEnglish ? 'Date:' : 'التاريخ:'}&nbsp;<span class="bidi-ltr">${formattedDate}</span></div>` : '';
 
             let sig1 = (s1Idx !== "" && signaturesList[s1Idx]) ? signaturesList[s1Idx] : null;
             let sig2 = (s2Idx !== "" && signaturesList[s2Idx]) ? signaturesList[s2Idx] : null;
@@ -982,7 +1031,7 @@
             `;
         }
 
-        /* المحافظة الكاملة على آلية التصدير إلى PDF القائمة الممتازة */
+        /* الحفاظ الكامل والمطلق على دالة تصدير الـ PDF ممتازة كما هي */
         function exportSelectedPagesToPDF() {
             const allDocElements = document.querySelectorAll('.print-document');
             if (allDocElements.length === 0) return alert('لا يوجد نماذج معروضة للتصدير حالياً');
@@ -1017,7 +1066,6 @@
             html2pdf().set(opt).from(containerToExport).save();
         }
 
-        /* حفظ النموذج سحابياً شاملاً كافة بيانات الجودة ISO ومحاذاة التاريخ */
         function saveAndClearTemplate() {
             const nameInput = document.getElementById('templateNameInput');
             const name = nameInput.value.trim();
@@ -1034,7 +1082,6 @@
             const s2 = document.getElementById('selectSig2').value;
             const s3 = document.getElementById('selectSig3').value;
 
-            // قراءة حقول الجودة والمحاذاة لتثبيتها
             const isoTitle = document.getElementById('isoTitleInput').value.trim();
             const isoCode = document.getElementById('isoCodeInput').value.trim();
             const isoVer = document.getElementById('isoVerInput').value.trim();
