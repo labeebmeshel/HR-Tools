@@ -83,7 +83,6 @@
         
         .blank-start-page { width: 210mm; min-height: 285mm; background: #ffffff; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.1rem; border: 2px dashed #cbd5e1; margin-bottom: 20px; }
 
-        /* الورقة الثابتة أبعاد A4 تماماً كالوورد */
         .print-document {
             width: 210mm; 
             height: 297mm; 
@@ -188,7 +187,6 @@
         .bidi-isolate { unicode-bidi: isolate; display: inline-block; }
         .bidi-ltr { direction: ltr !important; unicode-bidi: embed; display: inline-block; }
 
-        /* حاوية القياس: تطابق تماماً منطقة المحتوى في الصفحة الحقيقية */
         #pagination-measurer { position: fixed; visibility: hidden; left: 0; top: 0; z-index: -1; width: 210mm; height: auto; flex: none; overflow: visible; pointer-events: none; }
         #pm-extra { display: flow-root; }
         #pm-area { flex: none; min-height: 0; }
@@ -241,7 +239,7 @@
                 <input type="file" id="wordFileInputDirect" accept=".docx" style="display:none;" onchange="importWordFile(this)">
 
                 <div id="editingSectionsContainer" style="display:none;">
-                    <h2><i class="fas fa-code"></i> إدراج حقول المتغيرات</h2>
+                    <h2><i class="fas fa-code"></i> إدراج حقول المتغيرات (62 حقل)</h2>
                     <div class="form-group">
                         <select id="variableDropdown" onchange="insertSelectedVariable(this)">
                             <option value="">-- اختر الحقل لإدراجه بمكان المؤشر --</option>
@@ -618,7 +616,6 @@
                 .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
-        // Firebase قد يُرجع المصفوفات ككائنات (عند وجود فجوات في الفهارس)
         function toArray(v) {
             if (!v) return [];
             if (Array.isArray(v)) return v;
@@ -642,13 +639,12 @@
 
         function $(id) { return document.getElementById(id); }
 
-        // تنظيف HTML (اللصق / ملفات Word / النماذج المحفوظة) لمنع تنفيذ أكواد خبيثة
         function sanitizeHtml(html, opts) {
             opts = opts || {};
             const doc = new DOMParser().parseFromString(String(html || ''), 'text/html');
             doc.querySelectorAll('script,style,iframe,object,embed,link,meta,xml,form,base,noscript,title').forEach(n => n.remove());
             Array.from(doc.body.querySelectorAll('*')).forEach(el => {
-                if (el.tagName.indexOf(':') !== -1) {            // وسوم Word مثل o:p
+                if (el.tagName.indexOf(':') !== -1) {
                     el.replaceWith(...Array.from(el.childNodes));
                     return;
                 }
@@ -679,6 +675,17 @@
                 : `'${f}', 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif`;
         }
 
+        /* ============ العواميد القياسية الـ 62 ============ */
+        const DEFAULT_62_COLUMNS = [
+            'مسلسل', 'كود بصمة', 'الأسم بالعربي', 'الأسم بالإنجليزي', 'الوظيفة', 'الفرع', 'القطاع', 'الإدارة', 'القسم', 'الرقم القومي',
+            'محل الميلاد', 'تاريخ الميلاد', 'السن', 'العنوان', 'المركز / القسم', 'المحافظة', 'النوع', 'الجنسية', 'الديانة', 'الحالة الاجتماعية',
+            'تاريخ إنتهاء الرقم القومي', 'المؤهل', 'الكلية - المعهد', 'الجامعة', 'سنة التخرج', 'التقدير', 'رقم شهادة القيد', 'الرقم العسكري', 'الموقف من التجنيد', 'تاريخ الحالة',
+            'تاريخ إنتهاء الشهادة', 'نوع رخصة القيادة', 'إنتهاء رخصة القيادة', 'رقم السيارة المسجل عليها', 'تاريخ العمل الفعلي', 'يوم (العمل الفعلي)', 'شهر (العمل الفعلي)', 'سنة (العمل الفعلي)', 'يوم تاريخ العمل الفعلي', 'تاريخ العقد',
+            'يوم (العقد)', 'شهر (العقد)', 'سنة (العقد)', 'يوم تاريخ العقد', 'تاريخ إنتهاء العقد', 'يوم (إنتهاء العقد)', 'شهر (إنتهاء العقد)', 'سنة (إنتهاء العقد)', 'تاريخ التأمين', 'يوم (التأمين)',
+            'شهر (التأمين)', 'سنة (التأمين)', 'البريد الإليكتروني', 'رقم الموبايل الشخصى', 'رقم الموبايل العمل', 'رقم طوارئ', 'صاحب رقم الطوارئ', 'الحاله التأمينية', 'الرقم التأمينى', 'الأجر الشامل',
+            'الأجر التأميني', 'المدير المباشر'
+        ];
+
         /* ============ الحالة العامة ============ */
         let activeUser = cleanFirebaseKey(sessionStorage.getItem('LOGGED_USER') || 'TCL');
 
@@ -687,7 +694,7 @@
         let branchesList = [];
         let signaturesList = [];
         let employeesList = [];
-        let columnKeys = [];
+        let columnKeys = [...DEFAULT_62_COLUMNS];
         let savedTemplates = {};
         let savedSelectionRange = null;
         let isEditModeActive = false;
@@ -701,27 +708,26 @@
         let docFont = { family: 'Traditional Arabic', size: '18px' };
 
         let currentEditorRawContent = `
-            <p><strong>أقر أنا / {الاسم عربي}</strong></p>
+            <p><strong>أقر أنا / {الأسم بالعربي}</strong></p>
             <p>بأني إستلمت العمل بوظيفة "<strong>{الوظيفة}</strong>" بقسم {القسم}</p>
         `;
 
         let selectedEmpIndexesSet = new Set([0]);
         let selectedTemplateKeys = new Set();
 
-        const PAGE_H_PX = Math.round(297 * 96 / 25.4);   // ارتفاع A4 بالبكسل
-        const BODY_PAD_V = 20;                            // padding رأسي لـ .body-section
+        const PAGE_H_PX = Math.round(297 * 96 / 25.4);
+        const BODY_PAD_V = 20;
         const SAFETY_PX = 8;
 
-        const NAME_SYN = ['الاسم عربي', 'الاسم', 'الاسم_عربي', 'اسم الموظف', 'Name'];
+        const NAME_SYN = ['الأسم بالعربي', 'الاسم عربي', 'الأسم بالإنجليزي', 'الاسم', 'الاسم_عربي', 'اسم الموظف', 'Name'];
         const JOB_SYN = ['الوظيفة', 'الوظيفة الحالية', 'المسمى الوظيفي', 'Job'];
-        const DEPT_SYN = ['القسم', 'الإدارة', 'Department'];
+        const DEPT_SYN = ['القسم', 'الإدارة', 'القطاع', 'Department'];
         const SIG_DEFAULTS = [{ pos: 'right', level: '1' }, { pos: 'center', level: '1' }, { pos: 'left', level: '2' }];
 
         window.onload = function () {
             $('customDateInput').value = todayLocalISO();
             $('customDateInputPrint').value = todayLocalISO();
 
-            // مستمعات موحدة (Event Delegation) بدل ربط مستمعات جديدة بعد كل رسم
             const papers = $('papersContainer');
             papers.addEventListener('input', function (e) { if (closestEditable(e.target)) onEditorInput(); });
             papers.addEventListener('compositionstart', function () { isComposing = true; });
@@ -773,15 +779,16 @@
                 branchesList = toArray(data.branches);
                 signaturesList = toArray(data.signatures);
                 employeesList = toArray(data.employees);
-                columnKeys = toArray(data.columnKeys);
-                if (columnKeys.length === 0) columnKeys = ['كود', 'الاسم', 'الاسم عربي', 'الوظيفة', 'القسم', 'الرقم القومي', 'العنوان بالبطاقة'];
+                
+                const loadedCols = toArray(data.columnKeys);
+                columnKeys = Array.from(new Set([...DEFAULT_62_COLUMNS, ...loadedCols]));
+                
                 savedTemplates = data.templates || {};
 
                 $('activeProfileDisplayName').textContent = companyInfo.nameAr || activeUser;
 
                 populateControls();
 
-                // قيم الجودة من الديباجة الأولى تُطبّق عند أول تحميل فقط (حتى لا تُمسح تعديلات المستخدم)
                 if (!profileInitialized) {
                     profileInitialized = true;
                     if (letterheadsList[0]) applyLetterheadIsoToInputs(letterheadsList[0]);
@@ -838,7 +845,6 @@
             return !!(sel && sel.rangeCount && closestEditable(sel.anchorNode));
         }
 
-        /* حفظ/استرجاع موضع المؤشر عبر إعادة الرسم حتى لا يضيع التركيز أثناء الكتابة */
         function captureCaret() {
             const sel = window.getSelection();
             if (!sel || !sel.rangeCount) return null;
@@ -911,7 +917,7 @@
 
         function openSavedForEdit() { switchTab('tab-select'); }
 
-        /* ============ تعبئة القوائم (مع الحفاظ على اختيارات المستخدم) ============ */
+        /* ============ تعبئة القوائم والحقول الـ 62 ============ */
         function populateControls() {
             const prev = {
                 lh: (document.querySelector('.select-letterhead-ctrl') || {}).value,
@@ -933,7 +939,8 @@
                 setSelectValue($(id), [prev.s1, prev.s2, prev.s3][k]);
             });
 
-            const uniqueKeys = new Set([...columnKeys, 'الاسم', 'الاسم عربي', 'الاسم إنجليزي', 'الوظيفة', 'القسم', 'الرقم القومي', 'العنوان بالبطاقة']);
+            // تعبئة قائمة المتغيرات من كافة العواميد الثابتة الـ 62
+            const uniqueKeys = new Set([...columnKeys, ...DEFAULT_62_COLUMNS]);
             let varHtml = '<option value="">-- اختر الحقل لإدراجه بمكان المؤشر --</option>';
             uniqueKeys.forEach(k => { if (k) varHtml += `<option value="{${escapeHtml(k)}}">{${escapeHtml(k)}}</option>`; });
             $('variableDropdown').innerHTML = varHtml;
@@ -1029,12 +1036,10 @@
 
             if (Object.keys(updates).length > 0) {
                 db.ref().update(updates).then(() => {
-                    alert(`تم تحديث اسم المجموعة من "${oldGroup}" إلى "${trimmedNewGroup}" بنجاح! ✅`);
+                    alert(`تم تحديث اسم المجموعة إلى "${trimmedNewGroup}" بنجاح! ✅`);
                     populateGroupsAndTemplates();
                     setSelectValue($('templateGroupSelect'), trimmedNewGroup);
                 }).catch(err => alert('تعذر تحديث اسم المجموعة: ' + err.message));
-            } else {
-                alert('لا توجد نماذج محفوظة تتطلب التحديث.');
             }
         }
 
@@ -1116,9 +1121,9 @@
             let html = '';
             list.forEach((e, i) => {
                 if (!e) return;
-                const code = e['كود'] || e['Code'] || (i + 1);
-                const name = e['الاسم عربي'] || e['الاسم'] || e['Name'] || 'موظف ' + (i + 1);
-                const dept = e['القسم'] || e['Department'] || '';
+                const code = e['كود'] || e['كود بصمة'] || e['Code'] || (i + 1);
+                const name = e['الأسم بالعربي'] || e['الاسم عربي'] || e['الاسم'] || e['Name'] || 'موظف ' + (i + 1);
+                const dept = e['القسم'] || e['الإدارة'] || e['Department'] || '';
                 const deptStr = dept ? ` - <span style="color:#0b4fb3; font-weight:600;">(${escapeHtml(dept)})</span>` : '';
                 const isChecked = selectedEmpIndexesSet.has(i) ? 'checked' : '';
                 const searchStr = escapeHtml(`${code} ${name} ${dept}`.toLowerCase());
@@ -1170,7 +1175,6 @@
             if (!dateVal) return '';
             const parts = dateVal.split('-').map(Number);
             if (parts.length !== 3 || parts.some(isNaN)) return '';
-            // بناء التاريخ محلياً لتفادي انزياح اليوم بسبب المنطقة الزمنية
             return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString(isEnglish ? 'en-US' : 'ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
         }
 
@@ -1191,8 +1195,6 @@
             return h;
         }
 
-        /*  يقسّم المحتوى إلى صفحات حسب الارتفاع المتاح فعلياً (الهيدر + الفوتر + العنوان + التوقيعات)
-            capFn(i): أقصى ارتفاع لمحتوى الصفحة رقم i،  sigH: ارتفاع التوقيعات في الصفحة الأخيرة  */
         function paginateHtmlContent(html, st, capFn, sigH) {
             const pm = $('pagination-measurer');
             const area = $('pm-area');
@@ -1227,7 +1229,7 @@
                     tbody.appendChild(clone);
                     if (fits()) return;
                     if (tbody.rows.length === 1) {
-                        if (area.childNodes.length > 1) {          // يوجد محتوى قبله: انقل الجدول للصفحة التالية
+                        if (area.childNodes.length > 1) {
                             area.removeChild(shell);
                             newPage();
                             area.appendChild(shell);
@@ -1311,14 +1313,12 @@
                 }
                 if (area.childNodes.length > 0) { newPage(); placeNode(node); return; }
 
-                // العنصر وحده أطول من صفحة كاملة
                 if (node.nodeType === 1 && node.children.length === 0 && node.textContent.trim() !== '') { placeWords(node); return; }
-                area.appendChild(node);   // لا يمكن تقسيمه
+                area.appendChild(node);
             }
 
             nodes.forEach(n => placeNode(n.cloneNode(true)));
 
-            // الصفحة الأخيرة: يجب أن تتسع للتوقيعات أيضاً وإلا تُقص
             if (sigH > 0) {
                 const lastIdx = pages.length;
                 if (area.offsetHeight + sigH > capFn(lastIdx)) {
@@ -1339,7 +1339,6 @@
             return pages;
         }
 
-        // يعيد دمج الأجزاء التي قسّمها محرك الصفحات (فقرة / جدول / قائمة) إلى عنصر واحد قبل الحفظ
         function mergeContinuations(html) {
             if (html.indexOf('data-pg-cont') === -1) return html;
             const box = document.createElement('div');
@@ -1392,7 +1391,7 @@
             document.execCommand('insertHTML', false, html);
         }
 
-        /* ============ إعدادات كل نموذج ============ */
+        /* ============ إعدادات النموذج ============ */
         function getTemplateSettings(tKey) {
             const val = id => $(id).value;
             const chk = id => $(id).checked;
@@ -1473,7 +1472,7 @@
             return titleBlock + dateBlock;
         }
 
-        /* ============ الرسم الرئيسي ============ */
+        /* ============ الرسم الرئيسي والتحديث الفوري ============ */
         function renderAllPages() {
             clearTimeout(renderTimer);
             const container = $('papersContainer');
@@ -1491,7 +1490,6 @@
                 return;
             }
 
-            // وضع التحرير: نموذج واحد بحقوله الخام {المتغيرات} / وضع الطباعة: كل موظف × كل نموذج
             let jobs = [];
             if (isTab2) {
                 const keys = Object.keys(savedTemplates).filter(k => selectedTemplateKeys.has(k));
@@ -1509,15 +1507,14 @@
                 jobs.push({ tKey: '__CURRENT__', emp: null });
             }
 
-            // إعدادات مشتركة
             const showHeader = isTab2 ? true : $('showHeaderChk').checked;
             const showFooter = isTab2 ? true : $('showFooterChk').checked;
             const headerH = parseInt($('headerHeight').value) || 105;
             const footerH = parseInt($('footerHeight').value) || 65;
             const ctx = {
                 showHeader, showFooter, headerH, footerH,
-                showDate: isTab2 ? $('showDateChkPrint').checked : $('showDateChk').checked,
-                alignPos: isTab2 ? $('dateAlignPosPrint').value : $('dateAlignPos').value,
+                showDate: isTab2 ? $('showDateChkPrint').checked :$('showDateChk').checked,
+                alignPos: isTab2 ? $('dateAlignPosPrint').value :$('dateAlignPos').value,
                 lh: currentLetterhead(),
                 logoHtml: '',
                 br: branchesList[document.querySelector('.select-branch-ctrl').value || ""]
@@ -1525,9 +1522,8 @@
 
             ctx.logoHtml = (companyInfo.logo && ctx.lh.logoPos !== 'none') ? `<img src="${escapeHtml(companyInfo.logo)}" class="header-logo" alt="Logo">` : '';
 
-            // معالجة كل نموذج مرة واحدة (الإعدادات + التوقيعات + الارتفاعات)
             const tplCache = {};
-            const knownKeys = new Set([...columnKeys, ...NAME_SYN, ...JOB_SYN, ...DEPT_SYN, 'الاسم إنجليزي', 'الرقم القومي', 'العنوان بالبطاقة']);
+            const knownKeys = new Set([...columnKeys, ...DEFAULT_62_COLUMNS, ...NAME_SYN, ...JOB_SYN, ...DEPT_SYN]);
             let allHtml = '';
 
             jobs.forEach(job => {
@@ -1562,7 +1558,7 @@
                 });
             });
 
-            container.innerHTML = allHtml;     // استبدال واحد فقط حتى لا يقفز شريط التمرير
+            container.innerHTML = allHtml;
             window.scrollTo(0, scrollY);
             restoreCaret(caret);
         }
@@ -1577,16 +1573,15 @@
 
             const span = v => `&nbsp;<span class="var-value-span">${escapeHtml(v === undefined || v === null ? '' : String(v).trim())}</span>&nbsp;`;
 
-            // مرور واحد على كل {حقل}: لا حاجة لبناء تعبيرات نمطية من أسماء الأعمدة
             return htmlContent.replace(/\{([^{}<>]{1,80})\}/g, (match, name) => {
                 const k = name.trim();
                 if (map.has(k)) return span(map.get(k));
-                if (knownKeys.has(k)) return span('');     // عمود معروف لكن لا توجد له قيمة لهذا الموظف
+                if (knownKeys.has(k)) return span('');
                 return match;
             });
         }
 
-        /* توليد ورقة A4 واحدة مع الترقيم والتوزيع الإداري */
+        /* توليد ورقة A4 واحدة */
         function createSinglePageDocument(p) {
             const { bodyHtml, isEditable, sigHtml, titleDateHtml, pageNum, totalPages, isFirstPage, st, isEnglish, dir: textDir, ctx } = p;
 
@@ -1686,7 +1681,6 @@
                 containerToExport.lastElementChild.style.breakAfter = "avoid";
             }
 
-            // ملاحظة: letterRendering كان يفكك حروف العربية في الـ PDF فتم حذفه
             const opt = {
                 margin: 0,
                 filename: `النماذج_المصدرة_${todayLocalISO()}.pdf`,
@@ -1699,13 +1693,12 @@
             html2pdf().set(opt).from(containerToExport).save().catch(err => alert('تعذر إنشاء ملف PDF: ' + err.message));
         }
 
-        /* استبدال بيانات الموظف الحالي بمتغيرات داخل نصوص المحتوى فقط (لا تلمس الوسوم ولا المتغيرات الموجودة) */
         function templatizeContent(html, emp) {
             const box = document.createElement('div');
             box.innerHTML = html;
             const report = [];
             const pairs = [
-                [emp['الاسم عربي'] || emp['الاسم'] || '', '{الاسم عربي}'],
+                [emp['الأسم بالعربي'] || emp['الاسم'] || '', '{الأسم بالعربي}'],
                 [emp['الوظيفة'] || '', '{الوظيفة}'],
                 [emp['القسم'] || '', '{القسم}']
             ];
@@ -1718,7 +1711,7 @@
                 let n;
                 while ((n = walker.nextNode())) textNodes.push(n);
                 textNodes.forEach(tn => {
-                    const parts = tn.data.split(/(\{[^{}]*\})/);          // لا نلمس المتغيرات الموجودة
+                    const parts = tn.data.split(/(\{[^{}]*\})/);
                     let changed = false;
                     const out = parts.map(seg => {
                         if (/^\{[^{}]*\}$/.test(seg) || seg.indexOf(value) === -1) return seg;
@@ -1766,10 +1759,10 @@
                 name: name,
                 group: group,
                 title: docTitle,
-                sig1: $('selectSig1').value, sig2: $('selectSig2').value, sig3: $('selectSig3').value,
-                sig1Pos: $('sig1Pos').value, sig1Level: $('sig1Level').value,
-                sig2Pos: $('sig2Pos').value, sig2Level: $('sig2Level').value,
-                sig3Pos: $('sig3Pos').value, sig3Level: $('sig3Level').value,
+                sig1: $('selectSig1').value, sig2: $('selectSig2').value, sig3:$('selectSig3').value,
+                sig1Pos: $('sig1Pos').value, sig1Level:$('sig1Level').value,
+                sig2Pos: $('sig2Pos').value, sig2Level:$('sig2Level').value,
+                sig3Pos: $('sig3Pos').value, sig3Level:$('sig3Level').value,
                 repeatTitle: $('repeatTitleChk').checked,
                 showPageNum: $('showPageNumChk').checked,
                 hideNumOnFirstPage: $('hideNumOnFirstPageChk').checked,
@@ -1786,8 +1779,8 @@
 
             try {
                 db.ref(`companyProfiles/${activeUser}/templates/${key}`).set(data).then(() => {
-                    let msg = 'تم حفظ النموذج والتوقيعات وإعدادات الترقيم سحابياً بنجاح! ✅';
-                    if (report.length) msg += '\n\nتم تحويل بيانات الموظف المحدد إلى متغيرات:\n' + report.join('\n') + '\nراجع النموذج للتأكد من صحة الاستبدال.';
+                    let msg = 'تم حفظ النموذج والتوقيعات سحابياً بنجاح! ✅';
+                    if (report.length) msg += '\n\nتم تحويل بيانات الموظف المحدد إلى متغيرات:\n' + report.join('\n');
                     alert(msg);
                     nameInput.value = '';
                 }).catch(err => alert('تعذر حفظ النموذج: ' + err.message));
@@ -1820,14 +1813,14 @@
                         input.value = '';
                     })
                     .catch(function (err) {
-                        alert('حدث خطأ أثناء قراءة ملف الوورد (يُدعم فقط صيغة .docx): ' + err.message);
+                        alert('حدث خطأ أثناء قراءة ملف الوورد (.docx): ' + err.message);
                         input.value = '';
                     });
             };
             reader.readAsArrayBuffer(file);
         }
 
-        /* ============ أدوات المحرر ============ */
+        /* ============ أدوات المحرر والتطبيق الفوري للخط والحجم ============ */
         function formatDoc(cmd, value = null) {
             restoreSelection();
             document.execCommand('styleWithCSS', false, cmd === 'foreColor' || cmd === 'hiliteColor');
@@ -1840,12 +1833,13 @@
             if (!isEditModeActive) return;
             restoreSelection();
             const sel = window.getSelection();
+            
             if (sel && sel.rangeCount > 0 && !sel.isCollapsed && selectionInsideEditor()) {
                 document.execCommand('styleWithCSS', false, true);
                 document.execCommand('fontName', false, fontName);
                 syncContentFromEditor();
             } else {
-                docFont.family = fontName;       // بدون تحديد: يُطبّق على النموذج كله ويُحفظ معه
+                docFont.family = fontName;
             }
             renderAllPages();
         }
@@ -1854,6 +1848,7 @@
             if (!isEditModeActive) return;
             restoreSelection();
             const sel = window.getSelection();
+            
             if (sel && sel.rangeCount > 0 && !sel.isCollapsed && selectionInsideEditor()) {
                 document.execCommand('styleWithCSS', false, false);
                 document.execCommand('fontSize', false, '7');
@@ -1876,7 +1871,7 @@
             if (!isEditModeActive) return;
             const rows = parseInt(prompt('عدد الصفوف:', '3'));
             const cols = parseInt(prompt('عدد الأعمدة:', '3'));
-            if (!rows || !cols || rows < 1 || cols < 1 || rows > 50 || cols > 12) return alert('أدخل أرقاماً صحيحة (الصفوف حتى 50 والأعمدة حتى 12).');
+            if (!rows || !cols || rows < 1 || cols < 1 || rows > 50 || cols > 12) return alert('أدخل أرقاماً صحيحة.');
 
             let tableHtml = '<table border="1" style="width:100%; border-collapse:collapse; margin:15px 0;">';
             for (let r = 0; r < rows; r++) {
