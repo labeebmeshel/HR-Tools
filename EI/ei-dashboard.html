@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRAXI | لوحة نتائج تقييم الذكاء العاطفي (EI)</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<title>PRAXI | لوحة نتائج تقييم TP5 Soft Skills</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -14,81 +15,139 @@
   :root {
     --primary: #0b4fb3; --navy-2: #1e3a8a; --card: #FFFFFF; --ink: #1e293b; --muted: #64748b; --line: #e2e8f0;
   }
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
   body {
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); color: var(--ink);
-    font-family: 'Segoe UI', Tahoma, sans-serif; min-height: 100vh; margin: 0; padding: 0; direction: rtl;
+    min-height: 100vh; margin: 0; padding: 0; direction: rtl;
   }
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 25px 15px 60px; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 25px 15px 60px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 25px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
-  h1 { font-size: 1.2rem; margin: 0 0 6px; color: var(--primary); font-weight: 800; }
+  h1 { font-size: 1.3rem; margin: 0 0 6px; color: var(--primary); font-weight: 800; }
   .sub { color: var(--muted); font-size: 0.85rem; margin: 0 0 15px; }
   
-  input[type=password], input[type=text] {
-    width: 100%; padding: 11px 14px; border-radius: 8px; border: 1.5px solid var(--line); font-size: 0.95rem; outline: none;
+  input[type=password], input[type=text], select {
+    width: 100%; padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--line); font-size: 0.9rem; outline: none; background: #fff;
   }
+  input:focus, select:focus { border-color: var(--primary); }
+  
   .btn {
-    border: none; cursor: pointer; font-weight: 700; font-size: 0.9rem; padding: 10px 18px; border-radius: 8px; background: var(--primary); color: #fff;
+    border: none; cursor: pointer; font-weight: 700; font-size: 0.85rem; padding: 9px 16px; border-radius: 8px; background: var(--primary); color: #fff; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px;
   }
-  .btn-ghost { background: transparent; color: var(--navy-2); border: 1.5px solid var(--line); }
+  .btn:hover { background: var(--navy-2); }
+  .btn-ghost { background: #fff; color: var(--navy-2); border: 1.5px solid var(--line); }
+  .btn-ghost:hover { background: #f1f5f9; }
+  .btn-sm { padding: 5px 10px; font-size: 0.78rem; }
+  .btn-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+  .btn-danger:hover { background: #fecaca; }
   .hidden { display: none !important; }
 
-  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 15px; }
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 18px; }
   .stat { background: #f8fafc; border: 1px solid var(--line); border-radius: 10px; padding: 12px; text-align: center; }
-  .stat b { display: block; font-size: 1.3rem; color: var(--primary); }
-  .stat span { font-size: 0.75rem; color: var(--muted); font-weight: 700; }
+  .stat b { display: block; font-size: 1.4rem; color: var(--primary); font-weight: 800; }
+  .stat span { font-size: 0.78rem; color: var(--muted); font-weight: 700; }
 
-  .table-scroll { overflow: auto; max-height: 500px; border: 1px solid var(--line); border-radius: 10px; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-  thead th { background: var(--primary); color: #fff; padding: 10px; text-align: right; position: sticky; top: 0; }
+  .filters-bar { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+
+  .table-scroll { overflow: auto; max-height: 560px; border: 1px solid var(--line); border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; white-space: nowrap; }
+  thead th { background: var(--primary); color: #fff; padding: 11px 10px; text-align: right; position: sticky; top: 0; z-index: 2; }
   tbody td { padding: 10px; border-bottom: 1px solid var(--line); text-align: right; }
-  .badge-level { padding: 4px 10px; border-radius: 6px; color: white; font-weight: bold; font-size: 0.75rem; }
+  tbody tr:hover { background-color: #f8fafc; }
+  
+  .badge-level { padding: 3px 9px; border-radius: 6px; color: white; font-weight: 700; font-size: 0.74rem; display: inline-block; }
+  .mod-pill { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; padding: 2px 7px; border-radius: 6px; font-weight: 700; font-size: 0.78rem; }
 
-  .live-indicator { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #059669; font-weight: 700; }
+  .live-indicator { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #059669; font-weight: 700; margin-right: 8px; }
   .dot { width: 8px; height: 8px; background: #059669; border-radius: 50%; animation: pulse 1.5s infinite; }
   @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+  /* نافذة تفاصيل المشارك */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(3px);
+    display: flex; align-items: center; justify-content: center; padding: 15px; z-index: 50;
+  }
+  .modal-card {
+    background: #fff; border-radius: 16px; max-width: 720px; width: 100%; max-height: 90vh;
+    overflow-y: auto; padding: 24px; box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+  }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--line); padding-bottom: 12px; margin-bottom: 16px; }
+  .modal-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; white-space: normal; }
+  .modal-table th { background: #f1f5f9; color: #0f172a; padding: 10px; text-align: right; position: static; }
+  .modal-table td { padding: 9px 10px; border-bottom: 1px solid var(--line); }
+
+  @media (max-width: 768px) {
+    .filters-bar { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <div class="card" id="gate">
-    <h1><i class="fas fa-lock"></i> لوحة نتائج تقييم الذكاء العاطفي (EI)</h1>
+  <!-- بوابة الدخول -->
+  <div class="card" id="gate" style="max-width:460px; margin:60px auto;">
+    <h1><i class="fas fa-lock"></i> لوحة نتائج تقييم TP5 Soft Skills</h1>
     <p class="sub">أدخل كلمة المرور لدخول لوحة النتائج المربوطة بـ Firebase.</p>
-    <div style="margin-bottom: 12px;">
+    <div style="margin-bottom: 14px;">
       <input type="password" id="in-key" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter') unlock()">
     </div>
-    <button class="btn" onclick="unlock()">دخول لوحة التحكم</button>
+    <button class="btn" style="width:100%; justify-content:center;" onclick="unlock()">دخول لوحة التحكم</button>
   </div>
 
+  <!-- لوحة التحكم -->
   <div class="hidden" id="dashboard">
     <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
         <div>
-          <h1>لوحة نتائج الذكاء العاطفي <span class="live-indicator"><span class="dot"></span> متصل حياً بـ Firebase</span></h1>
+          <h1>لوحة نتائج التقييم المبدئي والبعدي (TP5) <span class="live-indicator"><span class="dot"></span> متصل حياً بـ Firebase</span></h1>
           <p class="sub" id="syncDetails" style="margin:0;">جاري مزامنة السحابة...</p>
         </div>
-        <div style="display:flex; gap:8px;">
-          <button class="btn btn-ghost" onclick="exportCSV()"><i class="fas fa-file-excel"></i> تصدير Excel CSV</button>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn" onclick="exportCSV()"><i class="fas fa-file-excel"></i> تصدير Excel CSV</button>
           <button class="btn btn-ghost" onclick="lock()"><i class="fas fa-lock"></i> قفل اللوحة</button>
         </div>
       </div>
 
+      <!-- الإحصائيات السريعة -->
       <div class="stat-row" id="stat-row"></div>
-      <input type="text" id="in-search" placeholder="بحث بالاسم، الوظيفة، أو البريد الإلكتروني..." oninput="renderTable()" style="margin-bottom: 12px;">
 
+      <!-- أدوات البحث والفلترة -->
+      <div class="filters-bar">
+        <input type="text" id="in-search" placeholder="بحث بالاسم، الوظيفة، أو البريد الإلكتروني..." oninput="renderTable()">
+        <select id="filter-phase" onchange="renderTable()">
+          <option value="">كل المراحل (قبلي / بعدي)</option>
+          <option value="Pre-Assessment">تقييم قبلي (Pre)</option>
+          <option value="Post-Assessment">تقييم بعدي (Post)</option>
+        </select>
+        <select id="filter-level" onchange="renderTable()">
+          <option value="">كل المستويات العامة</option>
+          <option value="متقدم">متقدم (169–200)</option>
+          <option value="جيد">جيد (137–168)</option>
+          <option value="في مرحلة التطور">في مرحلة التطور (105–136)</option>
+          <option value="يحتاج إلى تطوير">يحتاج إلى تطوير (73–104)</option>
+          <option value="يحتاج إلى تطوير كبير">يحتاج إلى تطوير كبير (40–72)</option>
+        </select>
+      </div>
+
+      <!-- جدول النتائج -->
       <div class="table-scroll">
         <table>
           <thead>
             <tr>
               <th>التاريخ</th>
               <th>الاسم</th>
+              <th>المرحلة</th>
               <th>الوظيفة</th>
-              <th>الإيميل</th>
-              <th>الواتس</th>
-              <th>الدرجة (من 40)</th>
-              <th>النسبة المئوية</th>
-              <th>التقييم</th>
+              <th>الإجمالي (200)</th>
+              <th>المستوى العام</th>
+              <th>M1</th>
+              <th>M2</th>
+              <th>M3</th>
+              <th>M4</th>
+              <th>M5</th>
+              <th>M6</th>
+              <th>M7</th>
+              <th>M8</th>
+              <th>إجراءات</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -99,8 +158,21 @@
 
 </div>
 
+<!-- نافذة عرض التقرير التفصيلي للمشارك -->
+<div class="modal-backdrop hidden" id="detailModal" onclick="if(event.target===this) closeModal()">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div>
+        <h2 id="modalTitle" style="margin:0; font-size:1.15rem; color:var(--primary);"></h2>
+        <p id="modalSub" style="margin:4px 0 0; font-size:0.82rem; color:var(--muted);"></p>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()"><i class="fas fa-times"></i> إغلاق</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
 <script>
-  // تهيئة Firebase بنفس إعدادات DISC
   const firebaseConfig = {
     apiKey: "AIzaSyCVQ7OIVjfajk3MpFFB_DJpOo8tswCk6eM",
     authDomain: "smart-charter-disc-7d1e5.firebaseapp.com",
@@ -115,6 +187,17 @@
     firebase.initializeApp(firebaseConfig);
   }
   const db = firebase.database();
+
+  const MODULES_META = [
+    { id: "M1", title: "M1 – Self-Awareness & Emotional Intelligence", ar: "الوعي الذاتي والذكاء العاطفي" },
+    { id: "M2", title: "M2 – Time Management & Task Prioritization", ar: "إدارة الوقت وترتيب الأولويات" },
+    { id: "M3", title: "M3 – Resilience & Adaptability", ar: "المرونة النفسية والتكيف" },
+    { id: "M4", title: "M4 – Communication in Multicultural Teams", ar: "التواصل في فرق العمل متعددة الثقافات" },
+    { id: "M5", title: "M5 – Teamwork, Problem-Solving & Negotiation", ar: "العمل الجماعي وحل المشكلات والتفاوض" },
+    { id: "M6", title: "M6 – Leadership & Responsibility", ar: "القيادة وتحمل المسؤولية" },
+    { id: "M7", title: "M7 – Problem-Solving & Critical Thinking", ar: "حل المشكلات والتفكير النقدي" },
+    { id: "M8", title: "M8 – Creativity, Innovation & Green-Sector Opportunities", ar: "الإبداع والابتكار وفرص القطاع الأخضر" }
+  ];
 
   const AUTH_KEY = "Labeeb";
   let globalData = [];
@@ -152,53 +235,173 @@
     document.getElementById('in-key').value = '';
   }
 
+  function getBadgeColor(levelAr) {
+    if (levelAr === "متقدم") return "#059669";
+    if (levelAr === "جيد") return "#0284c7";
+    if (levelAr === "في مرحلة التطور") return "#2563eb";
+    if (levelAr === "يحتاج إلى تطوير") return "#d97706";
+    return "#dc2626";
+  }
+
   function renderTable() {
-    const q = (document.getElementById('in-search') ? document.getElementById('in-search').value : '').toLowerCase();
+    const q = (document.getElementById('in-search').value || '').toLowerCase();
+    const phaseFilter = document.getElementById('filter-phase').value;
+    const levelFilter = document.getElementById('filter-level').value;
+
+    const filtered = globalData.filter(r => {
+      const matchText = ((r.name || '') + ' ' + (r.job || '') + ' ' + (r.email || '')).toLowerCase().includes(q);
+      const matchPhase = !phaseFilter || (r.phase || '').includes(phaseFilter);
+      const matchLevel = !levelFilter || r.level === levelFilter;
+      return matchText && matchPhase && matchLevel;
+    });
+
+    document.getElementById('syncDetails').innerText = `تم جلب (${globalData.length}) سجل من Firebase بنجاح | المعروض: (${filtered.length})`;
+
     const tbody = document.getElementById('tbody');
-    const filtered = globalData.filter(r => ((r.name || '') + ' ' + (r.job || '') + ' ' + (r.email || '')).toLowerCase().includes(q));
-
-    document.getElementById('syncDetails').innerText = `تم جلب (${globalData.length}) سجل من Firebase بنجاح`;
-
     tbody.innerHTML = filtered.map(r => {
-      let badgeBg = "#0284c7";
-      if (r.score >= 32) badgeBg = "#059669";
-      else if (r.score < 24) badgeBg = "#dc2626";
+      const mods = r.modules || {};
+      const badgeBg = getBadgeColor(r.level);
+      const mCells = ["M1","M2","M3","M4","M5","M6","M7","M8"].map(mKey => {
+        const sc = mods[mKey] ? mods[mKey].score : '-';
+        return `<td><span class="mod-pill">${sc}/25</span></td>`;
+      }).join('');
 
       return `
         <tr>
           <td>${r.date ? new Date(r.date).toLocaleDateString('ar-EG') : '-'}</td>
-          <td><b>${r.name || 'بدون اسم'}</b></td>
+          <td><b>${r.name || 'بدون اسم'}</b><br><span style="font-size:0.74rem; color:#64748b;">${r.whats || r.email || ''}</span></td>
+          <td>${(r.phase || '').includes('Post') ? 'بعدي (Post)' : 'قبلي (Pre)'}</td>
           <td>${r.job || '-'}</td>
-          <td>${r.email || '-'}</td>
-          <td>${r.whats || '-'}</td>
-          <td><b>${r.score || 0}</b></td>
-          <td>${r.percentage || 0}%</td>
-          <td><span class="badge-level" style="background:${badgeBg}">${r.level || 'غير محدد'}</span></td>
+          <td><b>${r.score || 0}</b> / 200 (${r.percentage || 0}%)</td>
+          <td><span class="badge-level" style="background:${badgeBg}">${r.level || '-'}</span></td>
+          ${mCells}
+          <td>
+            <button class="btn btn-sm" onclick="openDetails('${r.id}')" title="عرض تفاصيل المحاور"><i class="fas fa-eye"></i></button>
+            <button class="btn btn-sm btn-danger" onclick="deleteRecord('${r.id}')" title="حذف السجل"><i class="fas fa-trash"></i></button>
+          </td>
         </tr>
       `;
     }).join('');
 
-    let excelentCount = globalData.filter(r => r.score >= 32).length;
-    let vgoodCount = globalData.filter(r => r.score >= 24 && r.score < 32).length;
-    let avgCount = globalData.filter(r => r.score < 24).length;
+    const totalCount = globalData.length;
+    const avgScore = totalCount > 0 ? (globalData.reduce((s, r) => s + (Number(r.score) || 0), 0) / totalCount).toFixed(1) : 0;
+    const advCount = globalData.filter(r => r.level === "متقدم").length;
+    const goodCount = globalData.filter(r => r.level === "جيد").length;
+    const devCount = globalData.filter(r => r.level === "في مرحلة التطور").length;
+    const needCount = globalData.filter(r => (r.level || '').includes("يحتاج")).length;
 
     document.getElementById('stat-row').innerHTML = `
-      <div class="stat"><b>${globalData.length}</b><span>إجمالي الاختبارات</span></div>
-      <div class="stat"><b style="color:#059669">${excelentCount}</b><span>ممتاز جداً</span></div>
-      <div class="stat"><b style="color:#0284c7">${vgoodCount}</b><span>جيد جداً</span></div>
-      <div class="stat"><b style="color:#dc2626">${avgCount}</b><span>متوسط / تطوير</span></div>
+      <div class="stat"><b>${totalCount}</b><span>إجمالي الاختبارات</span></div>
+      <div class="stat"><b style="color:#1e3a8a">${avgScore} / 200</b><span>متوسط الدرجة العامة</span></div>
+      <div class="stat"><b style="color:#059669">${advCount}</b><span>متقدم (Advanced)</span></div>
+      <div class="stat"><b style="color:#0284c7">${goodCount}</b><span>جيد (Good)</span></div>
+      <div class="stat"><b style="color:#2563eb">${devCount}</b><span>في مرحلة التطور</span></div>
+      <div class="stat"><b style="color:#dc2626">${needCount}</b><span>يحتاج إلى تطوير</span></div>
     `;
   }
 
+  function openDetails(id) {
+    const rec = globalData.find(r => r.id === id);
+    if (!rec) return;
+
+    document.getElementById('modalTitle').innerText = `تقرير تقييم: ${rec.name}`;
+    document.getElementById('modalSub').innerText = `الوظيفة: ${rec.job || '-'} | المرحلة: ${rec.phase || '-'} | الإيميل: ${rec.email || '-'} | الواتساب: ${rec.whats || '-'}`;
+
+    const mods = rec.modules || {};
+    const overallBg = getBadgeColor(rec.level);
+
+    const rowsHtml = MODULES_META.map(m => {
+      const mData = mods[m.id] || { score: 0, levelAr: '-', levelEn: '' };
+      const bg = getBadgeColor(mData.levelAr);
+      return `
+        <tr>
+          <td><strong>${m.title}</strong><br><span style="font-size:0.78rem; color:#64748b;">${m.ar}</span></td>
+          <td style="text-align:center; font-weight:800;">${mData.score} / 25</td>
+          <td style="text-align:center;"><span class="badge-level" style="background:${bg}">${mData.levelAr} (${mData.levelEn})</span></td>
+        </tr>
+      `;
+    }).join('');
+
+    document.getElementById('modalBody').innerHTML = `
+      <table class="modal-table">
+        <thead>
+          <tr>
+            <th>المحور (Module)</th>
+            <th style="text-align:center;">الدرجة المحققة</th>
+            <th style="text-align:center;">المستوى</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+          <tr style="background:#f8fafc; font-weight:800;">
+            <td>Final Score (الدرجة الإجمالية)</td>
+            <td style="text-align:center; color:var(--primary); font-size:1rem;">${rec.score} / 200 (${rec.percentage}%)</td>
+            <td style="text-align:center;"><span class="badge-level" style="background:${overallBg}">${rec.level} (${rec.levelEn || ''})</span></td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+
+    document.getElementById('detailModal').classList.remove('hidden');
+  }
+
+  function closeModal() {
+    document.getElementById('detailModal').classList.add('hidden');
+  }
+
+  function deleteRecord(id) {
+    if (confirm("هل أنت متأكد من حذف سجل هذا المشارك نهائياً من قاعدة البيانات؟")) {
+      db.ref(`ei_results/${id}`).remove();
+    }
+  }
+
   function exportCSV() {
-    if(!globalData.length) return alert('لا توجد بيانات لتصديرها');
-    let csv = "\uFEFFالتاريخ,الاسم,الوظيفة,الإيميل,الواتس,الدرجة,النسبة المئوية,التقييم\n";
+    if (!globalData.length) return alert('لا توجد بيانات لتصديرها');
+
+    let headers = [
+      "التاريخ", "الاسم", "المرحلة", "الوظيفة", "الإيميل", "الواتس",
+      "الدرجة (من 200)", "النسبة المئوية", "التقييم",
+      "M1 الدرجة", "M1 المستوى",
+      "M2 الدرجة", "M2 المستوى",
+      "M3 الدرجة", "M3 المستوى",
+      "M4 الدرجة", "M4 المستوى",
+      "M5 الدرجة", "M5 المستوى",
+      "M6 الدرجة", "M6 المستوى",
+      "M7 الدرجة", "M7 المستوى",
+      "M8 الدرجة", "M8 المستوى"
+    ];
+
+    let csv = "\uFEFF" + headers.join(",") + "\n";
+
     globalData.forEach(r => {
-      csv += `"${new Date(r.date).toLocaleString()}","${r.name || ''}","${r.job || ''}","${r.email || ''}","${r.whats || ''}",${r.score || 0},"${r.percentage || 0}%","${r.level || ''}"\n`;
+      const m = r.modules || {};
+      const row = [
+        `"${r.date ? new Date(r.date).toLocaleString('ar-EG') : ''}"`,
+        `"${r.name || ''}"`,
+        `"${r.phase || ''}"`,
+        `"${r.job || ''}"`,
+        `"${r.email || ''}"`,
+        `"${r.whats || ''}"`,
+        r.score || 0,
+        `"${r.percentage || 0}%"`,
+        `"${r.level || ''}"`,
+        m.M1 ? m.M1.score : 0, `"${m.M1 ? m.M1.levelAr : ''}"`,
+        m.M2 ? m.M2.score : 0, `"${m.M2 ? m.M2.levelAr : ''}"`,
+        m.M3 ? m.M3.score : 0, `"${m.M3 ? m.M3.levelAr : ''}"`,
+        m.M4 ? m.M4.score : 0, `"${m.M4 ? m.M4.levelAr : ''}"`,
+        m.M5 ? m.M5.score : 0, `"${m.M5 ? m.M5.levelAr : ''}"`,
+        m.M6 ? m.M6.score : 0, `"${m.M6 ? m.M6.levelAr : ''}"`,
+        m.M7 ? m.M7.score : 0, `"${m.M7 ? m.M7.levelAr : ''}"`,
+        m.M8 ? m.M8.score : 0, `"${m.M8 ? m.M8.levelAr : ''}"`
+      ];
+      csv += row.join(",") + "\n";
     });
+
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = 'ei_results_firebase.csv'; a.click();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'ei_results_firebase.csv';
+    a.click();
   }
 </script>
 </body>
