@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اختبار الذكاء العاطفي العالمي (Global EI Test)</title>
+    <title>TP5 – التقييم المبدئي للمهارات الشخصية والمهنية</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -22,73 +22,128 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
-        body { background-color: var(--bg); color: var(--text); padding: 20px; line-height: 1.8; }
-        .container { max-width: 850px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        body { background-color: var(--bg); color: var(--text); padding: 20px; line-height: 1.7; }
+        .container { max-width: 900px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
         
-        h1 { color: var(--primary); text-align: center; margin-bottom: 10px; font-size: 1.8rem; font-weight: 800; }
+        h1 { color: var(--primary); text-align: center; margin-bottom: 4px; font-size: 1.65rem; font-weight: 800; }
+        .subtitle-en { text-align: center; color: #64748b; font-size: 0.95rem; font-weight: 700; margin-bottom: 18px; }
         
-        /* قسم بيانات المختبر */
         .user-info-box {
-            background: #f8fafc; border: 1.5px solid var(--border); padding: 20px; border-radius: 12px; margin-bottom: 25px;
+            background: #f8fafc; border: 1.5px solid var(--border); padding: 20px; border-radius: 12px; margin-bottom: 22px;
         }
         .user-info-box h3 { margin-bottom: 12px; font-size: 1rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .form-input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; }
+        .form-input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; background: #fff; }
         .form-input:focus { border-color: var(--primary); }
 
-        .intro-box { background-color: #eff6ff; border-right: 4px solid var(--primary); padding: 18px; border-radius: 8px; margin-bottom: 25px; font-size: 0.92rem; }
+        .intro-box { background-color: #eff6ff; border-right: 4px solid var(--primary); padding: 16px 18px; border-radius: 8px; margin-bottom: 24px; font-size: 0.9rem; }
+        .scale-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .scale-badge { background: #fff; border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #1e3a8a; }
+
+        .question-card { border: 1.5px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; background: #fff; transition: 0.2s; }
+        .question-card:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(11, 79, 179, 0.06); }
+        .question-card.unanswered { border-color: #ef4444; background-color: #fef2f2; }
         
-        .question-card { border: 1.5px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 15px; background: #fff; transition: 0.2s; }
-        .question-card:hover { border-color: var(--primary); }
-        .question-title { font-weight: 700; margin-bottom: 10px; font-size: 0.98rem; color: #0f172a; }
-        
-        .option-label { display: flex; align-items: center; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.92rem; margin-bottom: 4px; }
-        .option-label:hover { background-color: #f1f5f9; }
-        .option-label input[type="radio"] { margin-left: 10px; accent-color: var(--primary); transform: scale(1.1); }
+        .q-ar { font-weight: 700; font-size: 1rem; color: #0f172a; margin-bottom: 4px; }
+        .q-en { font-size: 0.88rem; color: #475569; direction: ltr; text-align: left; margin-bottom: 14px; font-weight: 600; }
+
+        .likert-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .likert-option {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 10px 6px; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer;
+            text-align: center; transition: 0.2s; background: #f8fafc;
+        }
+        .likert-option:hover { border-color: var(--primary); background: #eff6ff; }
+        .likert-option input[type="radio"] { accent-color: var(--primary); transform: scale(1.15); margin-bottom: 5px; cursor: pointer; }
+        .likert-option:has(input:checked) { background: #dbeafe; border-color: var(--primary); color: var(--primary-dark); font-weight: 700; }
+        .opt-num { font-size: 0.95rem; font-weight: 800; color: var(--primary); }
+        .opt-ar { font-size: 0.82rem; font-weight: 700; }
+        .opt-en { font-size: 0.72rem; color: #64748b; }
 
         .submit-btn { display: block; width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 25px; transition: 0.25s; }
         .submit-btn:hover { background-color: var(--primary-dark); }
+        .submit-btn:disabled { background-color: #94a3b8; cursor: not-allowed; }
 
-        #resultBox { display: none; margin-top: 25px; padding: 25px; border-radius: 12px; background: #e0f2fe; border: 1.5px solid #0284c7; text-align: center; }
-        #resultBox h2 { color: #0369a1; margin-bottom: 10px; }
+        /* صندوق النتيجة النهائية */
+        #resultBox { display: none; margin-top: 20px; padding: 25px; border-radius: 14px; background: #f8fafc; border: 2px solid #0284c7; }
+        .result-header { text-align: center; padding-bottom: 18px; border-bottom: 1.5px solid #cbd5e1; margin-bottom: 20px; }
+        .result-header h2 { color: #0369a1; margin-bottom: 8px; font-size: 1.4rem; }
+        .final-score-pill { display: inline-block; background: var(--primary); color: #fff; padding: 8px 22px; border-radius: 999px; font-size: 1.15rem; font-weight: 800; margin: 8px 0; }
+        
+        .result-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; font-size: 0.88rem; }
+        .result-table th { background: var(--primary); color: #fff; padding: 11px; text-align: right; }
+        .result-table td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
+        .lvl-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; color: #fff; display: inline-block; }
 
-        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 650px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .likert-grid { grid-template-columns: 1fr; }
+            .likert-option { flex-direction: row; justify-content: space-between; padding: 10px 14px; }
+            .likert-option input[type="radio"] { margin-bottom: 0; margin-left: 8px; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1><i class="fas fa-brain"></i> اختبار الذكاء العاطفي العالمي (Global EI Test)</h1>
+    <h1><i class="fas fa-clipboard-check"></i> التقييم المبدئي للمهارات الشخصية والمهنية</h1>
+    <div class="subtitle-en">TP5 – Soft Skills Initial Assessment</div>
     
     <div class="intro-box">
-        <p>يتكون هذا الاختبار من 40 سؤالاً مستمدة من أداة تقييم قدرات الذكاء العاطفي العالمية المبنية على نموذج دانيال جولمان للذكاء العاطفي بأبعاده الأربعة (2002).</p>
-    </div>
-
-    <!-- بيانات الشخص المختبر -->
-    <div class="user-info-box">
-        <h3><i class="fas fa-id-card"></i> بيانات المشارك في الاختبار:</h3>
-        <div class="form-grid">
-            <input type="text" id="userInfoName" class="form-input" placeholder="الاسم بالكامل *" required>
-            <input type="text" id="userInfoJob" class="form-input" placeholder="المسمى الوظيفي">
-            <input type="email" id="userInfoEmail" class="form-input" placeholder="البريد الإلكتروني">
-            <input type="tel" id="userInfoWhats" class="form-input" placeholder="رقم الواتساب">
+        <p><strong>تعليمات الإجابة:</strong> يتكون التقييم من <strong>40 عبارة</strong> تقيس مهاراتك الشخصية والمهنية في بيئة العمل. يرجى اختيار درجة واحدة لكل عبارة من <strong>1 إلى 5</strong> حسب مدى انطباقها على سلوكك الفعلي:</p>
+        <div class="scale-legend">
+            <span class="scale-badge">1 = أبدًا (Never)</span>
+            <span class="scale-badge">2 = نادرًا (Rarely)</span>
+            <span class="scale-badge">3 = أحيانًا (Sometimes)</span>
+            <span class="scale-badge">4 = غالبًا (Often)</span>
+            <span class="scale-badge">5 = دائمًا (Always)</span>
         </div>
     </div>
 
-    <form id="eiForm">
+    <!-- بيانات المشارك -->
+    <div class="user-info-box">
+        <h3><i class="fas fa-id-card"></i> بيانات المشارك في التقييم:</h3>
+        <div class="form-grid">
+            <input type="text" id="userInfoName" class="form-input" placeholder="الاسم بالكامل *" required>
+            <input type="text" id="userInfoJob" class="form-input" placeholder="المسمى الوظيفي / التخصص">
+            <input type="email" id="userInfoEmail" class="form-input" placeholder="البريد الإلكتروني">
+            <input type="tel" id="userInfoWhats" class="form-input" placeholder="رقم الواتساب">
+            <select id="userInfoPhase" class="form-input" style="grid-column: span 2;">
+                <option value="Pre-Assessment (قبلي)">مرحلة التقييم: تقييم قبلي (Pre-Assessment)</option>
+                <option value="Post-Assessment (بعدي)">مرحلة التقييم: تقييم بعدي (Post-Assessment)</option>
+            </select>
+        </div>
+    </div>
+
+    <form id="tp5Form">
         <div id="questionsContainer"></div>
-        <button type="button" class="submit-btn" id="btnSubmit" onclick="calculateScore()">حفظ وإرسال التقييم</button>
+        <button type="button" class="submit-btn" id="btnSubmit" onclick="calculateAndSave()">حفظ وإرسال التقييم</button>
     </form>
 
+    <!-- عرض النتيجة التفصيلية للمشارك بعد الإرسال -->
     <div id="resultBox">
-        <h2><i class="fas fa-check-circle"></i> تم إرسال نتيجة التقييم بنجاح</h2>
-        <p id="scoreText"></p>
-        <p id="feedbackText" style="margin-top: 10px; font-weight: bold;"></p>
+        <div class="result-header">
+            <h2><i class="fas fa-check-circle"></i> تم حفظ وإرسال التقييم بنجاح</h2>
+            <p id="participantSummary" style="color:#475569; font-weight:600;"></p>
+            <div class="final-score-pill" id="finalScoreBadge"></div>
+            <div id="overallLevelBadge" style="margin-top:6px; font-weight:800; font-size:1.05rem;"></div>
+        </div>
+
+        <table class="result-table">
+            <thead>
+                <tr>
+                    <th>المحور (Module)</th>
+                    <th style="text-align:center;">الدرجة (من 25)</th>
+                    <th style="text-align:center;">المستوى (Level)</th>
+                </tr>
+            </thead>
+            <tbody id="modulesResultBody"></tbody>
+        </table>
     </div>
 </div>
 
 <script>
-    // تهيئة Firebase بنفس إعدادات الـ DISC
+    // تهيئة Firebase بنفس إعدادات المنظومة
     const firebaseConfig = {
       apiKey: "AIzaSyCVQ7OIVjfajk3MpFFB_DJpOo8tswCk6eM",
       authDomain: "smart-charter-disc-7d1e5.firebaseapp.com",
@@ -104,115 +159,215 @@
     }
     const db = firebase.database();
 
+    // تعريف المحاور الثمانية (Modules)
+    const MODULES = [
+        { id: "M1", name: "M1 – Self-Awareness & Emotional Intelligence", ar: "الوعي الذاتي والذكاء العاطفي" },
+        { id: "M2", name: "M2 – Time Management & Task Prioritization", ar: "إدارة الوقت وترتيب الأولويات" },
+        { id: "M3", name: "M3 – Resilience & Adaptability", ar: "المرونة النفسية والتكيف" },
+        { id: "M4", name: "M4 – Communication in Multicultural Teams", ar: "التواصل في فرق العمل متعددة الثقافات" },
+        { id: "M5", name: "M5 – Teamwork, Problem-Solving & Negotiation", ar: "العمل الجماعي وحل المشكلات والتفاوض" },
+        { id: "M6", name: "M6 – Leadership & Responsibility", ar: "القيادة وتحمل المسؤولية" },
+        { id: "M7", name: "M7 – Problem-Solving & Critical Thinking", ar: "حل المشكلات والتفكير النقدي" },
+        { id: "M8", name: "M8 – Creativity, Innovation & Green-Sector Opportunities", ar: "الإبداع والابتكار وفرص القطاع الأخضر" }
+    ];
+
+    // الـ 40 سؤالاً المختلطة (5 أسئلة لكل Module، متضمنة تصحيح M1)
     const questions = [
-        { q: "1. مشاعري وانفعالاتي عموماً:", a: "لها تأثير قوي على طريقة تصرفاتي وسلوكي.", b: "لها تأثير ضئيل أو معدوم على طريقة تصرفاتي وسلوكي.", val: "a" },
-        { q: "2. في حياتي عموماً، أسترشد بـ:", a: "أهدافي وقيمي الشخصية.", b: "أهداف وقيم الآخرين.", val: "a" },
-        { q: "3. عندما أكون تحت الضغط العصبي، فإن تصرفاتي عادةً:", a: "تتغير وتختلف عن وضعي الطبيعي.", b: "تبقى كما هي دون تغيير.", val: "b" },
-        { q: "4. أتعلم بشكل أفضل عموماً من خلال:", a: "الممارسة والمشاركة الفعالة في الأنشطة.", b: "التأمل والتفكر في التجارب والخبرات السابقة.", val: "b" },
-        { q: "5. في أغلب الأحيان:", a: "أتمتع بحس دعابة جيد تجاه نفسي وأخطائي.", b: "آخذ نفسي بجدية صلبة طوال الوقت.", val: "a" },
-        { q: "6. أقدم نفسي للآخرين:", a: "بثقة عالية ونفَس واثق و\"حضور\" قوي.", b: "بقدر من الثقة والتحفظ والحرص.", val: "a" },
-        { q: "7. في المواقف التي تتضمن ضغوطاً وعدم يقين، أكون دائماً:", a: "حاسماً وأتخذ قرارات سليمة.", b: "حذراً جداً لضمان اتخاذ القرار الصحيح.", val: "a" },
-        { q: "8. أعبر دائماً عن الآراء التي:", a: "قد لا تحظى بشعبية ولكنها تدافع عما هو صحيح.", b: "يحظى بتأييد وموافقة أغلب الآخرين.", val: "a" },
-        { q: "9. أحب دائماً أن:", a: "أخوض تحديات جديدة.", b: "أحافظ على الوضع الراهن والمستقر.", val: "a" },
-        { q: "10. في الغالب أنا:", a: "أبعث الثقة والأمل في نفوس الآخرين.", b: "أعتمد على ثقة الآخرين وبيئتهم.", val: "a" },
-        { q: "11. عموماً، أنا:", a: "أسمح لمشاعري ومزاجي بالتحكم والتأثير في سلوكياتي.", b: "أبقي مشاعري المزعجة ونزواتي تحت السيطرة والتحكم.", val: "b" },
-        { q: "12. عندما أكون تحت الضغط العصبي والمهني:", a: "يتشتت انتباهي بسهولة بأمور أخرى.", b: "أفكر بصفاء ووضوح وأحافظ على تركيزي.", val: "b" },
-        { q: "13. أنا دائماً:", a: "أفعل تماماً ما أقول إنني سأفعله.", b: "أفعل فقط ما يترتب عليّ فعله إجبارياً.", val: "a" },
-        { q: "14. ثقة الآخرين بي:", a: "تأتيني بشكل تلقائي للوهلة الأولى.", b: "تُبنى بمرور الوقت عبر الاعتمادية والمصداقية.", val: "b" },
-        { q: "15. أكون دائماً:", a: "مرناً في كيفية رؤيتي وتفسيري للأحداث.", b: "قادراً على رؤية الأحداث على حقيقتها المجردة.", val: "a" },
-        { q: "16. أثناء ظروف التغيير المتسارعة، أعمل دائماً على:", a: "العمل بجد لمواكبة المتطلبات والتأقلم.", b: "إدارة متطلبات متعددة وأولويات متغيرة بسلاسة واقتدار.", val: "b" },
-        { q: "17. أنا دائماً:", a: "أضع لنفسي أهدافاً طموحة وتنطوي على تحدٍ.", b: "أنجز الأهداف المحددة والمطلوبة مني فقط.", val: "a" },
-        { q: "18. عند حدوث عقبات وعثرات أثناء السعي لتحقيق أهدافي:", a: "أقوم بإعادة تعديل الأهداف أو التوقعات.", b: "أصر على ملاحقة الأهداف بغض النظر عما حدث.", val: "b" },
-        { q: "19. بصفة عامة، أنا:", a: "أسعى لتحقيق أهداف تتجاوز ما هو مطلوب أو متوقع مني.", b: "أسعى لتحقيق الأهداف بالقدر المطلوب مني فقط.", val: "a" },
-        { q: "20. عندما أكتشف الفرص المناسبة، أكون دائماً:", a: "متردداً وغير متأكد مما إذا كنت سأستغل الفرصة أم لا.", b: "مبادراً وسباقاً في اقتناص واستغلال الفرصة.", val: "b" },
-        { q: "21. الاختلافات والتباينات بين الجماعات دائماً ما تكون:", a: "سبباً في إحداث الصعوبات وعدم الاستقرار.", b: "مفهومة ومحل تقدير واحترام.", val: "b" },
-        { q: "22. عندما أرى الانحياز أو التعصب والتطرف، أكون دائماً:", a: "مواجهاً ومتح دياً للأشخاص المتسببين في ذلك.", b: "أتغاضى عن الأمر وأتجاهله تماماً.", val: "a" },
-        { q: "23. أقدم المساعدة للآخرين بناءً على:", a: "المهام والأعمال التي يحتاجون مساعدة في إنجازها.", b: "فهم واستيعاب مشاعر الآخرين واحتياجاتهم.", val: "b" },
-        { q: "24. أنا دائماً:", a: "أستمع بتركيز للكلمات الهامة المنطوقة.", b: "أستمع جيداً وأكون حذراً وينبهني الإنصات العاطفي.", val: "b" },
-        { q: "25. آراء ووجهات نظر الآخرين دائماً ما تكون:", a: "مفهومة ومحل إدراك وحساسية واهتمام.", b: "مربكة للموضوعات وتخرجنا عن المسار الصحيح.", val: "a" },
-        { q: "26. أجد دائماً أن شبكات العلاقات الاجتماعية داخل المؤسسة:", a: "تعيق وتعطل تقديم الأداء المتميز.", b: "تساعد في بناء شبكات اتخاذ قرارات أفضل.", val: "b" },
-        { q: "27. أستخدم دائماً:", a: "علاقات القوة والنفوذ غير الرسمية للحصول على ما أحتاجه.", b: "قنوات اتخاذ القرار الرسمية للحصول على ما أحتاجه.", val: "b" },
-        { q: "28. أنا دائماً:", a: "أعطي العملاء ما يطلبونه بدقة.", b: "أفهم احتياجات العملاء وأطابق المنتجات/الخدمات معها.", val: "b" },
-        { q: "29. أنا دائماً:", a: "أتصرف كمستشار ومحل ثقة بالنسبة للعميل.", b: "أخبر العميل بما يحب ويفضل سماعه فقط.", val: "a" },
-        { q: "30. زيادة رضا العملاء وولائهم:", a: "جزء أساسي ودائم من طريقة وأسلوب عملي.", b: "ليس أمراً ذا أهمية حاسمة في تحقيق عملية البيع.", val: "a" },
-        { q: "31. الرؤية والرسالة في المؤسسة تكمن أهميتها دائماً في أنها:", a: "تُعطى للموظفين ليعرفوا أين نتوجه.", b: "تُستخدم لإلهام المجموعات والأفراد وتحفيزهم.", val: "b" },
-        { q: "32. أنا دائماً:", a: "أعرف الناس بالسلوكيات والتوقعات المطلوبة منهم.", b: "أكون القدوة والنموذج للسلوكيات المتوقعة من الآخرين.", val: "b" },
-        { q: "33. أسند المهام دائماً للأشخاص الذين:", a: "يمكنهم إنجاز العمل وأدائه بشكل جيد.", b: "سينمون ويتطورون كنتيجة لخوض هذا التحدي.", val: "b" },
-        { q: "34. كسب دعم وتأييد الناس هو شيء:", a: "أجد صعوبة كبيرة في القيام به.", b: "أنا بارع وممتاز جداً فيه.", val: "b" },
-        { q: "35. أتواصل دائماً بأداء وطريقة:", a: "يجعل الجميع يفهم ما أقوله بشكل مباشر.", b: "تسعى للوصول إلى التفاهم المتبادل والمشاركة الكاملة للمعلومات.", val: "b" },
-        { q: "36. أنا دائماً:", a: "أتماشى وأسير مع التغييرات التي يقودها الآخرون.", b: "أدرك الحاجة للتغيير وأزيل العوائق أمامه.", val: "b" },
-        { q: "37. أتعامل دائماً مع الشخصيات الصعبة والمزعجة:", a: "بأسلوب مباشر وواضح وصريح.", b: "بدبلوماسية ولباقة عالية.", val: "b" },
-        { q: "38. أبحث دائماً عن بناء واستمرار العلاقات التي:", a: "تعود بالنفع والفائدة المتبادلة على الطرفين.", b: "تساعدني في تحقيق هدفي النهائي فقط.", val: "a" },
-        { q: "39. بصفة عامة، لدي تركيز:", a: "أقوى وأكبر على المهام بدلاً من العلاقات.", b: "متوازن ومتقارب بين المهام والعلاقات.", val: "b" },
-        { q: "40. عندما أعمل مع فرق العمل، فإنني دائماً:", a: "أوضح للجميع ما أتوقع منهم القيام به.", b: "أدفع جميع الأعضاء للمشاركة بحماس وشغف.", val: "b" }
+        { id: 1, module: "M7", ar: "عندما أواجه مشكلة في العمل، أحاول فهم أسبابها الحقيقية قبل البحث عن الحلول.", en: "When I face a workplace problem, I try to understand its root causes before looking for solutions." },
+        { id: 2, module: "M5", ar: "أحرص على مشاركة زملائي المعلومات والخبرات التي تساعدنا على تحقيق أهداف مشتركة.", en: "I make an effort to share information and knowledge with colleagues to achieve common goals." },
+        { id: 3, module: "M3", ar: "عندما أتعرض لضغط نفسي أو مهني، أستطيع التحكم في ردود أفعالي والمحافظة على هدوئي.", en: "When I experience personal or professional stress, I can control my reactions and remain calm." },
+        { id: 4, module: "M2", ar: "أضع خطة واضحة لمهامي اليومية وأحدد الوقت اللازم لإنجازها.", en: "I create a clear plan for my daily tasks and allocate the time needed to complete them." },
+        { id: 5, module: "M6", ar: "أتحمل مسؤولية نتائج أعمالي وأعترف بأخطائي وأعمل على تصحيحها.", en: "I take responsibility for my work results, acknowledge my mistakes, and work to correct them." },
+        { id: 6, module: "M4", ar: "أستطيع التعامل باحترام ومرونة مع أشخاص لديهم ثقافات وخلفيات مختلفة عني.", en: "I can interact respectfully and flexibly with people from different cultural backgrounds." },
+        { id: 7, module: "M7", ar: "أعتمد على المعلومات والأدلة قبل اتخاذ القرارات المهمة.", en: "I rely on information and evidence before making important decisions." },
+        { id: 8, module: "M1", ar: "أستطيع التعرف على مشاعري وفهم تأثيرها على قراراتي وتصرفاتي.", en: "I can recognize my emotions and understand how they influence my decisions and behavior." },
+        { id: 9, module: "M8", ar: "أبحث عن أفكار جديدة وغير تقليدية لتحسين العمل أو تقديم حلول أفضل.", en: "I look for new and unconventional ideas to improve work or develop better solutions." },
+        { id: 10, module: "M5", ar: "عندما يحدث خلاف بيني وبين أحد زملائي، أبحث عن حل يحقق مصلحة الطرفين.", en: "When I have a disagreement with a colleague, I look for a solution that benefits both parties." },
+        { id: 11, module: "M3", ar: "عندما تتغير ظروف العمل بشكل مفاجئ، أستطيع تعديل خططي والتكيف مع الوضع الجديد.", en: "When work conditions change unexpectedly, I can adjust my plans and adapt to the new situation." },
+        { id: 12, module: "M2", ar: "أستطيع التمييز بين المهام العاجلة والمهام المهمة وتحديد ما يجب تنفيذه أولًا.", en: "I can distinguish between urgent and important tasks and decide what needs to be done first." },
+        { id: 13, module: "M6", ar: "أبادر إلى تنفيذ المهام وتحمل المسؤوليات دون الحاجة إلى انتظار توجيهات مستمرة.", en: "I take initiative and responsibility without needing continuous instructions." },
+        { id: 14, module: "M4", ar: "أستمع باهتمام إلى الآخرين وأحاول فهم وجهات نظرهم قبل أن أقدم ردي.", en: "I listen carefully to others and try to understand their perspectives before responding." },
+        { id: 15, module: "M7", ar: "أستطيع تحليل المشكلات المعقدة وتقسيمها إلى أجزاء أصغر لتسهيل التعامل معها.", en: "I can analyze complex problems and break them into smaller parts to make them easier to handle." },
+        { id: 16, module: "M8", ar: "أستطيع تحويل الأفكار الجديدة إلى مبادرات أو مشروعات قابلة للتنفيذ.", en: "I can turn new ideas into practical initiatives or projects." },
+        { id: 17, module: "M1", ar: "أتقبل النقد والملاحظات وأستخدمها لتحسين أدائي وتطوير نفسي.", en: "I accept criticism and feedback and use them to improve my performance and develop myself." },
+        { id: 18, module: "M3", ar: "عندما أواجه فشلًا أو عقبة، أتعلم من التجربة وأواصل المحاولة بدلًا من الاستسلام.", en: "When I experience failure or an obstacle, I learn from the experience and keep trying instead of giving up." },
+        { id: 19, module: "M5", ar: "أستطيع التفاوض ومناقشة وجهات النظر المختلفة للوصول إلى اتفاق مناسب.", en: "I can negotiate and discuss different perspectives to reach a suitable agreement." },
+        { id: 20, module: "M2", ar: "ألتزم بالمواعيد النهائية وأتابع المهام حتى يتم إنجازها بالكامل.", en: "I meet deadlines and follow up on tasks until they are fully completed." },
+        { id: 21, module: "M6", ar: "أستطيع تحفيز الآخرين وتشجيعهم على المشاركة وتحقيق أهداف الفريق.", en: "I can motivate others and encourage them to contribute to achieving team goals." },
+        { id: 22, module: "M4", ar: "أستطيع التعبير عن أفكاري وآرائي بوضوح مع مراعاة طبيعة الشخص الذي أتحدث معه.", en: "I can express my ideas and opinions clearly while considering the person I am communicating with." },
+        { id: 23, module: "M7", ar: "قبل اختيار الحل، أقارن بين البدائل المتاحة وأدرس النتائج المحتملة لكل منها.", en: "Before choosing a solution, I compare available alternatives and consider the possible outcomes of each." },
+        { id: 24, module: "M8", ar: "أستطيع ملاحظة الفرص التي تحقق فوائد اقتصادية أو اجتماعية أو بيئية والاستفادة منها.", en: "I can identify opportunities that create economic, social, or environmental benefits and make use of them." },
+        { id: 25, module: "M3", ar: "عندما أتعرض لموقف صعب، أستطيع إعادة النظر في طريقة تفكيري وتغيير أسلوبي إذا لزم الأمر.", en: "When facing a difficult situation, I can reconsider my thinking and change my approach when necessary." },
+        { id: 26, module: "M1", ar: "أستطيع تحديد نقاط قوتي والجوانب التي أحتاج إلى تطويرها في شخصيتي وأدائي.", en: "I can identify my strengths and the areas of my personality and performance that need improvement." },
+        { id: 27, module: "M1", ar: "أستطيع فهم تأثير سلوكي على مشاعر الآخرين وطريقة تعاملهم معي.", en: "I can understand how my behavior affects other people's feelings and the way they interact with me." },
+        { id: 28, module: "M5", ar: "أشارك في حل الخلافات داخل فريق العمل بدلًا من تجاهلها أو زيادة حدتها.", en: "I contribute to resolving disagreements within the team instead of ignoring them or making them worse." },
+        { id: 29, module: "M2", ar: "أستطيع تنظيم مهامي ومراجعة أولوياتي عندما تطرأ طلبات أو مسؤوليات جديدة.", en: "I can organize my tasks and review my priorities when new requests or responsibilities arise." },
+        { id: 30, module: "M6", ar: "عندما أُكلف بمهمة، أتابع تنفيذها وأتأكد من تحقيق النتيجة المطلوبة.", en: "When assigned a task, I follow up on its execution and make sure the required result is achieved." },
+        { id: 31, module: "M4", ar: "أستطيع تقديم الملاحظات للآخرين بطريقة واضحة ومحترمة تساعدهم على تحسين أدائهم.", en: "I can provide feedback to others in a clear and respectful way that helps them improve their performance." },
+        { id: 32, module: "M7", ar: "أستطيع التمييز بين الحقائق والآراء والافتراضات عند تحليل أي موقف.", en: "I can distinguish between facts, opinions, and assumptions when analyzing a situation." },
+        { id: 33, module: "M8", ar: "أبحث عن طرق يمكن من خلالها تحويل الموارد المتاحة إلى قيمة أو فرص جديدة.", en: "I look for ways to turn available resources into value or new opportunities." },
+        { id: 34, module: "M5", ar: "عندما أعمل ضمن فريق، أحرص على التعاون وتبادل المسؤوليات لتحقيق النتيجة المطلوبة.", en: "When working in a team, I make an effort to collaborate and share responsibilities to achieve the desired outcome." },
+        { id: 35, module: "M1", ar: "عندما أشعر بالغضب أو الإحباط، أستطيع تأجيل رد فعلي حتى أفكر في التصرف الأنسب.", en: "When I feel angry or frustrated, I can delay my reaction until I consider the most appropriate response." },
+        { id: 36, module: "M3", ar: "أتعامل مع التغييرات والتحديات باعتبارها فرصًا للتعلم واكتساب خبرات جديدة.", en: "I approach changes and challenges as opportunities to learn and gain new experience." },
+        { id: 37, module: "M6", ar: "أستطيع توزيع المهام على الآخرين بما يتناسب مع قدراتهم وخبراتهم، مع متابعة النتائج.", en: "I can delegate tasks according to others' abilities and experience while following up on results." },
+        { id: 38, module: "M2", ar: "أستخدم أدوات أو وسائل تنظيم تساعدني على متابعة مهامي ومواعيدي والتزاماتي.", en: "I use tools or methods to organize and track my tasks, deadlines, and commitments." },
+        { id: 39, module: "M4", ar: "أستطيع التعامل مع اختلاف أساليب التواصل بين الأشخاص وتعديل طريقتي للوصول إلى تفاهم مشترك.", en: "I can handle differences in communication styles and adjust my approach to achieve mutual understanding." },
+        { id: 40, module: "M8", ar: "عندما أواجه مشكلة، أبحث عن حلول تعالج السبب الأساسي ولا تكتفي بمعالجة الأعراض الظاهرة.", en: "When I face a problem, I look for solutions that address the root cause rather than just the visible symptoms." }
+    ];
+
+    const SCALE_OPTIONS = [
+        { val: 1, ar: "أبدًا", en: "Never" },
+        { val: 2, ar: "نادرًا", en: "Rarely" },
+        { val: 3, ar: "أحيانًا", en: "Sometimes" },
+        { val: 4, ar: "غالبًا", en: "Often" },
+        { val: 5, ar: "دائمًا", en: "Always" }
     ];
 
     function renderQuestions() {
         const container = document.getElementById('questionsContainer');
-        questions.forEach((q, index) => {
+        container.innerHTML = questions.map((q, index) => {
             const qNum = index + 1;
-            container.innerHTML += `
-                <div class="question-card">
-                    <div class="question-title">${q.q}</div>
-                    <label class="option-label"><input type="radio" name="q${qNum}" value="a"> <span>أ) ${q.a}</span></label>
-                    <label class="option-label"><input type="radio" name="q${qNum}" value="b"> <span>ب) ${q.b}</span></label>
-                </div>`;
-        });
+            const optionsHtml = SCALE_OPTIONS.map(opt => `
+                <label class="likert-option">
+                    <input type="radio" name="q${q.id}" value="${opt.val}" onchange="markAnswered(${q.id})">
+                    <span class="opt-num">${opt.val}</span>
+                    <span class="opt-ar">${opt.ar}</span>
+                    <span class="opt-en">${opt.en}</span>
+                </label>
+            `).join('');
+
+            return `
+                <div class="question-card" id="card_q${q.id}">
+                    <div class="q-ar">${qNum}. ${q.ar}</div>
+                    <div class="q-en">${qNum}. ${q.en}</div>
+                    <div class="likert-grid">${optionsHtml}</div>
+                </div>
+            `;
+        }).join('');
     }
 
-    function calculateScore() {
+    function markAnswered(qId) {
+        const card = document.getElementById(`card_q${qId}`);
+        if (card) card.classList.remove('unanswered');
+    }
+
+    // تحديد مستوى كل Module (من 25)
+    function getModuleLevel(score) {
+        if (score >= 23) return { ar: "متقدم", en: "Advanced", color: "#059669" };
+        if (score >= 20) return { ar: "جيد", en: "Good", color: "#0284c7" };
+        if (score >= 15) return { ar: "في مرحلة التطور", en: "Developing", color: "#2563eb" };
+        if (score >= 10) return { ar: "يحتاج إلى تطوير", en: "Needs Development", color: "#d97706" };
+        return { ar: "يحتاج إلى تطوير كبير", en: "Significant Development Needed", color: "#dc2626" };
+    }
+
+    // تحديد المستوى العام (من 200)
+    function getOverallLevel(total) {
+        if (total >= 169) return { ar: "متقدم", en: "Advanced", color: "#059669" };
+        if (total >= 137) return { ar: "جيد", en: "Good", color: "#0284c7" };
+        if (total >= 105) return { ar: "في مرحلة التطور", en: "Developing", color: "#2563eb" };
+        if (total >= 73) return { ar: "يحتاج إلى تطوير", en: "Needs Development", color: "#d97706" };
+        return { ar: "يحتاج إلى تطوير كبير", en: "Significant Development Needed", color: "#dc2626" };
+    }
+
+    function calculateAndSave() {
         const name = document.getElementById('userInfoName').value.trim();
         const job = document.getElementById('userInfoJob').value.trim();
         const email = document.getElementById('userInfoEmail').value.trim();
         const whats = document.getElementById('userInfoWhats').value.trim();
+        const phase = document.getElementById('userInfoPhase').value;
 
-        if (!name) return alert("يرجى إدخال الاسم بالكامل أولاً!");
+        if (!name) {
+            document.getElementById('userInfoName').focus();
+            return alert("يرجى إدخال الاسم بالكامل أولاً!");
+        }
 
-        let score = 0;
+        let moduleScores = { M1: 0, M2: 0, M3: 0, M4: 0, M5: 0, M6: 0, M7: 0, M8: 0 };
+        let answersMap = {};
         let answeredCount = 0;
+        let firstUnansweredId = null;
 
-        questions.forEach((q, index) => {
-            const qNum = index + 1;
-            const selected = document.querySelector(`input[name="q${qNum}"]:checked`);
+        questions.forEach(q => {
+            const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
+            const card = document.getElementById(`card_q${q.id}`);
             if (selected) {
+                const val = parseInt(selected.value, 10);
                 answeredCount++;
-                if (selected.value === q.val) score++;
+                moduleScores[q.module] += val;
+                answersMap[`q${q.id}`] = val;
+                card.classList.remove('unanswered');
+            } else {
+                card.classList.add('unanswered');
+                if (!firstUnansweredId) firstUnansweredId = q.id;
             }
         });
 
         if (answeredCount < questions.length) {
-            return alert(`يرجى الإجابة على جميع الأسئلة.\nلقد أجبت على ${answeredCount} من 40.`);
+            document.getElementById(`card_q${firstUnansweredId}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return alert(`يرجى الإجابة على جميع الأسئلة.\nلقد أجبت على ${answeredCount} من 40 سؤالاً.`);
         }
 
-        const percentage = Math.round((score / 40) * 100);
-        let level = "متوسط";
-        if (score >= 32) level = "ممتاز جداً";
-        else if (score >= 24) level = "جيد جداً";
+        const totalScore = Object.values(moduleScores).reduce((sum, v) => sum + v, 0);
+        const percentage = Math.round((totalScore / 200) * 100);
+        const overallLvl = getOverallLevel(totalScore);
+
+        const modulesSummary = {};
+        MODULES.forEach(m => {
+            const sc = moduleScores[m.id];
+            const lvl = getModuleLevel(sc);
+            modulesSummary[m.id] = {
+                score: sc,
+                levelAr: lvl.ar,
+                levelEn: lvl.en
+            };
+        });
 
         const btn = document.getElementById('btnSubmit');
         btn.disabled = true;
-        btn.innerText = "جاري الحفظ بالسحابة...";
+        btn.innerText = "جاري حفظ النتائج في السحابة...";
 
-        // حفظ البيانات في مسار ei_results في Firebase
         const record = {
             name: name,
             job: job,
             email: email,
             whats: whats,
-            score: score,
+            phase: phase,
+            totalScore: totalScore,
             percentage: percentage,
-            level: level,
+            overallLevelAr: overallLvl.ar,
+            overallLevelEn: overallLvl.en,
+            modules: modulesSummary,
+            answers: answersMap,
             date: new Date().toISOString()
         };
 
-        db.ref('ei_results').push(record).then(() => {
-            document.getElementById('eiForm').style.display = 'none';
+        db.ref('tp5_results').push(record).then(() => {
+            document.getElementById('tp5Form').style.display = 'none';
+            document.querySelector('.user-info-box').style.display = 'none';
+            document.querySelector('.intro-box').style.display = 'none';
+
+            document.getElementById('participantSummary').innerText = `المشارك: ${name} | ${phase}`;
+            document.getElementById('finalScoreBadge').innerText = `الدرجة الإجمالية: ${totalScore} / 200 (${percentage}%)`;
+            document.getElementById('overallLevelBadge').innerHTML = `المستوى العام: <span class="lvl-badge" style="background:${overallLvl.color}; font-size:0.95rem;">${overallLvl.ar} (${overallLvl.en})</span>`;
+
+            const tbody = document.getElementById('modulesResultBody');
+            tbody.innerHTML = MODULES.map(m => {
+                const sc = moduleScores[m.id];
+                const lvl = getModuleLevel(sc);
+                return `
+                    <tr>
+                        <td><strong>${m.name}</strong><br><span style="font-size:0.8rem; color:#64748b;">${m.ar}</span></td>
+                        <td style="text-align:center; font-weight:800; font-size:1rem;">${sc} / 25</td>
+                        <td style="text-align:center;"><span class="lvl-badge" style="background:${lvl.color}">${lvl.ar} (${lvl.en})</span></td>
+                    </tr>
+                `;
+            }).join('');
+
             const resultBox = document.getElementById('resultBox');
-            document.getElementById('scoreText').innerHTML = `درجتك هي: <strong>${score}</strong> من 40 (النسبة المئوية: <strong>${percentage}%</strong>)`;
-            document.getElementById('feedbackText').textContent = `التقييم العام: ${level}`;
             resultBox.style.display = 'block';
+            resultBox.scrollIntoView({ behavior: 'smooth' });
         }).catch(err => {
-            alert("حدث خطأ أثناء الحفظ في قاعدة البيانات!");
+            console.error(err);
+            alert("حدث خطأ أثناء الاتصال بقاعدة البيانات!");
             btn.disabled = false;
             btn.innerText = "حفظ وإرسال التقييم";
         });
