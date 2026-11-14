@@ -20,7 +20,7 @@
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); color: var(--ink);
     min-height: 100vh; margin: 0; padding: 0; direction: rtl;
   }
-  .wrap { max-width: 1280px; margin: 0 auto; padding: 25px 15px 60px; }
+  .wrap { max-width: 1380px; margin: 0 auto; padding: 25px 15px 60px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 25px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
   h1 { font-size: 1.3rem; margin: 0 0 6px; color: var(--primary); font-weight: 800; }
   .sub { color: var(--muted); font-size: 0.85rem; margin: 0 0 15px; }
@@ -67,10 +67,12 @@
     display: flex; align-items: center; justify-content: center; padding: 15px; z-index: 50;
   }
   .modal-card {
-    background: #fff; border-radius: 16px; max-width: 720px; width: 100%; max-height: 90vh;
+    background: #fff; border-radius: 16px; max-width: 760px; width: 100%; max-height: 90vh;
     overflow-y: auto; padding: 24px; box-shadow: 0 20px 35px rgba(0,0,0,0.2);
   }
-  .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--line); padding-bottom: 12px; margin-bottom: 16px; }
+  .modal-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1.5px solid var(--line); padding-bottom: 12px; margin-bottom: 16px; gap: 10px; }
+  .info-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .info-chip { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 3px 10px; border-radius: 6px; font-size: 0.78rem; color: #334155; font-weight: 600; }
   .modal-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; white-space: normal; }
   .modal-table th { background: #f1f5f9; color: #0f172a; padding: 10px; text-align: right; position: static; }
   .modal-table td { padding: 9px 10px; border-bottom: 1px solid var(--line); }
@@ -98,7 +100,7 @@
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
         <div>
-          <h1>لوحة نتائج التقييم المبدئي والبعدي (TP5) <span class="live-indicator"><span class="dot"></span> متصل حياً بـ Firebase</span></h1>
+          <h1>لوحة نتائج التقييم المبدئي والبعدي (TP5) <span class="live-indicator"><span class="dot"></span> متصل حياً</span></h1>
           <p class="sub" id="syncDetails" style="margin:0;">جاري مزامنة السحابة...</p>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -112,7 +114,7 @@
 
       <!-- أدوات البحث والفلترة -->
       <div class="filters-bar">
-        <input type="text" id="in-search" placeholder="بحث بالاسم، الوظيفة، أو البريد الإلكتروني..." oninput="renderTable()">
+        <input type="text" id="in-search" placeholder="بحث بالاسم، الجامعة، الكلية، الشركة، الوظيفة، أو الإيميل..." oninput="renderTable()">
         <select id="filter-phase" onchange="renderTable()">
           <option value="">كل المراحل (قبلي / بعدي)</option>
           <option value="Pre-Assessment">تقييم قبلي (Pre)</option>
@@ -134,9 +136,11 @@
           <thead>
             <tr>
               <th>التاريخ</th>
-              <th>الاسم</th>
+              <th>الاسم (Name)</th>
               <th>المرحلة</th>
-              <th>الوظيفة</th>
+              <th>الجامعة / الكلية</th>
+              <th>الوظيفة / الشركة</th>
+              <th>التواصل</th>
               <th>الإجمالي (200)</th>
               <th>المستوى العام</th>
               <th>M1</th>
@@ -164,7 +168,7 @@
     <div class="modal-header">
       <div>
         <h2 id="modalTitle" style="margin:0; font-size:1.15rem; color:var(--primary);"></h2>
-        <p id="modalSub" style="margin:4px 0 0; font-size:0.82rem; color:var(--muted);"></p>
+        <div class="info-chips" id="modalChips"></div>
       </div>
       <button class="btn btn-ghost btn-sm" onclick="closeModal()"><i class="fas fa-times"></i> إغلاق</button>
     </div>
@@ -249,7 +253,8 @@
     const levelFilter = document.getElementById('filter-level').value;
 
     const filtered = globalData.filter(r => {
-      const matchText = ((r.name || '') + ' ' + (r.job || '') + ' ' + (r.email || '')).toLowerCase().includes(q);
+      const searchable = [r.name, r.university, r.faculty, r.title, r.job, r.company, r.email, r.whats].filter(Boolean).join(' ').toLowerCase();
+      const matchText = searchable.includes(q);
       const matchPhase = !phaseFilter || (r.phase || '').includes(phaseFilter);
       const matchLevel = !levelFilter || r.level === levelFilter;
       return matchText && matchPhase && matchLevel;
@@ -266,12 +271,19 @@
         return `<td><span class="mod-pill">${sc}/25</span></td>`;
       }).join('');
 
+      const jobTitle = r.title || r.job || '-';
+      const companyName = r.company || '-';
+      const uniName = r.university || '-';
+      const facName = r.faculty || '-';
+
       return `
         <tr>
           <td>${r.date ? new Date(r.date).toLocaleDateString('ar-EG') : '-'}</td>
-          <td><b>${r.name || 'بدون اسم'}</b><br><span style="font-size:0.74rem; color:#64748b;">${r.whats || r.email || ''}</span></td>
+          <td><b>${r.name || 'بدون اسم'}</b></td>
           <td>${(r.phase || '').includes('Post') ? 'بعدي (Post)' : 'قبلي (Pre)'}</td>
-          <td>${r.job || '-'}</td>
+          <td><b>${uniName}</b><br><span style="font-size:0.74rem; color:#64748b;">${facName}</span></td>
+          <td><b>${jobTitle}</b><br><span style="font-size:0.74rem; color:#64748b;">${companyName}</span></td>
+          <td><span style="font-size:0.78rem;">${r.whats || '-'}</span><br><span style="font-size:0.74rem; color:#64748b;">${r.email || '-'}</span></td>
           <td><b>${r.score || 0}</b> / 200 (${r.percentage || 0}%)</td>
           <td><span class="badge-level" style="background:${badgeBg}">${r.level || '-'}</span></td>
           ${mCells}
@@ -305,7 +317,15 @@
     if (!rec) return;
 
     document.getElementById('modalTitle').innerText = `تقرير تقييم: ${rec.name}`;
-    document.getElementById('modalSub').innerText = `الوظيفة: ${rec.job || '-'} | المرحلة: ${rec.phase || '-'} | الإيميل: ${rec.email || '-'} | الواتساب: ${rec.whats || '-'}`;
+    document.getElementById('modalChips').innerHTML = `
+      <span class="info-chip"><i class="fas fa-university"></i> ${rec.university || '-'}</span>
+      <span class="info-chip"><i class="fas fa-graduation-cap"></i> ${rec.faculty || '-'}</span>
+      <span class="info-chip"><i class="fas fa-briefcase"></i> ${rec.title || rec.job || '-'}</span>
+      <span class="info-chip"><i class="fas fa-building"></i> ${rec.company || '-'}</span>
+      <span class="info-chip"><i class="fab fa-whatsapp"></i> ${rec.whats || '-'}</span>
+      <span class="info-chip"><i class="fas fa-envelope"></i> ${rec.email || '-'}</span>
+      <span class="info-chip"><i class="fas fa-layer-group"></i> ${rec.phase || '-'}</span>
+    `;
 
     const mods = rec.modules || {};
     const overallBg = getBadgeColor(rec.level);
@@ -359,16 +379,16 @@
     if (!globalData.length) return alert('لا توجد بيانات لتصديرها');
 
     let headers = [
-      "التاريخ", "الاسم", "المرحلة", "الوظيفة", "الإيميل", "الواتس",
-      "الدرجة (من 200)", "النسبة المئوية", "التقييم",
-      "M1 الدرجة", "M1 المستوى",
-      "M2 الدرجة", "M2 المستوى",
-      "M3 الدرجة", "M3 المستوى",
-      "M4 الدرجة", "M4 المستوى",
-      "M5 الدرجة", "M5 المستوى",
-      "M6 الدرجة", "M6 المستوى",
-      "M7 الدرجة", "M7 المستوى",
-      "M8 الدرجة", "M8 المستوى"
+      "Date", "Name", "University", "Faculty", "Title", "Company", "WhatsApp", "E-Mail", "Phase",
+      "Score (200)", "Percentage", "Overall Level",
+      "M1 Score", "M1 Level",
+      "M2 Score", "M2 Level",
+      "M3 Score", "M3 Level",
+      "M4 Score", "M4 Level",
+      "M5 Score", "M5 Level",
+      "M6 Score", "M6 Level",
+      "M7 Score", "M7 Level",
+      "M8 Score", "M8 Level"
     ];
 
     let csv = "\uFEFF" + headers.join(",") + "\n";
@@ -378,10 +398,13 @@
       const row = [
         `"${r.date ? new Date(r.date).toLocaleString('ar-EG') : ''}"`,
         `"${r.name || ''}"`,
-        `"${r.phase || ''}"`,
-        `"${r.job || ''}"`,
-        `"${r.email || ''}"`,
+        `"${r.university || ''}"`,
+        `"${r.faculty || ''}"`,
+        `"${r.title || r.job || ''}"`,
+        `"${r.company || ''}"`,
         `"${r.whats || ''}"`,
+        `"${r.email || ''}"`,
+        `"${r.phase || ''}"`,
         r.score || 0,
         `"${r.percentage || 0}%"`,
         `"${r.level || ''}"`,
