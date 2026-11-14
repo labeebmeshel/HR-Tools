@@ -26,19 +26,44 @@
         .container { max-width: 900px; margin: 0 auto; background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
         
         h1 { color: var(--primary); text-align: center; margin-bottom: 4px; font-size: 1.65rem; font-weight: 800; }
-        .subtitle-en { text-align: center; color: #64748b; font-size: 0.95rem; font-weight: 700; margin-bottom: 18px; }
+        .subtitle-en { text-align: center; color: #64748b; font-size: 0.95rem; font-weight: 700; margin-bottom: 20px; }
+
+        /* شريط الخطوات */
+        .stepper { display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 25px; }
+        .step-item { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; background: #f1f5f9; color: #64748b; border: 1.5px solid var(--border); }
+        .step-item.active { background: #eff6ff; color: var(--primary); border-color: var(--primary); }
+        .step-item.done { background: #ecfdf5; color: #059669; border-color: #10b981; }
         
+        /* الصفحة الأولى: بيانات المشارك */
         .user-info-box {
-            background: #f8fafc; border: 1.5px solid var(--border); padding: 20px; border-radius: 12px; margin-bottom: 22px;
+            background: #f8fafc; border: 1.5px solid var(--border); padding: 25px; border-radius: 14px;
         }
-        .user-info-box h3 { margin-bottom: 12px; font-size: 1rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .form-input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; background: #fff; }
-        .form-input:focus { border-color: var(--primary); }
+        .user-info-box h3 { margin-bottom: 6px; font-size: 1.1rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .user-info-desc { font-size: 0.85rem; color: #64748b; margin-bottom: 18px; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .field-group { display: flex; flex-direction: column; gap: 5px; }
+        .field-group.full-width { grid-column: span 2; }
+        .field-label { font-size: 0.85rem; font-weight: 700; color: #1e293b; display: flex; justify-content: space-between; }
+        .field-label span.en { color: #64748b; font-size: 0.8rem; }
+        .req-star { color: #dc2626; font-weight: 800; }
+
+        .form-input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.92rem; outline: none; background: #fff; transition: 0.2s; }
+        .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(11, 79, 179, 0.1); }
 
         .intro-box { background-color: #eff6ff; border-right: 4px solid var(--primary); padding: 16px 18px; border-radius: 8px; margin-bottom: 24px; font-size: 0.9rem; }
         .scale-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .scale-badge { background: #fff; border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #1e3a8a; }
+
+        .participant-banner {
+            background: #f1f5f9; border: 1px solid var(--border); padding: 12px 16px; border-radius: 10px;
+            margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 0.85rem;
+        }
+        .btn-edit-info {
+            background: #fff; border: 1px solid var(--primary); color: var(--primary); padding: 5px 12px;
+            border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer;
+        }
+        .btn-edit-info:hover { background: #eff6ff; }
 
         .question-card { border: 1.5px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; background: #fff; transition: 0.2s; }
         .question-card:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(11, 79, 179, 0.06); }
@@ -60,11 +85,13 @@
         .opt-ar { font-size: 0.82rem; font-weight: 700; }
         .opt-en { font-size: 0.72rem; color: #64748b; }
 
-        .submit-btn { display: block; width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 25px; transition: 0.25s; }
+        .submit-btn { display: block; width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1.05rem; font-weight: bold; cursor: pointer; margin-top: 22px; transition: 0.25s; }
         .submit-btn:hover { background-color: var(--primary-dark); }
         .submit-btn:disabled { background-color: #94a3b8; cursor: not-allowed; }
 
-        #resultBox { display: none; margin-top: 20px; padding: 25px; border-radius: 14px; background: #f8fafc; border: 2px solid #0284c7; }
+        .hidden { display: none !important; }
+
+        #resultBox { display: none; margin-top: 10px; padding: 25px; border-radius: 14px; background: #f8fafc; border: 2px solid #0284c7; }
         .result-header { text-align: center; padding-bottom: 18px; border-bottom: 1.5px solid #cbd5e1; margin-bottom: 20px; }
         .result-header h2 { color: #0369a1; margin-bottom: 8px; font-size: 1.4rem; }
         .final-score-pill { display: inline-block; background: var(--primary); color: #fff; padding: 8px 22px; border-radius: 999px; font-size: 1.15rem; font-weight: 800; margin: 8px 0; }
@@ -76,6 +103,7 @@
 
         @media (max-width: 650px) {
             .form-grid { grid-template-columns: 1fr; }
+            .field-group.full-width { grid-column: span 1; }
             .likert-grid { grid-template-columns: 1fr; }
             .likert-option { flex-direction: row; justify-content: space-between; padding: 10px 14px; }
             .likert-option input[type="radio"] { margin-bottom: 0; margin-left: 8px; }
@@ -87,38 +115,125 @@
 <div class="container">
     <h1><i class="fas fa-clipboard-check"></i> التقييم المبدئي للمهارات الشخصية والمهنية</h1>
     <div class="subtitle-en">TP5 – Soft Skills Initial Assessment</div>
-    
-    <div class="intro-box">
-        <p><strong>تعليمات الإجابة:</strong> يتكون التقييم من <strong>40 عبارة</strong> تقيس مهاراتك الشخصية والمهنية في بيئة العمل. يرجى اختيار درجة واحدة لكل عبارة من <strong>1 إلى 5</strong> حسب مدى انطباقها على سلوكك الفعلي:</p>
-        <div class="scale-legend">
-            <span class="scale-badge">1 = أبدًا (Never)</span>
-            <span class="scale-badge">2 = نادرًا (Rarely)</span>
-            <span class="scale-badge">3 = أحيانًا (Sometimes)</span>
-            <span class="scale-badge">4 = غالبًا (Often)</span>
-            <span class="scale-badge">5 = دائمًا (Always)</span>
-        </div>
+
+    <!-- شريط التنقل بين الصفحات -->
+    <div class="stepper" id="stepperBar">
+        <div class="step-item active" id="step1Indicator"><i class="fas fa-user-edit"></i> 1. البيانات الأساسية</div>
+        <i class="fas fa-chevron-left" style="color:#94a3b8; font-size:0.8rem;"></i>
+        <div class="step-item" id="step2Indicator"><i class="fas fa-list-check"></i> 2. أسئلة التقييم (40 سؤال)</div>
     </div>
 
-    <!-- بيانات المشارك -->
-    <div class="user-info-box">
-        <h3><i class="fas fa-id-card"></i> بيانات المشارك في الاختبار:</h3>
-        <div class="form-grid">
-            <input type="text" id="userInfoName" class="form-input" placeholder="الاسم بالكامل *" required>
-            <input type="text" id="userInfoJob" class="form-input" placeholder="المسمى الوظيفي">
-            <input type="email" id="userInfoEmail" class="form-input" placeholder="البريد الإلكتروني">
-            <input type="tel" id="userInfoWhats" class="form-input" placeholder="رقم الواتساب">
-            <select id="userInfoPhase" class="form-input" style="grid-column: span 2;">
-                <option value="Pre-Assessment (قبلي)">مرحلة التقييم: تقييم قبلي (Pre-Assessment)</option>
-                <option value="Post-Assessment (بعدي)">مرحلة التقييم: تقييم بعدي (Post-Assessment)</option>
-            </select>
-        </div>
+    <!-- الصفحة الأولى: البيانات الأساسية الإجبارية -->
+    <div id="page1Section">
+        <form id="infoForm" onsubmit="goToQuestionsPage(event)" class="user-info-box">
+            <h3><i class="fas fa-id-card"></i> البيانات الأساسية للمشارك (جميع الحقول إجبارية)</h3>
+            <p class="user-info-desc">يرجى استكمال كافة البيانات التالية بدقة للانتقال إلى صفحة أسئلة التقييم:</p>
+
+            <div class="form-grid">
+                <div class="field-group full-width">
+                    <label class="field-label">
+                        <span>الاسم بالكامل <span class="req-star">*</span></span>
+                        <span class="en">Name</span>
+                    </label>
+                    <input type="text" id="userInfoName" class="form-input" placeholder="أدخل الاسم رباعي / Full Name" required>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">
+                        <span>الجامعة <span class="req-star">*</span></span>
+                        <span class="en">University</span>
+                    </label>
+                    <input type="text" id="userInfoUniversity" class="form-input" placeholder="اسم الجامعة / University" required>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">
+                        <span>الكلية <span class="req-star">*</span></span>
+                        <span class="en">Faculty</span>
+                    </label>
+                    <input type="text" id="userInfoFaculty" class="form-input" placeholder="اسم الكلية / Faculty" required>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">
+                        <span>المسمى الوظيفي <span class="req-star">*</span></span>
+                        <span class="en">Title</span>
+                    </label>
+                    <input type="text" id="userInfoTitle" class="form-input" placeholder="المسمى الوظيفي / Job Title" required>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">
+                        <span>الشركة / جهة العمل <span class="req-star">*</span></span>
+                        <span class="en">Company</span>
+                    </label>
+                    <input type="text" id="userInfoCompany" class="form-input" placeholder="اسم الشركة أو المؤسسة / Company" required>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">
+                        <span>رقم الواتساب <span class="req-star">*</span></span>
+                        <span class="en">WhatsApp</span>
+                    </label>
+                    <input type="tel" id="userInfoWhats" class="form-input" placeholder="01xxxxxxxxx" required>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">
+                        <span>البريد الإلكتروني <span class="req-star">*</span></span>
+                        <span class="en">E-Mail</span>
+                    </label>
+                    <input type="email" id="userInfoEmail" class="form-input" placeholder="example@domain.com" required>
+                </div>
+
+                <div class="field-group full-width">
+                    <label class="field-label">
+                        <span>مرحلة التقييم <span class="req-star">*</span></span>
+                        <span class="en">Assessment Phase</span>
+                    </label>
+                    <select id="userInfoPhase" class="form-input" required>
+                        <option value="Pre-Assessment (قبلي)">تقييم قبلي (Pre-Assessment)</option>
+                        <option value="Post-Assessment (بعدي)">تقييم بعدي (Post-Assessment)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                التالي: الانتقال إلى أسئلة التقييم <i class="fas fa-arrow-left" style="margin-right:8px;"></i>
+            </button>
+        </form>
     </div>
 
-    <form id="eiForm">
-        <div id="questionsContainer"></div>
-        <button type="button" class="submit-btn" id="btnSubmit" onclick="calculateScore()">حفظ وإرسال التقييم</button>
-    </form>
+    <!-- الصفحة الثانية: الأسئلة -->
+    <div id="page2Section" class="hidden">
+        <div class="participant-banner">
+            <div>
+                <strong id="bannerName" style="color:var(--primary);"></strong>
+                <span id="bannerDetails" style="color:#475569; margin-right:8px;"></span>
+            </div>
+            <button type="button" class="btn-edit-info" onclick="backToInfoPage()">
+                <i class="fas fa-pen"></i> تعديل البيانات
+            </button>
+        </div>
 
+        <div class="intro-box">
+            <p><strong>تعليمات الإجابة:</strong> يتكون التقييم من <strong>40 عبارة</strong> تقيس مهاراتك الشخصية والمهنية في بيئة العمل. يرجى اختيار درجة واحدة لكل عبارة من <strong>1 إلى 5</strong> حسب مدى انطباقها على سلوكك الفعلي:</p>
+            <div class="scale-legend">
+                <span class="scale-badge">1 = أبدًا (Never)</span>
+                <span class="scale-badge">2 = نادرًا (Rarely)</span>
+                <span class="scale-badge">3 = أحيانًا (Sometimes)</span>
+                <span class="scale-badge">4 = غالبًا (Often)</span>
+                <span class="scale-badge">5 = دائمًا (Always)</span>
+            </div>
+        </div>
+
+        <form id="eiForm">
+            <div id="questionsContainer"></div>
+            <button type="button" class="submit-btn" id="btnSubmit" onclick="calculateScore()">حفظ وإرسال التقييم</button>
+        </form>
+    </div>
+
+    <!-- صفحة النتيجة النهائية -->
     <div id="resultBox">
         <div class="result-header">
             <h2><i class="fas fa-check-circle"></i> تم إرسال نتيجة التقييم بنجاح</h2>
@@ -141,7 +256,6 @@
 </div>
 
 <script>
-    // تهيئة Firebase بنفس الإعدادات
     const firebaseConfig = {
       apiKey: "AIzaSyCVQ7OIVjfajk3MpFFB_DJpOo8tswCk6eM",
       authDomain: "smart-charter-disc-7d1e5.firebaseapp.com",
@@ -168,7 +282,6 @@
         { id: "M8", name: "M8 – Creativity, Innovation & Green-Sector Opportunities", ar: "الإبداع والابتكار وفرص القطاع الأخضر" }
     ];
 
-    // الـ 40 سؤالاً المختلطة (5 أسئلة لكل Module، متضمنة تصحيح M1)
     const questions = [
         { id: 1, module: "M7", ar: "عندما أواجه مشكلة في العمل، أحاول فهم أسبابها الحقيقية قبل البحث عن الحلول.", en: "When I face a workplace problem, I try to understand its root causes before looking for solutions." },
         { id: 2, module: "M5", ar: "أحرص على مشاركة زملائي المعلومات والخبرات التي تساعدنا على تحقيق أهداف مشتركة.", en: "I make an effort to share information and knowledge with colleagues to achieve common goals." },
@@ -243,6 +356,45 @@
         }).join('');
     }
 
+    function goToQuestionsPage(e) {
+        e.preventDefault();
+
+        const name = document.getElementById('userInfoName').value.trim();
+        const university = document.getElementById('userInfoUniversity').value.trim();
+        const faculty = document.getElementById('userInfoFaculty').value.trim();
+        const title = document.getElementById('userInfoTitle').value.trim();
+        const company = document.getElementById('userInfoCompany').value.trim();
+        const whats = document.getElementById('userInfoWhats').value.trim();
+        const email = document.getElementById('userInfoEmail').value.trim();
+
+        if (!name || !university || !faculty || !title || !company || !whats || !email) {
+            return alert("يرجى استكمال جميع الحقول الإجبارية قبل الانتقال إلى الأسئلة!");
+        }
+
+        document.getElementById('bannerName').innerText = name;
+        document.getElementById('bannerDetails').innerText = `(${title} - ${company} | ${university} - ${faculty})`;
+
+        document.getElementById('page1Section').classList.add('hidden');
+        document.getElementById('page2Section').classList.remove('hidden');
+
+        document.getElementById('step1Indicator').classList.remove('active');
+        document.getElementById('step1Indicator').classList.add('done');
+        document.getElementById('step2Indicator').classList.add('active');
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function backToInfoPage() {
+        document.getElementById('page2Section').classList.add('hidden');
+        document.getElementById('page1Section').classList.remove('hidden');
+
+        document.getElementById('step2Indicator').classList.remove('active');
+        document.getElementById('step1Indicator').classList.remove('done');
+        document.getElementById('step1Indicator').classList.add('active');
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     function markAnswered(qId) {
         const card = document.getElementById(`card_q${qId}`);
         if (card) card.classList.remove('unanswered');
@@ -266,14 +418,17 @@
 
     function calculateScore() {
         const name = document.getElementById('userInfoName').value.trim();
-        const job = document.getElementById('userInfoJob').value.trim();
-        const email = document.getElementById('userInfoEmail').value.trim();
+        const university = document.getElementById('userInfoUniversity').value.trim();
+        const faculty = document.getElementById('userInfoFaculty').value.trim();
+        const title = document.getElementById('userInfoTitle').value.trim();
+        const company = document.getElementById('userInfoCompany').value.trim();
         const whats = document.getElementById('userInfoWhats').value.trim();
+        const email = document.getElementById('userInfoEmail').value.trim();
         const phase = document.getElementById('userInfoPhase').value;
 
-        if (!name) {
-            document.getElementById('userInfoName').focus();
-            return alert("يرجى إدخال الاسم بالكامل أولاً!");
+        if (!name || !university || !faculty || !title || !company || !whats || !email) {
+            backToInfoPage();
+            return alert("يرجى استكمال كافة البيانات الأساسية أولاً!");
         }
 
         let moduleScores = { M1: 0, M2: 0, M3: 0, M4: 0, M5: 0, M6: 0, M7: 0, M8: 0 };
@@ -320,12 +475,15 @@
         btn.disabled = true;
         btn.innerText = "جاري الحفظ بالسحابة...";
 
-        // الحفظ في نفس مسار ei_results وبنفس أسماء الحقول الأساسية
         const record = {
             name: name,
-            job: job,
-            email: email,
+            university: university,
+            faculty: faculty,
+            title: title,
+            job: title,
+            company: company,
             whats: whats,
+            email: email,
             phase: phase,
             score: score,
             percentage: percentage,
@@ -337,11 +495,10 @@
         };
 
         db.ref('ei_results').push(record).then(() => {
-            document.getElementById('eiForm').style.display = 'none';
-            document.querySelector('.user-info-box').style.display = 'none';
-            document.querySelector('.intro-box').style.display = 'none';
+            document.getElementById('page2Section').classList.add('hidden');
+            document.getElementById('stepperBar').classList.add('hidden');
 
-            document.getElementById('participantSummary').innerText = `المشارك: ${name} | ${phase}`;
+            document.getElementById('participantSummary').innerText = `${name} | ${title} - ${company} | ${university} (${faculty}) | ${phase}`;
             document.getElementById('scoreText').innerHTML = `درجتك هي: <strong>${score}</strong> من 200 (النسبة المئوية: <strong>${percentage}%</strong>)`;
             document.getElementById('feedbackText').innerHTML = `التقييم العام: <span class="lvl-badge" style="background:${overallLvl.color}; font-size:0.95rem;">${overallLvl.ar} (${overallLvl.en})</span>`;
 
