@@ -64,7 +64,6 @@
         .submit-btn:hover { background-color: var(--primary-dark); }
         .submit-btn:disabled { background-color: #94a3b8; cursor: not-allowed; }
 
-        /* صندوق النتيجة النهائية */
         #resultBox { display: none; margin-top: 20px; padding: 25px; border-radius: 14px; background: #f8fafc; border: 2px solid #0284c7; }
         .result-header { text-align: center; padding-bottom: 18px; border-bottom: 1.5px solid #cbd5e1; margin-bottom: 20px; }
         .result-header h2 { color: #0369a1; margin-bottom: 8px; font-size: 1.4rem; }
@@ -102,10 +101,10 @@
 
     <!-- بيانات المشارك -->
     <div class="user-info-box">
-        <h3><i class="fas fa-id-card"></i> بيانات المشارك في التقييم:</h3>
+        <h3><i class="fas fa-id-card"></i> بيانات المشارك في الاختبار:</h3>
         <div class="form-grid">
             <input type="text" id="userInfoName" class="form-input" placeholder="الاسم بالكامل *" required>
-            <input type="text" id="userInfoJob" class="form-input" placeholder="المسمى الوظيفي / التخصص">
+            <input type="text" id="userInfoJob" class="form-input" placeholder="المسمى الوظيفي">
             <input type="email" id="userInfoEmail" class="form-input" placeholder="البريد الإلكتروني">
             <input type="tel" id="userInfoWhats" class="form-input" placeholder="رقم الواتساب">
             <select id="userInfoPhase" class="form-input" style="grid-column: span 2;">
@@ -115,18 +114,17 @@
         </div>
     </div>
 
-    <form id="tp5Form">
+    <form id="eiForm">
         <div id="questionsContainer"></div>
-        <button type="button" class="submit-btn" id="btnSubmit" onclick="calculateAndSave()">حفظ وإرسال التقييم</button>
+        <button type="button" class="submit-btn" id="btnSubmit" onclick="calculateScore()">حفظ وإرسال التقييم</button>
     </form>
 
-    <!-- عرض النتيجة التفصيلية للمشارك بعد الإرسال -->
     <div id="resultBox">
         <div class="result-header">
-            <h2><i class="fas fa-check-circle"></i> تم حفظ وإرسال التقييم بنجاح</h2>
+            <h2><i class="fas fa-check-circle"></i> تم إرسال نتيجة التقييم بنجاح</h2>
             <p id="participantSummary" style="color:#475569; font-weight:600;"></p>
-            <div class="final-score-pill" id="finalScoreBadge"></div>
-            <div id="overallLevelBadge" style="margin-top:6px; font-weight:800; font-size:1.05rem;"></div>
+            <div class="final-score-pill" id="scoreText"></div>
+            <div id="feedbackText" style="margin-top: 8px; font-weight: bold;"></div>
         </div>
 
         <table class="result-table">
@@ -143,7 +141,7 @@
 </div>
 
 <script>
-    // تهيئة Firebase بنفس إعدادات المنظومة
+    // تهيئة Firebase بنفس الإعدادات
     const firebaseConfig = {
       apiKey: "AIzaSyCVQ7OIVjfajk3MpFFB_DJpOo8tswCk6eM",
       authDomain: "smart-charter-disc-7d1e5.firebaseapp.com",
@@ -159,7 +157,6 @@
     }
     const db = firebase.database();
 
-    // تعريف المحاور الثمانية (Modules)
     const MODULES = [
         { id: "M1", name: "M1 – Self-Awareness & Emotional Intelligence", ar: "الوعي الذاتي والذكاء العاطفي" },
         { id: "M2", name: "M2 – Time Management & Task Prioritization", ar: "إدارة الوقت وترتيب الأولويات" },
@@ -251,7 +248,6 @@
         if (card) card.classList.remove('unanswered');
     }
 
-    // تحديد مستوى كل Module (من 25)
     function getModuleLevel(score) {
         if (score >= 23) return { ar: "متقدم", en: "Advanced", color: "#059669" };
         if (score >= 20) return { ar: "جيد", en: "Good", color: "#0284c7" };
@@ -260,7 +256,6 @@
         return { ar: "يحتاج إلى تطوير كبير", en: "Significant Development Needed", color: "#dc2626" };
     }
 
-    // تحديد المستوى العام (من 200)
     function getOverallLevel(total) {
         if (total >= 169) return { ar: "متقدم", en: "Advanced", color: "#059669" };
         if (total >= 137) return { ar: "جيد", en: "Good", color: "#0284c7" };
@@ -269,7 +264,7 @@
         return { ar: "يحتاج إلى تطوير كبير", en: "Significant Development Needed", color: "#dc2626" };
     }
 
-    function calculateAndSave() {
+    function calculateScore() {
         const name = document.getElementById('userInfoName').value.trim();
         const job = document.getElementById('userInfoJob').value.trim();
         const email = document.getElementById('userInfoEmail').value.trim();
@@ -306,9 +301,9 @@
             return alert(`يرجى الإجابة على جميع الأسئلة.\nلقد أجبت على ${answeredCount} من 40 سؤالاً.`);
         }
 
-        const totalScore = Object.values(moduleScores).reduce((sum, v) => sum + v, 0);
-        const percentage = Math.round((totalScore / 200) * 100);
-        const overallLvl = getOverallLevel(totalScore);
+        const score = Object.values(moduleScores).reduce((sum, v) => sum + v, 0);
+        const percentage = Math.round((score / 200) * 100);
+        const overallLvl = getOverallLevel(score);
 
         const modulesSummary = {};
         MODULES.forEach(m => {
@@ -323,31 +318,32 @@
 
         const btn = document.getElementById('btnSubmit');
         btn.disabled = true;
-        btn.innerText = "جاري حفظ النتائج في السحابة...";
+        btn.innerText = "جاري الحفظ بالسحابة...";
 
+        // الحفظ في نفس مسار ei_results وبنفس أسماء الحقول الأساسية
         const record = {
             name: name,
             job: job,
             email: email,
             whats: whats,
             phase: phase,
-            totalScore: totalScore,
+            score: score,
             percentage: percentage,
-            overallLevelAr: overallLvl.ar,
-            overallLevelEn: overallLvl.en,
+            level: overallLvl.ar,
+            levelEn: overallLvl.en,
             modules: modulesSummary,
             answers: answersMap,
             date: new Date().toISOString()
         };
 
-        db.ref('tp5_results').push(record).then(() => {
-            document.getElementById('tp5Form').style.display = 'none';
+        db.ref('ei_results').push(record).then(() => {
+            document.getElementById('eiForm').style.display = 'none';
             document.querySelector('.user-info-box').style.display = 'none';
             document.querySelector('.intro-box').style.display = 'none';
 
             document.getElementById('participantSummary').innerText = `المشارك: ${name} | ${phase}`;
-            document.getElementById('finalScoreBadge').innerText = `الدرجة الإجمالية: ${totalScore} / 200 (${percentage}%)`;
-            document.getElementById('overallLevelBadge').innerHTML = `المستوى العام: <span class="lvl-badge" style="background:${overallLvl.color}; font-size:0.95rem;">${overallLvl.ar} (${overallLvl.en})</span>`;
+            document.getElementById('scoreText').innerHTML = `درجتك هي: <strong>${score}</strong> من 200 (النسبة المئوية: <strong>${percentage}%</strong>)`;
+            document.getElementById('feedbackText').innerHTML = `التقييم العام: <span class="lvl-badge" style="background:${overallLvl.color}; font-size:0.95rem;">${overallLvl.ar} (${overallLvl.en})</span>`;
 
             const tbody = document.getElementById('modulesResultBody');
             tbody.innerHTML = MODULES.map(m => {
@@ -367,7 +363,7 @@
             resultBox.scrollIntoView({ behavior: 'smooth' });
         }).catch(err => {
             console.error(err);
-            alert("حدث خطأ أثناء الاتصال بقاعدة البيانات!");
+            alert("حدث خطأ أثناء الحفظ في قاعدة البيانات!");
             btn.disabled = false;
             btn.innerText = "حفظ وإرسال التقييم";
         });
